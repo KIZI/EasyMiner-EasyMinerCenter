@@ -6,6 +6,3 @@ temp/*
 !.gitignore
 !.htaccess
 !web.config
-
-
-.idea/workspace.xml
