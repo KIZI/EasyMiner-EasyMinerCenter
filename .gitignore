@@ -1,8 +1,11 @@
 log/*
 temp/*
+.idea/*
 
 .DS_Store
 !.gitignore
 !.htaccess
 !web.config
 
+
+.idea/workspace.xml
