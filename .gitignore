@@ -1,0 +1,8 @@
+log/*
+temp/*
+
+.DS_Store
+!.gitignore
+!.htaccess
+!web.config
+
