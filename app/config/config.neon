@@ -1,0 +1,35 @@
+#
+# SECURITY WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+# If you don't protect this directory from direct web access, anybody will be able to see your passwords.
+# http://nette.org/security-warning
+#
+parameters:
+	arc2:
+		db_name: 'easyminer_core'
+		db_user: 'root'
+		db_pwd: ''
+		store_name: 'easyminerkb'
+		max_errors: 100
+
+php:
+	date.timezone: Europe/Prague
+
+
+nette:
+	application:
+		errorPresenter: Error
+		mapping:
+			*: App\*Module\Presenters\*Presenter
+
+	session:
+		expiration: 14 days
+
+
+services:
+	- App\Model\UserManager
+	- App\RouterFactory
+	router: @App\RouterFactory::createRouter
+	arc2Store: \ARC2::getStore(%arc2%)
+	knowledgeRepository: App\Model\Rdf\Repositories\KnowledgeRepository(@arc2Store)
+	xmlSerializer: App\Model\XmlSerializer
