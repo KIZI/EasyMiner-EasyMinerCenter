@@ -18,6 +18,14 @@ abstract class BaseEntity extends Object{
   /** @var KnowledgeRepository $repository */
   protected $repository;
 
+  public function __construct(KnowledgeRepository $knowledgeRepository=null){
+    $this->repository=$knowledgeRepository;
+  }
+
+  public function setKnowledgeRepository(KnowledgeRepository $repository){
+    $this->repository=$repository;
+  }
+
   public function getUri(){
     return $this->uri;
   }
@@ -90,9 +98,34 @@ abstract class BaseEntity extends Object{
     }catch (\Exception $e){
       $mappedProperties=$this->getMappedProperties();
       if (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['entitiesGroups'][$name]) || isset($mappedProperties['literals'][$name])){
-        $this->$name=$name;
-        //TODO dynamické načtení navázané entity
-        exit('LOAD '.$name);
+        if (isset($mappedProperties['literals'][$name])){
+          //TODO chceme dynamicky načítat literál???
+          exit('ERROR');
+        }
+        if (isset($mappedProperties['entities'][$name])){
+          //načtení jedné související entity
+          $function='find'.Strings::firstUpper($name);
+          return $this->repository->$function($this->$name);
+        }
+        if (isset($mappedProperties['entitiesGroups'][$name])){
+          //načtení připojené sady entit
+          if (isset($mappedProperties['entitiesGroups'][$name]['entity'])){
+            $function='find'.$mappedProperties['entitiesGroups'][$name]['entity'].'s';
+          }else{
+            $function='find'.Strings::firstUpper($name);
+          }
+
+          if (isset($mappedProperties['entitiesGroups'][$name]['relation'])){
+            $sparqlQuery='<'.$this->uri.'> '.$mappedProperties['entitiesGroups'][$name]['relation'].' ?uri';
+          }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
+            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['relation'].'<'.$this->uri.'> ';
+          }
+
+          if (!empty($sparqlQuery)){
+            return $this->repository->$function(array('sparql'=>$sparqlQuery));
+          }
+        }
+
       }else{
         throw $e;
       }
@@ -149,9 +182,10 @@ abstract class BaseEntity extends Object{
   /**
    * Funkce pro sestavení dotazu pro načtení entity z DB
    * @param string $uri = ''
+   * @param string $filter=''
    * @return string
    */
-  public static function getLoadQuery($uri=''){
+  public static function getLoadQuery($uri='',$filter=''){
     $mappedProperties=self::getMappedProperties();
     $queryPrefixes=self::prepareQueryPrefixes(@$mappedProperties['namespaces']);
     $selectQuery='?uri';
@@ -171,7 +205,7 @@ abstract class BaseEntity extends Object{
       $selectQuery=Strings::replace($selectQuery,'/\?uri/','');
       $whereQuery=Strings::replace($whereQuery,'/\?uri/','<'.$uri.'>');
     }
-    $query=$queryPrefixes.'SELECT '.$selectQuery.' FROM <'.self::BASE_ONTOLOGY.'> WHERE {'.Strings::substring($whereQuery,2).'}';
+    $query=$queryPrefixes.'SELECT '.$selectQuery.' FROM <'.self::BASE_ONTOLOGY.'> WHERE {'.Strings::substring($whereQuery,2).(!empty($filter)?' . FILTER('.$filter.')':'').'}';
     return $query;
   }
 

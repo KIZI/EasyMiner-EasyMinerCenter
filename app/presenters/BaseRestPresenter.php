@@ -11,6 +11,7 @@ namespace App\Presenters;
 
 use App\Model\Rdf\Repositories\KnowledgeRepository;
 use App\Model\XmlSerializer;
+use App\Model\XmlUnserializer;
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\IResponse;
 use Nette\Http\Response;
@@ -20,6 +21,8 @@ abstract class BaseRestPresenter extends BasePresenter{
   protected $knowledgeRepository;
   /** @var  XmlSerializer $xmlSerializer */
   protected $xmlSerializer;
+  /** @var  XmlUnserializer $xmlUnserializer */
+  protected $xmlUnserializer;
 
   /**
    * @param KnowledgeRepository $knowledgeRepository
@@ -28,8 +31,15 @@ abstract class BaseRestPresenter extends BasePresenter{
     $this->knowledgeRepository=$knowledgeRepository;
   }
 
+  /**
+   * @param XmlSerializer $xmlSerializer
+   */
   public function injectXmlSerializer(XmlSerializer $xmlSerializer){
     $this->xmlSerializer=$xmlSerializer;
+  }
+
+  public function injectXmlUnserializer(XmlUnserializer $xmlUnserializer){
+    $this->xmlUnserializer=$xmlUnserializer;
   }
 
   /**

@@ -17,6 +17,7 @@ namespace App\Model\Rdf\Entities;
  * @property string $dataType
  * @property ValuesBin[] $valuesBins
  * @property Preprocessing[] $preprocessings
+ * @property MetaAttribute $metaAttribute
  *
  * @rdfClass(class="kb:Format")
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
@@ -24,6 +25,7 @@ namespace App\Model\Rdf\Entities;
  * @rdfLiteral(property=$dataType,relation='kb:hasDataType')
  * @rdfEntitiesGroup(property=$valuesBins,relation='kb:hasValuesBin',entity='ValuesBin')
  * @rdfEntitiesGroup(property=$preprocessings,relation='kb:hasPreprocessing',entity='Preprocessing')
+ * @rdfEntity(property=$metaAttribute,reverseRelation='kb:hasFormat')
  */
 class Format  extends BaseEntity{
   //TODO

@@ -33,3 +33,4 @@ services:
 	arc2Store: \ARC2::getStore(%arc2%)
 	knowledgeRepository: App\Model\Rdf\Repositories\KnowledgeRepository(@arc2Store)
 	xmlSerializer: App\Model\XmlSerializer
+	xmlUnserializer: App\Model\XmlUnserializer(@knowledgeRepository)

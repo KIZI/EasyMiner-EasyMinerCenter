@@ -9,12 +9,13 @@ use App\Model\Rdf\Entities\Interval;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
 use App\Model\Rdf\Entities\Value;
+use Nette\Object;
 
 /**
  * Class XmlSerializer - třída pro serializaci entit do podoby XML
  * @package App\Model
  */
-class XmlSerializer {
+class XmlSerializer extends Object{
 #region base Xml templates
   const METAATTRIBUTES_XML_BASE='<MetaAttributes xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttributes>';
   const METAATTRIBUTE_XML_BASE='<MetaAttribute xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttribute>';
@@ -125,8 +126,8 @@ class XmlSerializer {
    * @param \SimpleXMLElement|null $parentXml
    * @return \SimpleXMLElement
    */
-  public function formatInBlankMetaAttributeAsXml(Format $format,\SimpleXMLElement &$parentXml=null){//TODO načtení metaatributu!!!
-    $metaAttributeXml=$this->blankMetaAttributeAsXml(null,$parentXml);
+  public function formatInBlankMetaAttributeAsXml(Format $format,\SimpleXMLElement &$parentXml=null){
+    $metaAttributeXml=$this->blankMetaAttributeAsXml($format->metaAttribute,$parentXml);
     $formatsXml=$metaAttributeXml->addChild('Formats');
     $this->formatAsXml($format,$formatsXml);
     return $metaAttributeXml;

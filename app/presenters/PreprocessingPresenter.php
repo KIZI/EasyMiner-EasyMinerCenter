@@ -7,21 +7,22 @@ use App\Model\XmlSerializer;
 use Nette\Application\BadRequestException;
 use Nette\Http\IResponse;
 
-class RulePresenter extends BaseRestPresenter{
+class PreprocessingPresenter extends BaseRestPresenter{
   /**
-   * Akce pro vypsání seznamu uložených pravidel
+   * Akce pro vypsání seznamu uložených preprocessingů na základě vybraného formátu
    * @param string $baseId = ''
+   * @param string $format
    */
-  public function actionList($baseId=''){
-    $rules=$this->knowledgeRepository->findRules();//TODO filtrování na základě zadaného baseId
-    if (empty($rules)){
-      $this->sendXmlResponse(XmlSerializer::baseRulesXml());
+  public function actionListByFormat($baseId='',$format){
+    $preprocessings=$this->knowledgeRepository->findPreprocessings();//TODO filtrování na základě zadaného baseId a formátu
+    if (empty($preprocessings)){
+      $this->sendXmlResponse($this->xmlSerializer->basePreprocessingsXml());//TODO nový XML pro preprocessingy
       return;
     }
 
-    $responseXml=$this->xmlSerializer->baseRulesXml();
-    foreach ($rules as $rule){
-      $this->xmlSerializer->blankRuleAsXml($rule,$responseXml);
+    $responseXml=$this->xmlSerializer->basePreprocessingsXml();
+    foreach ($preprocessings as $preprocessing){
+      $this->xmlSerializer->preprocessingAsXml($preprocessing,$responseXml);
     }
 
     $this->sendXmlResponse($responseXml);
@@ -47,7 +48,7 @@ class RulePresenter extends BaseRestPresenter{
    * Akce pro uložení pravidla
    * @param string $baseId = ''
    * @param string $uri
-   * @param string $data = null - pravidlo ve formátu JSON
+   * @param string $data - pravidlo ve formátu JSON
    * @throws \Nette\Application\BadRequestException
    * @internal param $_POST['data']
    */
@@ -60,5 +61,6 @@ class RulePresenter extends BaseRestPresenter{
     }
 
     //TODO
+
   }
 } 

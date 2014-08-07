@@ -65,9 +65,18 @@ class MetaAttributePresenter extends BaseRestPresenter{
    * Akce pro uložení metaatributu
    * @param string $baseId
    * @param string $uri
-   * @param string $data
+   * @param null|string $data
+   * @throws \Nette\Application\BadRequestException
+   * @internal param $_POST['data']
    */
-  public function actionSave($baseId='',$uri,$data){
+  public function actionSave($baseId='',$uri='',$data=null){
+    if (empty($data)){
+      $data=$this->getHttpRequest()->getPost('data');
+      if (empty($data)){
+        throw new BadRequestException('Preprocessing data are missing!');
+      }
+    }
+
     //TODO
   }
 

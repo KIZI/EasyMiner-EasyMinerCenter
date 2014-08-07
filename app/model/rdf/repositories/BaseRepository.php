@@ -2,8 +2,10 @@
 namespace App\Model\Rdf\Repositories;
 
 use App\Model\Rdf\Entities\BaseEntity;
+use Nette\Object;
+use Nette\Utils\Strings;
 
-class BaseRepository {
+class BaseRepository extends Object{
   const BASIC_ENTITY_NAMESPACE='App\Model\Rdf\Entities';
   /** @var \ARC2_Store $arc */
   protected $arcStore;
@@ -19,9 +21,20 @@ class BaseRepository {
    * Funkce pro spuštění dotazu nad arc storem
    * @param string $query
    * @param string $format = raw
+   * @param int $limit=-1
+   * @param int $offset=-1
    * @return array|bool|int
    */
-  public function executeQuery($query,$format='raw'){
+  public function executeQuery($query,$format='raw',$limit=-1,$offset=-1){
+    if ($limit>-1){
+      if (!Strings::contains($query,'ORDER')){
+        $query.=' ORDER BY ?uri ';
+      }
+      $query.=' LIMIT '.$limit;
+      if ($offset>-1){
+        $query.=' OFFSET '.$offset;
+      }
+    }
     return $this->arcStore->query($query,$format);
   }
 
