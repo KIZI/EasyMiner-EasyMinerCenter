@@ -3,6 +3,7 @@ namespace App\Model\Rdf\Repositories;
 
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\MetaAttribute;
+use App\Model\Rdf\Entities\Rule;
 
 class KnowledgeRepository extends BaseRepository{
 
@@ -52,12 +53,30 @@ class KnowledgeRepository extends BaseRepository{
   }
 
   /**
+   * @param string $uri
+   * @return Rule
+   */
+  public function findRule($uri){
+    return $this->findEntity($uri,'Rule');
+  }
+
+  /**
    * @param null|array $params
    * @param int        $limit
    * @param int        $offset
    * @return Format[]
    */
   public function findFormats($params=null,$limit=-1,$offset=-1){
+    //TODO
+  }
+
+  /**
+   * @param null|array $params
+   * @param int        $limit
+   * @param int        $offset
+   * @return Rule[]
+   */
+  public function findRules($params=null,$limit=-1,$offset=-1){
     //TODO
   }
 

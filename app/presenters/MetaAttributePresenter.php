@@ -18,16 +18,13 @@ class MetaAttributePresenter extends BaseRestPresenter{
   public function actionList($baseId=''){
     $metaattributes=$this->knowledgeRepository->findMetaattributes();//TODO filtrování na základě zadaného baseId
     if (empty($metaattributes)){
-      $this->sendXmlResponse(XmlSerializer::METAATTRIBUTES_XML_BASE);
+      $this->sendXmlResponse(XmlSerializer::baseMetaAttributesXml());
       return;
     }
 
     $responseXml=$this->xmlSerializer->baseMetaAttributesXml();
     foreach ($metaattributes as $metaattribute){
       $this->xmlSerializer->blankMetaAttributeAsXml($metaattribute,$responseXml);
-      $metaattributeXml=$responseXml->addChild('MetaAttribute');
-      $metaattributeXml->addAttribute('id',$metaattribute->uri);
-      $metaattributeXml->addChild('Name',$metaattribute->name);
     }
 
     $this->sendXmlResponse($responseXml);
