@@ -79,7 +79,7 @@ class BaseRepository extends Object{
   /**
    * @param BaseEntity $entity
    */
-  public function saveEntity($entity){
+  public function saveEntity(&$entity){
     if (empty($entity->uri)){
       $entity->uri=$this->prepareNewEntityUri($entity->prepareBaseUri());
     }

@@ -10,8 +10,8 @@ namespace App\Presenters;
 
 
 use App\Model\Rdf\Repositories\KnowledgeRepository;
-use App\Model\XmlSerializer;
-use App\Model\XmlUnserializer;
+use App\Model\Rdf\Serializers\XmlSerializer;
+use App\Model\Rdf\Serializers\XmlUnserializer;
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\IResponse;
 use Nette\Http\Response;

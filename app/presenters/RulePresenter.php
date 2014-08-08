@@ -3,7 +3,6 @@
 namespace App\Presenters;
 
 
-use App\Model\XmlSerializer;
 use Nette\Application\BadRequestException;
 use Nette\Http\IResponse;
 
@@ -15,7 +14,7 @@ class RulePresenter extends BaseRestPresenter{
   public function actionList($baseId=''){
     $rules=$this->knowledgeRepository->findRules();//TODO filtrování na základě zadaného baseId
     if (empty($rules)){
-      $this->sendXmlResponse(XmlSerializer::baseRulesXml());
+      $this->sendXmlResponse($this->xmlSerializer->baseRulesXml());
       return;
     }
 
@@ -51,7 +50,7 @@ class RulePresenter extends BaseRestPresenter{
    * @throws \Nette\Application\BadRequestException
    * @internal param $_POST['data']
    */
-  public function actionSave($baseId='',$uri,$data=null){
+  public function actionSave($baseId='',$uri,$data=null){//TODO $baseId
     if (empty($data)){
       $data=$this->getHttpRequest()->getPost('data');
       if (empty($data)){
@@ -59,6 +58,11 @@ class RulePresenter extends BaseRestPresenter{
       }
     }
 
-    //TODO
+
+    $xml=$this->xmlUnserializer->prepareRulesXml($data);
+    $rule=$this->xmlUnserializer->ruleFromXml($xml);
+    $rule->uri=$uri;
+    $this->knowledgeRepository->saveRule($rule);
+    $this->actionGet($baseId,$rule->uri);
   }
 } 

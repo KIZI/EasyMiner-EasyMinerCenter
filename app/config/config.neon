@@ -32,5 +32,5 @@ services:
 	router: @App\RouterFactory::createRouter
 	arc2Store: \ARC2::getStore(%arc2%)
 	knowledgeRepository: App\Model\Rdf\Repositories\KnowledgeRepository(@arc2Store)
-	xmlSerializer: App\Model\XmlSerializer
-	xmlUnserializer: App\Model\XmlUnserializer
+	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
+	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer

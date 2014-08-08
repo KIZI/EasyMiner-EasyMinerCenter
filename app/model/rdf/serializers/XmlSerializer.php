@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Rdf\Serializers;
 
 use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\Cedent;

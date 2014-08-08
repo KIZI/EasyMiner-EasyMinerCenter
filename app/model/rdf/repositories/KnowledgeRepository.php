@@ -48,7 +48,7 @@ class KnowledgeRepository extends BaseRepository{
    * @param MetaAttribute $metaAttribute
    * @return bool
    */
-  public function saveMetaattribute(MetaAttribute $metaAttribute){
+  public function saveMetaattribute(MetaAttribute &$metaAttribute){
     //TODO kontrola podřízených entit
     $this->saveEntity($metaAttribute);
   }

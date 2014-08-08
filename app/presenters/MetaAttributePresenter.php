@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Presenters;
-use App\Model\XmlSerializer;
+
 use Nette\Application\BadRequestException;
 use Nette\Http\IResponse;
 
@@ -18,7 +18,7 @@ class MetaAttributePresenter extends BaseRestPresenter{
   public function actionList($baseId=''){
     $metaattributes=$this->knowledgeRepository->findMetaattributes();//TODO filtrování na základě zadaného baseId
     if (empty($metaattributes)){
-      $this->sendXmlResponse(XmlSerializer::baseMetaAttributesXml());
+      $this->sendXmlResponse($this->xmlSerializer->baseMetaAttributesXml());
       return;
     }
 
@@ -51,7 +51,7 @@ class MetaAttributePresenter extends BaseRestPresenter{
    * @param $uri
    * @throws \Nette\Application\BadRequestException
    */
-  public function actionGet($baseId='',$uri){
+  public function actionGet($baseId='',$uri){//TODO baseId
     $metaattribute=$this->knowledgeRepository->findMetaattribute($uri);
     if ($metaattribute){
       //odešleme daný metaatribut
@@ -69,15 +69,19 @@ class MetaAttributePresenter extends BaseRestPresenter{
    * @throws \Nette\Application\BadRequestException
    * @internal param $_POST['data']
    */
-  public function actionSave($baseId='',$uri='',$data=null){
+  public function actionSave($baseId='',$uri='',$data=null){//TODO baseId
     if (empty($data)){
       $data=$this->getHttpRequest()->getPost('data');
       if (empty($data)){
-        throw new BadRequestException('Preprocessing data are missing!');
+        throw new BadRequestException('MetaAttributes data are missing!');
       }
     }
 
-    //TODO
+    $xml=$this->xmlUnserializer->prepareMetaAttributesXml($data);
+    $metaAttribute=$this->xmlUnserializer->metaAttributeFromXml($xml);
+    $metaAttribute->uri=$uri;
+    $this->knowledgeRepository->saveMetaattribute($metaAttribute);
+    $this->actionGet($baseId,$metaAttribute->uri);
   }
 
 

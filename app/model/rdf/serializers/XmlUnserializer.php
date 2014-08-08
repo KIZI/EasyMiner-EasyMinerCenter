@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Rdf\Serializers;
+
 use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\Cedent;
 use App\Model\Rdf\Entities\Format;
@@ -23,6 +24,16 @@ class XmlUnserializer extends Object{
 
   public function __construct(KnowledgeRepository $knowledgeRepository){
     $this->knowledgeRepository=$knowledgeRepository;
+  }
+
+  public static function prepareRulesXml($xmlString){
+    //TODO validace oproti schématu
+    return simplexml_load_string($xmlString);
+  }
+
+  public static function prepareMetaAttributesXml($xmlString){
+    //TODO validace oproti schématu
+    return simplexml_load_string($xmlString);
   }
 
 #region metaatributy
