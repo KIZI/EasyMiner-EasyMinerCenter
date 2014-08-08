@@ -1,11 +1,15 @@
 <?php
 
 namespace App\Model;
+use App\Model\Rdf\Entities\Attribute;
+use App\Model\Rdf\Entities\Cedent;
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\Interval;
 use App\Model\Rdf\Entities\MetaAttribute;
+use App\Model\Rdf\Entities\Rule;
 use App\Model\Rdf\Entities\Value;
 use App\Model\Rdf\Entities\ValuesBin;
+use App\Model\Rdf\Repositories\KnowledgeRepository;
 use Nette\Object;
 
 /**
@@ -14,6 +18,12 @@ use Nette\Object;
  * @package App\Model
  */
 class XmlUnserializer extends Object{
+  /** @var \App\Model\Rdf\Repositories\KnowledgeRepository $knowledgeRepository */
+  private $knowledgeRepository;
+
+  public function __construct(KnowledgeRepository $knowledgeRepository){
+    $this->knowledgeRepository=$knowledgeRepository;
+  }
 
 #region metaatributy
   /**
@@ -93,7 +103,57 @@ class XmlUnserializer extends Object{
     }
   }
 #endregion pravidla
+  /**
+   * Funkce pro vytvoření objektové struktury pravidla na základě XML
+   * @param \SimpleXMLElement $ruleXml
+   * @return Rule
+   */
+  public function ruleFromXml(\SimpleXMLElement $ruleXml){
+    $rule = new Rule();
+    $rule->uri=(string)$ruleXml['id'];
+    $rule->text=(string)$ruleXml->Text;
+    $rule->antecedent=$this->cedentFromXml($ruleXml->Antecedent);
+    return $rule;
+  }
 
-
+  public function cedentFromXml(\SimpleXMLElement $cedentXml){
+    $cedent=new Cedent();
+    $cedent->uri=$cedentXml['id'];
+    if (!empty($cedentXml['connective'])){
+      $cedent->connective=(string)$cedentXml['connective'];
+    }else{
+      $cedent->connective='Conjunction';
+    }
+    if (count($cedentXml->Cedent)){
+      $cedent->cedents=array();
+      foreach ($cedentXml->Cedent as $subCedentXml){
+        $cedent->cedents[]=$this->cedentFromXml($subCedentXml);
+      }
+    }
+    if (count($cedentXml->Attribute)){
+      $cedent->attributes=array();
+      foreach ($cedentXml->Attribute as $attributeXml){
+        $attribute=new Attribute();
+        $attribute->uri=(string)$attributeXml['id'];
+        $attribute->format=$this->knowledgeRepository->findFormat((string)$attributeXml['format']);
+        if (count($attributeXml->Bin)){
+          foreach($attributeXml->Bin as $binXml){
+            if (!empty($binXml['id'])){
+              $attribute->valuesBins[]=$this->knowledgeRepository->findValuesBin((string)$binXml['id']);
+            }else{
+              //budeme vytvářet nový BIN, respektive hledat BIN, který má stejné parametry
+              //TODO check existing bin
+              $attribute->valuesBins[]=$this->valuesBinFromXml($binXml);
+            }
+          }
+        }
+      }
+    }
+    return $cedent;
+  }
 #region pravidla
+#region preprocessings
+//TODO preprocessings!
+#endregion
+
 } 
