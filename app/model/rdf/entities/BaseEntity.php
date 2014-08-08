@@ -135,7 +135,8 @@ abstract class BaseEntity extends Object{
   /**
    * @return string[]
    */
-  public function getSaveQuery(){
+  public function getSaveQuery($repository=null){
+    if (!$repository){$repository=$this->repository;}
     $mappedProperties=$this->getMappedProperties();
     $queryPrefixes=self::prepareQueryPrefixes(@$mappedProperties['namespaces']);
     $queries=array();
@@ -161,19 +162,47 @@ abstract class BaseEntity extends Object{
     if (!empty($mappedProperties['entities']) && is_array($mappedProperties['entities'])){
       foreach ($mappedProperties['entities'] as $entity){
         $property=$entity['property'];
-        if (isset($this->$property) && !empty($this->$property->uri)){
+        if (isset($this->$property) /*&& !empty($this->$property->uri)*/){//TODO nejdřív dodělat uložení propojené entity
           //máme připojenou už namapovanou entitu
           if (!empty($entity['relation'])){
-            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
+            //nejprve uložíme navázanou entitu
+            if (!empty($entity['entity'])){
+              $entityName=$entity['entity'];
+            }else{
+              $entityName=Strings::firstUpper($property);
+            }
+            $repositorySaveMethod='save'.$entityName;
+            $repository->$repositorySaveMethod($this->$property);
+            //uložíme relaci připojené entity
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' ?relatedUri} WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
             $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
-          }else{
-            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
+          }/*else{//pravděpodobně není potřeba - ukládáme vždy z té entity, která má zadanou URI
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {?relatedUri '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
             $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
-          }
+          }*/
         }
       }
     }
     #endregion vyřešení navázaných entit
+    #region vyřešení navázaných entitiesGroups
+    if (!empty($mappedProperties['entitiesGroups']) && is_array($mappedProperties['entitiesGroups'])){
+      foreach ($mappedProperties['entitiesGroups'] as $entitiesGroup){
+        $property=$entitiesGroup['property'];
+        if (isset($this->$property) && !empty($entitiesGroup['relation'])){
+          //máme nějaké položky
+          //TODO vyřešíme nejdřív odstranění vazeb na neexistující entity
+          if (count($this->$property)){
+            //musíme jednotlivé položky vyřešit jednotlivě (jestli tam mají zůstat atd.
+            //TODO musíme projít všechny položky a podívat se, jestli tam mají zůstat - pokud ne, tak je odstraňujeme
+          }else{
+            //máme odstranit všechny navázané položky
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' ?relatedUri}';
+          }
+
+        }
+      }
+    }
+    #endregion vyřešení navázaných entitiesGroups
     //TODO entitiesGroups
     return $queries;
   }
@@ -247,7 +276,7 @@ abstract class BaseEntity extends Object{
 
   public function __set($name,$value){
     $mappedProperties=$this->getMappedProperties();
-    if ((!method_exists($this,'set'.ucfirst($name))) && (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['literals'][$name]))){
+    if ((!method_exists($this,'set'.ucfirst($name))) && (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['literals'][$name]) || isset($mappedProperties['entitiesGroups'][$name]))){
       $this->$name=$value;
     }else{
       parent::__set($name,$value);

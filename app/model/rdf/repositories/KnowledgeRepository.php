@@ -8,6 +8,10 @@ use App\Model\Rdf\Entities\Rule;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 
+/**
+ * Class KnowledgeRepository
+ * @package App\Model\Rdf\Repositories
+ */
 class KnowledgeRepository extends BaseRepository{
 
   /**
@@ -20,7 +24,6 @@ class KnowledgeRepository extends BaseRepository{
     #region params
     $filterSparql='';
     if (!empty($params)){
-      //TODO params
       if (!empty($params['sparql'])){
         $filterSparql.=' && '.$params['sparql'];
       }
@@ -95,7 +98,7 @@ class KnowledgeRepository extends BaseRepository{
     }
 
     #endregion params
-    $result=$this->executeQuery(MetaAttribute::getLoadQuery('',$filterSparql),$limit,$offset);
+    $result=$this->executeQuery(Format::getLoadQuery('',$filterSparql),$limit,$offset);
     if ($result && !empty($result['rows'])){
       $output=array();
       foreach ($result['rows'] as $row){
@@ -150,52 +153,6 @@ class KnowledgeRepository extends BaseRepository{
   }
 
   /**
-   * Funkce pro načtení kolekce entit na základě vyhledávacích parametrů a názvu třídy
-   * @param array|null $params
-   * @param string|BaseEntity $entityClassName
-   * @return BaseEntity[]|null
-   */
-  public function findEntities($params,$entityClassName){
-    #region params
-    $filterSparql='';
-    if (!empty($params['sparql'])){
-      $filterSparql=$params['sparql'];
-    }
-    #endregion params
-    $result=$this->executeQuery(MetaAttribute::getLoadQuery('',$filterSparql));
-    if ($result && !empty($result['rows'])){
-      $output=array();
-      foreach ($result['rows'] as $row){
-        /** @var BaseEntity $resultEntity */
-        $resultEntity=new $entityClassName();
-        $resultEntity->setKnowledgeRepository($this);
-        $resultEntity->prepareEntity($row);
-        $output[]=$resultEntity;
-      }
-      return $output;
-    }
-    return null;
-  }
-
-  /**
-   * Funkce pro načtení entity na základě URI a zadaného názvu třídy
-   * @param string $uri
-   * @param string|BaseEntity $entityClassName
-   * @return BaseEntity|null
-   */
-  public function findEntity($uri,$entityClassName){
-    $result=$this->executeQuery($entityClassName::getLoadQuery(array(),$uri));
-    if (isset($result['rows']) && isset($result['rows'][0])){
-      /** @var BaseEntity $resultEntity */
-      $resultEntity=new $entityClassName();
-      $resultEntity->setKnowledgeRepository($this);
-      $resultEntity->prepareEntity($result['rows'][0],$uri);
-      return $resultEntity;
-    }
-    return null;
-  }
-
-  /**
    * Funkce pro načtení entit...
    * @param string $functionName
    * @param array $params
@@ -207,11 +164,11 @@ class KnowledgeRepository extends BaseRepository{
     if (Strings::startsWith($functionName,'find')){
       if (Strings::endsWith($functionName,'s')){
         //chceme načítat kolekci entit
-        $entityClassName='App\Model\Rdf\Entities\\'.Strings::substring($functionName,4,Strings::length($functionName)-5);
+        $entityClassName=Strings::substring($functionName,4,Strings::length($functionName)-5);
         $callFunctionName='findEntities';
       }else{
         //chceme načítat jen jednu entitu
-        $entityClassName='App\Model\Rdf\Entities\\'.Strings::substring($functionName,4);
+        $entityClassName=Strings::substring($functionName,4);
         $callFunctionName='findEntity';
       }
     }

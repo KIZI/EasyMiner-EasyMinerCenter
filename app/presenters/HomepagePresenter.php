@@ -9,21 +9,19 @@ use Nette,
 /**
  * Homepage presenter.
  */
-class HomepagePresenter extends BasePresenter
+class HomepagePresenter extends BaseRestPresenter
 {
 
 	public function renderDefault()
 	{
+    $metaattribute = new Model\Rdf\Entities\MetaAttribute();
+    $metaattribute->name='cosi';
+    $format=new Model\Rdf\Entities\Format();
+    $format->name='a';
+    $metaattribute->formats=array($format);
+    $this->knowledgeRepository->saveMetaattribute($metaattribute);
 
-    $this->context->knowledgeRepository->findCedent(array('item'));
-    exit('------');
-    exit(var_dump($format->valuesBins));
-    $format->metaAttribute='http://cosi';
-    $metaattribute=$format->metaAttribute;
 
-    $knowledgeRepository=$this->context->knowledgeRepository;
-
-    exit(var_dump($knowledgeRepository->findMetaattribute('kb:MetaAttribute/testovaci-metaatribut7')));
 /*
     exit(var_dump($metaAttribute->reflection->getAnnotations("property")));*/
 	//	$this->template->anyVariable = 'any value';

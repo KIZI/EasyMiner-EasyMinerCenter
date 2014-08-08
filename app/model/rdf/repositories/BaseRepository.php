@@ -80,9 +80,10 @@ class BaseRepository extends Object{
    * @param BaseEntity $entity
    */
   public function saveEntity(&$entity){
-    if (empty($entity->uri)){
-      $entity->uri=$this->prepareNewEntityUri($entity->prepareBaseUri());
+    if (!$entity->getUri()){
+      $entity->setUri($this->prepareNewEntityUri($entity->prepareBaseUri()));
     }
+    exit(var_dump($entity->getSaveQuery()));
     $this->executeQueries($entity->getSaveQuery());
   }
 
@@ -103,6 +104,38 @@ class BaseRepository extends Object{
       $entity=new $entityClass();
       $entity->prepareEntity($result['rows'][0],$uri);
       return $entity;
+    }
+    return null;
+  }
+
+  /**
+   * Funkce pro načtení kolekce entit na základě vyhledávacích parametrů a názvu třídy
+   * @param array|null $params
+   * @param $entityClass
+   * @param string $entityClassNamespace = self::BASIC_ENTITY_NAMESPACE
+   * @return BaseEntity[]|null
+   */
+  public function findEntities($params,$entityClass,$entityClassNamespace=self::BASIC_ENTITY_NAMESPACE){
+    if ($entityClassNamespace!=''){
+      $entityClass=$entityClassNamespace.'\\'.$entityClass;
+    }
+    #region params
+    $filterSparql='';
+    if (!empty($params['sparql'])){
+      $filterSparql=$params['sparql'];
+    }
+    #endregion params
+    $result=$this->executeQuery($entityClass::getLoadQuery('',$filterSparql));
+    if ($result && !empty($result['rows'])){
+      $output=array();
+      foreach ($result['rows'] as $row){
+        /** @var BaseEntity $resultEntity */
+        $resultEntity=new $entityClass();
+        $resultEntity->setKnowledgeRepository($this);
+        $resultEntity->prepareEntity($row);
+        $output[]=$resultEntity;
+      }
+      return $output;
     }
     return null;
   }
