@@ -35,15 +35,32 @@ class RulePresenter extends BaseRestPresenter{
   /**
    * Akce vracející jedno pravidlo ve formátu JSON
    * @param string $baseId = ''
+   * @param string $ruleset= ''
    * @param string $uri
    * @throws \Nette\Application\BadRequestException
    */
-  public function actionGet($baseId='',$uri){
+  public function actionGet($baseId='',$ruleset='',$uri){
     $rule=$this->knowledgeRepository->findRule($uri);
 
     if ($rule && $baseId){
       //zkontrolujeme, jestli dané pravidlo patří do zadané KnowledgeBase
       if (@$rule->knowledgeBase->uri!=$uri){
+        $rule=null;
+      }
+    }
+    if ($rule && $ruleset){
+      //zkontrolujeme, jestli dané pravidlo patří do zadaného rulesetu
+      $ruleSets=$rule->ruleSets;
+      $ok=false;
+      if (count($ruleSets)){
+        foreach ($ruleSets as $ruleSetItem){
+          if ($ruleSetItem->uri==$ruleset){
+            $ok=true;
+            break;
+          }
+        }
+      }
+      if (!$ok){
         $rule=null;
       }
     }
@@ -59,12 +76,13 @@ class RulePresenter extends BaseRestPresenter{
   /**
    * Akce pro uložení pravidla
    * @param string $baseId = ''
+   * @param string $ruleset = ''
    * @param string $uri
    * @param string $data = null - pravidlo ve formátu JSON
    * @throws \Nette\Application\BadRequestException
    * @internal param $_POST['data']
    */
-  public function actionSave($baseId='',$uri,$data=null){
+  public function actionSave($baseId='',$ruleset='',$uri,$data=null){
     if (empty($data)){
       $data=$this->getHttpRequest()->getPost('data');
       if (empty($data)){
@@ -81,6 +99,15 @@ class RulePresenter extends BaseRestPresenter{
       $rule->knowledgeBase=$knowledgeBase;
     }
     $this->knowledgeRepository->saveRule($rule);
+    if ($ruleset){
+      //máme pravidlo přidat také do daného rulesetu
+      $ruleSetItem=$this->knowledgeRepository->findRuleSet($ruleset);
+      if ($ruleSetItem){
+        $ruleSetRules=$ruleSetItem->rules;
+        $ruleSetItem->rules[]=$rule;
+        $this->knowledgeRepository->saveRuleSet($ruleSetItem);
+      }
+    }
     $this->actionGet($baseId,$rule->uri);
   }
 } 
