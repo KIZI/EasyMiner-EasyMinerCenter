@@ -97,11 +97,11 @@ abstract class BaseEntity extends Object{
       return parent::__get($name);
     }catch (\Exception $e){
       $mappedProperties=$this->getMappedProperties();
-      if (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['entitiesGroups'][$name]) || isset($mappedProperties['literals'][$name])){
-        if (isset($mappedProperties['literals'][$name])){
-          //TODO chceme dynamicky načítat literál???
+      if (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['entitiesGroups'][$name]) /*|| isset($mappedProperties['literals'][$name])*/){
+/*        if (isset($mappedProperties['literals'][$name])){
+          //literály jsou aktuálně načítané rovnou -> nemá smysl je donačítat
           exit('ERROR');
-        }
+        }*/
         if (isset($mappedProperties['entities'][$name])){
           //načtení jedné související entity
           $function='find'.Strings::firstUpper($name);
@@ -126,9 +126,9 @@ abstract class BaseEntity extends Object{
           }
         }
 
-      }else{
-        throw $e;
       }
+      //pokud se nepodařilo property donačíst, vyhodíme výjimku...
+      throw $e;
     }
   }
 
@@ -162,7 +162,7 @@ abstract class BaseEntity extends Object{
     if (!empty($mappedProperties['entities']) && is_array($mappedProperties['entities'])){
       foreach ($mappedProperties['entities'] as $entity){
         $property=$entity['property'];
-        if (isset($this->$property) /*&& !empty($this->$property->uri)*/){//TODO nejdřív dodělat uložení propojené entity
+        if (isset($this->$property) /*&& !empty($this->$property->uri)*/){
           //máme připojenou už namapovanou entitu
           if (!empty($entity['relation'])){
             //nejprve uložíme navázanou entitu
@@ -203,7 +203,6 @@ abstract class BaseEntity extends Object{
       }
     }
     #endregion vyřešení navázaných entitiesGroups
-    //TODO entitiesGroups
     return $queries;
   }
 
