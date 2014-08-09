@@ -11,6 +11,8 @@ namespace App\Model\Rdf\Entities;
  * @property Cedent $consequent
  * @property string $text
  * @property string|array $rating
+ * @property RuleSet $ruleSet
+ * @property KnowledgeBase $knowledgeBase
  *
  * @rdfClass(class='kb:Rule')
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
@@ -18,6 +20,8 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntity (property=$antecedent,relation='kb:hasAntecedent',entity='Cedent')
  * @rdfEntity (property=$consequent,relation='kb:hasConsequent',entity='Cedent')
  * @rdfLiteral(property=$rating,relation='kb:hasRating',optional=true)
+ * @rdfEntity (property=$ruleSet,reverseRelation='kb:hasRule',entity='RuleSet')
+ * @rdfEntity(property=$knowledgeBase,relation='kb:isInBase',entity='KnowledgeBase')
  */
 class Rule extends BaseEntity{
 
