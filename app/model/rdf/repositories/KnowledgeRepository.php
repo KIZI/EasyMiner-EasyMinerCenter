@@ -3,24 +3,37 @@ namespace App\Model\Rdf\Repositories;
 
 use App\Model\Rdf\Entities\BaseEntity;
 use App\Model\Rdf\Entities\Format;
+use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
+use App\Model\Rdf\Entities\RuleSet;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 
 /**
  * Class KnowledgeRepository
  * @package App\Model\Rdf\Repositories
+ * @method saveRule
  */
 class KnowledgeRepository extends BaseRepository{
 
   /**
    * @param null|array $params
-   * @param int $limit
-   * @param int $offset
+   * @param int $limit=-1
+   * @param int $offset=-1
+   * @return RuleSet[]
+   */
+  public function findRuleSets($params=null,$limit=-1,$offset=-1){
+    //TODO
+  }
+
+  /**
+   * @param null|array $params
+   * @param int $limit=-1
+   * @param int $offset=-1
    * @return MetaAttribute[]
    */
-  public function findMetaattributes($params=null,$limit=-1,$offset=-1){
+  public function findMetaAttributes($params=null,$limit=-1,$offset=-1){
     #region params
     $filterSparql='';
     if (!empty($params)){
@@ -37,10 +50,10 @@ class KnowledgeRepository extends BaseRepository{
     if ($result && !empty($result['rows'])){
       $output=array();
       foreach ($result['rows'] as $row){
-        $metaattribute=new MetaAttribute($this);
-        $metaattribute->setKnowledgeRepository($this);
-        $metaattribute->prepareEntity($row);
-        $output[]=$metaattribute;
+        $metaAttribute=new MetaAttribute($this);
+        $metaAttribute->setKnowledgeRepository($this);
+        $metaAttribute->prepareEntity($row);
+        $output[]=$metaAttribute;
       }
       return $output;
     }
@@ -60,7 +73,7 @@ class KnowledgeRepository extends BaseRepository{
    * @param string $uri
    * @return MetaAttribute
    */
-  public function findMetaattribute($uri){
+  public function findMetaAttribute($uri){
     return $this->findEntity($uri,'MetaAttribute');
   }
 
@@ -78,6 +91,22 @@ class KnowledgeRepository extends BaseRepository{
    */
   public function findRule($uri){
     return $this->findEntity($uri,'Rule');
+  }
+
+  /**
+   * @param string $uri
+   * @return RuleSet
+   */
+  public function findRuleSet($uri){
+    return $this->findEntity($uri,'RuleSet');
+  }
+
+  /**
+   * @param string $uri
+   * @return KnowledgeBase
+   */
+  public function findKnowledgeBase($uri){
+    return $this->findEntity($uri,'KnowledgeBase');
   }
 
   /**

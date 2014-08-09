@@ -89,7 +89,7 @@ class BaseRepository extends Object{
 
   /**
    * @param string $uri
-   * @param BaseEntity $entityClass
+   * @param BaseEntity|string $entityClass
    * @param string $entityClassNamespace = self::BASIC_ENTITY_NAMESPACE
    * @return BaseEntity|null
    */
@@ -116,6 +116,7 @@ class BaseRepository extends Object{
    * @return BaseEntity[]|null
    */
   public function findEntities($params,$entityClass,$entityClassNamespace=self::BASIC_ENTITY_NAMESPACE){
+    //TODO param knowledgeBase
     if ($entityClassNamespace!=''){
       $entityClass=$entityClassNamespace.'\\'.$entityClass;
     }

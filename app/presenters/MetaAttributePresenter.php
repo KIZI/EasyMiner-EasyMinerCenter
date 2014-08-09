@@ -16,30 +16,30 @@ class MetaAttributePresenter extends BaseRestPresenter{
    * @param string $baseId
    */
   public function actionList($baseId=''){
-    $metaattributes=$this->knowledgeRepository->findMetaattributes();//TODO filtrování na základě zadaného baseId
-    if (empty($metaattributes)){
+    $metaAttributes=$this->knowledgeRepository->findMetaAttributes();//TODO filtrování na základě zadaného baseId
+    if (empty($metaAttributes)){
       $this->sendXmlResponse($this->xmlSerializer->baseMetaAttributesXml());
       return;
     }
 
     $responseXml=$this->xmlSerializer->baseMetaAttributesXml();
-    foreach ($metaattributes as $metaattribute){
-      $this->xmlSerializer->blankMetaAttributeAsXml($metaattribute,$responseXml);
+    foreach ($metaAttributes as $metaAttribute){
+      $this->xmlSerializer->blankMetaAttributeAsXml($metaAttribute,$responseXml);
     }
 
     $this->sendXmlResponse($responseXml);
   }
 
   public function actionListWithFormats($baseId=''){
-    $metaattributes=$this->knowledgeRepository->findMetaattributes();//TODO filtrování na základě zadaného baseId
-    if (empty($metaattributes)){
+    $metaAttributes=$this->knowledgeRepository->findMetaAttributes(array('knowledgeBase'=>$baseId));
+    if (empty($metaAttributes)){
       $this->sendXmlResponse($this->xmlSerializer->baseMetaAttributesXml());
       return;
     }
 
     $responseXml=$this->xmlSerializer->baseMetaAttributesXml();
-    foreach ($metaattributes as $metaattribute){
-      $this->xmlSerializer->metaAttributeWithBlankFormatsAsXml($metaattribute,$responseXml);
+    foreach ($metaAttributes as $metaAttribute){
+      $this->xmlSerializer->metaAttributeWithBlankFormatsAsXml($metaAttribute,$responseXml);
     }
 
     $this->sendXmlResponse($responseXml);
@@ -51,11 +51,17 @@ class MetaAttributePresenter extends BaseRestPresenter{
    * @param $uri
    * @throws \Nette\Application\BadRequestException
    */
-  public function actionGet($baseId='',$uri){//TODO baseId
-    $metaattribute=$this->knowledgeRepository->findMetaattribute($uri);
-    if ($metaattribute){
+  public function actionGet($baseId='',$uri){
+    $metaAttribute=$this->knowledgeRepository->findMetaAttribute($uri);
+
+    if ($metaAttribute && $baseId){
+      if (@$metaAttribute->knowledgeBase->uri!=$baseId){
+        $metaAttribute=null;
+      }
+    }
+    if ($metaAttribute){
       //odešleme daný metaatribut
-      $this->sendXmlResponse($this->xmlSerializer->metaattributeAsXml($metaattribute));
+      $this->sendXmlResponse($this->xmlSerializer->metaAttributeAsXml($metaAttribute));
     }else{
       throw new BadRequestException('Requested MetaAttribute not found.',IResponse::S404_NOT_FOUND);
     }

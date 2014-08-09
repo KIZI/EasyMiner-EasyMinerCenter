@@ -8,6 +8,7 @@ use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\Interval;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
+use App\Model\Rdf\Entities\RuleSet;
 use App\Model\Rdf\Entities\Value;
 use Nette\Object;
 
@@ -21,6 +22,8 @@ class XmlSerializer extends Object{
   const METAATTRIBUTE_XML_BASE='<MetaAttribute xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttribute>';
   const RULE_XML_BASE='<Rule xmlns="http://keg.vse.cz/easyminer/KBRules"></Rule>';
   const RULES_XML_BASE='<Rules xmlns="http://keg.vse.cz/easyminer/KBRules"></Rules>';
+  const RULESET_XML_BASE='<RuleSet xmlns="http://keg.vse.cz/easyminer/KBRules"></RuleSet>';
+  const RULESETS_XML_BASE='<RuleSets xmlns="http://keg.vse.cz/easyminer/KBRules"></RuleSets>';
 
   /**
    * Funkce vracecící základ XML dokumentu pro zachycení metaatributů
@@ -53,6 +56,23 @@ class XmlSerializer extends Object{
   public static function baseRuleXml(){
     return simplexml_load_string(self::RULE_XML_BASE);
   }
+
+  /**
+   * Funkce vracející základ XML dokumentu pro zachycení jednoho rulesetu
+   * @return \SimpleXMLElement
+   */
+  public static function baseRuleSetXml() {
+    return simplexml_load_string(self::RULESET_XML_BASE);
+  }
+
+  /**
+   * Funkce vracející základ XML dokumentu pro zachycení sady rulesetů
+   * @return \SimpleXMLElement
+   */
+  public static function baseRuleSetsXml() {
+    return simplexml_load_string(self::RULESETS_XML_BASE);
+  }
+
 #endregion
 
   /**
@@ -118,6 +138,22 @@ class XmlSerializer extends Object{
     $formatXml=$parentXml->addChild('Format');
     $formatXml->addAttribute('id',$format->uri);
     $formatXml->addChild('Name',$format->name);
+  }
+
+  /**
+   * Funkce pro serializaci základních info o formátu (bez vnitřní struktury)
+   * @param  RuleSet $ruleSet
+   * @param  \SimpleXMLElement|null &$parentXml
+   * @return \SimpleXMLElement
+   */
+  public function blankRuleSetAsXml(RuleSet $ruleSet,\SimpleXMLElement &$parentXml = null){
+    if ($parentXml instanceof \SimpleXMLElement){
+      $ruleSetXml=$parentXml->addChild('RuleSet');
+    }else{
+      $ruleSetXml=self::baseMetaAttributeXml();
+    }
+    $ruleSetXml->addAttribute('id',$ruleSet->uri);
+    $ruleSetXml->addChild('Name',$ruleSet->name);
   }
 
   /**
@@ -265,5 +301,14 @@ class XmlSerializer extends Object{
     }
     return $attributeXml;
   }
+
+  /**
+   * @param $ruleSet
+   * @return \SimpleXMLElement
+   */
+  public function ruleSetAsXml(RuleSet $ruleSet) {
+    //TODO
+  }
+
 
 } 

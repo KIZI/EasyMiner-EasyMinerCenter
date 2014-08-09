@@ -31,6 +31,11 @@ class XmlUnserializer extends Object{
     return simplexml_load_string($xmlString);
   }
 
+  public static function prepareRuleSetXml($xmlString){
+    //TODO validace oproti schématu
+    return simplexml_load_string($xmlString);
+  }
+
   public static function prepareMetaAttributesXml($xmlString){
     //TODO validace oproti schématu
     return simplexml_load_string($xmlString);
@@ -166,5 +171,8 @@ class XmlUnserializer extends Object{
 #region preprocessings
 //TODO preprocessings!
 #endregion
+#region ruleSets
+//TODO ruleSets!
+#endregion ruleSets
 
 } 
