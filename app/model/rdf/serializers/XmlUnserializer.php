@@ -6,8 +6,10 @@ use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\Cedent;
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\Interval;
+use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
+use App\Model\Rdf\Entities\RuleSet;
 use App\Model\Rdf\Entities\Value;
 use App\Model\Rdf\Entities\ValuesBin;
 use App\Model\Rdf\Repositories\KnowledgeRepository;
@@ -26,6 +28,7 @@ class XmlUnserializer extends Object{
     $this->knowledgeRepository=$knowledgeRepository;
   }
 
+  #region příprava XML (s validací)
   public static function prepareRulesXml($xmlString){
     //TODO validace oproti schématu
     return simplexml_load_string($xmlString);
@@ -40,6 +43,12 @@ class XmlUnserializer extends Object{
     //TODO validace oproti schématu
     return simplexml_load_string($xmlString);
   }
+
+  public static function prepareKnowledgeBaseXml($xmlString) {
+    //TODO validace oproti schématu
+    return simplexml_load_string($xmlString);
+  }
+  #endregion příprava XML (s validací)
 
 #region metaatributy
   /**
@@ -172,7 +181,43 @@ class XmlUnserializer extends Object{
 //TODO preprocessings!
 #endregion
 #region ruleSets
-//TODO ruleSets!
+  /**
+   * Funkce pro vytvoření objektové struktury rulesetu na základě XML
+   * @param \SimpleXMLElement $ruleSetXml
+   * @return RuleSet
+   */
+  public function ruleSetFromXml(\SimpleXMLElement $ruleSetXml){
+    $ruleSet = new RuleSet();
+    $ruleSet->uri=(string)$ruleSetXml['id'];
+    $ruleSet->name=(string)$ruleSetXml->Name;
+
+    if (isset($ruleSetXml->Rules)){
+      $ruleSet->rules=array();
+      if (count($ruleSetXml->Rules->Rule)){
+        foreach ($ruleSetXml->Rules->Rule as $ruleXml){
+          $rule=$this->ruleFromXml($ruleXml);//zpětnou vazbu přiřazovat nebudeme, abychom nezrušili případné propojení pravidla s dalšími rulesety
+          $ruleSet->rules[]=$rule;
+        }
+      }
+    }
+
+    return $ruleSet;
+  }
 #endregion ruleSets
+#region knowledgeBases
+  /**
+   * Funkce pro vytvoření objektové struktury knowledgeBase na základě XML
+   * @param \SimpleXMLElement $knowledgeBaseXml
+   * @return RuleSet
+   */
+  public function knowledgeBaseFromXml(\SimpleXMLElement $knowledgeBaseXml){
+    $knowledgeBase = new KnowledgeBase();
+    $knowledgeBase->uri=(string)$knowledgeBaseXml['id'];
+    $knowledgeBase->name=(string)$knowledgeBaseXml->Name;
+
+    return $knowledgeBase;
+  }
+
+#endregion knowledgeBases
 
 } 

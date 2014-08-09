@@ -22,6 +22,15 @@ class FormatPresenter extends BaseRestPresenter{
    */
   public function actionGet($baseId='',$uri){
     $format=$this->knowledgeRepository->findFormat($uri);
+
+    if ($format && $baseId){
+      //zkontrolujeme, jestli jde o formát patřící do metaatributu, který patří do zadané KnowledgeBase
+      $metaAttribute=$format->metaAttribute;
+      if ($metaAttribute->uri!=$baseId){
+        $format=null;
+      }
+    }
+
     if ($format){
       //odešleme daný formát zabalený do základních info o metaatributu
       $this->sendXmlResponse($this->xmlSerializer->formatInBlankMetaAttributeAsXml($format));

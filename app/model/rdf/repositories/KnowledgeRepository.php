@@ -19,12 +19,22 @@ class KnowledgeRepository extends BaseRepository{
 
   /**
    * @param null|array $params
-   * @param int $limit=-1
-   * @param int $offset=-1
-   * @return RuleSet[]
+   * @param int $limit = -1
+   * @param int $offset = -1
+   * @return RuleSet[]|null
    */
   public function findRuleSets($params=null,$limit=-1,$offset=-1){
-    //TODO
+    return $this->findEntities($params,'RuleSet',null,$limit,$offset);
+  }
+
+  /**
+   * @param null|array $params
+   * @param int $limit = -1
+   * @param int $offset = -1
+   * @return KnowledgeBase[]|null
+   */
+  public function findKnowledgeBases($params=null,$limit=-1,$offset=-1){
+    return $this->findEntities($params,'KnowledgeBase',null,$limit,$offset);
   }
 
   /**
@@ -46,7 +56,7 @@ class KnowledgeRepository extends BaseRepository{
     }
 
     #endregion params
-    $result=$this->executeQuery(MetaAttribute::getLoadQuery('',$filterSparql),$limit,$offset);
+    $result=$this->executeQuery(MetaAttribute::getLoadQuery('',$filterSparql),'raw',$limit,$offset);
     if ($result && !empty($result['rows'])){
       $output=array();
       foreach ($result['rows'] as $row){
@@ -62,11 +72,16 @@ class KnowledgeRepository extends BaseRepository{
 
   /**
    * @param MetaAttribute $metaAttribute
-   * @return bool
    */
   public function saveMetaattribute(MetaAttribute &$metaAttribute){
-    //TODO kontrola podřízených entit
     $this->saveEntity($metaAttribute);
+  }
+
+  /**
+   * @param RuleSet $ruleSet
+   */
+  public function saveRuleSet(RuleSet &$ruleSet){
+    $this->saveEntity($ruleSet);
   }
 
   /**
@@ -163,10 +178,10 @@ class KnowledgeRepository extends BaseRepository{
     if ($result && !empty($result['rows'])){
       $output=array();
       foreach ($result['rows'] as $row){
-        $format=new Format();
-        $format->setKnowledgeRepository($this);
-        $format->prepareEntity($row);
-        $output[]=$format;
+        $rule=new Rule();
+        $rule->setKnowledgeRepository($this);
+        $rule->prepareEntity($row);
+        $output[]=$rule;
       }
       return $output;
     }

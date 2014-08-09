@@ -111,11 +111,16 @@ class BaseRepository extends Object{
   /**
    * Funkce pro načtení kolekce entit na základě vyhledávacích parametrů a názvu třídy
    * @param array|null $params
-   * @param $entityClass
-   * @param string $entityClassNamespace = self::BASIC_ENTITY_NAMESPACE
+   * @param BaseEntity|string $entityClass
+   * @param string $entityClassNamespace = null|self::BASIC_ENTITY_NAMESPACE
+   * @param int $limit = -1
+   * @param int $offset = -1
    * @return BaseEntity[]|null
    */
-  public function findEntities($params,$entityClass,$entityClassNamespace=self::BASIC_ENTITY_NAMESPACE){
+  public function findEntities($params,$entityClass,$entityClassNamespace=null,$limit=-1,$offset=-1){
+    if ($entityClassNamespace==null){
+      $entityClassNamespace=self::BASIC_ENTITY_NAMESPACE;
+    }
     //TODO param knowledgeBase
     if ($entityClassNamespace!=''){
       $entityClass=$entityClassNamespace.'\\'.$entityClass;
@@ -126,7 +131,7 @@ class BaseRepository extends Object{
       $filterSparql=$params['sparql'];
     }
     #endregion params
-    $result=$this->executeQuery($entityClass::getLoadQuery('',$filterSparql));
+    $result=$this->executeQuery($entityClass::getLoadQuery('',$filterSparql),'raw',$limit,$offset);
     if ($result && !empty($result['rows'])){
       $output=array();
       foreach ($result['rows'] as $row){

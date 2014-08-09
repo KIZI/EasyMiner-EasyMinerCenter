@@ -6,6 +6,7 @@ use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\Cedent;
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\Interval;
+use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
 use App\Model\Rdf\Entities\RuleSet;
@@ -18,12 +19,14 @@ use Nette\Object;
  */
 class XmlSerializer extends Object{
 #region base Xml templates
-  const METAATTRIBUTES_XML_BASE='<MetaAttributes xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttributes>';
-  const METAATTRIBUTE_XML_BASE='<MetaAttribute xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttribute>';
-  const RULE_XML_BASE='<Rule xmlns="http://keg.vse.cz/easyminer/KBRules"></Rule>';
-  const RULES_XML_BASE='<Rules xmlns="http://keg.vse.cz/easyminer/KBRules"></Rules>';
-  const RULESET_XML_BASE='<RuleSet xmlns="http://keg.vse.cz/easyminer/KBRules"></RuleSet>';
-  const RULESETS_XML_BASE='<RuleSets xmlns="http://keg.vse.cz/easyminer/KBRules"></RuleSets>';
+  const METAATTRIBUTES_XML_BASE = '<MetaAttributes xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttributes>';
+  const METAATTRIBUTE_XML_BASE  = '<MetaAttribute xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttribute>';
+  const RULE_XML_BASE           = '<Rule xmlns="http://keg.vse.cz/easyminer/KBRules"></Rule>';
+  const RULES_XML_BASE          = '<Rules xmlns="http://keg.vse.cz/easyminer/KBRules"></Rules>';
+  const RULESET_XML_BASE        = '<RuleSet xmlns="http://keg.vse.cz/easyminer/KBRules"></RuleSet>';
+  const RULESETS_XML_BASE       = '<RuleSets xmlns="http://keg.vse.cz/easyminer/KBRules"></RuleSets>';
+  const KNOWLEDGEBASE_XML_BASE  = '<KnowledgeBase xmlns="http://keg.vse.cz/easyminer/KB"></KnowledgeBase>';
+  const KNOWLEDGEBASES_XML_BASE = '<KnowledgeBases xmlns="http://keg.vse.cz/easyminer/KB"></KnowledgeBases>';
 
   /**
    * Funkce vracecící základ XML dokumentu pro zachycení metaatributů
@@ -71,6 +74,22 @@ class XmlSerializer extends Object{
    */
   public static function baseRuleSetsXml() {
     return simplexml_load_string(self::RULESETS_XML_BASE);
+  }
+
+  /**
+   * Funkce vracející základ XML dokumentu pro zachycení jedné KnowledgeBase
+   * @return \SimpleXMLElement
+   */
+  public static function baseKnowledgeBaseXml() {
+    return simplexml_load_string(self::KNOWLEDGEBASE_XML_BASE);
+  }
+
+  /**
+   * Funkce vracející základ XML dokumentu pro zachycení sady rulesetů
+   * @return \SimpleXMLElement
+   */
+  public static function baseKnowledgeBasesXml() {
+    return simplexml_load_string(self::KNOWLEDGEBASES_XML_BASE);
   }
 
 #endregion
@@ -154,6 +173,23 @@ class XmlSerializer extends Object{
     }
     $ruleSetXml->addAttribute('id',$ruleSet->uri);
     $ruleSetXml->addChild('Name',$ruleSet->name);
+    return $ruleSetXml;
+  }
+
+  /**
+   * Funkce pro serializaci základních info o formátu (bez vnitřní struktury)
+   * @param  KnowledgeBase $knowledgeBase
+   * @param  \SimpleXMLElement|null &$parentXml
+   * @return \SimpleXMLElement
+   */
+  public function blankKnowledgeBaseAsXml(KnowledgeBase $knowledgeBase,\SimpleXMLElement &$parentXml = null){
+    if ($parentXml instanceof \SimpleXMLElement){
+      $knowledgeBaseXml=$parentXml->addChild('KnowledgeBase');
+    }else{
+      $knowledgeBaseXml=self::baseKnowledgeBaseXml();
+    }
+    $knowledgeBaseXml->addAttribute('id',$knowledgeBase->uri);
+    $knowledgeBaseXml->addChild('Name',$knowledgeBase->name);
   }
 
   /**
@@ -303,11 +339,21 @@ class XmlSerializer extends Object{
   }
 
   /**
-   * @param $ruleSet
+   * @param RuleSet $ruleSet
+   * @param \SimpleXMLElement &$parentXml=null
    * @return \SimpleXMLElement
    */
-  public function ruleSetAsXml(RuleSet $ruleSet) {
-    //TODO
+  public function ruleSetAsXml(RuleSet $ruleSet,\SimpleXMLElement &$parentXml=null) {
+    return $this->blankRuleSetAsXml($ruleSet,$parentXml);
+  }
+
+  /**
+   * @param KnowledgeBase $knowledgeBase
+   * @param \SimpleXMLElement &$parentXml=null
+   * @return \SimpleXMLElement
+   */
+  public function knowledgeBaseAsXml(KnowledgeBase $knowledgeBase,\SimpleXMLElement &$parentXml=null) {
+    return $this->blankKnowledgeBaseAsXml($knowledgeBase,$parentXml);
   }
 
 

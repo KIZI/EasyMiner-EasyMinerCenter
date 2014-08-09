@@ -4,10 +4,18 @@ namespace App\Presenters;
 
 
 use App\Model\XmlSerializer;
+use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Http\IResponse;
 
 class PreprocessingPresenter extends BaseRestPresenter{
+
+  public function __construct(){
+    parent::__construct();
+    /*  TENTO PRESENTER JEŠTĚ NENÍ PŘIPRAVEN!!!  */
+    throw new AbortException();
+  }
+
   /**
    * Akce pro vypsání seznamu uložených preprocessingů na základě vybraného formátu
    * @param string $baseId = ''

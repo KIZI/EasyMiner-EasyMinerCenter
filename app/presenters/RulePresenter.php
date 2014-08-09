@@ -15,7 +15,7 @@ class RulePresenter extends BaseRestPresenter{
   public function actionList($baseId='',$ruleset=''){
     if ($ruleset){
       //pokud chceme seznam pravidel z konkrétního rulesetu, necháme to vyřídit RuleSetPresenter
-      $this->redirect('RuleSet:rules',array('baseId'=>$baseId,'uri'=>$ruleset));
+      $this->redirect('RuleSet:get',array('baseId'=>$baseId,'uri'=>$ruleset));
       return;
     }
     $rules=$this->knowledgeRepository->findRules(array('knowledgeBase'=>$baseId));

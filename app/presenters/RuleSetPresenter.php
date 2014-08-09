@@ -2,7 +2,6 @@
 
 namespace App\Presenters;
 
-
 use Nette\Application\BadRequestException;
 use Nette\Http\IResponse;
 
@@ -27,12 +26,34 @@ class RuleSetPresenter extends BaseRestPresenter{
   }
 
   /**
-   * Akce pro vypsání seznamu pravidel zahrnutých do daného RuleSetu
-   * @param string $baseId=''
+   * Akce pro vypsání seznamu pravidel zahrnutých do daného RuleSetu včetně kompletního obsahu
+   * @param string $baseId =''
    * @param string $uri
+   * @throws \Nette\Application\BadRequestException
    */
   public function actionRules($baseId='',$uri){
-    //TODO
+    $ruleSet=$this->knowledgeRepository->findRuleSet($uri);
+    if ($baseId && $ruleSet){
+      //zkontrolujeme, jestli dané pravidlo patří
+      if (@$ruleSet->knowledgeBase->uri!=$baseId){
+        $ruleSet=null;
+      }
+    }
+    if ($ruleSet){
+      //odešleme daný ruleset včetně seznamu podřízených pravidel
+
+      $responseXml=$this->xmlSerializer->blankRuleSetAsXml($ruleSet);
+      $rules=$ruleSet->rules;
+      if ($rules && count($rules)){
+        foreach ($rules as $rule){
+          $this->xmlSerializer->ruleAsXml($rule,$responseXml);
+        }
+      }
+
+      $this->sendXmlResponse($this->xmlSerializer->ruleSetAsXml($ruleSet));
+    }else{
+      throw new BadRequestException('Requested RuleSet not found.',IResponse::S404_NOT_FOUND);
+    }
   }
 
   /**
@@ -50,7 +71,7 @@ class RuleSetPresenter extends BaseRestPresenter{
       }
     }
     if ($ruleSet){
-      //odešleme daný metaatribut
+      //odešleme daný ruleset
       $this->sendXmlResponse($this->xmlSerializer->ruleSetAsXml($ruleSet));
     }else{
       throw new BadRequestException('Requested RuleSet not found.',IResponse::S404_NOT_FOUND);

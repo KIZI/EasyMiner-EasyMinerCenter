@@ -16,7 +16,7 @@ class MetaAttributePresenter extends BaseRestPresenter{
    * @param string $baseId
    */
   public function actionList($baseId=''){
-    $metaAttributes=$this->knowledgeRepository->findMetaAttributes();//TODO filtrování na základě zadaného baseId
+    $metaAttributes=$this->knowledgeRepository->findMetaAttributes(array('knowledgeBase'=>$baseId));
     if (empty($metaAttributes)){
       $this->sendXmlResponse($this->xmlSerializer->baseMetaAttributesXml());
       return;
@@ -75,7 +75,7 @@ class MetaAttributePresenter extends BaseRestPresenter{
    * @throws \Nette\Application\BadRequestException
    * @internal param $_POST['data']
    */
-  public function actionSave($baseId='',$uri='',$data=null){//TODO baseId
+  public function actionSave($baseId='',$uri='',$data=null){
     if (empty($data)){
       $data=$this->getHttpRequest()->getPost('data');
       if (empty($data)){
@@ -86,6 +86,11 @@ class MetaAttributePresenter extends BaseRestPresenter{
     $xml=$this->xmlUnserializer->prepareMetaAttributesXml($data);
     $metaAttribute=$this->xmlUnserializer->metaAttributeFromXml($xml);
     $metaAttribute->uri=$uri;
+    if ($baseId){
+      //metaatribut má patřit do konkrétní KnowledgeBase
+      $knowledgeBase=$this->knowledgeRepository->findKnowledgeBase($baseId);
+      $metaAttribute->knowledgeBase=$knowledgeBase;
+    }
     $this->knowledgeRepository->saveMetaattribute($metaAttribute);
     $this->actionGet($baseId,$metaAttribute->uri);
   }
