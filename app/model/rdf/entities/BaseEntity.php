@@ -122,7 +122,8 @@ abstract class BaseEntity extends Object{
           }
 
           if (!empty($sparqlQuery)){
-            return $this->repository->$function(array('sparql'=>$sparqlQuery));
+            $result= $this->repository->$function(array('sparql'=>$sparqlQuery));
+            return $result;
           }
         }
 
@@ -222,7 +223,7 @@ abstract class BaseEntity extends Object{
       foreach ($mappedProperties['literals'] as $literal){
         $property=$literal['property'];
         $selectQuery.=' ?'.$literal['property'];
-        if ($literal['optional']){
+        if (@$literal['optional']){
           $whereQuery.='. OPTIONAL {?uri '.$literal['relation'].' ?'.$property.'}';
         }else{
           $whereQuery.='. ?uri '.$literal['relation'].' ?'.$property;

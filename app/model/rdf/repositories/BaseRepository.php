@@ -83,8 +83,7 @@ class BaseRepository extends Object{
     if (!$entity->getUri()){
       $entity->setUri($this->prepareNewEntityUri($entity->prepareBaseUri()));
     }
-    exit(var_dump($entity->getSaveQuery()));
-    $this->executeQueries($entity->getSaveQuery());
+    $this->executeQueries($entity->getSaveQuery($this));
   }
 
   /**
