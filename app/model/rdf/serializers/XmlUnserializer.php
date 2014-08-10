@@ -9,6 +9,7 @@ use App\Model\Rdf\Entities\Interval;
 use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
+use App\Model\Rdf\Entities\RuleAttribute;
 use App\Model\Rdf\Entities\RuleSet;
 use App\Model\Rdf\Entities\Value;
 use App\Model\Rdf\Entities\ValuesBin;
@@ -155,20 +156,20 @@ class XmlUnserializer extends Object{
         $cedent->cedents[]=$this->cedentFromXml($subCedentXml);
       }
     }
-    if (count($cedentXml->Attribute)){
-      $cedent->attributes=array();
-      foreach ($cedentXml->Attribute as $attributeXml){
-        $attribute=new Attribute();
-        $attribute->uri=(string)$attributeXml['id'];
-        $attribute->format=$this->knowledgeRepository->findFormat((string)$attributeXml['format']);
-        if (count($attributeXml->Bin)){
-          foreach($attributeXml->Bin as $binXml){
+    if (count($cedentXml->RuleAttribute)){
+      $cedent->ruleAttributes=array();
+      foreach ($cedentXml->RuleAttribute as $ruleAttributeXml){
+        $ruleAttribute=new RuleAttribute();
+        $ruleAttribute->uri=(string)$ruleAttributeXml['id'];
+        $ruleAttribute->attribute=$this->knowledgeRepository->findAttribute((string)$ruleAttribute['attribute']);
+        if (count($ruleAttributeXml->Bin)){
+          foreach($ruleAttributeXml->Bin as $binXml){
             if (!empty($binXml['id'])){
-              $attribute->valuesBins[]=$this->knowledgeRepository->findValuesBin((string)$binXml['id']);
+              $ruleAttribute->valuesBins[]=$this->knowledgeRepository->findValuesBin((string)$binXml['id']);
             }else{
               //budeme vytvářet nový BIN, respektive hledat BIN, který má stejné parametry
               //TODO check existing bin
-              $attribute->valuesBins[]=$this->valuesBinFromXml($binXml);
+              $ruleAttribute->valuesBins[]=$this->valuesBinFromXml($binXml);
             }
           }
         }

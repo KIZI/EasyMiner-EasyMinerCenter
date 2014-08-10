@@ -2,13 +2,13 @@
 
 namespace App\Model\Rdf\Serializers;
 
-use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\Cedent;
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\Interval;
 use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
+use App\Model\Rdf\Entities\RuleAttribute;
 use App\Model\Rdf\Entities\RuleSet;
 use App\Model\Rdf\Entities\Value;
 use Nette\Object;
@@ -215,8 +215,7 @@ class XmlSerializer extends Object{
     $formatXml=$this->blankFormatAsXml($format,$parentXml);
     $formatXml->addChild('DataType',$format->dataType);
     $rangeXml=$formatXml->addChild('Range');
-    //$this->rangeAsXml($rangeXml,)
-    //TODO range
+    $this->rangeAsXml($format,$rangeXml);
 
     $valuesBins=$format->valuesBins;
     $valuesBinsXml=$formatXml->addChild('ValuesBins');
@@ -308,7 +307,7 @@ class XmlSerializer extends Object{
     $cedentXml->addAttribute('connective',$cedent->connective);
     if (!empty($cedent->attributes)){
       foreach ($cedent->attributes as $attribute){
-        $this->attributeAsXml($attribute,$cedentXml);
+        $this->ruleAttributeAsXml($attribute,$cedentXml);
       }
     }
     if (!empty($cedent->cedents)){
@@ -321,21 +320,21 @@ class XmlSerializer extends Object{
 
   /**
    * Funkce pro serializaci atributu z konkrétního pravidla
-   * @param Attribute $attribute
+   * @param RuleAttribute $ruleAttribute
    * @param \SimpleXMLElement &$parentXml
    * @return \SimpleXMLElement
    */
-  private function attributeAsXml(Attribute $attribute,\SimpleXMLElement &$parentXml){
-    $attributeXml=$parentXml->addChild('Attribute');
-    $attributeXml->addAttribute('id',$attribute->uri);
-    $attributeXml->addAttribute('format',$attribute->format->uri);
-    if (!empty($attribute->valuesBins)){
-      foreach ($attribute->valuesBins as $valuesBin){
-        $valuesBinXml=$attributeXml->addChild('ValuesBin');
+  private function ruleAttributeAsXml(RuleAttribute $ruleAttribute,\SimpleXMLElement &$parentXml){
+    $ruleAttributeXml=$parentXml->addChild('RuleAttribute');
+    $ruleAttributeXml->addAttribute('id',$ruleAttribute->uri);
+    $ruleAttributeXml->addAttribute('attribute',$ruleAttribute->attribute->uri);
+    if (!empty($ruleAttribute->valuesBins)){
+      foreach ($ruleAttribute->valuesBins as $valuesBin){
+        $valuesBinXml=$ruleAttributeXml->addChild('ValuesBin');
         $valuesBinXml->addAttribute('id',$valuesBin->uri);
       }
     }
-    return $attributeXml;
+    return $ruleAttributeXml;
   }
 
   /**

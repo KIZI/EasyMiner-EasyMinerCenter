@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Stanislav
- * Date: 5.7.14
- * Time: 15:36
- */
 
 namespace App\Model\Rdf\Entities;
 
