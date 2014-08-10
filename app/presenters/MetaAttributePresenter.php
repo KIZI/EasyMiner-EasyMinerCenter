@@ -83,7 +83,7 @@ class MetaAttributePresenter extends BaseRestPresenter{
       }
     }
 
-    $xml=$this->xmlUnserializer->prepareMetaAttributesXml($data);
+    $xml=$this->xmlUnserializer->prepareMetaAttributeXml($data);
     $metaAttribute=$this->xmlUnserializer->metaAttributeFromXml($xml);
     $metaAttribute->uri=$uri;
     if ($baseId){

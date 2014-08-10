@@ -2,6 +2,7 @@
 
 namespace App\Model\Rdf\Serializers;
 
+use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\Cedent;
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\Interval;
@@ -21,6 +22,8 @@ class XmlSerializer extends Object{
 #region base Xml templates
   const METAATTRIBUTES_XML_BASE = '<MetaAttributes xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttributes>';
   const METAATTRIBUTE_XML_BASE  = '<MetaAttribute xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttribute>';
+  const ATTRIBUTES_XML_BASE     = '<Attributes xmlns="http://keg.vse.cz/easyminer/BKEF"></Attributes>';
+  const ATTRIBUTE_XML_BASE      = '<Attribute xmlns="http://keg.vse.cz/easyminer/BKEF"></Attribute>';
   const RULE_XML_BASE           = '<Rule xmlns="http://keg.vse.cz/easyminer/KBRules"></Rule>';
   const RULES_XML_BASE          = '<Rules xmlns="http://keg.vse.cz/easyminer/KBRules"></Rules>';
   const RULESET_XML_BASE        = '<RuleSet xmlns="http://keg.vse.cz/easyminer/KBRules"></RuleSet>';
@@ -42,6 +45,22 @@ class XmlSerializer extends Object{
    */
   public static function baseMetaAttributeXml(){
     return simplexml_load_string(self::METAATTRIBUTE_XML_BASE);
+  }
+
+  /**
+   * Funkce vracecící základ XML dokumentu pro zachycení atributů
+   * @return \SimpleXMLElement
+   */
+  public static function baseAttributesXml(){
+    return simplexml_load_string(self::ATTRIBUTES_XML_BASE);
+  }
+
+  /**
+   * Funkce vracecící základ XML dokumentu pro zachycení jednoho atributu
+   * @return \SimpleXMLElement
+   */
+  public static function baseAttributeXml(){
+    return simplexml_load_string(self::ATTRIBUTE_XML_BASE);
   }
 
   /**
@@ -145,6 +164,28 @@ class XmlSerializer extends Object{
     $metaAttributeXml->addAttribute('id',$metaAttribute->uri);
     $metaAttributeXml->addChild('Name',$metaAttribute->name);
     return $metaAttributeXml;
+  }
+
+
+  /**
+   * Funkce pro serializaci základních info o metaatributu bez vnitřní struktury
+   * @param Attribute $attribute
+   * @param \SimpleXMLElement|null &$parentXml
+   * @return \SimpleXMLElement
+   */
+  public function blankAttributeAsXml(Attribute $attribute,\SimpleXMLElement &$parentXml=null){
+    if ($parentXml instanceof \SimpleXMLElement){
+      $attributeXml=$parentXml->addChild('Attribute');
+    }else{
+      $attributeXml=self::baseAttributeXml();
+    }
+    $attributeXml->addAttribute('id',$attribute->uri);
+    $attributeXml->addAttribute('format',@$attribute->format->uri);
+    if (!empty($attribute->preprocessing)){
+      $attributeXml->addAttribute('preprocessing',@$attribute->preprocessing->uri);
+    }
+    $attributeXml->addChild('Name',$attribute->name);
+    return $attributeXml;
   }
 
   /**
@@ -355,5 +396,34 @@ class XmlSerializer extends Object{
     return $this->blankKnowledgeBaseAsXml($knowledgeBase,$parentXml);
   }
 
+
+
+  /**
+   * Funkce pro serializaci kompletního atributu včetně celé struktury
+   * @param Attribute $attribute
+   * @param \SimpleXMLElement|null &$parentXml
+   * @return \SimpleXMLElement
+   */
+  public function attributeAsXml(Attribute $attribute,&$parentXml=null){
+    $attributeXml=$this->blankAttributeAsXml($attribute,$parentXml);
+
+    if ($format=$attribute->format){
+      //pro zjednodušení sem seserializujeme také Range z formátu
+      $this->rangeAsXml($format,$attributeXml);
+    }
+
+    $valuesBins=$attribute->valuesBins;
+    $valuesBinsXml=$attributeXml->addChild('ValuesBins');
+    if (count($valuesBins)){
+      foreach ($valuesBins as $valuesBin){
+        $valuesBinXml=$valuesBinsXml->addChild('Bin');
+        $valuesBinXml->addAttribute('id',$valuesBin->uri);
+        $valuesBinXml->addChild('Name',$valuesBin->name);
+        $this->rangeAsXml($valuesBin->intervals,$valuesBinXml);
+        $this->rangeAsXml($valuesBin->values,$valuesBinXml);
+      }
+    }
+    return $attributeXml;
+  }
 
 } 

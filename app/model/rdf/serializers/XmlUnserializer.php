@@ -45,6 +45,21 @@ class XmlUnserializer extends Object{
     return simplexml_load_string($xmlString);
   }
 
+  public static function prepareMetaAttributeXml($xmlString){
+    //TODO validace oproti schématu
+    return simplexml_load_string($xmlString);
+  }
+
+  public static function prepareAttributesXml($xmlString){
+    //TODO validace oproti schématu
+    return simplexml_load_string($xmlString);
+  }
+
+  public static function prepareAttributeXml($xmlString){
+    //TODO validace oproti schématu
+    return simplexml_load_string($xmlString);
+  }
+
   public static function prepareKnowledgeBaseXml($xmlString) {
     //TODO validace oproti schématu
     return simplexml_load_string($xmlString);
@@ -63,9 +78,9 @@ class XmlUnserializer extends Object{
     $metaAttribute->name=(string)$metaAttributeXml->Name;
 
     //zpracujeme formáty
-    if (isset($metaAttributeXml->formats) && count($metaAttributeXml->formats->format)){
+    if (isset($metaAttributeXml->Formats) && count($metaAttributeXml->Formats->Format)){
       $metaAttribute->formats=array();
-      foreach ($metaAttributeXml->formats->format as $formatXml){
+      foreach ($metaAttributeXml->Formats->Format as $formatXml){
         $format=$this->formatFromXml($formatXml);
         $format->metaAttribute=$metaAttribute;
         $metaAttribute->formats[]=$format;
@@ -220,5 +235,39 @@ class XmlUnserializer extends Object{
   }
 
 #endregion knowledgeBases
+
+#region attributes
+  /**
+   * Funkce pro vygenerování struktury atributu na základě XML
+   * @param \SimpleXMLElement $attributeXml
+   * @return Attribute
+   */
+  public function attributeFromXml(\SimpleXMLElement $attributeXml){
+    $attribute=new Attribute();
+    $attribute->uri=(string)$attributeXml['id'];
+    $attribute->name=(string)$attributeXml->Name;
+
+    if (@$attributeXml['format']!=''){
+      $attribute->format=$this->knowledgeRepository->findFormat((string)$attributeXml['format']);
+    }
+
+    if (@$attributeXml['preprocessing']!=''){
+      $attribute->preprocessing=$this->knowledgeRepository->findPreprocessing((string)$attributeXml['preprocessing']);
+    }
+
+    //zpracujeme valuesBins
+    if (isset($attributeXml->ValuesBins) && count($attributeXml->ValuesBins->Bin)){
+      $attribute->valuesBins=array();
+      foreach ($attributeXml->ValuesBins->Bin as $valuesBinXml){
+        $valuesBin=$this->valuesBinFromXml($valuesBinXml);
+        $attribute->valuesBins[]=$valuesBin;
+      }
+    }
+
+    return $attribute;
+  }
+
+#endregion attributes
+
 
 } 

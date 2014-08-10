@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Rdf\Repositories;
 
+use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\BaseEntity;
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\KnowledgeBase;
@@ -25,6 +26,16 @@ class KnowledgeRepository extends BaseRepository{
    */
   public function findRuleSets($params=null,$limit=-1,$offset=-1){
     return $this->findEntities($params,'RuleSet',null,$limit,$offset);
+  }
+
+  /**
+   * @param null|array $params
+   * @param int $limit = -1
+   * @param int $offset = -1
+   * @return Attribute[]|null
+   */
+  public function findAttributes($params=null,$limit=-1,$offset=-1){
+    return $this->findEntities($params,'Attribute',null,$limit,$offset);
   }
 
   /**
@@ -85,6 +96,13 @@ class KnowledgeRepository extends BaseRepository{
   }
 
   /**
+   * @param Attribute $attribute
+   */
+  public function saveAttribute(Attribute &$attribute){
+    $this->saveEntity($attribute);
+  }
+
+  /**
    * @param string $uri
    * @return MetaAttribute
    */
@@ -98,6 +116,14 @@ class KnowledgeRepository extends BaseRepository{
    */
   public function findFormat($uri){
     return $this->findEntity($uri,'Format');
+  }
+
+  /**
+   * @param string $uri
+   * @return Attribute
+   */
+  public function findAttribute($uri){
+    return $this->findEntity($uri,'Attribute');
   }
 
   /**
