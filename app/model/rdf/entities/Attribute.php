@@ -12,6 +12,7 @@ namespace App\Model\Rdf\Entities;
  * @property Format $format
  * @property ValuesBin[] $valuesBins
  * @property Preprocessing $preprocessing
+ * @property KnowledgeBase $knowledgeBase
  *
  * @rdfClass(class="kb:Attribute")
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
@@ -19,6 +20,7 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntity (property=$format,relation='kb:hasFormat',entity='Format')
  * @rdfEntitiesGroup(property=$valuesBins,relation='kb:hasValuesBin',entity='ValuesBin')
  * @rdfEntity(property=$preprocessing,relation='kb:isBasedOn')
+ * @rdfEntity(property=$knowledgeBase,relation='kb:isInBase',entity='KnowledgeBase')
  */
 class Attribute extends BaseEntity{
 
