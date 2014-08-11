@@ -8,13 +8,14 @@ use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
 use App\Model\Rdf\Entities\RuleSet;
+use App\Model\Rdf\Entities\Value;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 
 /**
  * Class KnowledgeRepository
  * @package App\Model\Rdf\Repositories
- * @method saveRule
+ * @method saveRule(Rule $rule)
  */
 class KnowledgeRepository extends BaseRepository{
 

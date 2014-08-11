@@ -107,6 +107,7 @@ class XmlUnserializer extends Object{
         $format->valuesBins[]=$valuesBin;
       }
     }
+    return $format;
   }
 
   private function valuesBinFromXml(\SimpleXMLElement $valuesBinXml){
@@ -154,6 +155,7 @@ class XmlUnserializer extends Object{
     $rule->uri=(string)$ruleXml['id'];
     $rule->text=(string)$ruleXml->Text;
     $rule->antecedent=$this->cedentFromXml($ruleXml->Antecedent);
+    $rule->consequent=$this->cedentFromXml($ruleXml->Consequent);
     return $rule;
   }
 
@@ -176,7 +178,7 @@ class XmlUnserializer extends Object{
       foreach ($cedentXml->RuleAttribute as $ruleAttributeXml){
         $ruleAttribute=new RuleAttribute();
         $ruleAttribute->uri=(string)$ruleAttributeXml['id'];
-        $ruleAttribute->attribute=$this->knowledgeRepository->findAttribute((string)$ruleAttribute['attribute']);
+        $ruleAttribute->attribute=$this->knowledgeRepository->findAttribute((string)$ruleAttributeXml['attribute']);
         if (count($ruleAttributeXml->Bin)){
           foreach($ruleAttributeXml->Bin as $binXml){
             if (!empty($binXml['id'])){
@@ -188,6 +190,7 @@ class XmlUnserializer extends Object{
             }
           }
         }
+        $cedent->ruleAttributes[]=$ruleAttribute;
       }
     }
     return $cedent;

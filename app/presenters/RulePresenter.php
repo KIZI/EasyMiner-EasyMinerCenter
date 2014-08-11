@@ -44,7 +44,7 @@ class RulePresenter extends BaseRestPresenter{
 
     if ($rule && $baseId){
       //zkontrolujeme, jestli dané pravidlo patří do zadané KnowledgeBase
-      if (@$rule->knowledgeBase->uri!=$uri){
+      if (@$rule->knowledgeBase->uri!=$baseId){
         $rule=null;
       }
     }
@@ -91,8 +91,10 @@ class RulePresenter extends BaseRestPresenter{
     }
 
     $xml=$this->xmlUnserializer->prepareRulesXml($data);
+
     $rule=$this->xmlUnserializer->ruleFromXml($xml);
     $rule->uri=$uri;
+
     if ($baseId){
       //pravidlo má patřit do konkrétní KnowledgeBase
       $knowledgeBase=$this->knowledgeRepository->findKnowledgeBase($baseId);
@@ -108,6 +110,6 @@ class RulePresenter extends BaseRestPresenter{
         $this->knowledgeRepository->saveRuleSet($ruleSetItem);
       }
     }
-    $this->actionGet($baseId,$rule->uri);
+    $this->actionGet($baseId,$ruleset,$rule->uri);
   }
 } 

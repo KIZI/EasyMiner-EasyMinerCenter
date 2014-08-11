@@ -29,9 +29,15 @@ class HomepagePresenter extends BaseRestPresenter
 
   public function actionReset(){
     $this->knowledgeRepository->reset();
+
+    $knowledgeBase=new Model\Rdf\Entities\KnowledgeBase();
+    $knowledgeBase->name='Testovaci KnowledgeBase';
+    $this->knowledgeRepository->saveKnowledgeBase($knowledgeBase);
+
     $metaAttribute=new Model\Rdf\Entities\MetaAttribute();
     $metaAttribute->name='Age';
     $metaAttribute->formats=array();
+    $metaAttribute->knowledgeBase=$knowledgeBase;
     $format=new Model\Rdf\Entities\Format();
     $format->name='Years';
     $rangeInterval=new Model\Rdf\Entities\Interval();
@@ -66,6 +72,7 @@ class HomepagePresenter extends BaseRestPresenter
     $format->valuesBins=array($valuesBin);
 
     $attribute=new Model\Rdf\Entities\Attribute();
+    $attribute->knowledgeBase=$knowledgeBase;
     $attribute->format=$format;
     $attribute->valuesBins=array($valuesBin);
     $attribute->name='vek';
@@ -76,6 +83,7 @@ class HomepagePresenter extends BaseRestPresenter
     $metaAttribute2=new Model\Rdf\Entities\MetaAttribute();
     $metaAttribute2->name='Rating';
     $metaAttribute2->formats=array();
+    $metaAttribute2->knowledgeBase=$knowledgeBase;
     $format2=new Model\Rdf\Entities\Format();
     $format2->name='Letters';
     $format2->dataType='string';
@@ -95,6 +103,7 @@ class HomepagePresenter extends BaseRestPresenter
     $attribute2->format=$format2;
     $attribute2->valuesBins=array($valuesBinX);
     $attribute2->name='hodnoceni';
+    $attribute2->knowledgeBase=$knowledgeBase;
 
     $this->knowledgeRepository->saveMetaattribute($metaAttribute2);
     $this->knowledgeRepository->saveAttribute($attribute2);
@@ -117,26 +126,25 @@ class HomepagePresenter extends BaseRestPresenter
     $consequent->ruleAttributes=array($ruleAttribute2);
     $rule->consequent=$consequent;
 
+
+    $ruleSet=new Model\Rdf\Entities\RuleSet();
+    $ruleSet->name='Testovaci RuleSet';
+    $ruleSet->knowledgeBase=$knowledgeBase;
+    $this->knowledgeRepository->saveRuleSet($ruleSet);
+
+    $rule->ruleSets=array($ruleSet);
+    $ruleSet->rules=array($rule);
+    $rule->knowledgeBase=$knowledgeBase;
+
     $this->knowledgeRepository->saveRule($rule);
+    $this->knowledgeRepository->saveRuleSet($ruleSet);
+
+
 
     echo 'DONE';
     $this->terminate();
   }
 
-  public function actionReset2(){
-    $this->knowledgeRepository->reset();
-    $metaAttribute=new Model\Rdf\Entities\MetaAttribute();
-    $metaAttribute->name='Age';
-    $metaAttribute->formats=array();
-    $format=new Model\Rdf\Entities\Format();
-    $format->name='Years';
-    $metaAttribute->formats[]=$format;
-    $format->dataType='nevim';
-    $this->knowledgeRepository->saveMetaattribute($metaAttribute);
-
-    echo 'DONE';
-    $this->terminate();
-  }
 
 
 }

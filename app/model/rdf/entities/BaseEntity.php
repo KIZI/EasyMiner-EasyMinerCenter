@@ -134,7 +134,7 @@ abstract class BaseEntity extends Object{
           if (isset($mappedProperties['entitiesGroups'][$name]['relation'])){
             $sparqlQuery='<'.$this->uri.'> '.$mappedProperties['entitiesGroups'][$name]['relation'].' ?uri';
           }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
-            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['reverseRelation'].'<'.$this->uri.'> ';
+            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['reverseRelation'].' <'.$this->uri.'> ';
           }
 
           if (!empty($sparqlQuery)){

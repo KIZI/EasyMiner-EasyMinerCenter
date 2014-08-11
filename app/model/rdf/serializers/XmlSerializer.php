@@ -211,7 +211,7 @@ class XmlSerializer extends Object{
     if ($parentXml instanceof \SimpleXMLElement){
       $ruleSetXml=$parentXml->addChild('RuleSet');
     }else{
-      $ruleSetXml=self::baseMetaAttributeXml();
+      $ruleSetXml=self::baseRuleSetXml();
     }
     $ruleSetXml->addAttribute('id',$ruleSet->uri);
     $ruleSetXml->addChild('Name',$ruleSet->name);
@@ -392,7 +392,14 @@ class XmlSerializer extends Object{
    * @return \SimpleXMLElement
    */
   public function ruleSetAsXml(RuleSet $ruleSet,\SimpleXMLElement &$parentXml=null) {
-    return $this->blankRuleSetAsXml($ruleSet,$parentXml);
+    $ruleSetXml = $this->blankRuleSetAsXml($ruleSet,$parentXml);
+    $rules=$ruleSet->rules;
+    if (count($rules)){
+      foreach ($rules as $ruleItem){
+        $this->blankRuleAsXml($ruleItem,$ruleSetXml);
+      }
+    }
+    return $ruleSetXml;
   }
 
   /**

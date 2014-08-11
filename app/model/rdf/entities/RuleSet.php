@@ -14,7 +14,7 @@ namespace App\Model\Rdf\Entities;
  * @rdfClass(class='kb:RuleSet')
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
  * @rdfLiteral(property=$name,relation='kb:hasName',optional=true)
- * @rdfEntitiesGroup(property=$rules,relation='hasRule',entity='Rule')
+ * @rdfEntitiesGroup(property=$rules,relation='kb:hasRule',entity='Rule')
  * @rdfEntity(property=$knowledgeBase,relation='kb:isInBase',entity='KnowledgeBase')
  */
 class RuleSet extends BaseEntity{
