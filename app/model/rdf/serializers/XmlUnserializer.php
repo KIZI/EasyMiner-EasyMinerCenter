@@ -178,7 +178,9 @@ class XmlUnserializer extends Object{
       foreach ($cedentXml->RuleAttribute as $ruleAttributeXml){
         $ruleAttribute=new RuleAttribute();
         $ruleAttribute->uri=(string)$ruleAttributeXml['id'];
-        $ruleAttribute->attribute=$this->knowledgeRepository->findAttribute((string)$ruleAttributeXml['attribute']);
+        $attribute=$this->knowledgeRepository->findAttribute((string)$ruleAttributeXml['attribute']);
+        //TODO pokud atribut neexistuje, je nutné vyhodit chybu!
+        $ruleAttribute->attribute=$attribute;
         if (count($ruleAttributeXml->Bin)){
           foreach($ruleAttributeXml->Bin as $binXml){
             if (!empty($binXml['id'])){
@@ -186,7 +188,24 @@ class XmlUnserializer extends Object{
             }else{
               //budeme vytvářet nový BIN, respektive hledat BIN, který má stejné parametry
               //TODO check existing bin
-              $ruleAttribute->valuesBins[]=$this->valuesBinFromXml($binXml);
+              //TODO check values and intervals in Attribute Range!
+              $attributeValuesBins=$attribute->valuesBins;
+              $valuesBin=$this->valuesBinFromXml($binXml);
+              $ruleAttribute->valuesBins[]=$valuesBin;
+              //zkontrolujeme, jestli je daný valuesBin také v definici atributu
+              if ($valuesBin->uri){
+                $valuesBinUrisArr=array();
+                if (count($attributeValuesBins)){
+                  foreach ($attributeValuesBins as $attributeValuesBinItem){
+                    $valuesBinUrisArr[]=$attributeValuesBinItem->uri;
+                  }
+                }
+                if (!in_array($valuesBin->uri,$valuesBinUrisArr)){
+                  $attribute->valuesBins[]=$valuesBin;
+                }
+              }else{
+                $attribute->valuesBins[]=$valuesBin;
+              }
             }
           }
         }
