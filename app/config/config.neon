@@ -6,9 +6,9 @@
 #
 parameters:
 	arc2:
-		db_name: 'easyminer_core'
-		db_user: 'root'
-		db_pwd: ''
+		db_name: 'brserver'
+		db_user: 'brserver'
+		db_pwd: 'ggoolleemm'
 		store_name: 'easyminerkb'
 		max_errors: 100
 

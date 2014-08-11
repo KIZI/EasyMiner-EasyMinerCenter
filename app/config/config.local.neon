@@ -1,10 +1,7 @@
 parameters:
-
-
-nette:
-	database:
-		dsn: 'mysql:host=127.0.0.1;dbname=test'
-		user:
-		password:
-		options:
-			lazy: yes
+	arc2:
+		db_name: 'easyminer_core'
+		db_user: 'root'
+		db_pwd: ''
+		store_name: 'easyminerkb'
+		max_errors: 100

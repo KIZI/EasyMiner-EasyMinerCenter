@@ -28,7 +28,7 @@ class IntervalClosure extends BaseEntity{
     return $this->closure;
   }
   public function setClosure($closure){
-    if (in_array($closure,['closedOpen','openClosed','closedClosed','openOpen'])){
+    if (in_array($closure,array('closedOpen','openClosed','closedClosed','openOpen'))){
       $this->closure=$closure;
     }else{
       throw new \Exception('Bad interval closure value');
