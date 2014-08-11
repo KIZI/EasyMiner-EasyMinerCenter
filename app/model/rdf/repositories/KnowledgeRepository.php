@@ -159,14 +159,17 @@ class KnowledgeRepository extends BaseRepository{
   public function findFormats($params=null,$limit=-1,$offset=-1){
     #region params
     $filterSparql='';
+
     if (!empty($params)){
       //TODO params
+      if (!empty($params['sparql'])){
+        $filterSparql=' .  '.$params['sparql'];
+      }
 
       if ($filterSparql!=''){
-        $filterSparql.=Strings::substring($filterSparql,4);
+        $filterSparql=Strings::substring($filterSparql,4);
       }
     }
-
     #endregion params
     $result=$this->executeQuery(Format::getLoadQuery('',$filterSparql),$limit,$offset);;
     if ($result && !empty($result['result']['rows'])){
@@ -200,7 +203,7 @@ class KnowledgeRepository extends BaseRepository{
     }
 
     #endregion params
-    $result=$this->executeQuery(MetaAttribute::getLoadQuery('',$filterSparql),$limit,$offset);
+    $result=$this->executeQuery(Rule::getLoadQuery('',$filterSparql),$limit,$offset);
     if ($result && !empty($result['result']['rows'])){
       $output=array();
       foreach ($result['result']['rows'] as $row){

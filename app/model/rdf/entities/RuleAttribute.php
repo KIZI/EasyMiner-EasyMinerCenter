@@ -19,7 +19,7 @@ namespace App\Model\Rdf\Entities;
  *
  * @rdfClass(class="kb:RuleAttribute")
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
- * @rdfEntity (property=$format,relation='kb:isAttribute',entity='Attribute')
+ * @rdfEntity (property=$attribute,relation='kb:isAttribute',entity='Attribute')
  * @rdfEntitiesGroup(property=$valuesBins,relation='kb:hasValuesBin',entity='ValuesBin')
  */
 class RuleAttribute extends BaseEntity{

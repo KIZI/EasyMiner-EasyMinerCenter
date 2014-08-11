@@ -280,7 +280,7 @@ abstract class BaseEntity extends Object{
       $selectQuery=Strings::replace($selectQuery,'/\?uri/','');
       $whereQuery=Strings::replace($whereQuery,'/\?uri/','<'.$uri.'>');
     }
-    $query=$queryPrefixes.'SELECT '.$selectQuery.' FROM <'.self::BASE_ONTOLOGY.'> WHERE {'.Strings::substring($whereQuery,2).(!empty($filter)?' . '.$filter.'':'').'}';
+    $query=$queryPrefixes.'SELECT '.$selectQuery.' FROM <'.self::BASE_ONTOLOGY.'> WHERE {'.Strings::substring($whereQuery,2).(($filter!='')?' . '.$filter.'':'').'}';
     return $query;
   }
 

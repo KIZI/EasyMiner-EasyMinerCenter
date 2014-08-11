@@ -18,7 +18,7 @@ namespace App\Model\Rdf\Entities;
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
  * @rdfLiteral(property=$text,relation='kb:hasText',optional=true)
  * @rdfEntity (property=$antecedent,relation='kb:hasAntecedent',entity='Cedent')
- * @rdfEntity (property=$consequent,relation='kb:hasConsequent',entity='Cedent')
+ * @rdfEntity(property=$consequent,relation='kb:hasConsequent',entity='Cedent')
  * @rdfLiteral(property=$rating,relation='kb:hasRating',optional=true)
  * @rdfEntitiesGroup (property=$ruleSets,reverseRelation='kb:hasRule',entity='RuleSet')
  * @rdfEntity(property=$knowledgeBase,relation='kb:isInBase',entity='KnowledgeBase')
@@ -26,6 +26,7 @@ namespace App\Model\Rdf\Entities;
 class Rule extends BaseEntity{
 
   public function getRating(){
+    return '';//TODO rating
     if ($result=json_decode($this->rating,true)){
       return $result;
     }else{

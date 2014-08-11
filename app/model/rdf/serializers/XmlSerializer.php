@@ -339,6 +339,7 @@ class XmlSerializer extends Object{
         $rating->addAttribute($key,$value);
       }
     }
+    return $ruleXml;
   }
 
   /**
@@ -352,12 +353,13 @@ class XmlSerializer extends Object{
     $cedentXml=$parentXml->addChild($elementName);
     $cedentXml->addAttribute('id',$cedent->uri);
     $cedentXml->addAttribute('connective',$cedent->connective);
-    if (!empty($cedent->attributes)){
-      foreach ($cedent->attributes as $attribute){
-        $this->ruleAttributeAsXml($attribute,$cedentXml);
+
+    if (count($cedent->ruleAttributes)){
+      foreach ($cedent->ruleAttributes as $ruleAttribute){
+        $this->ruleAttributeAsXml($ruleAttribute,$cedentXml);
       }
     }
-    if (!empty($cedent->cedents)){
+    if (count($cedent->cedents)){
       foreach ($cedent->cedents as $subCedent){
         $this->cedentAsXml($subCedent,$cedentXml);
       }
@@ -375,7 +377,7 @@ class XmlSerializer extends Object{
     $ruleAttributeXml=$parentXml->addChild('RuleAttribute');
     $ruleAttributeXml->addAttribute('id',$ruleAttribute->uri);
     $ruleAttributeXml->addAttribute('attribute',$ruleAttribute->attribute->uri);
-    if (!empty($ruleAttribute->valuesBins)){
+    if (count($ruleAttribute->valuesBins)){
       foreach ($ruleAttribute->valuesBins as $valuesBin){
         $valuesBinXml=$ruleAttributeXml->addChild('ValuesBin');
         $valuesBinXml->addAttribute('id',$valuesBin->uri);
@@ -428,7 +430,7 @@ class XmlSerializer extends Object{
         $valuesBinXml->addAttribute('id',$valuesBin->uri);
         $valuesBinXml->addChild('Name',$valuesBin->name);
         $this->rangeAsXml($valuesBin->intervals,$valuesBinXml);
-        //$this->rangeAsXml($valuesBin->values,$valuesBinXml);
+        $this->rangeAsXml($valuesBin->values,$valuesBinXml);
       }
     }
     return $attributeXml;

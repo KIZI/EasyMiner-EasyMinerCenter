@@ -73,6 +73,52 @@ class HomepagePresenter extends BaseRestPresenter
     $this->knowledgeRepository->saveMetaattribute($metaAttribute);
     $this->knowledgeRepository->saveAttribute($attribute);
 
+    $metaAttribute2=new Model\Rdf\Entities\MetaAttribute();
+    $metaAttribute2->name='Rating';
+    $metaAttribute2->formats=array();
+    $format2=new Model\Rdf\Entities\Format();
+    $format2->name='Letters';
+    $format2->dataType='string';
+    $value=new Model\Rdf\Entities\Value();
+    $value->value='A';
+    $value2=new Model\Rdf\Entities\Value();
+    $value2->value='B';
+    $format2->values=array($value,$value2);
+    $valuesBinX=new Model\Rdf\Entities\ValuesBin();
+    $valuesBinX->name='XA';
+    $valuesBinX->values=array($value);
+    $format2->valuesBins=array($valuesBinX);
+    $metaAttribute2->formats[]=$format2;
+
+    $this->knowledgeRepository->saveMetaattribute($metaAttribute2);
+    $attribute2=new Model\Rdf\Entities\Attribute();
+    $attribute2->format=$format2;
+    $attribute2->valuesBins=array($valuesBinX);
+    $attribute2->name='hodnoceni';
+
+    $this->knowledgeRepository->saveMetaattribute($metaAttribute2);
+    $this->knowledgeRepository->saveAttribute($attribute2);
+
+    $rule=new Model\Rdf\Entities\Rule();
+    $rule->text='testovaci pravidlo';
+    $antecedent=new Model\Rdf\Entities\Cedent();
+    $antecedent->connective='conjunction';
+    $ruleAttribute1=new Model\Rdf\Entities\RuleAttribute();
+    $ruleAttribute1->attribute=$attribute;
+    $ruleAttribute1->valuesBins=array($valuesBin);
+    $antecedent->ruleAttributes=array($ruleAttribute1);
+    $rule->antecedent=$antecedent;
+
+    $consequent=new Model\Rdf\Entities\Cedent();
+    $consequent->connective='conjunction';
+    $ruleAttribute2=new Model\Rdf\Entities\RuleAttribute();
+    $ruleAttribute2->attribute=$attribute2;
+    $ruleAttribute2->valuesBins=array($valuesBinX);
+    $consequent->ruleAttributes=array($ruleAttribute2);
+    $rule->consequent=$consequent;
+
+    $this->knowledgeRepository->saveRule($rule);
+
     echo 'DONE';
     $this->terminate();
   }

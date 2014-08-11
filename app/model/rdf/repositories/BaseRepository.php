@@ -140,8 +140,8 @@ class BaseRepository extends Object{
       $filterSparql=$params['sparql'];
     }
     #endregion params
-    $result=$this->executeQuery($entityClass::getLoadQuery('',$filterSparql),'raw',$limit,$offset);
 
+    $result=$this->executeQuery($entityClass::getLoadQuery('',$filterSparql),'raw',$limit,$offset);
     if ($result && !empty($result['rows'])){
       $output=array();
       foreach ($result['rows'] as $row){
