@@ -17,6 +17,10 @@ class BaseRepository extends Object{
     }
   }
 
+  public function reset(){
+    $this->arcStore->reset();
+  }
+
   /**
    * Funkce pro spuštění dotazu nad arc storem
    * @param string $query
@@ -80,10 +84,15 @@ class BaseRepository extends Object{
    * @param BaseEntity $entity
    */
   public function saveEntity(&$entity){
+    if (!is_object($entity)){
+      exit(var_dump($entity));//TODO tohle je potřeba doladit!!!
+    }
     if (!$entity->getUri()){
       $entity->setUri($this->prepareNewEntityUri($entity->prepareBaseUri()));
+
     }
     $this->executeQueries($entity->getSaveQuery($this));
+    $entity->setKnowledgeRepository($this);
   }
 
   /**
@@ -102,6 +111,7 @@ class BaseRepository extends Object{
       /** @var BaseEntity $entity */
       $entity=new $entityClass();
       $entity->prepareEntity($result['rows'][0],$uri);
+      $entity->setKnowledgeRepository($this);
       return $entity;
     }
     return null;
@@ -109,14 +119,14 @@ class BaseRepository extends Object{
 
   /**
    * Funkce pro načtení kolekce entit na základě vyhledávacích parametrů a názvu třídy
-   * @param array|null $params
    * @param BaseEntity|string $entityClass
+   * @param array|null $params
    * @param string $entityClassNamespace = null|self::BASIC_ENTITY_NAMESPACE
    * @param int $limit = -1
    * @param int $offset = -1
    * @return BaseEntity[]|null
    */
-  public function findEntities($params,$entityClass,$entityClassNamespace=null,$limit=-1,$offset=-1){
+  public function findEntities($entityClass,$params,$entityClassNamespace=null,$limit=-1,$offset=-1){
     if ($entityClassNamespace==null){
       $entityClassNamespace=self::BASIC_ENTITY_NAMESPACE;
     }
@@ -131,6 +141,7 @@ class BaseRepository extends Object{
     }
     #endregion params
     $result=$this->executeQuery($entityClass::getLoadQuery('',$filterSparql),'raw',$limit,$offset);
+
     if ($result && !empty($result['rows'])){
       $output=array();
       foreach ($result['rows'] as $row){

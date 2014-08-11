@@ -104,8 +104,24 @@ abstract class BaseEntity extends Object{
         }*/
         if (isset($mappedProperties['entities'][$name])){
           //načtení jedné související entity
-          $function='find'.Strings::firstUpper($name);
-          return $this->repository->$function($this->$name);
+          if (isset($mappedProperties['entities'][$name]['entity'])){
+            $function='find'.$mappedProperties['entities'][$name]['entity'].'s';
+          }else{
+            $function='find'.Strings::firstUpper($name).'s';
+          }
+
+          if (isset($mappedProperties['entities'][$name]['relation'])){
+            $sparqlQuery='<'.$this->uri.'> '.$mappedProperties['entities'][$name]['relation'].' ?uri';
+          }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
+            $sparqlQuery=' ?uri '.$mappedProperties['entities'][$name]['reverseRelation'].'<'.$this->uri.'> ';
+          }
+
+          if (!empty($sparqlQuery)){
+            $result = $this->repository->$function(array('sparql'=>$sparqlQuery));
+            if ($result && isset($result[0])){
+              return $result[0];
+            }
+          }
         }
         if (isset($mappedProperties['entitiesGroups'][$name])){
           //načtení připojené sady entit
@@ -118,7 +134,7 @@ abstract class BaseEntity extends Object{
           if (isset($mappedProperties['entitiesGroups'][$name]['relation'])){
             $sparqlQuery='<'.$this->uri.'> '.$mappedProperties['entitiesGroups'][$name]['relation'].' ?uri';
           }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
-            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['relation'].'<'.$this->uri.'> ';
+            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['reverseRelation'].'<'.$this->uri.'> ';
           }
 
           if (!empty($sparqlQuery)){
@@ -136,7 +152,7 @@ abstract class BaseEntity extends Object{
   /**
    * @return string[]
    */
-  public function getSaveQuery($repository=null){
+  public function getSaveQuery($repository=null){//TODO kontrola, jestli jsou zadané povinné literály!!!
     if (!$repository){$repository=$this->repository;}
     $mappedProperties=$this->getMappedProperties();
     $queryPrefixes=self::prepareQueryPrefixes(@$mappedProperties['namespaces']);
@@ -175,8 +191,8 @@ abstract class BaseEntity extends Object{
             $repositorySaveMethod='save'.$entityName;
             $repository->$repositorySaveMethod($this->$property);
             //uložíme relaci připojené entity
-            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' ?relatedUri} WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
-            $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' ?relatedUri}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
+            $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
           }/*else{//pravděpodobně není potřeba - ukládáme vždy z té entity, která má zadanou URI
             $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {?relatedUri '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
             $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
@@ -190,11 +206,41 @@ abstract class BaseEntity extends Object{
       foreach ($mappedProperties['entitiesGroups'] as $entitiesGroup){
         $property=$entitiesGroup['property'];
         if (isset($this->$property) && !empty($entitiesGroup['relation'])){
+          //zjistíme jméno propojené entity
+          if (@$entitiesGroup['entity']!=''){
+            $entityName=$entitiesGroup['entity'];
+          }else{
+            $entityName=$property;
+            if (Strings::endsWith($entityName,'s')){
+              $entityName=Strings::substring($entityName,0,Strings::length($entityName)-1);
+            }
+          }
+          $entitySaveFunction='save'.Strings::firstUpper($entityName);
           //máme nějaké položky
-          //TODO vyřešíme nejdřív odstranění vazeb na neexistující entity
           if (count($this->$property)){
-            //musíme jednotlivé položky vyřešit jednotlivě (jestli tam mají zůstat atd.
-            //TODO musíme projít všechny položky a podívat se, jestli tam mají zůstat - pokud ne, tak je odstraňujeme
+            //zkontrolujeme, jestli máme již nějaké vazby
+            $relatedResult=$repository->executeQuery($queryPrefixes.'SELECT ?relatedUri FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' ?relatedUri}');
+            $relatedUrisArr=array();
+            if ($relatedResult && !empty($relatedResult['result']['rows'])){
+              //máme nějaké původní vazby => připravíme si seznam nových URIs a případně připravíme query pro odstranění vazby
+              foreach ($this->$property as $propertyItem){
+                if (isset($propertyItem->uri) && $propertyItem->uri!=''){
+                  $relatedUrisArr[]=$propertyItem->uri;
+                }
+              }
+              foreach ($relatedResult['result']['rows'] as $row){
+                if (!in_array($row['relatedUri'],$relatedUrisArr)){
+                  $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' <'.$row['relatedUri'].'>}';
+                }
+              }
+            }
+            //uložíme jednotlivé položky a přidáme jejich vazbu...
+            foreach ($this->$property as $propertyItem){
+              $repository->$entitySaveFunction($propertyItem);
+              if ((@$propertyItem->uri!='') && !in_array($propertyItem->uri,$relatedUrisArr)){
+                $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' <'.$propertyItem->uri.'>}';
+              }
+            }
           }else{
             //máme odstranit všechny navázané položky
             $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' ?relatedUri}';
@@ -234,7 +280,7 @@ abstract class BaseEntity extends Object{
       $selectQuery=Strings::replace($selectQuery,'/\?uri/','');
       $whereQuery=Strings::replace($whereQuery,'/\?uri/','<'.$uri.'>');
     }
-    $query=$queryPrefixes.'SELECT '.$selectQuery.' FROM <'.self::BASE_ONTOLOGY.'> WHERE {'.Strings::substring($whereQuery,2).(!empty($filter)?' . FILTER('.$filter.')':'').'}';
+    $query=$queryPrefixes.'SELECT '.$selectQuery.' FROM <'.self::BASE_ONTOLOGY.'> WHERE {'.Strings::substring($whereQuery,2).(!empty($filter)?' . '.$filter.'':'').'}';
     return $query;
   }
 

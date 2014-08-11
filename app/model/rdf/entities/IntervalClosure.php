@@ -20,7 +20,7 @@ use Nette\Utils\Strings;
  *
  * @rdfClass(class="kb:IntervalClosure")
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
- * @rdfEntity (property=$closure,relation='kb:hasValue',entity='IntervalClosure')
+ * @rdfLiteral (property=$closure,relation='kb:hasValue')
  */
 class IntervalClosure extends BaseEntity{
 

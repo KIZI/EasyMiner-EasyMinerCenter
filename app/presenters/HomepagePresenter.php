@@ -28,7 +28,7 @@ class HomepagePresenter extends BaseRestPresenter
 	}
 
   public function actionReset(){
-
+    $this->knowledgeRepository->reset();
     $metaAttribute=new Model\Rdf\Entities\MetaAttribute();
     $metaAttribute->name='Age';
     $metaAttribute->formats=array();
@@ -45,6 +45,8 @@ class HomepagePresenter extends BaseRestPresenter
     $rightMarginValue->value=80;
     $rangeInterval->rightMargin=$rightMarginValue;
     $format->intervals=array($rangeInterval);
+    $format->dataType='int';
+    $metaAttribute->formats[]=$format;
 
     $binInterval=new Model\Rdf\Entities\Interval();
     $leftMarginValueX=new Model\Rdf\Entities\Value();
@@ -70,6 +72,21 @@ class HomepagePresenter extends BaseRestPresenter
 
     $this->knowledgeRepository->saveMetaattribute($metaAttribute);
     $this->knowledgeRepository->saveAttribute($attribute);
+
+    echo 'DONE';
+    $this->terminate();
+  }
+
+  public function actionReset2(){
+    $this->knowledgeRepository->reset();
+    $metaAttribute=new Model\Rdf\Entities\MetaAttribute();
+    $metaAttribute->name='Age';
+    $metaAttribute->formats=array();
+    $format=new Model\Rdf\Entities\Format();
+    $format->name='Years';
+    $metaAttribute->formats[]=$format;
+    $format->dataType='nevim';
+    $this->knowledgeRepository->saveMetaattribute($metaAttribute);
 
     echo 'DONE';
     $this->terminate();

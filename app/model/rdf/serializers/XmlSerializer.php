@@ -198,6 +198,7 @@ class XmlSerializer extends Object{
     $formatXml=$parentXml->addChild('Format');
     $formatXml->addAttribute('id',$format->uri);
     $formatXml->addChild('Name',$format->name);
+    return $formatXml;
   }
 
   /**
@@ -256,7 +257,9 @@ class XmlSerializer extends Object{
     $formatXml=$this->blankFormatAsXml($format,$parentXml);
     $formatXml->addChild('DataType',$format->dataType);
     $rangeXml=$formatXml->addChild('Range');
-    $this->rangeAsXml($format,$rangeXml);
+    $intervals=$format->intervals;
+    $this->rangeAsXml($intervals,$rangeXml);
+    $this->rangeAsXml($format->values,$rangeXml);
 
     $valuesBins=$format->valuesBins;
     $valuesBinsXml=$formatXml->addChild('ValuesBins');
@@ -290,9 +293,12 @@ class XmlSerializer extends Object{
           //serializace intervalu
           $intervalXml=$parentXml->addChild('Interval');
           $intervalXml->addAttribute('id',$rangeItem->uri);
-          $intervalXml->addAttribute('closure',$rangeItem->closure);
-          $intervalXml->addAttribute('leftMargin',$rangeItem->leftMargin);
-          $intervalXml->addAttribute('rightMargin',$rangeItem->rightMargin);
+          $closure=@$rangeItem->closure->closure;
+          $intervalXml->addAttribute('closure',(string)$closure);
+          $leftMargin=@$rangeItem->leftMargin->value;
+          $intervalXml->addAttribute('leftMargin',(string)$leftMargin);
+          $rightMargin=@$rangeItem->rightMargin->value;
+          $intervalXml->addAttribute('rightMargin',(string)$rightMargin);
         }
       }
     }
@@ -408,8 +414,10 @@ class XmlSerializer extends Object{
     $attributeXml=$this->blankAttributeAsXml($attribute,$parentXml);
 
     if ($format=$attribute->format){
+      $rangeXml=$attributeXml->addChild('Range');
       //pro zjednodušení sem seserializujeme také Range z formátu
-      $this->rangeAsXml($format,$attributeXml);
+      $this->rangeAsXml($format->intervals,$rangeXml);
+      $this->rangeAsXml($format->values,$rangeXml);
     }
 
     $valuesBins=$attribute->valuesBins;
@@ -420,7 +428,7 @@ class XmlSerializer extends Object{
         $valuesBinXml->addAttribute('id',$valuesBin->uri);
         $valuesBinXml->addChild('Name',$valuesBin->name);
         $this->rangeAsXml($valuesBin->intervals,$valuesBinXml);
-        $this->rangeAsXml($valuesBin->values,$valuesBinXml);
+        //$this->rangeAsXml($valuesBin->values,$valuesBinXml);
       }
     }
     return $attributeXml;

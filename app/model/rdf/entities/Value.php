@@ -19,6 +19,6 @@ namespace App\Model\Rdf\Entities;
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
  * @rdfLiteral(property=$value,relation='kb:hasValue',optional=false)
  */
-class Value {
+class Value extends BaseEntity{
 
 } 

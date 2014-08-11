@@ -22,8 +22,8 @@ namespace App\Model\Rdf\Entities;
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
  * @rdfLiteral(property=$name,relation='kb:hasName',optional=false)
  * @rdfEntitiesGroup(property=$intervals,relation='kb:hasInterval',entity='Interval')
- * @rdfEntitiesGroup(property=$values,reverseRelation='kb:hasValue',entity='Value')
+ * @rdfEntitiesGroup(property=$values,relation='kb:hasValue',entity='Value')
  */
 class ValuesBin extends BaseEntity{
-  //TODO
+
 } 

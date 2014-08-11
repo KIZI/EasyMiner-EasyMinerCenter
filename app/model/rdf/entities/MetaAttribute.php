@@ -14,7 +14,7 @@ namespace App\Model\Rdf\Entities;
  * @rdfClass(class='kb:MetaAttribute')
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
  * @rdfLiteral(property=$name,relation='kb:hasName',optional=false)
- * @rdfEntitiesGroup(property=$formats,relation='kb:hasFormat')
+ * @rdfEntitiesGroup(property=$formats,relation='kb:hasFormat',entity='Format')
  * @rdfEntity(property=$knowledgeBase,relation='kb:isInBase',entity='KnowledgeBase')
  */
 class MetaAttribute extends BaseEntity{

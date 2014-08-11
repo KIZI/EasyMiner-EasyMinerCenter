@@ -25,7 +25,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return RuleSet[]|null
    */
   public function findRuleSets($params=null,$limit=-1,$offset=-1){
-    return $this->findEntities($params,'RuleSet',null,$limit,$offset);
+    return $this->findEntities('RuleSet',$params,null,$limit,$offset);
   }
 
   /**
@@ -35,7 +35,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return Attribute[]|null
    */
   public function findAttributes($params=null,$limit=-1,$offset=-1){
-    return $this->findEntities($params,'Attribute',null,$limit,$offset);
+    return $this->findEntities('Attribute',$params,null,$limit,$offset);
   }
 
   /**
@@ -45,7 +45,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return KnowledgeBase[]|null
    */
   public function findKnowledgeBases($params=null,$limit=-1,$offset=-1){
-    return $this->findEntities($params,'KnowledgeBase',null,$limit,$offset);
+    return $this->findEntities('KnowledgeBase',$params,null,$limit,$offset);
   }
 
   /**
@@ -168,10 +168,10 @@ class KnowledgeRepository extends BaseRepository{
     }
 
     #endregion params
-    $result=$this->executeQuery(Format::getLoadQuery('',$filterSparql),$limit,$offset);
-    if ($result && !empty($result['rows'])){
+    $result=$this->executeQuery(Format::getLoadQuery('',$filterSparql),$limit,$offset);;
+    if ($result && !empty($result['result']['rows'])){
       $output=array();
-      foreach ($result['rows'] as $row){
+      foreach ($result['result']['rows'] as $row){
         $format=new Format();
         $format->setKnowledgeRepository($this);
         $format->prepareEntity($row);
@@ -201,9 +201,9 @@ class KnowledgeRepository extends BaseRepository{
 
     #endregion params
     $result=$this->executeQuery(MetaAttribute::getLoadQuery('',$filterSparql),$limit,$offset);
-    if ($result && !empty($result['rows'])){
+    if ($result && !empty($result['result']['rows'])){
       $output=array();
-      foreach ($result['rows'] as $row){
+      foreach ($result['result']['rows'] as $row){
         $rule=new Rule();
         $rule->setKnowledgeRepository($this);
         $rule->prepareEntity($row);
@@ -218,8 +218,8 @@ class KnowledgeRepository extends BaseRepository{
    * @param Format $format
    * return bool
    */
-  public function saveFormat(Format $format){
-    //TODOStr
+  public function saveFormat(Format &$format){
+    $this->saveEntity($format);
   }
 
   /**
@@ -231,7 +231,7 @@ class KnowledgeRepository extends BaseRepository{
    */
   public function __call($functionName,$params){
     $callFunctionName='';
-    if (Strings::startsWith($functionName,'find')){
+    if (Strings::startsWith($functionName,'find') || Strings::startsWith($functionName,'save')){
       if (Strings::endsWith($functionName,'s')){
         //chceme načítat kolekci entit
         $entityClassName=Strings::substring($functionName,4,Strings::length($functionName)-5);
@@ -239,13 +239,17 @@ class KnowledgeRepository extends BaseRepository{
       }else{
         //chceme načítat jen jednu entitu
         $entityClassName=Strings::substring($functionName,4);
-        $callFunctionName='findEntity';
+        $callFunctionName=Strings::substring($functionName,0,4).'Entity';
       }
     }
-    if (empty($entityClassName) || !class_exists($entityClassName) || !isset($params[0])){
+    if (empty($entityClassName) || !(class_exists($entityClassName) || class_exists(self::BASIC_ENTITY_NAMESPACE.'\\'.$entityClassName)) || !isset($params[0])){
       throw new BadRequestException('Function not exists: '.$functionName);
     }else{
-      return $this->$callFunctionName($entityClassName,$params[0]);
+      if (Strings::startsWith($functionName,'save')){
+        return $this->$callFunctionName($params[0]);
+      }else{
+        return $this->$callFunctionName($entityClassName,$params[0]);
+      }
     }
   }
 
