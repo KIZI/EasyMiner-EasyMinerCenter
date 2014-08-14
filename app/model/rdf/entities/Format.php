@@ -7,7 +7,6 @@
  */
 
 namespace App\Model\Rdf\Entities;
-//TODO chybí range!!!
 /**
  * Class Format
  *
@@ -32,5 +31,15 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntity(property=$metaAttribute,reverseRelation='kb:hasFormat')
  */
 class Format  extends BaseEntity{
-  //TODO
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   */
+  public function prepareBaseUriSeoPart(){
+    if (!empty($this->name)){
+      return $this->name;
+    }else{
+      return parent::prepareBaseUriSeoPart();
+    }
+  }
 } 

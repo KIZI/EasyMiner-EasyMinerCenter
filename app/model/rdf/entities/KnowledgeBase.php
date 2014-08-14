@@ -14,6 +14,16 @@ namespace App\Model\Rdf\Entities;
  * @rdfLiteral(property=$name,relation='kb:hasName',optional=true)
  */
 class KnowledgeBase extends BaseEntity{
-
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   */
+  public function prepareBaseUriSeoPart(){
+    if ($this->name){
+      return $this->name;
+    }else{
+      return parent::prepareBaseUriSeoPart();
+    }
+  }
 
 } 

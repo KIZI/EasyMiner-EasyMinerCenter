@@ -23,5 +23,15 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntity(property=$knowledgeBase,relation='kb:isInBase',entity='KnowledgeBase')
  */
 class Attribute extends BaseEntity{
-
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   */
+  public function prepareBaseUriSeoPart(){
+    if (!empty($this->name)){
+      return $this->name;
+    }else{
+      return parent::prepareBaseUriSeoPart();
+    }
+  }
 } 

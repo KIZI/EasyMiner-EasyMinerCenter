@@ -4,6 +4,8 @@ namespace App\Model\Rdf\Entities;
 
 use App\Model\Rdf\Repositories\KnowledgeRepository;
 use Nette\Object;
+use Nette\Utils\ArrayHash;
+use Nette\Utils\ArrayList;
 use Nette\Utils\Strings;
 
 /**
@@ -14,9 +16,23 @@ abstract class BaseEntity extends Object{
   const BASE_ONTOLOGY='http://easyminer.eu/kb';
   /** @var string $uri */
   private $uri='';
+
+  private $entityChanged=false;
   protected static $mappedProperties=array();
   /** @var KnowledgeRepository $repository */
   protected $repository;
+
+  /**
+   * Funkce vracející info o tom, jestli byla entita změněna
+   * @return bool
+   */
+  public function isChanged(){
+    return $this->entityChanged;
+  }
+
+  public function setChanged($state=true){
+    $this->entityChanged=$state;
+  }
 
   public function __construct(KnowledgeRepository $knowledgeRepository=null){
     $this->repository=$knowledgeRepository;
@@ -30,6 +46,7 @@ abstract class BaseEntity extends Object{
     return $this->uri;
   }
   public function setUri($uri){
+    $this->entityChanged=true;
     $this->uri=$uri;
   }
 
@@ -150,6 +167,7 @@ abstract class BaseEntity extends Object{
   }
 
   /**
+   * @param KnowledgeRepository|null $repository
    * @return string[]
    */
   public function getSaveQuery($repository=null){//TODO kontrola, jestli jsou zadané povinné literály!!!
@@ -158,23 +176,26 @@ abstract class BaseEntity extends Object{
     $queryPrefixes=self::prepareQueryPrefixes(@$mappedProperties['namespaces']);
     $queries=array();
 
-    #region vyřešení literálů
-    $insertQuery='. <'.$this->uri.'> a '.$mappedProperties['class'];
-    if (!empty($mappedProperties['literals']) && is_array($mappedProperties['literals'])){
-      foreach ($mappedProperties['literals'] as $literal){
-        $property=$literal['property'];
-        if (isset($this->$property)){
-          //máme updatovat => pokusíme se smazat jednotlivé literály
-          $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$literal['relation'].' ?value}';
-          $insertQuery.='. <'.$this->uri.'> '.$literal['relation'].' '.self::quoteSparql($this->$property);
+    if ($this->isChanged()){
+      //uložení literálů řešíme jen pro změněné entity
+      #region vyřešení literálů
+      $insertQuery='. <'.$this->uri.'> a '.$mappedProperties['class'];
+      if (!empty($mappedProperties['literals']) && is_array($mappedProperties['literals'])){
+        foreach ($mappedProperties['literals'] as $literal){
+          $property=$literal['property'];
+          if (isset($this->$property)){
+            //máme updatovat => pokusíme se smazat jednotlivé literály
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$literal['relation'].' ?value}';
+            $insertQuery.='. <'.$this->uri.'> '.$literal['relation'].' '.self::quoteSparql($this->$property);
+          }
         }
       }
+      if ($insertQuery!=''){
+        $insertQuery='INSERT INTO <'.self::BASE_ONTOLOGY.'> {'.Strings::substring($insertQuery,2).'}';
+        $queries[]=$queryPrefixes.$insertQuery;
+      }
+      #endregion vyřešení literálů
     }
-    if ($insertQuery!=''){
-      $insertQuery='INSERT INTO <'.self::BASE_ONTOLOGY.'> {'.Strings::substring($insertQuery,2).'}';
-      $queries[]=$queryPrefixes.$insertQuery;
-    }
-    #endregion vyřešení literálů
     #region vyřešení navázaných entit
     if (!empty($mappedProperties['entities']) && is_array($mappedProperties['entities'])){
       foreach ($mappedProperties['entities'] as $entity){
@@ -191,6 +212,7 @@ abstract class BaseEntity extends Object{
             $repositorySaveMethod='save'.$entityName;
             $repository->$repositorySaveMethod($this->$property);
             //uložíme relaci připojené entity
+            //TODO optimize!
             $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' ?relatedUri}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
             $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
           }/*else{//pravděpodobně není potřeba - ukládáme vždy z té entity, která má zadanou URI
@@ -327,6 +349,7 @@ abstract class BaseEntity extends Object{
     }else{
       parent::__set($name,$value);
     }
+    $this->entityChanged=true;
   }
 
 
@@ -358,12 +381,17 @@ abstract class BaseEntity extends Object{
     if (!Strings::endsWith($uri,'/') && !Strings::contains($uri,'#')){
       $uri.='/';
     }
-    if (isset($this->name)){
-      $uri.=Strings::webalize($this->name);
-    }else{
-      $uri.='x';
-    }
+    $uri.=Strings::webalize($this->prepareBaseUriSeoPart());
     return $uri;
+  }
+
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   * @override
+   */
+  public function prepareBaseUriSeoPart(){
+    return time();
   }
 
 }

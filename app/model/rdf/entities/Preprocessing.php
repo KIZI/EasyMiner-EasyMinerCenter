@@ -18,6 +18,16 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntitiesGroup(property=$valuesBins,relation='kb:useValuesBins')
  * @rdfEntitiesGroup(property=$generatedAttributes,reverseRelation='kb:isBasedOn')
  */
-class Preprocessing {
-
+class Preprocessing extends BaseEntity{
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   */
+  public function prepareBaseUriSeoPart(){
+    if (!empty($this->name)){
+      return $this->name;
+    }else{
+      return parent::prepareBaseUriSeoPart();
+    }
+  }
 } 

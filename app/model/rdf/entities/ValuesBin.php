@@ -25,5 +25,15 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntitiesGroup(property=$values,relation='kb:hasValue',entity='Value')
  */
 class ValuesBin extends BaseEntity{
-
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   */
+  public function prepareBaseUriSeoPart(){
+    if (!empty($this->name)){
+      return $this->name;
+    }else{
+      return parent::prepareBaseUriSeoPart();
+    }
+  }
 } 

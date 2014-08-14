@@ -20,5 +20,15 @@ namespace App\Model\Rdf\Entities;
  * @rdfLiteral(property=$value,relation='kb:hasValue',optional=false)
  */
 class Value extends BaseEntity{
-
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   */
+  public function prepareBaseUriSeoPart(){
+    if (!empty($this->value)){
+      return $this->value;
+    }else{
+      return parent::prepareBaseUriSeoPart();
+    }
+  }
 } 

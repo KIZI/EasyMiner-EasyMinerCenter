@@ -43,6 +43,7 @@ class Rule extends BaseEntity{
     }else{
       $this->setRating(array());
     }
+    $this->setChanged(true);
   }
 
 } 

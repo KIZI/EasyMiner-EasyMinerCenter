@@ -10,7 +10,7 @@ parameters:
 		db_user: 'brserver'
 		db_pwd: 'ggoolleemm'
 		store_name: 'easyminerkb'
-		max_errors: 100
+		max_errors: 1000
 
 php:
 	date.timezone: Europe/Prague
@@ -27,7 +27,6 @@ nette:
 
 
 services:
-	- App\Model\UserManager
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
 	arc2Store: \ARC2::getStore(%arc2%)

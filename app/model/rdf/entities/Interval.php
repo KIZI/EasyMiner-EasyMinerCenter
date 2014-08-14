@@ -25,5 +25,15 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntity (property=$rightMargin,relation='kb:hasRightMargin',entity='Value')
  */
 class Interval extends BaseEntity{
-
+  /**
+   * Funkce vracející základ pro novou uri (při ukládání nové entity)
+   * @return string
+   */
+  public function prepareBaseUriSeoPart(){
+    if ($this->leftMargin || $this->rightMargin){
+      return '_'.@$this->leftMargin->value.'-'.@$this->rightMargin->value.'_';
+    }else{
+      return parent::prepareBaseUriSeoPart();
+    }
+  }
 } 

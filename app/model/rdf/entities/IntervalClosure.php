@@ -53,8 +53,10 @@ class IntervalClosure extends BaseEntity{
   public function setLeftClosure($closure){
     $closure=Strings::lower($closure);
     $this->closure=$closure.$this->getRightClosure();
+    $this->setChanged(true);
   }
   public function setRightClosure($closure){
     $this->closure=$this->getLeftClosure().Strings::firstUpper($closure);
+    $this->setChanged(true);
   }
 } 

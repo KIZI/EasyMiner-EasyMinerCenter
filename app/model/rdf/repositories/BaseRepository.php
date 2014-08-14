@@ -89,9 +89,9 @@ class BaseRepository extends Object{
     }
     if (!$entity->getUri()){
       $entity->setUri($this->prepareNewEntityUri($entity->prepareBaseUri()));
-
     }
     $this->executeQueries($entity->getSaveQuery($this));
+    $entity->setChanged(false);
     $entity->setKnowledgeRepository($this);
   }
 

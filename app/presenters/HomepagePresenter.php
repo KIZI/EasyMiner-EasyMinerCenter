@@ -28,12 +28,15 @@ class HomepagePresenter extends BaseRestPresenter
 	}
 
   public function actionReset(){
+
     $this->knowledgeRepository->reset();
 
     $knowledgeBase=new Model\Rdf\Entities\KnowledgeBase();
     $knowledgeBase->name='Testovaci KnowledgeBase';
     $this->knowledgeRepository->saveKnowledgeBase($knowledgeBase);
 
+
+    for ($i=0;$i<10;$i++){
     $metaAttribute=new Model\Rdf\Entities\MetaAttribute();
     $metaAttribute->name='Age';
     $metaAttribute->formats=array();
@@ -138,7 +141,7 @@ class HomepagePresenter extends BaseRestPresenter
 
     $this->knowledgeRepository->saveRule($rule);
     $this->knowledgeRepository->saveRuleSet($ruleSet);
-
+    }
 
 
     echo 'DONE';
