@@ -36,4 +36,11 @@ class ValuesBin extends BaseEntity{
       return parent::prepareBaseUriSeoPart();
     }
   }
+
+  #region pracovní metody pro sledování změn
+  public function setName($name){
+    $this->name=$name;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

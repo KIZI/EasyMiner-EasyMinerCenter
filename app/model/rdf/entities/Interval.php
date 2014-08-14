@@ -36,4 +36,18 @@ class Interval extends BaseEntity{
       return parent::prepareBaseUriSeoPart();
     }
   }
+  #region pracovní metody pro sledování změn
+  public function setLeftMargin(Value $leftMargin){
+    $this->leftMargin=$leftMargin;
+    $this->setChanged();
+  }
+  public function setRightMargin(Value $rightMargin){
+    $this->rightMargin=$rightMargin;
+    $this->setChanged();
+  }
+  public function setClosure(IntervalClosure $closure){
+    $this->closure=$closure;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

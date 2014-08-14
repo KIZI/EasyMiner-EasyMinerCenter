@@ -12,6 +12,21 @@ use Nette,
 class HomepagePresenter extends BaseRestPresenter
 {
 
+  public function renderTest(){
+    $metaattribute=new Model\Rdf\Entities\MetaAttribute();///$this->knowledgeRepository->findMetaAttribute('kb:MetaAttribute/rating3');
+    $metaattribute->name='aa';
+    //$name=$metaattribute->name;
+    $metaattribute->name='xxx';
+    //$metaattribute->setChanged(false);
+    if ($metaattribute->isChanged()){
+      echo 'jo';
+    }else{
+      echo 'ne';
+    }
+
+    $this->terminate();
+  }
+
 	public function renderDefault()
 	{
     $metaattribute = new Model\Rdf\Entities\MetaAttribute();

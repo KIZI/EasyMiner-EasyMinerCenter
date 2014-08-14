@@ -23,5 +23,10 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntitiesGroup(property=$valuesBins,relation='kb:hasValuesBin',entity='ValuesBin')
  */
 class RuleAttribute extends BaseEntity{
-
+  #region pracovní metody pro sledování změn
+  public function setAttribute(Attribute $attribute){
+    $this->attribute=$attribute;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

@@ -46,4 +46,18 @@ class Rule extends BaseEntity{
     $this->setChanged(true);
   }
 
+  #region pracovní metody pro sledování změn
+  public function setAntecedent(Cedent $antecedent){
+    $this->antecedent=$antecedent;
+    $this->setChanged();
+  }
+  public function setConsequent(Cedent $consequent){
+    $this->consequent=$consequent;
+    $this->setChanged();
+  }
+  public function setText($text){
+    $this->text=$text;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

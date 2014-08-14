@@ -42,4 +42,18 @@ class Format  extends BaseEntity{
       return parent::prepareBaseUriSeoPart();
     }
   }
+
+  #region pracovní metody pro sledování změn
+  public function setName($name){
+    $this->name=$name;
+    $this->setChanged();
+  }
+  public function setDataType($dataType){
+    $this->dataType=$dataType;
+    $this->setChanged();
+  }
+  public function setMetaAttribute(MetaAttribute $metaAttribute){
+    $this->metaAttribute=$metaAttribute;
+  }
+  #endregion pracovní metody pro sledování změn
 } 

@@ -31,4 +31,11 @@ class Value extends BaseEntity{
       return parent::prepareBaseUriSeoPart();
     }
   }
+
+  #region pracovní metody pro sledování změn
+  public function setValue($value){
+    $this->value=$value;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

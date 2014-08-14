@@ -30,4 +30,11 @@ class RuleSet extends BaseEntity{
     }
   }
 
+  #region pracovní metody pro sledování změn
+  public function setName($name){
+    $this->name=$name;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
+
 } 

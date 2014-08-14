@@ -18,6 +18,7 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntity(property=$knowledgeBase,relation='kb:isInBase',entity='KnowledgeBase')
  */
 class MetaAttribute extends BaseEntity{
+
   /**
    * Funkce vracející základ pro novou uri (při ukládání nové entity)
    * @return string
@@ -29,4 +30,11 @@ class MetaAttribute extends BaseEntity{
       return parent::prepareBaseUriSeoPart();
     }
   }
+
+  #region pracovní metody pro sledování změn
+  public function setName($name){
+    $this->name=$name;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

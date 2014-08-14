@@ -34,4 +34,15 @@ class Attribute extends BaseEntity{
       return parent::prepareBaseUriSeoPart();
     }
   }
+
+  #region pracovní metody pro sledování změn
+  public function setName($name){
+    $this->name=$name;
+    $this->setChanged();
+  }
+  public function setFormat(Format $format){
+    $this->format=$format;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

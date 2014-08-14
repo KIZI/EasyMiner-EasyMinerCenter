@@ -19,4 +19,10 @@ namespace App\Model\Rdf\Entities;
  */
 class Cedent extends BaseEntity{
 
+  #region pracovní metody pro sledování změn
+  public function setConnective($connective){
+    $this->connective=$connective;
+    $this->setChanged();
+  }
+  #endregion pracovní metody pro sledování změn
 } 

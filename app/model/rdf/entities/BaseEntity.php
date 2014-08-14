@@ -17,7 +17,7 @@ abstract class BaseEntity extends Object{
   /** @var string $uri */
   private $uri='';
 
-  private $entityChanged=false;
+  protected $entityChanged;
   protected static $mappedProperties=array();
   /** @var KnowledgeRepository $repository */
   protected $repository;
@@ -36,6 +36,7 @@ abstract class BaseEntity extends Object{
 
   public function __construct(KnowledgeRepository $knowledgeRepository=null){
     $this->repository=$knowledgeRepository;
+    $this->entityChanged=false;
   }
 
   public function setKnowledgeRepository(KnowledgeRepository $repository){
@@ -346,10 +347,11 @@ abstract class BaseEntity extends Object{
     $mappedProperties=$this->getMappedProperties();
     if ((!method_exists($this,'set'.ucfirst($name))) && (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['literals'][$name]) || isset($mappedProperties['entitiesGroups'][$name]))){
       $this->$name=$value;
+      $this->setChanged(true);
     }else{
-      parent::__set($name,$value);
+      $methodName='set'.ucfirst($name);
+      $this->$methodName($value);
     }
-    $this->entityChanged=true;
   }
 
 

@@ -112,6 +112,7 @@ class BaseRepository extends Object{
       $entity=new $entityClass();
       $entity->prepareEntity($result['rows'][0],$uri);
       $entity->setKnowledgeRepository($this);
+      $entity->setChanged(false);
       return $entity;
     }
     return null;
