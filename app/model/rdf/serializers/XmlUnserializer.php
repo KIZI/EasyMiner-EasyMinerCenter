@@ -156,7 +156,20 @@ class XmlUnserializer extends Object{
     $rule->text=(string)$ruleXml->Text;
     $rule->antecedent=$this->cedentFromXml($ruleXml->Antecedent);
     $rule->consequent=$this->cedentFromXml($ruleXml->Consequent);
+    if (isset($ruleXml->Rating)){
+      $rule->rating=$this->ratingFromXml($ruleXml->Rating[0]);
+    }
     return $rule;
+  }
+
+  public function ratingFromXml(\SimpleXMLElement $ratingXml){
+    $ratingArr=array();
+    if ($ratingXml->attributes()){
+      foreach ($ratingXml->attributes() as $name=>$value){
+        $ratingArr[$name]=(string)$value;
+      }
+    }
+    return $ratingArr;
   }
 
   public function cedentFromXml(\SimpleXMLElement $cedentXml){

@@ -4,8 +4,6 @@ namespace App\Model\Rdf\Entities;
 
 use App\Model\Rdf\Repositories\KnowledgeRepository;
 use Nette\Object;
-use Nette\Utils\ArrayHash;
-use Nette\Utils\ArrayList;
 use Nette\Utils\Strings;
 
 /**

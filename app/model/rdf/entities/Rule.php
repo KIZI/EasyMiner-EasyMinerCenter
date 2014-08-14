@@ -26,7 +26,6 @@ namespace App\Model\Rdf\Entities;
 class Rule extends BaseEntity{
 
   public function getRating(){
-    return '';//TODO rating
     if ($result=json_decode($this->rating,true)){
       return $result;
     }else{
