@@ -105,8 +105,9 @@ class RulePresenter extends BaseRestPresenter{
       //máme pravidlo přidat také do daného rulesetu
       $ruleSetItem=$this->knowledgeRepository->findRuleSet($ruleset);
       if ($ruleSetItem){
-        $ruleSetRules=$ruleSetItem->rules;
-        $ruleSetItem->rules[]=$rule;
+        $rulesetRules=$ruleSetItem->rules;
+        $rulesetRules[]=$rule;
+        $ruleSetItem->rules=$rulesetRules;
         $this->knowledgeRepository->saveRuleSet($ruleSetItem);
       }
     }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Model\Rdf\Entities;
-
+//TODO property column je pouze pro dočasnou integraci se stávající verzí EasyMineru!!!
 /**
  * Class Attribute
  *
@@ -13,10 +13,12 @@ namespace App\Model\Rdf\Entities;
  * @property ValuesBin[] $valuesBins
  * @property Preprocessing $preprocessing
  * @property KnowledgeBase $knowledgeBase
+ * @property string $dbColumn
  *
  * @rdfClass(class="kb:Attribute")
  * @rdfNamespaces(kb="http://easyminer.eu/kb/")
  * @rdfLiteral(property=$name,relation='kb:hasName')
+ * @rdfLiteral(property=$dbColumn,relation='kb:isDbColumn',optional=true)
  * @rdfEntity (property=$format,relation='kb:hasFormat',entity='Format')
  * @rdfEntitiesGroup(property=$valuesBins,relation='kb:hasValuesBin',entity='ValuesBin')
  * @rdfEntity(property=$preprocessing,relation='kb:isBasedOn')

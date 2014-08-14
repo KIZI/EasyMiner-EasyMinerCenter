@@ -51,7 +51,7 @@ class HomepagePresenter extends BaseRestPresenter
     $this->knowledgeRepository->saveKnowledgeBase($knowledgeBase);
 
 
-    for ($i=0;$i<10;$i++){
+    for ($i=0;$i<1;$i++){
     $metaAttribute=new Model\Rdf\Entities\MetaAttribute();
     $metaAttribute->name='Age';
     $metaAttribute->formats=array();
