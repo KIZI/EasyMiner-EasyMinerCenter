@@ -50,7 +50,7 @@ class RuleSetPresenter extends BaseRestPresenter{
         }
       }
 
-      $this->sendXmlResponse($this->xmlSerializer->ruleSetAsXml($ruleSet));
+      $this->sendXmlResponse($responseXml);
     }else{
       throw new BadRequestException('Requested RuleSet not found.',IResponse::S404_NOT_FOUND);
     }
