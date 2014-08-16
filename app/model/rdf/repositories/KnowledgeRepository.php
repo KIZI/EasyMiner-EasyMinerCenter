@@ -8,7 +8,6 @@ use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
 use App\Model\Rdf\Entities\RuleSet;
-use App\Model\Rdf\Entities\Value;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 
@@ -108,7 +107,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return MetaAttribute
    */
   public function findMetaAttribute($uri){
-    return $this->findEntity($uri,'MetaAttribute');
+    return $this->findEntity('MetaAttribute',$uri);
   }
 
   /**
@@ -116,7 +115,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return Format
    */
   public function findFormat($uri){
-    return $this->findEntity($uri,'Format');
+    return $this->findEntity('Format',$uri);
   }
 
   /**
@@ -124,7 +123,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return Attribute
    */
   public function findAttribute($uri){
-    return $this->findEntity($uri,'Attribute');
+    return $this->findEntity('Attribute',$uri);
   }
 
   /**
@@ -132,7 +131,11 @@ class KnowledgeRepository extends BaseRepository{
    * @return Rule
    */
   public function findRule($uri){
-    return $this->findEntity($uri,'Rule');
+    return $this->findEntity('Rule',$uri);
+  }
+
+  public function fxindValuesBin($uri){
+    return $this->findEntity('ValuesBin',$uri);
   }
 
   /**
@@ -140,7 +143,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return RuleSet
    */
   public function findRuleSet($uri){
-    return $this->findEntity($uri,'RuleSet');
+    return $this->findEntity('RuleSet',$uri);
   }
 
   /**
@@ -148,7 +151,7 @@ class KnowledgeRepository extends BaseRepository{
    * @return KnowledgeBase
    */
   public function findKnowledgeBase($uri){
-    return $this->findEntity($uri,'KnowledgeBase');
+    return $this->findEntity('KnowledgeBase',$uri);
   }
 
   /**

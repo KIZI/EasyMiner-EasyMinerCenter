@@ -60,10 +60,12 @@ class BaseRepository extends Object{
    * @return bool
    */
   public function uriExists($uri){
-    $query='ASK {<'.$uri.'> a ?class}';
+    $query='ASK {'.BaseEntity::quoteUri($uri).' a ?class}';
     $result=$this->arcStore->query($query,'raw');
     return $result;
   }
+
+
 
   /**
    * Funkce pro vygenerování dosud neobrazené URI
@@ -96,12 +98,12 @@ class BaseRepository extends Object{
   }
 
   /**
-   * @param string $uri
    * @param BaseEntity|string $entityClass
+   * @param string $uri
    * @param string $entityClassNamespace = self::BASIC_ENTITY_NAMESPACE
    * @return BaseEntity|null
    */
-  public function findEntity($uri,$entityClass,$entityClassNamespace=self::BASIC_ENTITY_NAMESPACE){
+  public function findEntity($entityClass,$uri,$entityClassNamespace=self::BASIC_ENTITY_NAMESPACE){
     if ($entityClassNamespace!=''){
       $entityClass=$entityClassNamespace.'\\'.$entityClass;
     }

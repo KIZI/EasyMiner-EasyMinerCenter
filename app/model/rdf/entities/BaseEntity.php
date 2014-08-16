@@ -127,9 +127,9 @@ abstract class BaseEntity extends Object{
           }
 
           if (isset($mappedProperties['entities'][$name]['relation'])){
-            $sparqlQuery='<'.$this->uri.'> '.$mappedProperties['entities'][$name]['relation'].' ?uri';
+            $sparqlQuery=' '.self::quoteUri($this->uri).' '.$mappedProperties['entities'][$name]['relation'].' ?uri';
           }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
-            $sparqlQuery=' ?uri '.$mappedProperties['entities'][$name]['reverseRelation'].'<'.$this->uri.'> ';
+            $sparqlQuery=' ?uri '.$mappedProperties['entities'][$name]['reverseRelation'].' '.self::quoteUri($this->uri).' ';
           }
 
           if (!empty($sparqlQuery)){
@@ -148,9 +148,9 @@ abstract class BaseEntity extends Object{
           }
 
           if (isset($mappedProperties['entitiesGroups'][$name]['relation'])){
-            $sparqlQuery='<'.$this->uri.'> '.$mappedProperties['entitiesGroups'][$name]['relation'].' ?uri';
+            $sparqlQuery=' '.self::quoteUri($this->uri).' '.$mappedProperties['entitiesGroups'][$name]['relation'].' ?uri';
           }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
-            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['reverseRelation'].' <'.$this->uri.'> ';
+            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['reverseRelation'].' '.self::quoteUri($this->uri).' ';
           }
 
           if (!empty($sparqlQuery)){
@@ -178,14 +178,14 @@ abstract class BaseEntity extends Object{
     if ($this->isChanged()){
       //uložení literálů řešíme jen pro změněné entity
       #region vyřešení literálů
-      $insertQuery='. <'.$this->uri.'> a '.$mappedProperties['class'];
+      $insertQuery='. '.self::quoteUri($this->uri).' a '.$mappedProperties['class'];
       if (!empty($mappedProperties['literals']) && is_array($mappedProperties['literals'])){
         foreach ($mappedProperties['literals'] as $literal){
           $property=$literal['property'];
           if (isset($this->$property)){
             //máme updatovat => pokusíme se smazat jednotlivé literály
-            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$literal['relation'].' ?value}';
-            $insertQuery.='. <'.$this->uri.'> '.$literal['relation'].' '.self::quoteSparql($this->$property);
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$literal['relation'].' ?value}';
+            $insertQuery.='. '.self::quoteUri($this->uri).' '.$literal['relation'].' '.self::quoteSparql($this->$property);
           }
         }
       }
@@ -212,8 +212,8 @@ abstract class BaseEntity extends Object{
             $repository->$repositorySaveMethod($this->$property);
             //uložíme relaci připojené entity
             //TODO optimize!
-            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' ?relatedUri}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
-            $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entity['relation'].' ?relatedUri}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
+            $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entity['relation'].' '.self::quoteUri($this->$property->uri).'}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
           }/*else{//pravděpodobně není potřeba - ukládáme vždy z té entity, která má zadanou URI
             $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {?relatedUri '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
             $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
@@ -240,7 +240,7 @@ abstract class BaseEntity extends Object{
           //máme nějaké položky
           if (count($this->$property)){
             //zkontrolujeme, jestli máme již nějaké vazby
-            $relatedResult=$repository->executeQuery($queryPrefixes.'SELECT ?relatedUri FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' ?relatedUri}');
+            $relatedResult=$repository->executeQuery($queryPrefixes.'SELECT ?relatedUri FROM <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entitiesGroup['relation'].' ?relatedUri}');
             $relatedUrisArr=array();
             if ($relatedResult && !empty($relatedResult['result']['rows'])){
               //máme nějaké původní vazby => připravíme si seznam nových URIs a případně připravíme query pro odstranění vazby
@@ -251,7 +251,7 @@ abstract class BaseEntity extends Object{
               }
               foreach ($relatedResult['result']['rows'] as $row){
                 if (!in_array($row['relatedUri'],$relatedUrisArr)){
-                  $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' <'.$row['relatedUri'].'>}';
+                  $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entitiesGroup['relation'].' '.self::quoteUri($row['relatedUri']).'}';
                 }
               }
             }
@@ -259,12 +259,12 @@ abstract class BaseEntity extends Object{
             foreach ($this->$property as $propertyItem){
               $repository->$entitySaveFunction($propertyItem);
               if ((@$propertyItem->uri!='') && !in_array($propertyItem->uri,$relatedUrisArr)){
-                $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' <'.$propertyItem->uri.'>}';
+                $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entitiesGroup['relation'].' '.self::quoteUri($propertyItem->uri).'}';
               }
             }
           }else{
             //máme odstranit všechny navázané položky
-            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {<'.$this->uri.'> '.$entitiesGroup['relation'].' ?relatedUri}';
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entitiesGroup['relation'].' ?relatedUri}';
           }
 
         }
@@ -299,7 +299,7 @@ abstract class BaseEntity extends Object{
     }
     if ($uri!=''){
       $selectQuery=Strings::replace($selectQuery,'/\?uri/','');
-      $whereQuery=Strings::replace($whereQuery,'/\?uri/','<'.$uri.'>');
+      $whereQuery=Strings::replace($whereQuery,'/\?uri/',self::quoteUri($uri));
     }
     $query=$queryPrefixes.'SELECT '.$selectQuery.' FROM <'.self::BASE_ONTOLOGY.'> WHERE {'.Strings::substring($whereQuery,2).(($filter!='')?' . '.$filter.'':'').'}';
     return $query;
@@ -362,6 +362,11 @@ abstract class BaseEntity extends Object{
     return addslashes($literal);
   }
 
+  public static function quoteUri($uri){
+    //TODO líp ošetřit...
+    return '<'.(Strings::startsWith($uri,'kb:')?self::BASE_ONTOLOGY.'/'.Strings::substring($uri,3):$uri).'>';
+  }
+
   /**
    * Funkce pro vyescapování a obalení uvozovkami pro úpravu hodnot literálů pro použití ve SPARQL dotazu
    * @param $literal
@@ -382,6 +387,9 @@ abstract class BaseEntity extends Object{
       $uri.='/';
     }
     $uri.=Strings::webalize($this->prepareBaseUriSeoPart());
+    if (Strings::startsWith($uri,'kb:')){
+      $uri=self::BASE_ONTOLOGY.'/'.Strings::substring($uri,3);
+    }
     return $uri;
   }
 

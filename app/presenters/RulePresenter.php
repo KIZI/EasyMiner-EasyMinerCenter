@@ -41,7 +41,6 @@ class RulePresenter extends BaseRestPresenter{
    */
   public function actionGet($baseId='',$ruleset='',$uri){
     $rule=$this->knowledgeRepository->findRule($uri);
-
     if ($rule && $baseId){
       //zkontrolujeme, jestli dané pravidlo patří do zadané KnowledgeBase
       if (@$rule->knowledgeBase->uri!=$baseId){
