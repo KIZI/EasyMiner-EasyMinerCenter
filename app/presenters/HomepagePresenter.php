@@ -50,7 +50,6 @@ class HomepagePresenter extends BaseRestPresenter
     $knowledgeBase->name='Testovaci KnowledgeBase';
     $this->knowledgeRepository->saveKnowledgeBase($knowledgeBase);
 
-
     for ($i=0;$i<1;$i++){
     $metaAttribute=new Model\Rdf\Entities\MetaAttribute();
     $metaAttribute->name='Age';
@@ -96,6 +95,7 @@ class HomepagePresenter extends BaseRestPresenter
     $attribute->name='vek';
 
     $this->knowledgeRepository->saveMetaattribute($metaAttribute);
+
     $this->knowledgeRepository->saveAttribute($attribute);
 
     $metaAttribute2=new Model\Rdf\Entities\MetaAttribute();
@@ -143,7 +143,6 @@ class HomepagePresenter extends BaseRestPresenter
     $ruleAttribute2->valuesBins=array($valuesBinX);
     $consequent->ruleAttributes=array($ruleAttribute2);
     $rule->consequent=$consequent;
-
 
     $ruleSet=new Model\Rdf\Entities\RuleSet();
     $ruleSet->name='Testovaci RuleSet';

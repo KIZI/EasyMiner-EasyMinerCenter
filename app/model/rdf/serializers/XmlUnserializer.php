@@ -6,6 +6,7 @@ use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\Cedent;
 use App\Model\Rdf\Entities\Format;
 use App\Model\Rdf\Entities\Interval;
+use App\Model\Rdf\Entities\IntervalClosure;
 use App\Model\Rdf\Entities\KnowledgeBase;
 use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Entities\Rule;
@@ -136,10 +137,16 @@ class XmlUnserializer extends Object{
     if (count($rangeXml->Interval)){
       foreach ($rangeXml->Interval as $intervalXml){
         $interval=new Interval();
-        $interval->uri=(string)$intervalXml['id'];
-        $interval->leftMargin=(string)$intervalXml['leftMargin'];
-        $interval->rightMargin=(string)$intervalXml['rightMargin'];
-        $interval->closure=(string)$intervalXml['closure'];
+        $interval->uri=(string)$intervalXml['id'];//TODO načítání values z DB
+        $leftValue=new Value();
+        $leftValue->value=(string)$intervalXml['leftMargin'];
+        $interval->leftMargin=$leftValue;
+        $rightValue=new Value();
+        $rightValue->value=(string)$intervalXml['rightMargin'];
+        $interval->rightMargin=$rightValue;
+        $closure=new IntervalClosure();
+        $closure->setClosure((string)$intervalXml['closure']);
+        $interval->closure=$closure;
         $parentObject->intervals[]=$interval;
       }
     }
@@ -157,14 +164,15 @@ class XmlUnserializer extends Object{
     $rule->antecedent=$this->cedentFromXml($ruleXml->Antecedent);
     $rule->consequent=$this->cedentFromXml($ruleXml->Consequent);
     if (isset($ruleXml->Rating)){
-      $rule->rating=$this->ratingFromXml($ruleXml->Rating[0]);
+      $rule->setRating($this->ratingFromXml($ruleXml->Rating[0]));
     }
+    //exit(var_dump($rule));
     return $rule;
   }
 
   public function ratingFromXml(\SimpleXMLElement $ratingXml){
     $ratingArr=array();
-    if ($ratingXml->attributes()){
+    if ($attributes=$ratingXml->attributes()){
       foreach ($ratingXml->attributes() as $name=>$value){
         $ratingArr[$name]=(string)$value;
       }
@@ -191,11 +199,13 @@ class XmlUnserializer extends Object{
       foreach ($cedentXml->RuleAttribute as $ruleAttributeXml){
         $ruleAttribute=new RuleAttribute();
         $ruleAttribute->uri=(string)$ruleAttributeXml['id'];
+        //$ruleAttribute->setKnowledgeRepository($this->knowledgeRepository);
         $attribute=$this->knowledgeRepository->findAttribute((string)$ruleAttributeXml['attribute']);
         //TODO pokud atribut neexistuje, je nutné vyhodit chybu!
         $ruleAttribute->attribute=$attribute;
-        if (count($ruleAttributeXml->Bin)){
-          foreach($ruleAttributeXml->Bin as $binXml){
+        if (count($ruleAttributeXml->ValuesBin)){
+          $ruleAttribute->valuesBins=array();
+          foreach($ruleAttributeXml->ValuesBin as $binXml){
             if (!empty($binXml['id'])){
               $ruleAttribute->valuesBins[]=$this->knowledgeRepository->findValuesBin((string)$binXml['id']);
             }else{
@@ -204,6 +214,7 @@ class XmlUnserializer extends Object{
               //TODO check values and intervals in Attribute Range!
               $attributeValuesBins=$attribute->valuesBins;
               $valuesBin=$this->valuesBinFromXml($binXml);
+
               $ruleAttribute->valuesBins[]=$valuesBin;
               //zkontrolujeme, jestli je daný valuesBin také v definici atributu
               if ($valuesBin->uri){
@@ -217,7 +228,9 @@ class XmlUnserializer extends Object{
                   $attribute->valuesBins[]=$valuesBin;
                 }
               }else{
-                $attribute->valuesBins[]=$valuesBin;
+                $attributeValuesBins=$attribute->valuesBins;
+                $attributeValuesBins[]=$valuesBin;
+                $attribute->valuesBins=$attributeValuesBins;
               }
             }
           }

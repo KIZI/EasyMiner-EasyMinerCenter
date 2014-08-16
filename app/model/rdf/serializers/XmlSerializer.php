@@ -333,7 +333,7 @@ class XmlSerializer extends Object{
     $ruleXml=$this->blankRuleAsXml($rule,$parentXml);
     $this->cedentAsXml($rule->antecedent,$ruleXml,'Antecedent');
     $this->cedentAsXml($rule->consequent,$ruleXml,'Consequent');
-    $ratingArr=$rule->getRating();
+    $ratingArr=$rule->getRatingArr();
     if (!empty($ratingArr)){
       $rating=$ruleXml->addChild('Rating');
       foreach ($ratingArr as $key=>$value){

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Model\Rdf\Entities;
+use Nette\Neon\Exception;
 
 /**
  * Class Rule
@@ -10,7 +11,7 @@ namespace App\Model\Rdf\Entities;
  * @property Cedent $antecedent
  * @property Cedent $consequent
  * @property string $text
- * @property string|array $rating
+ * @property string $rating
  * @property RuleSet[] $ruleSets
  * @property KnowledgeBase $knowledgeBase
  *
@@ -25,27 +26,28 @@ namespace App\Model\Rdf\Entities;
  */
 class Rule extends BaseEntity{
 
-  public function getRating(){
-    if ($result=json_decode($this->rating,true)){
-      return $result;
-    }else{
-      $this->setRating(array());
-      return $this->getRating();
-    }
-  }
-
-  public function setRating($ratingArr){
-    if (is_array($ratingArr) || is_object($ratingArr)){
-      $this->rating=json_encode($ratingArr);
-    }elseif(is_string($ratingArr)){
-      $this->rating=$ratingArr;
-    }else{
-      $this->setRating(array());
-    }
-    $this->setChanged(true);
+  public function getRatingArr(){
+    try{
+      return json_decode($this->rating,true);
+    }catch (Exception $e){}
+    return null;
   }
 
   #region pracovní metody pro sledování změn
+  public function getRating(){
+    if (!isset($this->rating)){
+      return null;
+    }
+    return @$this->rating;
+  }
+  public function setRating($rating){
+    if (is_string($rating)){
+      $this->rating=$rating;
+    }else{
+      $this->rating=json_encode($rating);
+    }
+    $this->setChanged();
+  }
   public function setAntecedent(Cedent $antecedent){
     $this->antecedent=$antecedent;
     $this->setChanged();
