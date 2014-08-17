@@ -88,6 +88,7 @@ class RulePresenter extends BaseRestPresenter{
         $rule=null;
       }
     }
+    $ruleSetWithRule=null;
     if ($rule && $ruleset){
       //zkontrolujeme, jestli dané pravidlo patří do zadaného rulesetu
       $ruleSets=$rule->ruleSets;
@@ -95,6 +96,7 @@ class RulePresenter extends BaseRestPresenter{
       if (count($ruleSets)){
         foreach ($ruleSets as $ruleSetItem){
           if ($ruleSetItem->uri==$ruleset){
+            $ruleSetWithRule=$ruleSetItem;
             $ok=true;
             break;
           }
@@ -105,11 +107,16 @@ class RulePresenter extends BaseRestPresenter{
       }
     }
 
-    //TODO smazání daného pravidla!!!
-
     if ($rule){
       //odešleme dané pravidlo
-      $this->sendNoContentResponse('DELETED');
+      if ($ruleSetWithRule){
+        $this->knowledgeRepository->deleteRule($rule,$ruleSetWithRule);
+      }else{
+        $this->knowledgeRepository->deleteRule($rule);
+      }
+      //TODO result?
+
+      $this->sendTextResponse('DELETED');
     }else{
       throw new BadRequestException('Requested Rule not found.',IResponse::S404_NOT_FOUND);
     }

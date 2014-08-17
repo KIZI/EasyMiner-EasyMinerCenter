@@ -52,6 +52,15 @@ abstract class BaseRestPresenter extends BasePresenter{
   }
 
   /**
+   * Funkce pro odeslání odpovědi informující o nulovém obsahu
+   */
+  protected function sendTextResponse($text='',$code=IResponse::S200_OK){
+    $response=new Response();
+    $response->code=$code;
+    $this->sendResponse(new TextResponse($text));
+  }
+
+  /**
    * @param \SimpleXMLElement|string $simpleXml
    */
   protected function sendXmlResponse($simpleXml){

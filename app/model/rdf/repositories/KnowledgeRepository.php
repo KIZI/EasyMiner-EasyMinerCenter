@@ -15,8 +15,29 @@ use Nette\Utils\Strings;
  * Class KnowledgeRepository
  * @package App\Model\Rdf\Repositories
  * @method saveRule(Rule $rule)
+ * @method saveKnowledgeBase(KnowledgeBase $knowledgeBase)
  */
 class KnowledgeRepository extends BaseRepository{
+
+  /**
+   * Akce pro smazání pravidla
+   * @param Rule $rule
+   * @param RuleSet $ruleSet
+   * @return bool
+   */
+  public function deleteRule(Rule $rule,RuleSet $ruleSet=null){
+    //TODO pravidlo by mělo být úplně smazáno jen v případě, kdy není v žádném RuleSetu, jinak ho odstraníme jen z daného RuleSetu
+    //TODO dodělat
+    if ($ruleSet){
+      $query=Rule::prepareQueryPrefixes(array('kb'=>"http://easyminer.eu/kb/")).' DELETE FROM <'.BaseEntity::BASE_ONTOLOGY.'> {'.BaseEntity::quoteUri($ruleSet->uri).' ?relation '.BaseEntity::quoteUri($rule->uri).'}';
+      $this->executeQueries($query);
+    }else{
+      $query1=Rule::prepareQueryPrefixes(array('kb'=>"http://easyminer.eu/kb/")).' DELETE FROM <'.BaseEntity::BASE_ONTOLOGY.'> {?entity ?relation '.BaseEntity::quoteUri($rule->uri).'}';
+      $query2=Rule::prepareQueryPrefixes(array('kb'=>"http://easyminer.eu/kb/")).' DELETE FROM <'.BaseEntity::BASE_ONTOLOGY.'> {'.BaseEntity::quoteUri($rule->uri).' ?relation ?entity}';
+      $this->executeQueries(array($query1,$query2));
+    }
+    return true;
+  }
 
   /**
    * @param null|array $params
