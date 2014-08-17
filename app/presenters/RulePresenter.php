@@ -72,6 +72,49 @@ class RulePresenter extends BaseRestPresenter{
     }
   }
 
+
+  /**
+   * Akce vracející jedno pravidlo ve formátu JSON
+   * @param string $baseId = ''
+   * @param string $ruleset= ''
+   * @param string $uri
+   * @throws \Nette\Application\BadRequestException
+   */
+  public function actionDelete($baseId='',$ruleset='',$uri){
+    $rule=$this->knowledgeRepository->findRule($uri);
+    if ($rule && $baseId){
+      //zkontrolujeme, jestli dané pravidlo patří do zadané KnowledgeBase
+      if (@$rule->knowledgeBase->uri!=$baseId){
+        $rule=null;
+      }
+    }
+    if ($rule && $ruleset){
+      //zkontrolujeme, jestli dané pravidlo patří do zadaného rulesetu
+      $ruleSets=$rule->ruleSets;
+      $ok=false;
+      if (count($ruleSets)){
+        foreach ($ruleSets as $ruleSetItem){
+          if ($ruleSetItem->uri==$ruleset){
+            $ok=true;
+            break;
+          }
+        }
+      }
+      if (!$ok){
+        $rule=null;
+      }
+    }
+
+    //TODO smazání daného pravidla!!!
+
+    if ($rule){
+      //odešleme dané pravidlo
+      $this->sendNoContentResponse('DELETED');
+    }else{
+      throw new BadRequestException('Requested Rule not found.',IResponse::S404_NOT_FOUND);
+    }
+  }
+
   /**
    * Akce pro uložení pravidla
    * @param string $baseId = ''
@@ -92,12 +135,20 @@ class RulePresenter extends BaseRestPresenter{
     $xml=$this->xmlUnserializer->prepareRulesXml($data);
 
     $rule=$this->xmlUnserializer->ruleFromXml($xml);
+    if ($uri=='undefined'){
+      $uri='';
+    }
     $rule->uri=$uri;
 
     if ($baseId){
       //pravidlo má patřit do konkrétní KnowledgeBase
       $knowledgeBase=$this->knowledgeRepository->findKnowledgeBase($baseId);
-      $rule->knowledgeBase=$knowledgeBase;
+      if ($knowledgeBase){
+        $rule->knowledgeBase=$knowledgeBase;
+      }else{
+        throw new BadRequestException('Requested Knowledge Base not found!');
+      }
+
     }
     $this->knowledgeRepository->saveRule($rule);
     if ($ruleset){

@@ -152,6 +152,7 @@ class HomepagePresenter extends BaseRestPresenter
     $rule->ruleSets=array($ruleSet);
     $ruleSet->rules=array($rule);
     $rule->knowledgeBase=$knowledgeBase;
+    $rule->setRating(array('confidence'=>'0.5','support'=>'0.3'));
 
     $this->knowledgeRepository->saveRule($rule);
     $this->knowledgeRepository->saveRuleSet($ruleSet);
