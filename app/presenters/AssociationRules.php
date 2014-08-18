@@ -270,7 +270,7 @@ class AssociationRulesPresenter extends BaseRestPresenter{
           }
           if (count($xmlCategoryData->Value)>0){
             $valuesBin->values=array();
-            $format->values=array();
+            if (!is_array($format->values)){$format->values=array();}
             foreach ($xmlCategoryData->Value as $xmlValue){
               $value=new Value();
               $value->value=(string)$xmlValue;
