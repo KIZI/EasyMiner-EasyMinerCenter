@@ -214,6 +214,7 @@ class AssociationRulesPresenter extends BaseRestPresenter{
         $format=new Format();
         $format->uri=BaseEntity::BASE_ONTOLOGY.'/Format/'.Strings::webalize($kbi).'/'.Strings::webalize($name);
         $format->name=$name;
+        $format->values=null;
         $format->dataType=(string)$xmlField['dataType'];
 
         $attribute->dbColumn=(string)$xmlField->DbColumn;
@@ -289,6 +290,15 @@ class AssociationRulesPresenter extends BaseRestPresenter{
       $this->sendTextResponse('OK');
     }
 
+  }
+
+  /**
+   * Akce pro export pravidel ve formátu asociačních pravidel pro integraci s EasyMinerem
+   * @param string $baseId
+   * @param string $kbi
+   */
+  public function actionExportAssociationRules($baseId='',$kbi=''){
+    //TODO
   }
 
 
