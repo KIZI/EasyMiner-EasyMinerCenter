@@ -30,7 +30,7 @@ class KnowledgeRepository extends BaseRepository{
     //TODO dodělat
     if ($ruleSet){
       $query=Rule::prepareQueryPrefixes(array('kb'=>"http://easyminer.eu/kb/")).' DELETE FROM <'.BaseEntity::BASE_ONTOLOGY.'> {'.BaseEntity::quoteUri($ruleSet->uri).' ?relation '.BaseEntity::quoteUri($rule->uri).'}';
-      $this->executeQueries($query);
+      $this->executeQuery($query);
     }else{
       $query1=Rule::prepareQueryPrefixes(array('kb'=>"http://easyminer.eu/kb/")).' DELETE FROM <'.BaseEntity::BASE_ONTOLOGY.'> {?entity ?relation '.BaseEntity::quoteUri($rule->uri).'}';
       $query2=Rule::prepareQueryPrefixes(array('kb'=>"http://easyminer.eu/kb/")).' DELETE FROM <'.BaseEntity::BASE_ONTOLOGY.'> {'.BaseEntity::quoteUri($rule->uri).' ?relation ?entity}';

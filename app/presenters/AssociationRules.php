@@ -298,7 +298,100 @@ class AssociationRulesPresenter extends BaseRestPresenter{
    * @param string $kbi
    */
   public function actionExportAssociationRules($baseId='',$kbi=''){
-    //TODO
+    $ruleSet=$this->getRuleSet($baseId,$kbi);
+    $result=simplexml_load_string('<AssociationRules xmlns="http://keg.vse.cz/lm/AssociationRules/v1.0"></AssociationRules>');
+    if (count($ruleSet->rules)){
+      foreach ($ruleSet->rules as $rule){
+        $xmlAssociationRule=$result->addChild('AssociationRule');
+        $xmlAssociationRule->addAttribute('id',$this->prepareRuleId($rule->uri));
+        $xmlAssociationRule->addChild('Text',$rule->text);
+        $this->serializeCedentAsXml($rule->antecedent,$xmlAssociationRule,'Antecedent');
+        $this->serializeCedentAsXml($rule->consequent,$xmlAssociationRule,'Consequent');
+        $xmlRating=$xmlAssociationRule->addChild('Rating');
+        $ratingArr=$rule->getRatingArr();
+        if (!isset($ratingArr['confidence'])){
+          $ratingArr['confidence']=0;
+        }
+        if (!isset($ratingArr['support'])){
+          $ratingArr['support']=0;
+        }
+        $xmlRating->addAttribute('confidence',$ratingArr['confidence']);
+        $xmlRating->addAttribute('support',$ratingArr['support']);
+      }
+    }
+    $this->sendXmlResponse($result);
+  }
+
+  private function prepareRuleId($ruleUri){
+    if (Strings::startsWith($ruleUri,'http://easyminer.eu/kb/Rule/')){
+      return Strings::substring($ruleUri,28);
+    }else{
+      return $ruleUri;
+    }
+  }
+
+  private function serializeCedentAsXml(Cedent $cedent,\SimpleXMLElement &$parentXml,$elementName='Cedent'){
+    $xmlCedent=$parentXml->addChild($elementName);
+    if (isset($cedent->connective)){
+      $xmlCedent->addAttribute('Connective',Strings::firstUpper(Strings::lower($cedent->connective)));
+    }
+    if ($cedent->cedents && count($cedent->cedents)){
+      foreach($cedent->cedents as $cedentItem){
+        $this->serializeCedentAsXml($cedentItem,$xmlCedent);
+      }
+    }
+    if ($cedent->ruleAttributes && count($cedent->ruleAttributes)){
+      foreach($cedent->ruleAttributes as $ruleAttributeItem){
+        $this->serializeRuleAttributeAsXml($ruleAttributeItem,$xmlCedent);
+      }
+    }
+    return $xmlCedent;
+  }
+
+  private function serializeRuleAttributeAsXml(RuleAttribute $ruleAttribute,\SimpleXMLElement &$parentXml){
+    $xmlAttribute=$parentXml->addChild('Attribute');
+    $attribute=$ruleAttribute->attribute;
+    $xmlAttribute->addChild('Name',@$attribute->name);
+    $xmlAttribute->addChild('Column',@$attribute->dbColumn);
+    if ($ruleAttribute->valuesBins && count($ruleAttribute->valuesBins)){
+      //serializace jednotlivých kategorií...
+      foreach($ruleAttribute->valuesBins as $valuesBinItem){
+        $this->serializeValuesBinAsXml($valuesBinItem,$xmlAttribute);
+      }
+    }
+    return $xmlAttribute;
+  }
+
+  private function serializeValuesBinAsXml(ValuesBin $valuesBin,\SimpleXMLElement &$parentXml){
+    $xmlValuesBin=$parentXml->addChild('Category');
+    $xmlValuesBin->addChild('Name',@$valuesBin->name);
+    $xmlValuesBinData=$xmlValuesBin->addChild('Data');
+    if ($valuesBin->intervals && count($valuesBin->intervals)){
+      foreach ($valuesBin->intervals as $intervalItem){
+        $xmlInterval=$xmlValuesBinData->addChild('Interval');
+        $xmlInterval->addAttribute('closure',$intervalItem->closure);
+        $leftMargin=$intervalItem->leftMargin->__toString();
+        if ($leftMargin=='-INF'){
+          $leftMargin='-999999999999';
+        }elseif($leftMargin=='INF'){
+          $leftMargin='999999999999';
+        }
+        $xmlInterval->addAttribute('leftMargin',$leftMargin);
+        $rightMargin=$intervalItem->rightMargin->__toString();
+        if ($rightMargin=='-INF'){
+          $rightMargin='-999999999999';
+        }elseif($rightMargin=='INF'){
+          $rightMargin='999999999999';
+        }
+        $xmlInterval->addAttribute('rightMargin',$rightMargin);
+      }
+    }
+    if ($valuesBin->values && count($valuesBin->values)){
+      foreach ($valuesBin->values as $valueItem){
+        $xmlValuesBinData->addChild('Value',$valueItem->value);
+      }
+    }
+    return $xmlValuesBin;
   }
 
 

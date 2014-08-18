@@ -57,6 +57,8 @@ abstract class BaseRestPresenter extends BasePresenter{
   protected function sendTextResponse($text='',$code=IResponse::S200_OK){
     $response=new Response();
     $response->code=$code;
+    $httpResponse=$this->getHttpResponse();
+    $httpResponse->setContentType('text/plain','UTF-8');
     $this->sendResponse(new TextResponse($text));
   }
 

@@ -24,6 +24,10 @@ use Nette\Utils\Strings;
  */
 class IntervalClosure extends BaseEntity{
 
+  public function __toString(){
+    return $this->closure;
+  }
+
   public function getClosure(){
     return $this->closure;
   }

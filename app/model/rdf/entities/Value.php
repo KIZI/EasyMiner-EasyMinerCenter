@@ -14,6 +14,10 @@ namespace App\Model\Rdf\Entities;
  * @rdfLiteral(property=$value,relation='kb:hasValue',optional=false)
  */
 class Value extends BaseEntity{
+
+  public function __toString(){
+    return $this->value;
+  }
   /**
    * Funkce vracející základ pro novou uri (při ukládání nové entity)
    * @return string
