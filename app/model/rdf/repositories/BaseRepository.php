@@ -66,16 +66,17 @@ class BaseRepository extends Object{
   }
 
 
-
   /**
    * Funkce pro vygenerování dosud neobrazené URI
    * @param string $uri
+   * @param string[] &$urisArr - pole s URI, které budou obsazené po vykonání dotazu
    * @return string
    */
-  public function prepareNewEntityUri($uri){
+  public function prepareNewEntityUri($uri,&$urisArr=array()){
     $finalUri=$uri;
     $item=1;
-    while($this->uriExists($finalUri)){
+
+    while(in_array($finalUri,$urisArr) || $this->uriExists($finalUri)){
       $finalUri=$uri.$item;
       $item++;
     }
@@ -84,15 +85,18 @@ class BaseRepository extends Object{
 
   /**
    * @param BaseEntity $entity
+   * @param string[] &$urisArr - pole s URI, které budou obsazené po vykonání dotazů...
    */
-  public function saveEntity(&$entity){
+  public function saveEntity(&$entity,&$urisArr=array()){
     if (!is_object($entity)){
       exit(var_dump($entity));//TODO tohle je potřeba doladit!!!
     }
     if (!$entity->getUri()){
-      $entity->setUri($this->prepareNewEntityUri($entity->prepareBaseUri()));
+      $entity->setUri($this->prepareNewEntityUri($entity->prepareBaseUri(),$urisArr));
     }
-    $this->executeQueries($entity->getSaveQuery($this));
+    $queriesArr=$entity->getSaveQuery($this,$urisArr);
+
+    $this->executeQueries($queriesArr);
     $entity->setChanged(false);
     $entity->setKnowledgeRepository($this);
   }

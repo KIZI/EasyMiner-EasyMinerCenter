@@ -167,10 +167,12 @@ abstract class BaseEntity extends Object{
 
   /**
    * @param KnowledgeRepository|null $repository
+   * @param string[] &$urisArr - seznam URI, které budou zpracovány v daném dotazu
    * @return string[]
    */
-  public function getSaveQuery($repository=null){//TODO kontrola, jestli jsou zadané povinné literály!!!
+  public function getSaveQuery($repository=null,&$urisArr=array()){//TODO kontrola, jestli jsou zadané povinné literály!!!
     if (!$repository){$repository=$this->repository;}
+    $urisArr[]=$this->uri;
     $mappedProperties=$this->getMappedProperties();
     $queryPrefixes=self::prepareQueryPrefixes(@$mappedProperties['namespaces']);
     $queries=array();
@@ -209,7 +211,7 @@ abstract class BaseEntity extends Object{
               $entityName=Strings::firstUpper($property);
             }
             $repositorySaveMethod='save'.$entityName;
-            $repository->$repositorySaveMethod($this->$property);
+            $repository->$repositorySaveMethod($this->$property,$urisArr);
             //uložíme relaci připojené entity
             //TODO optimize!
             $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entity['relation'].' ?relatedUri}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
@@ -257,7 +259,7 @@ abstract class BaseEntity extends Object{
             }
             //uložíme jednotlivé položky a přidáme jejich vazbu...
             foreach ($this->$property as $propertyItem){
-              $repository->$entitySaveFunction($propertyItem);
+              $repository->$entitySaveFunction($propertyItem,$urisArr);
               if ((@$propertyItem->uri!='') && !in_array($propertyItem->uri,$relatedUrisArr)){
                 $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entitiesGroup['relation'].' '.self::quoteUri($propertyItem->uri).'}';
               }

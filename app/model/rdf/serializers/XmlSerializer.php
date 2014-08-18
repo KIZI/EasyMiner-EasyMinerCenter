@@ -362,6 +362,8 @@ class XmlSerializer extends Object{
     }
     if (count($cedent->cedents)){
       foreach ($cedent->cedents as $subCedent){
+        //var_dump($cedent);
+        //exit(var_dump($subCedent));
         $this->cedentAsXml($subCedent,$cedentXml);
       }
     }

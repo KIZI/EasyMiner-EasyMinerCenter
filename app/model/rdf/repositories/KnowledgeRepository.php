@@ -14,8 +14,8 @@ use Nette\Utils\Strings;
 /**
  * Class KnowledgeRepository
  * @package App\Model\Rdf\Repositories
- * @method saveRule(Rule $rule)
- * @method saveKnowledgeBase(KnowledgeBase $knowledgeBase)
+ * @method saveRule(Rule $rule,&$urisArr=array())
+ * @method saveKnowledgeBase(KnowledgeBase $knowledgeBase,&$urisArr=array())
  */
 class KnowledgeRepository extends BaseRepository{
 
@@ -105,22 +105,22 @@ class KnowledgeRepository extends BaseRepository{
   /**
    * @param MetaAttribute $metaAttribute
    */
-  public function saveMetaattribute(MetaAttribute &$metaAttribute){
-    $this->saveEntity($metaAttribute);
+  public function saveMetaattribute(MetaAttribute &$metaAttribute,&$urisArr=array()){
+    $this->saveEntity($metaAttribute,$urisArr);
   }
 
   /**
    * @param RuleSet $ruleSet
    */
-  public function saveRuleSet(RuleSet &$ruleSet){
-    $this->saveEntity($ruleSet);
+  public function saveRuleSet(RuleSet &$ruleSet,&$urisArr=array()){
+    $this->saveEntity($ruleSet,$urisArr);
   }
 
   /**
    * @param Attribute $attribute
    */
-  public function saveAttribute(Attribute &$attribute){
-    $this->saveEntity($attribute);
+  public function saveAttribute(Attribute &$attribute,&$urisArr=array()){
+    $this->saveEntity($attribute,$urisArr);
   }
 
   /**
@@ -246,8 +246,8 @@ class KnowledgeRepository extends BaseRepository{
    * @param Format $format
    * return bool
    */
-  public function saveFormat(Format &$format){
-    $this->saveEntity($format);
+  public function saveFormat(Format &$format,&$urisArr=array()){
+    $this->saveEntity($format,$urisArr);
   }
 
   /**
@@ -274,7 +274,12 @@ class KnowledgeRepository extends BaseRepository{
       throw new BadRequestException('Function not exists: '.$functionName);
     }else{
       if (Strings::startsWith($functionName,'save')){
-        return $this->$callFunctionName($params[0]);
+        if (isset($params[1])){
+          return $this->$callFunctionName($params[0],$params[1]);
+        }else{
+          return $this->$callFunctionName($params[0]);
+        }
+
       }else{
         return $this->$callFunctionName($entityClassName,$params[0]);
       }
