@@ -74,7 +74,7 @@ class KnowledgeRepository extends BaseRepository{
    * @param int $limit=-1
    * @param int $offset=-1
    * @return MetaAttribute[]
-   */
+   *
   public function findMetaAttributes($params=null,$limit=-1,$offset=-1){
     #region params
     $filterSparql='';
@@ -100,7 +100,7 @@ class KnowledgeRepository extends BaseRepository{
       return $output;
     }
     return null;
-  }
+  }*/
 
   /**
    * @param MetaAttribute $metaAttribute
@@ -180,7 +180,7 @@ class KnowledgeRepository extends BaseRepository{
    * @param int        $limit
    * @param int        $offset
    * @return Format[]
-   */
+   *
   public function findFormats($params=null,$limit=-1,$offset=-1){
     #region params
     $filterSparql='';
@@ -208,15 +208,15 @@ class KnowledgeRepository extends BaseRepository{
       return $output;
     }
     return null;
-  }
+  }*/
 
   /**
    * @param null|array $params
    * @param int        $limit
    * @param int        $offset
    * @return Rule[]
-   */
-  public function findRules($params=null,$limit=-1,$offset=-1){
+   *
+  public function findRulesx($params=null,$limit=-1,$offset=-1){
     #region params
     $filterSparql='';
     if (!empty($params)){
@@ -240,7 +240,7 @@ class KnowledgeRepository extends BaseRepository{
       return $output;
     }
     return null;
-  }
+  }*/
 
   /**
    * @param Format $format
