@@ -72,7 +72,7 @@ class BaseRepository extends Object{
    * @param string[] &$urisArr - pole s URI, které budou obsazené po vykonání dotazu
    * @return string
    */
-  public function prepareNewEntityUri($uri,&$urisArr=array()){
+  public function prepareNewEntityUri($uri,&$urisArr=array()){//TODO možná ty URI rovnou ukládat???
     $finalUri=$uri;
     $item=1;
 
