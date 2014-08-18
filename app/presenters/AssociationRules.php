@@ -322,6 +322,21 @@ class AssociationRulesPresenter extends BaseRestPresenter{
     $this->sendXmlResponse($result);
   }
 
+  /**
+   * Akce pro získání počtu uložených pravidel (ve formátu JSON)
+   * @param string $baseId
+   * @param string $kbi
+   */
+  public function actionAssociationRulesCount($baseId='',$kbi=''){
+    $ruleSet=$this->getRuleSet($baseId,$kbi);
+    if ($rules=$ruleSet->rules){
+      $rulesCount=count($rules);
+    }else{
+      $rulesCount=0;
+    }
+    $this->sendTextResponse(json_encode(array('rulesCount'=>$rulesCount)));
+  }
+
   private function prepareRuleId($ruleUri){
     if (Strings::startsWith($ruleUri,'http://easyminer.eu/kb/Rule/')){
       return Strings::substring($ruleUri,28);
