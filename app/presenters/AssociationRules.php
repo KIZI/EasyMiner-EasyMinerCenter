@@ -304,7 +304,8 @@ class AssociationRulesPresenter extends BaseRestPresenter{
       foreach ($ruleSet->rules as $rule){
         $xmlAssociationRule=$result->addChild('AssociationRule');
         $xmlAssociationRule->addAttribute('id',$this->prepareRuleId($rule->uri));
-        $xmlAssociationRule->addChild('Text',$rule->text);
+        $xmlAssociationRule->addChild('Text');
+        $xmlAssociationRule->Text[0]=$rule->text;
         $this->serializeCedentAsXml($rule->antecedent,$xmlAssociationRule,'Antecedent');
         $this->serializeCedentAsXml($rule->consequent,$xmlAssociationRule,'Consequent');
         $xmlRating=$xmlAssociationRule->addChild('Rating');

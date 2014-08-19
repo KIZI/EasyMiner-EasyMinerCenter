@@ -318,7 +318,8 @@ class XmlSerializer extends Object{
     }
     $ruleXml->addAttribute('id',$rule->uri);
     if (!empty($rule->text)){
-      $ruleXml->addChild('Text',$rule->text);
+      $ruleTextXml=$ruleXml->addChild('Text');
+      $ruleXml->Text[0]=$rule->text;
     }
     return $ruleXml;
   }
