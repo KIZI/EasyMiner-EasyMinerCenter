@@ -221,14 +221,15 @@ class AssociationRulesPresenter extends BaseRestPresenter{
 
         //projdeme jednotlivé kategorie
         $valuesBinsArr=array();
+        $intervalsMin=9999999999999;
+        $intervalsMax=-9999999999999;
+        $intervals=false;
         foreach ($xmlField->Category as $xmlCategory){
           $valuesBin=new ValuesBin();
           $valuesBin->uri=$uri.'/'.Strings::webalize((string)$xmlCategory->Name);
           $valuesBin->name=(string)$xmlCategory->Name;
           $xmlCategoryData=$xmlCategory->Data;
           if (count($xmlCategoryData->Interval)>0){
-            $intervalsMin=9999999999999;
-            $intervalsMax=-9999999999999;
             $valuesBin->intervals=array();
             foreach ($xmlCategoryData->Interval as $xmlInterval){
               $interval=new Interval();
@@ -242,32 +243,18 @@ class AssociationRulesPresenter extends BaseRestPresenter{
                 $this->intervalClosuresArr[$closureStr]=$closure;
               }
               $leftMargin=(string)$xmlInterval['leftMargin'];
-              if ($leftMargin<$intervalsMin){$intervalsMin=$leftMargin;}
+              if (floatval($leftMargin)<$intervalsMin){$intervalsMin=floatval($leftMargin);}
               $leftMarginValue=new Value();
               $leftMarginValue->setValue($leftMargin);
               $interval->leftMargin=$leftMarginValue;
               $rightMargin=(string)$xmlInterval['rightMargin'];
-              if ($rightMargin>$intervalsMax){$intervalsMax=$rightMargin;}
+              if (floatval($rightMargin)>$intervalsMax){$intervalsMax=floatval($rightMargin);}
               $rightMarginValue=new Value();
               $rightMarginValue->setValue($rightMargin);
               $interval->rightMargin=$rightMarginValue;
               $valuesBin->intervals[]=$interval;
             }
-            $rangeInterval=new Interval();
-            if (isset($this->intervalClosuresArr['closedClosed'])){
-              $rangeInterval->setClosure($this->intervalClosuresArr['closedClosed']);
-            }else{
-              $intervalClosure=new IntervalClosure();
-              $intervalClosure->setClosure('closedClosed');
-              $rangeInterval->setClosure($intervalClosure);
-            }
-            $leftMarginValue=new Value();
-            $leftMarginValue->setValue($intervalsMin);
-            $rangeInterval->leftMargin=$leftMarginValue;
-            $rightMarginValue=new Value();
-            $rightMarginValue->setValue($intervalsMax);
-            $rangeInterval->rightMargin=$rightMarginValue;
-            $format->intervals=array($rangeInterval);
+            $intervals=true;
           }
           if (count($xmlCategoryData->Value)>0){
             $valuesBin->values=array();
@@ -280,6 +267,23 @@ class AssociationRulesPresenter extends BaseRestPresenter{
             }
           }
           $valuesBinsArr[]=$valuesBin;
+        }
+        if ($intervals){
+          $rangeInterval=new Interval();
+          if (isset($this->intervalClosuresArr['closedClosed'])){
+            $rangeInterval->setClosure($this->intervalClosuresArr['closedClosed']);
+          }else{
+            $intervalClosure=new IntervalClosure();
+            $intervalClosure->setClosure('closedClosed');
+            $rangeInterval->setClosure($intervalClosure);
+          }
+          $rangeLeftMarginValue=new Value();
+          $rangeLeftMarginValue->setValue($intervalsMin);
+          $rangeInterval->leftMargin=$rangeLeftMarginValue;
+          $rangeRightMarginValue=new Value();
+          $rangeRightMarginValue->setValue($intervalsMax);
+          $rangeInterval->rightMargin=$rangeRightMarginValue;
+          $format->intervals=array($rangeInterval);
         }
         $attribute->knowledgeBase=$this->getKnowledgeBase($baseId);
         $attribute->valuesBins=$valuesBinsArr;
