@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Model\Data\Databases;
+use App\Model\Data\Entities\DbColumn;
+use App\Model\Data\Entities\DbConnection;
+
+/**
+ * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
+ * @package App\Model\Data\Databases
+ */
+interface IDatabase {
+
+  /**
+   * @param DbConnection $dbConnection
+   * @return IDatabase
+   */
+  public static function getInstance(DbConnection $dbConnection);
+
+  #region funkce pro práci s tabulkami
+  /**
+   * @param string $tableName
+   * @param DbColumn[] $columns - pole s definicemi sloupců (
+   * @return bool
+   */
+  public function createTable($tableName,$columns);
+
+  /**
+   * @param string $tableName
+   * @return bool
+   */
+  public function selectTable($tableName);
+
+  /**
+   * @return bool
+   */
+  public function dropTable();
+
+  /**
+   * @return bool
+   */
+  public function truncateTable();
+  #endregion
+
+  #region funkce pro práci s daty v DB
+  /**
+   * @param int $id
+   * @return array
+   */
+  public function getRow($id);
+
+  /**
+   * @param string $where
+   * @param array|null $whereParams
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array[]
+   */
+  public function getRows($where='',$whereParams=null,$limitStart=0,$limitCount=0);
+
+  /**
+   * @param array $data
+   * @return bool
+   */
+  public function insertRow(array $data);
+
+  /**
+   * @param array $data
+   * @param $id
+   * @return bool
+   */
+  public function updateRow(array $data,$id);
+
+  /**
+   * @param $id
+   * @return bool
+   */
+  public function deleteRow($id);
+  #endregion
+
+
+} 
