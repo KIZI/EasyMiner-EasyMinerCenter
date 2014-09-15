@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Presenters;
+namespace App\KnowledgeBaseModule\Presenters;
 use App\Model\Rdf\Entities\Attribute;
 use App\Model\Rdf\Entities\BaseEntity;
 use App\Model\Rdf\Entities\Cedent;

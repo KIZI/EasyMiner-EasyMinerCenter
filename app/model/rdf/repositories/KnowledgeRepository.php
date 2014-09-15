@@ -16,6 +16,7 @@ use Nette\Utils\Strings;
  * @package App\Model\Rdf\Repositories
  * @method saveRule(Rule $rule,&$urisArr=array())
  * @method saveKnowledgeBase(KnowledgeBase $knowledgeBase,&$urisArr=array())
+ * @method findMetaAttributes($params, int $limit=-1, int $offset=-1):MetaAttribute[]
  */
 class KnowledgeRepository extends BaseRepository{
 

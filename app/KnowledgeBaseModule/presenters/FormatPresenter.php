@@ -6,7 +6,7 @@
  * Time: 21:00
  */
 
-namespace App\Presenters;
+namespace App\KnowledgeBaseModule\Presenters;
 
 
 use Nette\Application\BadRequestException;

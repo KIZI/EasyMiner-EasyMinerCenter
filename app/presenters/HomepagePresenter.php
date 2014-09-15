@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\KnowledgeBaseModule\Presenters\BaseRestPresenter;
 use Nette,
 	App\Model;
 

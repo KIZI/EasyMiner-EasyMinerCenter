@@ -6,12 +6,13 @@
  * Time: 21:19
  */
 
-namespace App\Presenters;
+namespace App\KnowledgeBaseModule\Presenters;
 
 
 use App\Model\Rdf\Repositories\KnowledgeRepository;
 use App\Model\Rdf\Serializers\XmlSerializer;
 use App\Model\Rdf\Serializers\XmlUnserializer;
+use App\Presenters\BasePresenter;
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\IResponse;
 use Nette\Http\Response;

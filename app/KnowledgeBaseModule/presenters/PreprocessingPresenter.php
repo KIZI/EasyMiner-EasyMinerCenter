@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Presenters;
+namespace App\KnowledgeBaseModule\Presenters;
 
 
 use App\Model\XmlSerializer;
