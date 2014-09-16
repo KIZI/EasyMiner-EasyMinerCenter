@@ -9,7 +9,7 @@
 namespace App\Model\Data\Databases;
 
 use App\Model\Data\Entities\DbColumn;
-use App\Model\Data\Entities\DbConnection;
+use App\Model\EasyMiner\Entities\Datasource;
 use Nette\Utils\Strings;
 use \PDO;
 
@@ -24,16 +24,16 @@ class MySqlDatabase implements IDatabase{
   private $tableName;
 
   #region connection
-  private function __construct(DbConnection $dbConnection){
-    $connectionString='mysql:host='.$dbConnection->server.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->database)?'dbname='.$dbConnection->database.';':'').'charset=utf8';
-    $this->pdo=new PDO($connectionString,$dbConnection->username,$dbConnection->password);
+  private function __construct(Datasource $dbConnection){
+    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->database)?'dbname='.$dbConnection->database.';':'').'charset=utf8';
+    $this->pdo=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword);
   }
   /**
-   * @param DbConnection $dbConnection
+   * @param Datasource $datasource
    * @return MySqlDatabase
    */
-  public static function getInstance(DbConnection $dbConnection) {
-    return new MySqlDatabase($dbConnection);
+  public static function getInstance(Datasource $datasource) {
+    return new MySqlDatabase($datasource);
   }
 
   public function selectTable($tableName){

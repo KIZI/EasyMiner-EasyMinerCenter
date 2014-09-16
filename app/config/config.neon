@@ -43,4 +43,5 @@ services:
 	knowledgeRepository: App\Model\Rdf\Repositories\KnowledgeRepository(@arc2Store)
 	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
-	- App\Model\HelperRepository
+	- App\Model\EasyMiner\Repositories\HelperRepository
+	- App\Model\EasyMiner\UsersManager

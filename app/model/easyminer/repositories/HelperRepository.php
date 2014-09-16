@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\EasyMiner\Repositories;
 
 use Nette;
 
 class HelperRepository extends Nette\Object{
   /** @var \Nette\Database\Context */
   private $database;
+  const TABLE = 'helper_data';
 
   public function __construct(Nette\Database\Context $database){
     $this->database = $database;
@@ -18,7 +19,7 @@ class HelperRepository extends Nette\Object{
    * @param string $data
    */
   public function saveData($miner,$type,$data){
-    $this->database->query('INSERT INTO helper_data',array('miner'=>$miner,'type'=>$type,'data'=>$data));
+    $this->database->table(self::TABLE)->insert(array('miner'=>$miner,'type'=>$type,'data'=>$data));
   }
 
   /**
@@ -27,7 +28,7 @@ class HelperRepository extends Nette\Object{
    * @return FALSE|string
    */
   public function loadData($miner,$type){
-    $result=$this->database->query('SELECT `data` FROM miner=? AND `type`=?',$miner,$type);
+    $result=$this->database->query('SELECT `data` FROM `'.self::TABLE.'` WHERE miner=? AND `type`=?',$miner,$type);
     return $result->fetchField();
   }
 
@@ -36,7 +37,7 @@ class HelperRepository extends Nette\Object{
    * @param string $type
    */
   public function deleteData($miner,$type){
-    $this->database->query('DELETE FROM helper_data WHERE miner=? AND `type`=?',$miner,$type);
+    $this->database->table(self::TABLE)->where('miner=? AND `type`=?',array($miner,$type))->delete();
   }
 
 } 
