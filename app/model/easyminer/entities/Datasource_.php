@@ -15,7 +15,7 @@ namespace App\Model\EasyMiner\Entities;
  * @property string $dbName
  * @property string $dbTable
  */
-class Datasource  extends BaseEntity{
+class Datasource extends BaseEntity{
 
   /**
    * Funkce pro vygenerování pole s daty pro uložení do DB
