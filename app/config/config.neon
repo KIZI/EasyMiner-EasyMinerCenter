@@ -27,13 +27,13 @@ nette:
 
 	database:
 	    dsn: "mysql:host=127.0.0.1;dbname=brserver"
-        user: "brserver"
-        password: "brserverPassword"
-        options: [PDO::MYSQL_ATTR_COMPRESS = true]
-        debugger: true        # panel v debugger baru
-        explain: true        # explain dotazů v debugger bar
-        reflection: discovered  # nebo conventional nebo classname, výchozí je discovered
-        autowired: true
+	    user: "brserver"
+	    password: "brserverPassword"
+	    options: [PDO::MYSQL_ATTR_COMPRESS = true]
+	    debugger: true        # panel v debugger baru
+	    explain: true        # explain dotazů v debugger bar
+	    reflection: discovered  # nebo conventional nebo classname, výchozí je discovered
+	    autowired: true
 
 
 services:
@@ -44,4 +44,5 @@ services:
 	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
 	- App\Model\EasyMiner\Repositories\HelperRepository
+	- App\Model\EasyMiner\Repositories\MinersRepository
 	- App\Model\EasyMiner\UsersManager

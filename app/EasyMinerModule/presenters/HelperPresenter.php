@@ -11,7 +11,7 @@ use Nette\Application\ForbiddenRequestException;
  */
 class HelperPresenter extends BaseRestPresenter{
 
-  /** @var  HelperRepository $helperRepository */
+  /** @var  \App\Model\EasyMiner\Repositories\HelperRepository $helperRepository */
   private $helperRepository;
 
   /**
@@ -54,11 +54,12 @@ class HelperPresenter extends BaseRestPresenter{
    * @throws \Nette\Application\ForbiddenRequestException
    */
   private function checkMinerAccess($miner){
+    return true;
     //TODO kontrola, jestli má uživatel přístup k datům daného EasyMineru
     throw new ForbiddenRequestException();
   }
 
-  public function injectHelperRepository(HelperRepository $helperRepository){
+  public function injectHelperRepository(\App\Model\EasyMiner\Repositories\HelperRepository $helperRepository){
     $this->helperRepository=$helperRepository;
   }
 

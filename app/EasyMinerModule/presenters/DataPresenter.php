@@ -1,6 +1,8 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
+use App\Model\EasyMiner\Repositories\DatasourcesRepository;
+use App\Model\EasyMiner\Repositories\MinersRepository;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
@@ -8,18 +10,30 @@ namespace App\EasyMinerModule\Presenters;
  */
 class DataPresenter {
 
+  /** @var DatasourcesRepository $datasourcesRepository */
+  private $datasourcesRepository;
+  /** @var  MinersRepository $minersRepository */
+  private $minersRepository;
+
+  /**
+   * Akce pro založení nového EasyMineru
+   */
+  public function renderNewMiner(){
+    //TODO
+  }
+
   /**
    * Akce pro import dat z nahraného souboru/externí DB
    */
-  public function renderImportData(){
+  public function renderImportData($minerName){
     //TODO
   }
 
   /**
    * Akce pro smazání konkrétního mineru
-   * @param $miner
+   * @param int $miner
    */
-  public function renderDelete($miner){
+  public function renderDeleteMiner($miner){
     //TODO
   }
 
@@ -31,4 +45,19 @@ class DataPresenter {
     //TODO vykreslení histogramu pro konkrétní datový sloupec
   }
 
+  #region injections
+  /**
+   * @param DatasourcesRepository $datasourcesRepository
+   */
+  public function injectDatasourceRepository(DatasourcesRepository $datasourcesRepository){
+    $this->datasourcesRepository=$datasourcesRepository;
+  }
+
+  /**
+   * @param MinersRepository $minersRepository
+   */
+  public function injectMinersRepository(MinersRepository $minersRepository){
+    $this->minersRepository=$minersRepository;
+  }
+  #endregion
 } 
