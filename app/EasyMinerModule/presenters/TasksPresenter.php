@@ -9,7 +9,7 @@
 namespace App\EasyMinerModule\Presenters;
 
 
-use App\Presenters\BasePresenter;
+use App\EasyMinerModule\Presenters\BasePresenter;
 
 class TasksPresenter  extends BasePresenter{
 

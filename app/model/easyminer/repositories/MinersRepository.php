@@ -20,7 +20,7 @@ class MinersRepository extends Nette\Object{
    * @return Miner|null
    */
   public function findMiner($id){
-    if ($data=$this->database->table(self::TABLE)->select('*')->where('id_miner=?',$id)->limit(1)->fetch()){
+    if ($data=$this->database->table(self::TABLE)->select('*')->where(array('id_miner'=>$id))->limit(1)->fetch()){
       return new Miner($data,$this->database);
     }
     return null;
@@ -35,7 +35,7 @@ class MinersRepository extends Nette\Object{
       $user=$user->idUser;
     }
     $result=array();
-    if ($dataRows=$this->database->table(self::TABLE)->select('*')->where('id_user=?',$user)->fetchAll()){
+    if ($dataRows=$this->database->table(self::TABLE)->select('*')->where(array('id_user'=>$user))->fetchAll()){
       if (count($dataRows)){
         foreach ($dataRows as $data){
           $result[]=new Miner($data,$this->database);

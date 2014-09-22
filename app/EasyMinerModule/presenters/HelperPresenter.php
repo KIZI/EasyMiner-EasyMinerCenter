@@ -1,7 +1,7 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
-use App\Model\HelperRepository;
+
 use App\Presenters\BaseRestPresenter;
 use Nette\Application\ForbiddenRequestException;
 
@@ -48,19 +48,18 @@ class HelperPresenter extends BaseRestPresenter{
     $this->sendJsonResponse(array('result'=>'ok','kbi'=>$miner,/*'user'=>0,*/'type'=>$type));
   }
 
-
-  /**
-   * @param string $miner
-   * @throws \Nette\Application\ForbiddenRequestException
-   */
-  private function checkMinerAccess($miner){
-    return true;
-    //TODO kontrola, jestli má uživatel přístup k datům daného EasyMineru
-    throw new ForbiddenRequestException();
-  }
-
   public function injectHelperRepository(\App\Model\EasyMiner\Repositories\HelperRepository $helperRepository){
     $this->helperRepository=$helperRepository;
   }
 
+  /**
+   * @param string $miner
+   * @throws ForbiddenRequestException
+   * @return bool
+   */
+  protected function checkMinerAccess($miner){
+    return true;
+    //TODO kontrola, jestli má uživatel přístup k datům daného EasyMineru
+    throw new ForbiddenRequestException();
+  }
 } 

@@ -3,10 +3,18 @@
 {block content}
 
   <h1 n:block=title>{_'New EasyMiner'}</h1>
-  <a href>
-  {control newMinerForm}
 
-  <h2>Open existing miner</h2>
+{*  {control newMinerForm}*}
+
+  {if (count($miners))}
+    <div class="actionsDiv bigButtons">
+      <h2>Open existing miner</h2>
+
+      {foreach $miners as $miner}
+        <a href="{link Data:openMiner id=>$miner->idMiner}">{$miner->name}</a>
+      {/foreach}
+    </div>
+  {/if}
 
 {/block}
 

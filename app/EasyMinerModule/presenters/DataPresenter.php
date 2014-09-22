@@ -3,7 +3,8 @@
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Repositories\DatasourcesRepository;
 use App\Model\EasyMiner\Repositories\MinersRepository;
-use App\Presenters\BasePresenter;
+use App\EasyMinerModule\Presenters\BasePresenter;
+use Nette\Application\BadRequestException;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
@@ -16,11 +17,29 @@ class DataPresenter extends BasePresenter{
   /** @var  MinersRepository $minersRepository */
   private $minersRepository;
 
+
   /**
-   * Akce pro založení nového EasyMineru
+   * Akce pro otevření existujícího mineru
+   */
+  public function renderOpenMiner($id){//TODO dodělat javascriptové přesměrování v šabloně
+    $miner=$this->minersRepository->findMiner($id);
+    if (!$miner){
+      throw new BadRequestException($this->translate('Requested miner not found!'),404);
+    }
+    $this->checkMinerAccess($miner);
+    $this->template->miner=$miner;
+  }
+
+  /**
+   * Akce pro založení nového EasyMineru či otevření stávajícího
    */
   public function renderNewMiner(){
-    //TODO
+    if ($this->user->id){
+      $this->template->miners=$this->minersRepository->findMinersByUser($this->user->id);
+    }else{
+      //pro anonymní uživatele nebudeme načítat existující minery
+      $this->template->miners=null;
+    }
   }
 
   /**
@@ -32,17 +51,19 @@ class DataPresenter extends BasePresenter{
 
   /**
    * Akce pro smazání konkrétního mineru
-   * @param int $miner
+   * @param int $id
    */
-  public function renderDeleteMiner($miner){
+  public function renderDeleteMiner($id){
+    $miner=$this->minersRepository->findMiner($id);
+    $this->checkMinerAccess($miner);
     //TODO
   }
 
-  public function renderAttributeHistogram(){
+  public function renderAttributeHistogram($miner,$attribute){
     //TODO vykreslení histogramu pro konkrétní atribut
   }
 
-  public function renderColumnHistogram(){
+  public function renderColumnHistogram($miner,$column){
     //TODO vykreslení histogramu pro konkrétní datový sloupec
   }
 
