@@ -46,6 +46,20 @@ class MinersRepository extends Nette\Object{
     return null;
   }
 
+  /**
+   * @param User|int $user
+   * @param string $name
+   * @return Miner|null
+   */
+  public function findMinerByName($user, $name) {
+    if ($user instanceof User){
+      $user=$user->idUser;
+    }
+    if ($data=$this->database->table(self::TABLE)->select('*')->where(array('name'=>$name,'id_user'=>$user))->limit(1)->fetch()){
+      return new Miner($data,$this->database);
+    }
+    return null;
+  }
 
 
   /**
@@ -75,4 +89,5 @@ class MinersRepository extends Nette\Object{
 
 
 
-} 
+
+}

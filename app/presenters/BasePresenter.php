@@ -8,10 +8,11 @@ use Nette,
 
 /**
  * Base presenter for all application presenters.
+ * @property-read \Nette\Bridges\ApplicationLatte\Template|\stdClass $template
  */
 abstract class BasePresenter extends Nette\Application\UI\Presenter{
-/** @var  Nette\Localization\ITranslator $translator */
-  private $translator;
+  /** @var  Nette\Localization\ITranslator $translator */
+  protected  $translator;
 
   function beforeRender(){
     /** @noinspection PhpUndefinedMethodInspection */

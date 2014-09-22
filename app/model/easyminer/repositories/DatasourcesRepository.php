@@ -11,6 +11,17 @@ class DatasourcesRepository extends Nette\Object{
   protected $database;
   const TABLE='datasources';
 
+  /**
+   * Funkce vracející typy datových zdrojů
+   * @return string[string]
+   */
+  public static function getTypes(){
+    return array(
+      'mysql'=>'MySQL',
+      'cassandra'=>'Cassandra DB'
+    );
+  }
+
   public function __construct(Nette\Database\Context $database){
     $this->database = $database;
   }
@@ -30,7 +41,7 @@ class DatasourcesRepository extends Nette\Object{
    * @param int|User $user
    * @return Datasource[]|null
    */
-  public function findMinersByUser($user){
+  public function findDatasourcesByUser($user){
     if ($user instanceof User){
       $user=$user->idUser;
     }
@@ -52,7 +63,7 @@ class DatasourcesRepository extends Nette\Object{
    * @param Datasource $datasource
    * @return bool|int|Nette\Database\Table\IRow
    */
-  public function saveMiner(Datasource $datasource){
+  public function saveDatasource(Datasource $datasource){
     if ($datasource->idDatasource){
       //update
       return $this->database->table(self::TABLE)->where(array('id_datasource'=>$datasource->idDatasource))->update($datasource->getDataArr());
@@ -74,5 +85,16 @@ class DatasourcesRepository extends Nette\Object{
   }
 
 
+  /**
+   * @param User|int $user
+   * @param string $type
+   * @param string $tableName
+   * @return bool
+   */
+  public function checkTableNameExists($user, $type, $tableName) {
+    //TODO check table name!!!
+    return false;
+  }
 
-} 
+
+}
