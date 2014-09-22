@@ -9,7 +9,9 @@
 namespace App\EasyMinerModule\Presenters;
 
 
-class TasksPresenter {
+use App\Presenters\BasePresenter;
+
+class TasksPresenter  extends BasePresenter{
 
   /**
    * Akce pro spuštění dolování

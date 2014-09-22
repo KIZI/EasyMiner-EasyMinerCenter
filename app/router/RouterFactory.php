@@ -25,10 +25,10 @@ class RouterFactory
     $router[] = $knowledgeBaseRouter = new RouteList('KnowledgeBase');
     $knowledgeBaseRouter[] = new Route('/kb/<presenter>/<action>[/<id>]');
 
-    $router[] = $dataMiningRouter = new RouteList('DataMining');
-    $dataMiningRouter[] = new Route('/dm/<presenter>/<action>[/<id>]');
+    $router[] = $dataMiningRouter = new RouteList('EasyMiner');
+    $dataMiningRouter[] = new Route('em/<presenter>/<action>[/<id>]');
 
-    $router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+    //$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
 
 		return $router;
 	}

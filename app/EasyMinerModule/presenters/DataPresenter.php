@@ -3,12 +3,13 @@
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Repositories\DatasourcesRepository;
 use App\Model\EasyMiner\Repositories\MinersRepository;
+use App\Presenters\BasePresenter;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
  * @package App\EasyMinerModule\Presenters
  */
-class DataPresenter {
+class DataPresenter extends BasePresenter{
 
   /** @var DatasourcesRepository $datasourcesRepository */
   private $datasourcesRepository;

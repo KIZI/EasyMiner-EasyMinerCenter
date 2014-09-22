@@ -45,4 +45,6 @@ services:
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
 	- App\Model\EasyMiner\Repositories\HelperRepository
 	- App\Model\EasyMiner\Repositories\MinersRepository
+	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\UsersManager
+	translator: App\Model\BlankTranslator
