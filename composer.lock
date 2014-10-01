@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "89775d53e5732bd6e860af84efd0480e",
+    "hash": "877a1bf44bb8e7cb1907eeb68f21811e",
     "packages": [
         {
             "name": "dg/adminer-custom",
@@ -24,6 +24,69 @@
             "notification-url": "https://packagist.org/downloads/",
             "description": "Customization for the best database management tool written in PHP, Adminer",
             "time": "2014-06-11 07:56:43"
+        },
+        {
+            "name": "dg/dibi",
+            "version": "v2.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dg/dibi.git",
+                "reference": "a118c2cf96a796d8118b3b0d2811c70aee9fd6c9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dg/dibi/zipball/a118c2cf96a796d8118b3b0d2811c70aee9fd6c9",
+                "reference": "a118c2cf96a796d8118b3b0d2811c70aee9fd6c9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "replace": {
+                "dg/dibi": "self.version"
+            },
+            "require-dev": {
+                "nette/tester": "~1.1",
+                "tracy/tracy": "~2.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "dibi/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause",
+                "GPL-2.0",
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "David Grudl",
+                    "homepage": "http://davidgrudl.com"
+                }
+            ],
+            "description": "Dibi is Database Abstraction Library for PHP",
+            "homepage": "http://dibiphp.com",
+            "keywords": [
+                "access",
+                "database",
+                "dbal",
+                "mssql",
+                "mysql",
+                "odbc",
+                "oracle",
+                "pdo",
+                "postgresql",
+                "sqlite"
+            ],
+            "time": "2014-06-30 15:08:04"
         },
         {
             "name": "latte/latte",
@@ -1136,6 +1199,45 @@
                 "sparql"
             ],
             "time": "2013-12-12 15:02:21"
+        },
+        {
+            "name": "tharos/leanmapper",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Tharos/LeanMapper.git",
+                "reference": "257d404091dbe525a9334283ad1e3584bd6a0e4a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Tharos/LeanMapper/zipball/257d404091dbe525a9334283ad1e3584bd6a0e4a",
+                "reference": "257d404091dbe525a9334283ad1e3584bd6a0e4a",
+                "shasum": ""
+            },
+            "require": {
+                "dg/dibi": "~2.0"
+            },
+            "require-dev": {
+                "nette/tester": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "LeanMapper": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vojtěch Kohout"
+                }
+            ],
+            "description": "Tiny ORM based on powerful dibi database abstraction library for PHP 5.",
+            "homepage": "http://www.leanmapper.com",
+            "time": "2014-04-27 19:12:51"
         },
         {
             "name": "tracy/tracy",

@@ -11,6 +11,13 @@ parameters:
 		db_pwd: 'brserverPassword'
 		store_name: 'easyminerkb'
 		max_errors: 1000
+	leanmapper:
+        driver: mysqli
+        host: localhost
+        username: brserver
+        password: brserverPassword
+        database: brserver
+        encoding: utf8
 
 php:
 	date.timezone: Europe/Prague
@@ -25,26 +32,20 @@ nette:
 	session:
 		expiration: 14 days
 
-	database:
-	    dsn: "mysql:host=127.0.0.1;dbname=brserver"
-	    user: "brserver"
-	    password: "brserverPassword"
-	    options: [PDO::MYSQL_ATTR_COMPRESS = true]
-	    debugger: true        # panel v debugger baru
-	    explain: true        # explain dotazů v debugger bar
-	    reflection: discovered  # nebo conventional nebo classname, výchozí je discovered
-	    autowired: true
-
 
 services:
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
+	translator: App\Model\BlankTranslator
 	arc2Store: \ARC2::getStore(%arc2%)
 	knowledgeRepository: App\Model\Rdf\Repositories\KnowledgeRepository(@arc2Store)
 	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
+	leanMapperConnection: LeanMapper\Connection(%leanmapper%)
+	- LeanMapper\DefaultEntityFactory
+	- App\Model\EasyMiner\Repositories\HelperDataRepository
+	- App\Model\EasyMiner\Facades\HelperFacade
 	- App\Model\EasyMiner\Repositories\HelperRepository
 	- App\Model\EasyMiner\Repositories\MinersRepository
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\UsersManager
-	translator: App\Model\BlankTranslator

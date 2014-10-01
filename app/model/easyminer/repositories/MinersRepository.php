@@ -6,7 +6,7 @@ use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\User;
 use Nette;
 
-class MinersRepository extends Nette\Object{
+class MinersRepository extends Nette\Object{//TODO
   /** @var \Nette\Database\Context */
   protected $database;
   const TABLE='miners';

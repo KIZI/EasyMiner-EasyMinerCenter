@@ -14,13 +14,3 @@ nette:
 
 	session:
 		expiration: 14 days
-
-	database:
-	    dsn: "mysql:host=127.0.0.1;dbname=brserver2"
-	    user: "root"
-	    password: ""
-	    options: [PDO::MYSQL_ATTR_COMPRESS = true]
-	    debugger: true        # panel v debugger baru
-	    explain: true        # explain dotazů v debugger bar
-	    reflection: discovered  # nebo conventional nebo classname, výchozí je discovered
-	    autowired: true
