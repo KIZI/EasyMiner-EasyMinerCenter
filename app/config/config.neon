@@ -14,9 +14,9 @@ parameters:
     leanmapper:
         driver: mysqli
         host: localhost
-        username: brserver
-        password: brserverPassword
-        database: brserver
+        username: root
+        password:
+        database: brserver2
         encoding: utf8
 
 facebook:
