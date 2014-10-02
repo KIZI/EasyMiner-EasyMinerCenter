@@ -1,8 +1,8 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
-use App\Model\EasyMiner\Repositories\DatasourcesRepository;
-use App\Model\EasyMiner\Repositories\MinersRepository;
+use App\Model\EasyMiner\Facades\DatasourcesFacade;
+use App\Model\EasyMiner\Facades\MinersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
@@ -17,10 +17,10 @@ class DataPresenter extends BasePresenter{
 
   const TEMP_UPLOAD_DIR='../temp/dataImport';
 
-  /** @var DatasourcesRepository $datasourcesRepository */
-  private $datasourcesRepository;
-  /** @var  MinersRepository $minersRepository */
-  private $minersRepository;
+  /** @var DatasourcesFacade $datasourcesFacade */
+  private $datasourcesFacade;
+  /** @var  MinersFacade $minersFacade */
+  private $minersFacade;
 
   public function renderMapping(){
     //TODO akce a rozhraní pro mapování na KnowledgeBase!!!
@@ -34,10 +34,12 @@ class DataPresenter extends BasePresenter{
    * @throws BadRequestException
    */
   public function renderOpenMiner($id){//TODO dodělat javascriptové přesměrování v šabloně
-    $miner=$this->minersRepository->findMiner($id);
-    if (!$miner){
-      throw new BadRequestException($this->translate('Requested miner not found!'),404);
+    try{
+      $miner=$this->minersFacade->findMiner($id);
+    }catch (\Exception $e){
+      throw new BadRequestException($this->translate('Requested miner not found!'),404,$e);
     }
+
     $this->checkMinerAccess($miner);
     $this->template->miner=$miner;
   }
@@ -51,8 +53,8 @@ class DataPresenter extends BasePresenter{
    */
   public function renderNewMiner(){
     if ($this->user->id){
-      $this->template->miners=$this->minersRepository->findMinersByUser($this->user->id);
-      $this->template->datasources=$this->datasourcesRepository->findDatasourcesByUser($this->user->id);
+      $this->template->miners=$this->minersFacade->findMinersByUser($this->user->id);
+      $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($this->user->id);
     }else{
       //pro anonymní uživatele nebudeme načítat existující minery
       $this->template->miners=null;
@@ -82,7 +84,7 @@ class DataPresenter extends BasePresenter{
    * @param int $id
    */
   public function renderDeleteMiner($id){
-    $miner=$this->minersRepository->findMiner($id);
+    $miner=$this->minersFacade->findMiner($id);
     $this->checkMinerAccess($miner);
     //TODO
   }
@@ -138,7 +140,12 @@ class DataPresenter extends BasePresenter{
       $minersRepository=$this->minersRepository;
       $currentUserId=$this->user->id;
       $minerName->addRule(function($control)use($minersRepository,$currentUserId){
-        return ($minersRepository->findMinerByName($currentUserId,$control->value)!=null);
+        try{
+          $miner=$minersRepository->findMinerByName($currentUserId,$control->value);
+          return (!($miner!=null));
+        }catch (\Exception $e){
+          return true;
+        }
       },'Miner with this name already exists!');
     }
     $type=$form->addSelect('type','Database:',$this->datasourcesRepository->getTypes())->setRequired();
@@ -191,17 +198,17 @@ class DataPresenter extends BasePresenter{
 
   #region injections
   /**
-   * @param DatasourcesRepository $datasourcesRepository
+   * @param DatasourcesFacade $datasourcesFacade
    */
-  public function injectDatasourceRepository(DatasourcesRepository $datasourcesRepository){
-    $this->datasourcesRepository=$datasourcesRepository;
+  public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
+    $this->datasourcesFacade=$datasourcesFacade;
   }
 
   /**
-   * @param MinersRepository $minersRepository
+   * @param MinersFacade $minersFacade
    */
-  public function injectMinersRepository(MinersRepository $minersRepository){
-    $this->minersRepository=$minersRepository;
+  public function injectMinersFacade(MinersFacade $minersFacade){
+    $this->minersFacade=$minersFacade;
   }
   #endregion
 } 

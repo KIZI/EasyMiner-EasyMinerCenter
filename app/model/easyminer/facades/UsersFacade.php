@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Stanislav
- * Date: 1. 10. 2014
- * Time: 15:49
- */
 
 namespace App\Model\EasyMiner\Facades;
 

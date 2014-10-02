@@ -1,7 +1,6 @@
 <?php
 namespace App\Model\EasyMiner\Facades;
 
-
 use App\Model\EasyMiner\Repositories\HelperDataRepository;
 
 class HelperFacade {
