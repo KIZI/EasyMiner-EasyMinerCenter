@@ -7,8 +7,7 @@
 
 namespace Nette\Bridges\DatabaseDI;
 
-use Nette,
-	Nette\DI\ContainerBuilder;
+use Nette;
 
 
 /**
@@ -27,7 +26,7 @@ class DatabaseExtension extends Nette\DI\CompilerExtension
 		'options' => NULL,
 		'debugger' => TRUE,
 		'explain' => TRUE,
-		'reflection' => 'Nette\Database\Reflection\DiscoveredReflection',
+		'reflection' => 'discovered', // Nette\Database\Reflection\DiscoveredReflection
 		'autowired' => NULL,
 	);
 

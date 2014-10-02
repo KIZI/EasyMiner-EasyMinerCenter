@@ -31,6 +31,7 @@ class Helpers extends Nette\Object
 	 * @param  string  control HTML name
 	 * @param  string  type Form::DATA_TEXT, DATA_LINE, DATA_FILE, DATA_KEYS
 	 * @return string|string[]
+	 * @internal
 	 */
 	public static function extractHttpData(array $data, $htmlName, $type)
 	{
@@ -45,7 +46,7 @@ class Helpers extends Nette\Object
 			foreach ($data as $k => $v) {
 				$data[$k] = $v = static::sanitize($itype, $v);
 				if ($v === NULL) {
-					return array();
+					unset($data[$k]);
 				}
 			}
 			if ($type & Form::DATA_KEYS) {

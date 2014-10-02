@@ -1,17 +1,17 @@
 {
-	"name": "nette/sandbox",
+	"name": "KIZI/EasyMiner-EasyMinerCenter",
 	"description": "The sandbox is a pre-packaged Nette Framework project, basic configured structure for your application.",
 	"homepage": "http://nette.org",
 	"type": "project",
-	"license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
+	"license": ["BSD-3-Clause"],
 	"authors": [
 		{
-			"name": "David Grudl",
-			"homepage": "http://davidgrudl.com"
+			"name": "EasyMiner Project Group",
+			"homepage": "http://easyminer.eu"
 		},
 		{
-			"name": "Nette Community",
-			"homepage": "http://nette.org/contributors"
+			"name": "Stanislav Vojíř",
+			"homepage": "http://vojir.net"
 		}
 	],
 	"require": {
@@ -19,7 +19,9 @@
 		"nette/nette": "~2.2.0",
 		"dg/adminer-custom": "~1.0",
 		"semsol/arc2": "v2.2.4",
-		"tharos/leanmapper": "v2.2.0"
+		"tharos/leanmapper": "v2.2.0",
+		"kdyby/facebook": "v1.2.0",
+		"kdyby/google": "dev-master"
 	},
 	"require-dev": {
 		"nette/tester": "~1.0"

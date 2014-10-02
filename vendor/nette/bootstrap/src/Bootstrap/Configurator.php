@@ -29,6 +29,8 @@ class Configurator extends Object
 		PRODUCTION = 'production',
 		NONE = FALSE;
 
+	const COOKIE_SECRET = 'nette-debug';
+
 	/** @var array of function(Configurator $sender, DI\Compiler $compiler); Occurs after the compiler is created */
 	public $onCompile;
 
@@ -136,9 +138,14 @@ class Configurator extends Object
 
 	/**
 	 * @return Nette\Loaders\RobotLoader
+	 * @throws Nette\NotSupportedException if RobotLoader is not available
 	 */
 	public function createRobotLoader()
 	{
+		if (!class_exists('Nette\Loaders\RobotLoader')) {
+			throw new Nette\NotSupportedException('RobotLoader not found, do you have `nette/robot-loader` package installed?');
+		}
+
 		$loader = new Nette\Loaders\RobotLoader;
 		$loader->setCacheStorage(new Nette\Caching\Storages\FileStorage($this->getCacheDirectory()));
 		$loader->autoRebuild = $this->parameters['debugMode'];
@@ -167,7 +174,7 @@ class Configurator extends Object
 
 	/**
 	 * Returns system DI container.
-	 * @return \SystemContainer
+	 * @return \SystemContainer|DI\Container
 	 */
 	public function createContainer()
 	{
@@ -232,12 +239,20 @@ class Configurator extends Object
 	 */
 	public static function detectDebugMode($list = NULL)
 	{
-		$list = is_string($list) ? preg_split('#[,\s]+#', $list) : (array) $list;
+		$addr = isset($_SERVER['REMOTE_ADDR'])
+			? $_SERVER['REMOTE_ADDR']
+			: php_uname('n');
+		$secret = isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])
+			? $_COOKIE[self::COOKIE_SECRET]
+			: NULL;
+		$list = is_string($list)
+			? preg_split('#[,\s]+#', $list)
+			: (array) $list;
 		if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 			$list[] = '127.0.0.1';
 			$list[] = '::1';
 		}
-		return in_array(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n'), $list, TRUE);
+		return in_array($addr, $list, TRUE) || in_array("$secret@$addr", $list, TRUE);
 	}
 
 }

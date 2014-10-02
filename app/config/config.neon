@@ -5,19 +5,29 @@
 # http://nette.org/security-warning
 #
 parameters:
-	arc2:
-		db_name: 'brserver'
-		db_user: 'brserver'
-		db_pwd: 'brserverPassword'
-		store_name: 'easyminerkb'
-		max_errors: 1000
-	leanmapper:
+    arc2:
+        db_name: 'brserver'
+        db_user: 'brserver'
+        db_pwd: 'brserverPassword'
+        store_name: 'easyminerkb'
+        max_errors: 1000
+    leanmapper:
         driver: mysqli
         host: localhost
         username: brserver
         password: brserverPassword
         database: brserver
         encoding: utf8
+
+facebook:
+    appId: "713356372046344"
+    appSecret: "2b77d744416d28ea368f27ffe47b01e5"
+    permissions: [email,public_profile]
+
+google:
+    clientId: "258219323867-igtrjet7hlc96tr8krh6qdn3hmgj9v3k.apps.googleusercontent.com"
+    clientSecret: "uLV1zcXofUy99PMX6wd60vCy"
+    returnUri: ':EasyMiner:User:oauthGoogle'(do=login-google-response)
 
 php:
 	date.timezone: Europe/Prague
@@ -32,6 +42,9 @@ nette:
 	session:
 		expiration: 14 days
 
+extensions:
+    facebook: Kdyby\Facebook\DI\FacebookExtension
+    google: Kdyby\Google\DI\GoogleExtension
 
 services:
 	- App\RouterFactory
@@ -41,11 +54,17 @@ services:
 	knowledgeRepository: App\Model\Rdf\Repositories\KnowledgeRepository(@arc2Store)
 	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
-	leanMapperConnection: LeanMapper\Connection(%leanmapper%)
+
+	- LeanMapper\Connection(%leanmapper%)
 	- LeanMapper\DefaultEntityFactory
-	- App\Model\EasyMiner\Repositories\HelperDataRepository
+	- App\Model\EasyMiner\Mappers\StandardMapper
+
 	- App\Model\EasyMiner\Facades\HelperFacade
-	- App\Model\EasyMiner\Repositories\HelperRepository
-	- App\Model\EasyMiner\Repositories\MinersRepository
+	- App\Model\EasyMiner\Facades\DatasourcesFacade
+	- App\Model\EasyMiner\Facades\MinersFacade
+	- App\Model\EasyMiner\Facades\UsersFacade
+
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
-	- App\Model\EasyMiner\UsersManager
+	- App\Model\EasyMiner\Repositories\HelperDataRepository
+	- App\Model\EasyMiner\Repositories\MinersRepository
+	- App\Model\EasyMiner\Repositories\UsersRepository

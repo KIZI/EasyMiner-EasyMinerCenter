@@ -35,6 +35,9 @@ class ContainerBuilder extends Nette\Object
 	/** @var array for auto-wiring */
 	private $classes;
 
+	/** @var string[] of classes excluded from auto-wiring */
+	private $excludedClasses = array();
+
 	/** @var array of file names */
 	private $dependencies = array();
 
@@ -182,6 +185,9 @@ class ContainerBuilder extends Nette\Object
 	 */
 	public function prepareClassList()
 	{
+		unset($this->definitions[self::THIS_CONTAINER]);
+		$this->addDefinition(self::THIS_CONTAINER)->setClass('Nette\DI\Container');
+
 		$this->classes = FALSE;
 
 		// prepare generated factories
@@ -191,12 +197,12 @@ class ContainerBuilder extends Nette\Object
 			}
 
 			if (!interface_exists($def->implement)) {
-				throw new ServiceCreationException("Interface $def->implement has not been found.");
+				throw new ServiceCreationException("Interface $def->implement used in service '$name' not found.");
 			}
 			$rc = Reflection\ClassType::from($def->implement);
 			$method = $rc->hasMethod('create') ? $rc->getMethod('create') : ($rc->hasMethod('get') ? $rc->getMethod('get') : NULL);
 			if (count($rc->getMethods()) !== 1 || !$method || $method->isStatic()) {
-				throw new ServiceCreationException("Interface $def->implement must have just one non-static method create() or get().");
+				throw new ServiceCreationException("Interface $def->implement used in service '$name' must have just one non-static method create() or get().");
 			}
 			$def->implement = $rc->getName();
 			$def->implementType = $rc->hasMethod('create') ? 'create' : 'get';
@@ -204,7 +210,7 @@ class ContainerBuilder extends Nette\Object
 			if (!$def->class && empty($def->factory->entity)) {
 				$returnType = $method->getAnnotation('return');
 				if (!$returnType) {
-					throw new ServiceCreationException("Method $method has not @return annotation.");
+					throw new ServiceCreationException("Method $method used in service '$name' has no @return annotation.");
 				}
 
 				$returnType = Reflection\AnnotationsParser::expandClassName(preg_replace('#[|\s].*#', '', $returnType), $rc);
@@ -216,7 +222,7 @@ class ContainerBuilder extends Nette\Object
 
 			if ($method->getName() === 'get') {
 				if ($method->getParameters()) {
-					throw new ServiceCreationException("Method $method must have no arguments.");
+					throw new ServiceCreationException("Method $method used in service '$name' must have no arguments.");
 				}
 				if (empty($def->factory->entity)) {
 					$def->setFactory('@\\' . ltrim($def->class, '\\'));
@@ -257,7 +263,7 @@ class ContainerBuilder extends Nette\Object
 
 			if (is_string($factory) && preg_match('#^[\w\\\\]+\z#', $factory) && $factory !== self::THIS_SERVICE) {
 				if (!class_exists($factory) || !Reflection\ClassType::from($factory)->isInstantiable()) {
-					throw new ServiceCreationException("Class $factory used in service '$name' has not been found or is not instantiable.");
+					throw new ServiceCreationException("Class $factory used in service '$name' not found or is not instantiable.");
 				}
 			}
 		}
@@ -269,7 +275,7 @@ class ContainerBuilder extends Nette\Object
 			if (!$def->class) {
 				continue;
 			} elseif (!class_exists($def->class) && !interface_exists($def->class)) {
-				throw new ServiceCreationException("Class or interface $def->class used in service '$name' has not been found.");
+				throw new ServiceCreationException("Class or interface $def->class used in service '$name' not found.");
 			} else {
 				$def->class = Reflection\ClassType::from($def->class)->getName();
 			}
@@ -283,6 +289,12 @@ class ContainerBuilder extends Nette\Object
 				foreach (class_parents($class) + class_implements($class) + array($class) as $parent) {
 					$this->classes[strtolower($parent)][] = (string) $name;
 				}
+			}
+		}
+
+		foreach ($this->excludedClasses as $class) {
+			foreach (class_parents($class) + class_implements($class) + array($class) as $parent) {
+				unset($this->classes[strtolower($parent)]);
 			}
 		}
 
@@ -319,13 +331,12 @@ class ContainerBuilder extends Nette\Object
 					}
 				}
 			}
-			if (!is_callable($factory)) {
-				throw new ServiceCreationException(sprintf("Factory '%s' is not callable.", Nette\Utils\Callback::toString($factory)));
-			}
 			try {
 				$reflection = Nette\Utils\Callback::toReflection($factory);
 			} catch (\ReflectionException $e) {
-				throw new ServiceCreationException(sprintf("Missing factory '%s'.", Nette\Utils\Callback::toString($factory)));
+			}
+			if (isset($e) || !is_callable($factory)) {
+				throw new ServiceCreationException(sprintf("Factory '%s' used in service '%s' is not callable.", Nette\Utils\Callback::toString($factory), $name));
 			}
 			$def->class = preg_replace('#[|\s].*#', '', $reflection->getAnnotation('return'));
 			if ($def->class && $reflection instanceof \ReflectionMethod) {
@@ -347,6 +358,17 @@ class ContainerBuilder extends Nette\Object
 		} else {
 			return $def->class = $factory; // class name
 		}
+	}
+
+
+	/**
+	 * @param string[]
+	 * @return self
+	 */
+	public function addExcludedClasses(array $classes)
+	{
+		$this->excludedClasses = array_merge($this->excludedClasses, $classes);
+		return $this;
 	}
 
 
@@ -381,9 +403,6 @@ class ContainerBuilder extends Nette\Object
 	 */
 	public function generateClasses($className = 'Container', $parentName = 'Nette\DI\Container')
 	{
-		unset($this->definitions[self::THIS_CONTAINER]);
-		$this->addDefinition(self::THIS_CONTAINER)->setClass('Nette\DI\Container');
-
 		$this->generatedClasses = array();
 		$this->prepareClassList();
 
@@ -452,7 +471,7 @@ class ContainerBuilder extends Nette\Object
 		$setups = (array) $def->setup;
 		if ($def->inject && $def->class) {
 			$injects = array();
-			foreach (Helpers::getInjectProperties(Reflection\ClassType::from($def->class)) as $property => $type) {
+			foreach (Helpers::getInjectProperties(Reflection\ClassType::from($def->class), $this) as $property => $type) {
 				$injects[] = new Statement('$' . $property, array('@\\' . ltrim($type, '\\')));
 			}
 

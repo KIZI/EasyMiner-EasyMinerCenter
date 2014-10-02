@@ -93,7 +93,7 @@ class Route extends Nette\Object implements Application\IRouter
 	/** @var string  regular expression pattern */
 	private $re;
 
-	/** @var string  parameter aliases in regular expression */
+	/** @var string[]  parameter aliases in regular expression */
 	private $aliases;
 
 	/** @var array of [value & fixity, filterIn, filterOut] */
@@ -404,7 +404,7 @@ class Route extends Nette\Object implements Application\IRouter
 		}
 
 		if (strpos($url, '//', 2) !== FALSE) {
-			return NULL; // TODO: implement counterpart in match() ?
+			return NULL;
 		}
 
 		$url = ($this->flags & self::SECURED ? 'https:' : 'http:') . $url;
@@ -740,8 +740,7 @@ class Route extends Nette\Object implements Application\IRouter
 	{
 		$s = strtolower($s);
 		$s = preg_replace('#-(?=[a-z])#', ' ', $s);
-		$s = substr(ucwords('x' . $s), 1);
-		//$s = lcfirst(ucwords($s));
+		$s = lcfirst(ucwords($s));
 		$s = str_replace(' ', '', $s);
 		return $s;
 	}
@@ -793,10 +792,7 @@ class Route extends Nette\Object implements Application\IRouter
 
 
 	/**
-	 * Creates new style.
-	 * @param  string  style name (#style, urlParameter, ?queryParameter)
-	 * @param  string  optional parent style name
-	 * @return void
+	 * @deprecated
 	 */
 	public static function addStyle($style, $parent = '#')
 	{
@@ -817,11 +813,7 @@ class Route extends Nette\Object implements Application\IRouter
 
 
 	/**
-	 * Changes style property value.
-	 * @param  string  style name (#style, urlParameter, ?queryParameter)
-	 * @param  string  property name (Route::PATTERN, Route::FILTER_IN, Route::FILTER_OUT, Route::FILTER_TABLE)
-	 * @param  mixed   property value
-	 * @return void
+	 * @deprecated
 	 */
 	public static function setStyleProperty($style, $key, $value)
 	{

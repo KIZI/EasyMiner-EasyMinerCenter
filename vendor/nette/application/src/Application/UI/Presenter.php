@@ -225,7 +225,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 			// continue with shutting down
 			if ($this->isAjax()) try {
 				$hasPayload = (array) $this->payload; unset($hasPayload['state']);
-				if ($this->response instanceof Responses\TextResponse && $this->isControlInvalid()) { // snippets - TODO
+				if ($this->response instanceof Responses\TextResponse && $this->isControlInvalid()) {
 					$this->snippetMode = TRUE;
 					$this->response->send($this->httpRequest, $this->httpResponse);
 					$this->sendPayload();
@@ -473,6 +473,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	/**
 	 * Finds layout template file name.
 	 * @return string
+	 * @internal
 	 */
 	public function findLayoutTemplateFile()
 	{
@@ -704,6 +705,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	/**
 	 * Link to myself.
 	 * @return string
+	 * @deprecated
 	 */
 	public function backlink()
 	{
@@ -714,6 +716,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	/**
 	 * Returns the last created Request.
 	 * @return Nette\Application\Request
+	 * @internal
 	 */
 	public function getLastCreatedRequest()
 	{
@@ -725,6 +728,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	 * Returns the last created Request flag.
 	 * @param  string
 	 * @return bool
+	 * @internal
 	 */
 	public function getLastCreatedRequestFlag($flag)
 	{
@@ -874,7 +878,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 					throw new InvalidLinkException("Unable to pass parameters to 'this!' signal.");
 				}
 
-			} elseif (strpos($signal, self::NAME_SEPARATOR) === FALSE) { // TODO: AppForm exception
+			} elseif (strpos($signal, self::NAME_SEPARATOR) === FALSE) {
 				// counterpart of signalReceived() & tryCall()
 				$method = $component->formatSignalMethod($signal);
 				if (!$reflection->hasCallableMethod($method)) {
@@ -905,7 +909,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 				$action = self::DEFAULT_ACTION;
 			}
 
-			$current = ($action === '*' || strcasecmp($action, $this->action) === 0) && $presenterClass === get_class($this); // TODO
+			$current = ($action === '*' || strcasecmp($action, $this->action) === 0) && $presenterClass === get_class($this);
 
 			$reflection = new PresenterComponentReflection($presenterClass);
 			if ($args || $destination === 'this') {
@@ -1272,6 +1276,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	 * Pops parameters for specified component.
 	 * @param  string  component id
 	 * @return array
+	 * @internal
 	 */
 	public function popGlobalParameters($id)
 	{
