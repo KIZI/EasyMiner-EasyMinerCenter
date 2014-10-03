@@ -3,52 +3,217 @@ body {
 	line-height: 1.6;
 	color: #333;
 	background: white;
+  font-family: 'Droid Sans', arial, sans-serif;
 }
 
-h1 {
-	color: #3484D2;
-}
+/*region základní styly nette*/
 
 #ajax-spinner {
-	margin: 15px 0 0 15px;
-	padding: 13px;
-	background: white url('../images/spinner.gif') no-repeat 50% 50%;
-	font-size: 0;
-	z-index: 123456;
-	display: none;
+  margin: 15px 0 0 15px;
+  padding: 13px;
+  background: white url('../images/spinner.gif') no-repeat 50% 50%;
+  font-size: 0;
+  z-index: 123456;
+  display: none;
 }
 
 div.flash {
-	color: black;
-	background: #FFF9D7;
-	border: 1px solid #E2C822;
-	padding: 1em;
-	margin: 1em 0;
+  color: black;
+  background: #FFF9D7;
+  border: 1px solid #E2C822;
+  padding: 1em;
+  margin: 1em 0;
 }
 
+a{
+  text-decoration: none;
+  color: #2d83be;
+}
+a:hover{
+  text-decoration: underline;
+  color: #075783;
+}
 a[href^="#error:"] {
-	background: red;
-	color: white;
+  background: red;
+  color: white;
 }
 
 form th, form td {
-	vertical-align: top;
-	font-weight: normal;
+  vertical-align: top;
+  font-weight: normal;
+  border: 1px solid yellow;
 }
 
 form th {
-	text-align: right;
+  text-align: right;
 }
-
+/*TODO
 form .required label {
-	font-weight: bold;
-}
+  font-weight: bold;
+}*/
 
 form .error {
-	color: #D00;
-	font-weight: bold;
+  color: #D00;
+  /*font-weight: bold;*/
 }
 
 html.js .jshidden {
-	display: none;
+  display: none;
+}
+
+/*endregion*/
+
+
+h1 {
+	color: rgb(146,82,19);
+  font-size: 36px;
+  font-weight: normal;
+  margin: 10px 0 10px 0;
+}
+
+h2{
+  color: rgb(49,78,100);
+  font-size: 23px;
+}
+
+h3{
+  color: rgb(72,113,19);
+  font-size: 19px;
+}
+
+input.text,
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"]{
+  padding: 10px 13px;
+  font-family: 'Droid Sans', arial, sans-serif;
+  font-size: 15px;
+  border: 1px solid rgb(235,235,235);
+}
+
+input.text:hover,input.text:focus,input.text:active,
+input[type="text"]:hover,input[type="text"]:focus,input[type="text"]:active,
+input[type="email"]:hover,input[type="email"]:focus,input[type="email"]:active,
+input[type="number"]:hover,input[type="number"]:focus,input[type="number"]:active,
+input[type="password"]:hover,input[type="password"]:focus,input[type="password"]:active{
+  border: 1px solid #2d83be;
+}
+form th > label{
+  padding: 6px 13px 0 8px;
+  border: 1px solid red;
+  display: inline-block;
+}
+input.button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+a.button,
+a.extButton{
+  display: inline-block;
+  padding: 8px 13px;
+  font-family: 'Droid Sans', arial, sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+  background: #075783;
+  border: 1px solid rgb(49,78,100);
+  color: white;
+  cursor: pointer;
+}
+input.button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"]{
+  padding: 10px 13px;
+}
+a.extButton{
+  border: 1px solid rgb(235,235,235);
+  color: rgb(165,165,165);
+  background: white;
+}
+
+input.button:hover,input.button:focus,
+input[type="submit"]:hover,input[type="submit"]:focus,
+input[type="button"]:hover,input[type="button"]:focus,
+input[type="reset"]:hover,input[type="reset"]:focus,
+a.button:hover,a.button:focus{
+  background:#2d83be;
+  color: white;
+}
+a.extButton:hover,a.extButton:focus{
+  border: 1px solid #2d83be;
+  color:#2d83be;
+}
+form#frm-loginForm input.text{
+  display: block;
+  width: 422px;
+  margin: 5px 0 2px 0;
+}
+
+form#frm-loginForm{
+  border-bottom: 1px solid rgb(235,235,235);
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  width: 500px;
+}
+form#frm-loginForm{
+  width:450px;
+  margin: 5px 0 10px 0;
+  position: relative;
+  overflow: auto;
+}
+form#frm-loginForm .error{
+  color: red;
+  font-weight: bold;
+  padding: 5px 8px;
+  text-align: center;
+}
+form#frm-loginForm .small{
+  font-size: 13px;
+  color: rgb(165,165,165);
+  position: relative;
+  overflow: auto;
+  margin-bottom: 10px;
+}
+form#frm-loginForm .small label{
+  float: left;
+  width: 300px;
+}
+form#frm-loginForm .small input{
+  border: none !important;
+}
+form#frm-loginForm .small a{
+  display: inline-block;
+  float: right;
+}
+form#frm-loginForm input.button{
+  display: inline-block;
+  width: 200px;
+}
+form#frm-loginForm .actions{
+  text-align: center;
+  margin: 15px 0 5px 0;
+}
+div.loginFormOtherLogins{
+  width:450px;
+}
+div.loginFormOtherLogins a{
+  display: block;
+  margin: 5px auto;
+}
+a.facebookLogin{
+  background: url('../images/facebookIcon.png') 5px center no-repeat #075783;
+  padding-left: 50px;
+  width: 180px;
+}
+a.googleLogin{
+  background: url('../images/googleIcon.png') 5px center no-repeat #075783;
+  padding-left: 50px;
+  width: 180px;
+}
+a.facebookLogin:hover{
+  background: url('../images/facebookIcon.png') 5px center no-repeat #2d83be;
+}
+a.googleLogin:hover{
+  background: url('../images/googleIcon.png') 5px center no-repeat #2d83be;
 }

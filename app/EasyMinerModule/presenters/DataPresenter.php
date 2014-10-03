@@ -211,4 +211,4 @@ class DataPresenter extends BasePresenter{
     $this->minersFacade=$minersFacade;
   }
   #endregion
-} 
+}

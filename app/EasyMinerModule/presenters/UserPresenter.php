@@ -51,7 +51,7 @@ class UserPresenter  extends BasePresenter{
     $form->setMethod('POST');
     $form->addText('email', 'E-mail:')
       ->setRequired('You have to input your e-mail!');
-    $form->addPassword('password', 'Heslo:')
+    $form->addPassword('password', 'Password:')
       ->setRequired('You have to input your password!');
     //TODO
   }
@@ -119,11 +119,16 @@ class UserPresenter  extends BasePresenter{
     $form = new Nette\Application\UI\Form();
     $form->setMethod('POST');
     $form->addText('email', 'E-mail:')
-      ->setRequired('You have to input e-mail!');
-    $form->addPassword('password', 'Heslo:')
-      ->setRequired('You have to input password!');
-    $form->addCheckbox('remember', 'Login permanently');
-    $form->addSubmit('send', 'Login...');
+      ->setRequired('You have to input e-mail!')
+      ->setAttribute('placeholder','E-mail')
+      ->setAttribute('class','text');
+    $form->addPassword('password', 'Password:')
+      ->setRequired('You have to input password!')
+      ->setAttribute('placeholder','Password')
+      ->setAttribute('class','text');
+    $form->addCheckbox('remember', ' Keep me logged in for 2 week...');
+    $form->addSubmit('submit', 'Log in...')
+      ->setAttribute('class','button');
 
     // call method signInFormSucceeded() on success
     $presenter=$this;

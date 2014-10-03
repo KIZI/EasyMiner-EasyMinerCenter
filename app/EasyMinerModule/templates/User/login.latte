@@ -3,12 +3,28 @@
 {block content}
 
   <h1 n:block=title>{_'EasyMiner login'}</h1>
+  <p>{_'Welcome to EasyMiner data-mining system. For using of it, you have to login...'}</p>
 
-  {control loginForm}
+  {form loginForm}
+    <div>{input email}</div>
+    <div>{input password}</div>
+    <div class="small">
+      {input remember}
+      <a href="{link User:ForgottenPassword}">{_'I forgot my password...'}</a>
+    </div>
+    {if $form->hasErrors()}
+      <div class="error" n:foreach="$form->errors as $error">{$error}</div>
+    {/if}
+    <div class="actions">
+      {input submit}
+      <a href="{link User:Register}" class="extButton">{_'Sign up now...'}</a>
+    </div>
+  {/form}
 
-  <a n:href="facebookLogin-open!">Login using Facebook</a>
-  <a n:href="googleLogin-open!">Login using Google</a>
-
+  <div class="loginFormOtherLogins">
+    <a n:href="facebookLogin-open!" class="facebookLogin button">{_'Log in using Facebook...'}</a>
+    <a n:href="googleLogin-open!" class="googleLogin button">{_'Log in using Google...'}</a>
+  </div>
 {/block}
 
 
