@@ -1,33 +1,37 @@
-{* This is the welcome page, you can delete it *}
-
 {block content}
 
-  <h1 n:block=title>{_'New EasyMiner'}</h1>
+  <div class="newMiner {if (count($miners))}twoColumns{/if}">
 
-  <div class="actionsDiv bigButtons">
-    <a href="{link Data:uploadCsv}">{_'Upload CSV'}</a>
-    <!--TODO existing database-->
+    <div class="block">
+      <h2>{_'Create new EasyMiner'}</h2>
+      <div class="actionsDiv bigButtons">
+        <a href="{link Data:uploadCsv}">{_'Upload CSV'}</a>
+        <a href="{link Data:importMysql}">{_'Import table from MySQL'}</a>
+        <!--TODO existing database-->
 
-    {if (count($datasources))}
-      <a href="" onclick="$(\'.existingSource\').show();$(this).hide();return false;">{_'New miner from existing datasource'}</a>
+        {if (count($datasources))}
+          <a href="" onclick="$(\'.existingSource\').show();$(this).hide();return false;">{_'New miner from existing datasource'}</a>
 
-      <h2 class="existingSource">{_'New miner from existing datasource'}</h2>
-      {foreach $datasources as $datasource}
-        <a href="{link Data:newMinerFromDatasource datasource=>$datasource->idDatasource}" class="existingSource">{$datasource->type}: {$datasource->db_table}</a>
-      {/foreach}
-    {/if}
-  </div>
-
-  {if (count($miners))}
-    <div class="actionsDiv bigButtons">
-      <a href="" onclick="$(\'.existingMiner\').show();$(this).hide();return false;">{_'Open existing miner'}</a>
-
-      <h2 class="existingMiner">{_'Open existing miner'}</h2>
-      {foreach $miners as $miner}
-        <a href="{link Data:openMiner id=>$miner->idMiner}" class="existingMiner">{$miner->name}</a>
-      {/foreach}
+          <h3 class="existingSource">{_'New miner from existing datasource'}</h3>
+          {foreach $datasources as $datasource}
+            <a href="{link Data:newMinerFromDatasource datasource=>$datasource->idDatasource}" class="existingSource">{$datasource->type}: {$datasource->db_table}</a>
+          {/foreach}
+        {/if}
+      </div>
     </div>
-  {/if}
+
+    {if (count($miners))}
+      <div class="block">
+        <h2>{_'Open existing EasyMiner'}</h2>
+        <div class="actionsDiv bigButtons">
+          {foreach $miners as $miner}
+            <a href="{link Data:openMiner id=>$miner->idMiner}" class="existingMiner">{$miner->name}</a>
+          {/foreach}
+        </div>
+      </div>
+    {/if}
+
+  </div>
 
 {/block}
 

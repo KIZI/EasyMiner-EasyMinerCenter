@@ -11,6 +11,9 @@ body {
   background: url('../images/bg-body.jpg') #2D83BE;
 }
 
+.center{
+  text-align: center;
+}
 /*region základní styly nette*/
 
 #ajax-spinner {
@@ -120,14 +123,16 @@ body > header a:hover{
   text-decoration: underline;
 }
 div.centerContent{
-  background: white;
   margin: 10px auto;
+}
+div.block{
+  background: white;
   padding: 20px;
   width: auto;
   -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
 }
-div.centerContent h1{
+div.block h1, div.block h2{
   margin-top: 0;
 }
 /*endregion Základní styly layoutu*/
@@ -143,7 +148,8 @@ h1 {
 
 h2{
   color: rgb(49,78,100);
-  font-size: 23px;
+  font-size: 28px;
+  font-weight: normal;
 }
 
 h3{
@@ -179,7 +185,8 @@ input[type="submit"],
 input[type="button"],
 input[type="reset"],
 a.button,
-a.extButton{
+a.extButton,
+div.actionsDiv a{
   display: inline-block;
   padding: 8px 13px;
   font-family: 'Droid Sans', arial, sans-serif;
@@ -206,13 +213,19 @@ input.button:hover,input.button:focus,
 input[type="submit"]:hover,input[type="submit"]:focus,
 input[type="button"]:hover,input[type="button"]:focus,
 input[type="reset"]:hover,input[type="reset"]:focus,
-a.button:hover,a.button:focus{
+a.button:hover,a.button:focus,
+div.actionsDiv a:hover,div.actionsDiv a:focus{
   background:#2d83be;
   color: white;
 }
 a.extButton:hover,a.extButton:focus{
   border: 1px solid #2d83be;
   color:#2d83be;
+}
+div.bigButtons a{
+  display: block;
+  margin: 5px auto;
+  padding:12px 15px;
 }
 
 /*region login and registration form*/
@@ -318,3 +331,22 @@ a.googleLogin:hover{
 }
 
 /*endregion login and registration form*/
+
+/*region newMiner*/
+div.newMiner{
+  position: relative;
+  margin: 0 auto;
+  overflow: auto;
+  min-width: 500px;
+  max-width: 500px;
+}
+div.newMiner.twoColumns{
+  max-width: 1000px;
+}
+div.newMiner div.block{
+  display: block;
+  width:450px;
+  margin: 10px 5px;
+  float: left;
+}
+/*endregion*/

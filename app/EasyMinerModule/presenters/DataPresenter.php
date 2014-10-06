@@ -80,6 +80,10 @@ class DataPresenter extends BasePresenter{
     }
   }
 
+  public function renderImportMysql(){
+    throw new BadRequestException('Not implemented yet!');//TODO
+  }
+
   /**
    * Akce pro smazání konkrétního mineru
    * @param int $id
