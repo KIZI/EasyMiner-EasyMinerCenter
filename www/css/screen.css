@@ -229,9 +229,6 @@ div.bigButtons a{
 }
 
 /*region login and registration form*/
-div.centerContent.loginForm{
-  width:452px;
-}
 form#frm-loginForm input.text,
 form#frm-registrationForm input.text{
   display: block;
@@ -332,6 +329,10 @@ a.googleLogin:hover{
 
 /*endregion login and registration form*/
 
+div.smallBlock{
+  width:450px;
+}
+
 /*region newMiner*/
 div.newMiner{
   position: relative;
@@ -345,7 +346,6 @@ div.newMiner.twoColumns{
 }
 div.newMiner div.block{
   display: block;
-  width:450px;
   margin: 10px 5px;
   float: left;
 }

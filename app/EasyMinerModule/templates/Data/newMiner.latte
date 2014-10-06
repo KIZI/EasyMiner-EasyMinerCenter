@@ -2,7 +2,7 @@
 
   <div class="newMiner {if (count($miners))}twoColumns{/if}">
 
-    <div class="block">
+    <div class="block smallBlock">
       <h2>{_'Create new EasyMiner'}</h2>
       <div class="actionsDiv bigButtons">
         <a href="{link Data:uploadCsv}">{_'Upload CSV'}</a>
@@ -21,7 +21,7 @@
     </div>
 
     {if (count($miners))}
-      <div class="block">
+      <div class="block smallBlock">
         <h2>{_'Open existing EasyMiner'}</h2>
         <div class="actionsDiv bigButtons">
           {foreach $miners as $miner}
