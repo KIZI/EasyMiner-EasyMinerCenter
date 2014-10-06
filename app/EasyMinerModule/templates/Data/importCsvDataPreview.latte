@@ -1,0 +1,24 @@
+{block content}
+  {if count($rows)}
+    <table class="dataPreviewTable">
+      {foreach $rows as $row}
+        <tr>
+          {if $iterator->first}
+            {var $first=true;}
+          {else}
+            {var $first=false;}
+          {/if}
+          {foreach $row as $item}
+            {if $first}
+              <th scope="col">{$item}</th>
+            {else}
+              <td>{$item}</td>
+            {/if}
+          {/foreach}
+        </tr>
+      {/foreach}
+    </table>
+  {else}
+    <div class="error">{_'No rows loaded!'}</div>
+  {/if}
+{/block}

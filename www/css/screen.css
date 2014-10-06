@@ -49,7 +49,6 @@ a[href^="#error:"] {
 form th, form td {
   vertical-align: top;
   font-weight: normal;
-  border: 1px solid yellow;
 }
 
 form th {
@@ -125,14 +124,27 @@ body > header a:hover{
 div.centerContent{
   margin: 10px auto;
 }
-div.block{
+div.block,
+div.smallBlock{
   background: white;
   padding: 20px;
   width: auto;
+  margin: 10px 5px;
   -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  display: block;
+  position: relative;
 }
-div.block h1, div.block h2{
+div.smallBlock.centerContent,
+div.block.centerContent{
+  margin-left: auto;
+  margin-right: auto;
+}
+div.smallBlock{
+  width:450px;
+}
+div.block h1, div.block h2,
+div.smallBlock h1, div.smallBlock h2{
   margin-top: 0;
 }
 /*endregion Základní styly layoutu*/
@@ -161,7 +173,8 @@ input.text,
 input[type="text"],
 input[type="email"],
 input[type="number"],
-input[type="password"]{
+input[type="password"],
+select{
   padding: 10px 13px;
   font-family: 'Droid Sans', arial, sans-serif;
   font-size: 15px;
@@ -172,13 +185,16 @@ input.text:hover,input.text:focus,input.text:active,
 input[type="text"]:hover,input[type="text"]:focus,input[type="text"]:active,
 input[type="email"]:hover,input[type="email"]:focus,input[type="email"]:active,
 input[type="number"]:hover,input[type="number"]:focus,input[type="number"]:active,
-input[type="password"]:hover,input[type="password"]:focus,input[type="password"]:active{
+input[type="password"]:hover,input[type="password"]:focus,input[type="password"]:active,
+select:hover,select:focus,select:active{
   border: 1px solid #2d83be;
 }
 form th > label{
   padding: 6px 13px 0 8px;
-  border: 1px solid red;
   display: inline-block;
+}
+form span.error{
+  display: block;
 }
 input.button,
 input[type="submit"],
@@ -217,6 +233,13 @@ a.button:hover,a.button:focus,
 div.actionsDiv a:hover,div.actionsDiv a:focus{
   background:#2d83be;
   color: white;
+}
+
+input.normalWidth{
+  width:300px;
+}
+select.normalWidth{
+  width:328px;
 }
 a.extButton:hover,a.extButton:focus{
   border: 1px solid #2d83be;
@@ -329,9 +352,7 @@ a.googleLogin:hover{
 
 /*endregion login and registration form*/
 
-div.smallBlock{
-  width:450px;
-}
+
 
 /*region newMiner*/
 div.newMiner{
@@ -344,9 +365,58 @@ div.newMiner{
 div.newMiner.twoColumns{
   max-width: 1000px;
 }
-div.newMiner div.block{
+div.newMiner div.smallBlock{
   display: block;
   margin: 10px 5px;
   float: left;
 }
 /*endregion*/
+
+div.uploadData{
+  position: relative;
+  margin: 0 auto;
+  overflow: auto;
+  min-width: 500px;
+  max-width: 1600px;
+}
+div.uploadData div.smallBlock{
+  display: block;
+  margin: 10px 5px;
+  float: left;
+}
+div.uploadData div.block{
+  margin-left: 505px;
+  min-width: 400px;
+}
+div.uploadData #datasetPreview{
+  overflow: auto;
+}
+table.dataPreviewTable{
+  border-spacing: 0;
+  width: 1000px;
+  border: 1px solid rgb(235,235,235);
+}
+table.dataPreviewTable th{
+  padding: 5px 8px;
+  text-align: left;
+  font-weight: normal;
+  color: white;
+  background: #075783;
+  border-left: 1px solid rgb(49,78,100);
+}
+table.dataPreviewTable th:first-child{
+  border-left: none;
+}
+table.dataPreviewTable td{
+  padding: 5px 8px;
+  background: #ffffff;
+  border-top: 1px solid rgb(235,235,235);
+  border-left: 1px solid rgb(235,235,235);
+}
+table.dataPreviewTable td:first-child{
+  border-left: none;
+}
+.smallSpinner{
+  background: url("../images/spinner.gif") left center no-repeat;
+  padding-left: 30px;
+}

@@ -2,6 +2,8 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Libs\StringsHelper;
+use App\Model\Data\Facades\FileImportsFacade;
+use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use Nette\Application\BadRequestException;
@@ -9,6 +11,7 @@ use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Http\FileUpload;
 use Nette\Utils\DateTime;
+use Tracy\Debugger;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
@@ -16,17 +19,23 @@ use Nette\Utils\DateTime;
  */
 class DataPresenter extends BasePresenter{
 
-  const TEMP_UPLOAD_DIR='../temp/dataImport';
-
   /** @var DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
   /** @var  MinersFacade $minersFacade */
   private $minersFacade;
+  /** @var  FileImportsFacade $fileImportsFacade */
+  private $fileImportsFacade;
 
   public function renderMapping(){
     //TODO akce a rozhraní pro mapování na KnowledgeBase!!!
     echo 'MAPPING!!!';
     $this->terminate();
+  }
+
+  public function renderImportCsvDataPreview($file,$separator=',',$encoding='utf8',$enclosure='"',$escape='\\'){
+    $this->layout='blank';
+    $this->fileImportsFacade->changeFileEncoding($file,$encoding);
+    $this->template->rows=$this->fileImportsFacade->getRowsFromCSV($file,20,$separator,$enclosure,$escape);
   }
 
   /**
@@ -75,7 +84,9 @@ class DataPresenter extends BasePresenter{
       $function='createComponentImport'.$type.'Form';
       /** @var Form $form */
       $form=$this->$function();
-      $form->setDefaults(array('filename'=>$file,'minerName'=>$name.' '.(new DateTime()),'table'=>$name));
+      $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$name);
+      //TODO analýza nahraného souboru...
+      $form->setDefaults($defaultsArr);//TODO příprava odpovídajícího názvu tabulky
       $this->template->importForm=$form;
     }
   }
@@ -112,7 +123,13 @@ class DataPresenter extends BasePresenter{
       ->addRule(function($control){
         return ($control->value->ok);
       },'Chyba při uploadu souboru!');
-    $form->addSubmit('submit','Nahrát soubor...')->onClick[]=array($this,'uploadFormSubmitted');
+    $form->addSubmit('submit','Upload file...')->onClick[]=array($this,'uploadFormSubmitted');
+    $presenter=$this;
+    $storno=$form->addSubmit('storno','storno');
+    $storno->setValidationScope(array());
+    $storno->onClick[]=function()use($presenter){
+      $presenter->redirect('Data:newMiner');
+    };
     return $form;
   }
 
@@ -126,8 +143,8 @@ class DataPresenter extends BasePresenter{
     $values=$form->getValues();
     /** @var FileUpload $file */
     $file=$values['file'];
-    $filename=$this->getTempFilename();
-    $file->move($filename);
+    $filename=$this->fileImportsFacade->getTempFilename();
+    $file->move($this->fileImportsFacade->getFilePath($filename));
     $name=$file->getSanitizedName();
     $name=mb_substr($name,0,mb_strrpos($name,'.','utf8'));
     $name=str_replace('.','_',$name);
@@ -139,44 +156,42 @@ class DataPresenter extends BasePresenter{
   public function createComponentImportCsvForm(){
     $form = new Form();
     $form->setTranslator($this->translator);
-    $minerName=$form->addText('minerName','Miner name:',null,100)
-      ->setRequired('Input miner name!');
-    if ($this->user->loggedIn){//TODO
-      $minersRepository=$this->minersRepository;
-      $currentUserId=$this->user->id;
-      $minerName->addRule(function($control)use($minersRepository,$currentUserId){
-        try{
-          $miner=$minersRepository->findMinerByName($currentUserId,$control->value);
-          return (!($miner!=null));
-        }catch (\Exception $e){
-          return true;
-        }
-      },'Miner with this name already exists!');
-    }
-    $type=$form->addSelect('type','Database:',$this->datasourcesRepository->getTypes())->setRequired();
+    $tableName=$form->addText('table','Table name:')
+      ->setRequired('Input table name!');//TODO
+    $presenter=$this;
+    $currentUserId=$this->user->id;
+    $tableName->addRule(Form::MAX_LENGTH,'Table name is too long!',30)
+      ->addRule(Form::PATTERN,'Invalid table name!','\w+')
+      ->setAttribute('class','normalWidth')
+      ->addRule(function($control)use($presenter,$currentUserId){
+        return true;
+        //TODO return (!$datasourcesFacade->checkTableNameExists($currentUserId,$type->value,$control->value));
+      },'Table with this name already exists!');
 
-    if ($this->user->loggedIn){
-      $tableName=$form->addText('table','Table name:')
-        ->setRequired('Input table name!');//TODO
-      $datasourcesRepository=$this->datasourcesRepository;
-      $currentUserId=$this->user->id;
-      $tableName->addRule(Form::MAX_LENGTH,'Table name is too long!',30)
-        ->addRule(Form::PATTERN,'Invalid table name!','\w+')
-        ->addRule(function($control)use($datasourcesRepository,$type,$currentUserId){
-          return (!$datasourcesRepository->checkTableNameExists($currentUserId,$type->value,$control->value));
-        },'Table with this name already exists!');
-    }else{
-      $form->addHidden('table','');
-    }
+    $form->addSelect('separator','Separator:',array(
+      ','=>'Comma (,)',
+      ';'=>'Semicolon (;)',
+      '|'=>'Vertical line (|)',
+    ))->setRequired()
+      ->setAttribute('class','normalWidth');
 
     $form->addSelect('encoding','Encoding:',array(
       'utf8'=>'UTF-8',
       'cp1250'=>'WIN 1250',
       'iso-8859-1'=>'ISO 8859-1',
-    ))->setRequired();
+    ))->setRequired()
+      ->setAttribute('class','normalWidth');
+    $form->addHidden('file');
+    $form->addHidden('type');
     $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
-    $form->addText('escape','Escape character:',1,1)->setDefaultValue('\\');
-    $form->addSubmit('submit','Import data info database...')->onClick[]=array($this,'importCsvFormSubmitted');
+    $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
+    $form->addSubmit('submit','Import data into database...')->onClick[]=array($this,'importCsvFormSubmitted');
+    $presenter=$this;
+    $storno=$form->addSubmit('storno','storno');
+    $storno->setValidationScope(array());
+    $storno->onClick[]=function()use($presenter){
+      $presenter->redirect('Data:newMiner');
+    };
     return $form;
   }
 
@@ -189,17 +204,6 @@ class DataPresenter extends BasePresenter{
     $this->redirect('Data:mapping');
   }
   #endregion importCsvForm
-
-  /**
-   * @return string
-   */
-  private function getTempFilename(){
-    $filename=time();
-    while(file_exists(self::TEMP_UPLOAD_DIR.'/'.$filename)){
-      $filename.='x';
-    }
-    return $filename;
-  }
 
   #region injections
   /**
@@ -215,5 +219,21 @@ class DataPresenter extends BasePresenter{
   public function injectMinersFacade(MinersFacade $minersFacade){
     $this->minersFacade=$minersFacade;
   }
+
+  /**
+   * @param FileImportsFacade $fileImportsFacade
+   */
+  public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade){
+    $this->fileImportsFacade=$fileImportsFacade;
+  }
   #endregion
+
+
+  public function startup(){
+    parent::startup();//TODO lepší kontrola přihlášení uživatele
+    if (!$this->user->isLoggedIn()){
+      $this->flashMessage('For using of EasyMiner, you have to log in...','error');
+      $this->redirect('User:login');
+    }
+  }
 }

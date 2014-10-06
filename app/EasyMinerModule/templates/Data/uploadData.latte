@@ -1,13 +1,31 @@
 {* This is the welcome page, you can delete it *}
 
+{block head}
+  <script type="text/javascript">
+    var previewPath={link Data:importCsvDataPreview};
+  </script>
+  <script type="text/javascript" src="{$basePath}/js/uploadData.js"></script>
+{/block}
+
 {block content}
 
-  <h1 n:block=title>{_'Upload dataset'}</h1>
-
   {ifset $importForm}
-    {$importForm}
+    <div class="uploadData">
+      <div class="smallBlock">
+        <h1>{_'Import config'}</h1>
+        {$importForm}
+      </div>
+      <div class="block">
+        <h2>{_'Data preview'}</h2>
+        <div id="datasetPreviewLoading" class="smallSpinner">{_'Reloading preview, please wait...'}</div>
+        <div id="datasetPreview"></div>
+      </div>
+    </div>
   {else}
-    {control uploadForm}
+    <div class="smallBlock centerContent">
+      <h1>{_'Upload dataset'}</h1>
+      {control uploadForm}
+    </div>
   {/ifset}
 
 {/block}

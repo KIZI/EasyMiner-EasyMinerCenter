@@ -2,10 +2,10 @@
 
   <div class="newMiner {if (count($miners))}twoColumns{/if}">
 
-    <div class="block smallBlock">
+    <div class="smallBlock">
       <h2>{_'Create new EasyMiner'}</h2>
       <div class="actionsDiv bigButtons">
-        <a href="{link Data:uploadCsv}">{_'Upload CSV'}</a>
+        <a href="{link Data:uploadData}">{_'Upload CSV'}</a>
         <a href="{link Data:importMysql}">{_'Import table from MySQL'}</a>
         <!--TODO existing database-->
 
@@ -21,7 +21,7 @@
     </div>
 
     {if (count($miners))}
-      <div class="block smallBlock">
+      <div class="smallBlock">
         <h2>{_'Open existing EasyMiner'}</h2>
         <div class="actionsDiv bigButtons">
           {foreach $miners as $miner}
