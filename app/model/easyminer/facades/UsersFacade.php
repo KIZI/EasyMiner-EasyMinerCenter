@@ -226,6 +226,21 @@ class UsersFacade implements IAuthenticator{
   }
 
   /**
+   * Funkce pro zaregistrování lokálního uživatelského účtu
+   * @param array $params
+   * @return User
+   */
+  public function registerUser($params){
+    $user=new User();
+    $user->email=$params['email'];
+    $user->password=Passwords::hash($params['password']);
+    $user->name=$params['name'];
+    $user->active=true;
+    $this->saveUser($user);
+    return $user;
+  }
+
+  /**
    * @param User|int $user
    * @return Identity
    * @throws AuthenticationException

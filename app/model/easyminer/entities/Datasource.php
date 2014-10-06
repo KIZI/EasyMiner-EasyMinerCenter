@@ -6,8 +6,8 @@ use LeanMapper\Entity;
 /**
  * Class Datasource
  * @package App\Model\EasyMiner\Entities
- * @property int|null $idDatasource = null
- * @property int|null $idUser = null
+ * @property int|null $datasourceId = null
+ * @property int|null $userId = null
  * @property string $type = m:Enum('mysql','cassandra')
  * @property string $dbServer
  * @property string $dbPort

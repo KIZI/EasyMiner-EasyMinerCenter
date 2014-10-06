@@ -21,16 +21,16 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `datasources` (
-  `id_datasource` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
+  `datasource_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
   `type` enum('mysql') COLLATE utf8_czech_ci NOT NULL,
   `db_server` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_username` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_password` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_table` varchar(100) COLLATE utf8_czech_ci NOT NULL,
-  PRIMARY KEY (`id_datasource`),
-  KEY `is_user` (`id_user`)
+  PRIMARY KEY (`datasource_id`),
+  KEY `is_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -53,14 +53,14 @@ CREATE TABLE IF NOT EXISTS `helper_data` (
 --
 
 CREATE TABLE IF NOT EXISTS `miners` (
-  `id_miner` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
+  `miner_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  ```type``` enum('lm') NOT NULL,
-  `id_datasource` int(11) NOT NULL,
-  PRIMARY KEY (`id_miner`),
-  KEY `id_user` (`id_user`),
-  KEY `id_datasource` (`id_datasource`)
+  ```type``` enum('lm','r') NOT NULL,
+  `datasource_id` int(11) NOT NULL,
+  PRIMARY KEY (`miner_id`),
+  KEY `user_id` (`user_id`),
+  KEY `datasource_id` (`datasource_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table with definition of EasyMiner instances' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -70,11 +70,15 @@ CREATE TABLE IF NOT EXISTS `miners` (
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `id_user` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `email` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `password` varchar(200) COLLATE utf8_czech_ci NOT NULL,
-  PRIMARY KEY (`id_user`)
+  `facebook_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  `google_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  `last_login` datetime NOT NULL,
+  `active` tinyint(1) NOT NULL,
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users' AUTO_INCREMENT=1 ;
 
 --
@@ -85,17 +89,17 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Omezení pro tabulku `datasources`
 --
 ALTER TABLE `datasources`
-ADD CONSTRAINT `datasources_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `datasources_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Omezení pro tabulku `helper_data`
 --
 ALTER TABLE `helper_data`
-ADD CONSTRAINT `helper_data_ibfk_1` FOREIGN KEY (`miner`) REFERENCES `miners` (`id_miner`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `helper_data_ibfk_1` FOREIGN KEY (`miner`) REFERENCES `miners` (`miner_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Omezení pro tabulku `miners`
 --
 ALTER TABLE `miners`
-ADD CONSTRAINT `miners_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `miners_ibfk_2` FOREIGN KEY (`id_datasource`) REFERENCES `datasources` (`id_datasource`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `miners_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `miners_ibfk_2` FOREIGN KEY (`datasource_id`) REFERENCES `datasources` (`datasource_id`) ON DELETE CASCADE ON UPDATE CASCADE;

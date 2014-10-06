@@ -29,9 +29,9 @@ class DatasourcesFacade {
    */
   public function findDatasourcesByUser($user){
     if ($user instanceof User){
-      $user=$user->idUser;
+      $user=$user->userId;
     }
-    return $this->datasourcesRepository->findAllBy(array('id_user'=>$user));
+    return $this->datasourcesRepository->findAllBy(array('user_id'=>$user));
   }
 
 

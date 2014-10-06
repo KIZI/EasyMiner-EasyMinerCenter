@@ -2,6 +2,7 @@
 
 namespace App\EasyMinerModule\Presenters;
 
+use LeanMapper\Exception\Exception;
 use Nette;
 use App\Model\EasyMiner\Facades\UsersFacade;
 use Kdyby\Facebook\Facebook;
@@ -48,12 +49,49 @@ class UserPresenter  extends BasePresenter{
 
   protected function createComponentRegistrationForm(){
     $form = new Nette\Application\UI\Form();
+    $presenter=$this;
     $form->setMethod('POST');
+    $form->addText('name', 'Name:')
+      ->setAttribute('placeholder','Name')
+      ->setAttribute('class','text')
+      ->addRule(Nette\Forms\Form::FILLED,'You have to input your name!')
+      ->addRule(Nette\Forms\Form::MIN_LENGTH,'You have to input your name!',5);
     $form->addText('email', 'E-mail:')
-      ->setRequired('You have to input your e-mail!');
-    $form->addPassword('password', 'Password:')
-      ->setRequired('You have to input your password!');
-    //TODO
+      ->setAttribute('placeholder','E-mail')
+      ->setAttribute('class','text')
+      ->addRule(Nette\Forms\Form::EMAIL,'You have to input valid e-mail address!')
+      ->addRule(Nette\Forms\Form::FILLED,'You have to input your e-mail!')
+      ->addRule(function($emailInput)use($presenter){
+        try{
+          $user=$presenter->usersFacade->findUserByEmail($emailInput->value);
+          return false;
+        }catch (\Exception $e){}
+        return true;
+      },'User account with this e-mail already exists!');
+    $password=$form->addPassword('password', 'Password:');
+    $password->setAttribute('placeholder','Password')
+      ->setAttribute('class','text')
+      ->addRule(Nette\Forms\Form::FILLED,'You have to input your password!')
+      ->addRule(Nette\Forms\Form::MIN_LENGTH,'Minimal length of password is %s characters!',6);
+    $form->addPassword('rePassword', 'Password (again):')
+      ->setAttribute('placeholder','Password')
+      ->setAttribute('class','text')
+      ->addRule(Nette\Forms\Form::FILLED,'You have to input your password!')
+      ->validateEqual($password,'Passwords do not match!');
+
+    $form->addSubmit('submit', 'Sign up...')
+      ->setAttribute('class','button');
+
+    $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values) use ($presenter){
+      try{
+        $user = $presenter->usersFacade->registerUser($values);
+      }catch (Exception $e){
+        $presenter->flashMessage('Welcome! Your user account was successfully registered.');
+      }
+      $presenter->getUser()->login($values['email'],$values['password']);
+      $presenter->redirect('Data:newMiner');
+    };
+    return $form;
   }
 
   /** @return FacebookLoginDialog */

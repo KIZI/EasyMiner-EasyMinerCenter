@@ -9,8 +9,8 @@ use Nette;
  * Class Miner
  * @package App\Model\EasyMiner\Entities
  *
- * @property int|null $idMiner = null
- * @property int|null $idUser = null
+ * @property int|null $minerId = null
+ * @property int|null $userId = null
  * @property string $name = ''
  * @property string $type m:Enum('lm','r')
  * @property int|null $idDatasource

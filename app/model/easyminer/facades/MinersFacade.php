@@ -27,9 +27,9 @@ class MinersFacade {
    */
   public function findMinersByUser($user){
     if ($user instanceof User){
-      $user=$user->idUser;
+      $user=$user->userId;
     }
-    return $this->minersRepository->findAllBy(array('id_user'=>$user));
+    return $this->minersRepository->findAllBy(array('user_id'=>$user));
   }
 
   /**
@@ -39,9 +39,9 @@ class MinersFacade {
    */
   public function findMinerByName($user, $name) {
     if ($user instanceof User){
-      $user=$user->idUser;
+      $user=$user->userId;
     }
-    if ($data=$this->database->table(self::TABLE)->select('*')->where(array('name'=>$name,'id_user'=>$user))->limit(1)->fetch()){
+    if ($data=$this->database->table(self::TABLE)->select('*')->where(array('name'=>$name,'user_id'=>$user))->limit(1)->fetch()){
       return new Miner($data,$this->database);
     }
     return null;

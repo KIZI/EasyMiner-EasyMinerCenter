@@ -215,57 +215,81 @@ a.extButton:hover,a.extButton:focus{
   color:#2d83be;
 }
 
-
+/*region login and registration form*/
 div.centerContent.loginForm{
   width:452px;
 }
-form#frm-loginForm input.text{
+form#frm-loginForm input.text,
+form#frm-registrationForm input.text{
   display: block;
   width: 422px;
   margin: 5px 0 2px 0;
 }
 
+form#frm-registrationForm label{
+  font-size: 12px;
+  color: rgb(165,165,165);
+  display: block;
+  margin: 5px 0 0 0;
+  padding: 0;
+}
+form#frm-registrationForm div.errors{
+  padding-left: 15px;
+  font-size: 13px;
+  color: red;
+}
 form#frm-loginForm{
   border-bottom: 1px solid rgb(235,235,235);
+}
+form#frm-loginForm,
+form#frm-registrationForm{
   margin-bottom: 15px;
   padding-bottom: 12px;
   width: 500px;
 }
-form#frm-loginForm{
+form#frm-loginForm,
+form#frm-registrationForm{
   width:450px;
   margin: 5px 0 10px 0;
   position: relative;
   overflow: auto;
 }
-form#frm-loginForm .error{
+form#frm-loginForm .error,
+form#frm-registrationForm .error{
   color: red;
   font-weight: bold;
   padding: 5px 8px;
   text-align: center;
 }
-form#frm-loginForm .small{
+form#frm-loginForm .small,
+form#frm-registrationForm .small{
   font-size: 13px;
   color: rgb(165,165,165);
   position: relative;
   overflow: auto;
   margin-bottom: 10px;
 }
-form#frm-loginForm .small label{
+form#frm-loginForm .small label,
+form#frm-registrationForm .small label{
   float: left;
   width: 300px;
 }
-form#frm-loginForm .small input{
+form#frm-loginForm .small input,
+form#frm-registrationForm .small input{
   border: none !important;
 }
-form#frm-loginForm .small a{
+form#frm-loginForm .small a,
+form#frm-registrationForm .small a{
   display: inline-block;
   float: right;
 }
-form#frm-loginForm input.button{
+form#frm-loginForm input.button,
+form#frm-registrationForm input.button{
   display: inline-block;
   width: 200px;
 }
-form#frm-loginForm .actions{
+form#frm-loginForm .actions,
+form#frm-registrationForm .actions{
   text-align: center;
   margin: 15px 0 5px 0;
 }
@@ -292,3 +316,5 @@ a.facebookLogin:hover{
 a.googleLogin:hover{
   background: url('../images/googleIcon.png') 5px center no-repeat #2d83be;
 }
+
+/*endregion login and registration form*/

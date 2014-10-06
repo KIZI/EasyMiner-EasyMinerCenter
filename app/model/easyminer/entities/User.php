@@ -7,7 +7,7 @@ use Nette\Utils\DateTime;
 /**
  * Class User
  * @package App\Model\EasyMiner\Entities
- * @property int|null $idUser
+ * @property int|null $userId
  * @property string $name
  * @property string $email
  * @property string $password
