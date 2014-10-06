@@ -2,17 +2,7 @@
 
 {block content}
 
-  {control uploadCsvForm}
-
   <h1 n:block=title>{_'New EasyMiner'}</h1>
-
-  <div class="userInfo">
-    {if ($user->loggedIn)}
-      {_'You currently logged in as:'} {$user->identity->name} <a href="{link User:logout}" class="smallButton">{_'logout'}</a>
-    {else}
-      {_'You are working as anonymous user. You should login to get access to extended functions.'} <a href="{link User:login}" class="smallButton">{_'login'}</a>
-    {/if}
-  </div>
 
   <div class="actionsDiv bigButtons">
     <a href="{link Data:uploadCsv}">{_'Upload CSV'}</a>

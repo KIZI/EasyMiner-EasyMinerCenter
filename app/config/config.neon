@@ -18,6 +18,8 @@ parameters:
         password:
         database: brserver2
         encoding: utf8
+    urls:
+        open_miner: "http://sewebar-dev.lmcloud.vse.cz/izi-miner/?id_dm={:minerId}"
 
 facebook:
     appId: "713356372046344"

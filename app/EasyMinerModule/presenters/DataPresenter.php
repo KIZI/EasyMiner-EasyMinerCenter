@@ -1,6 +1,7 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
+use App\Libs\StringsHelper;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use Nette\Application\BadRequestException;
@@ -29,11 +30,11 @@ class DataPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro otevření existujícího mineru
+   * Akce pro otevření existujícího mineru (adresa pro přesměrování je brána z konfigu
    * @param int $id
    * @throws BadRequestException
    */
-  public function renderOpenMiner($id){//TODO dodělat javascriptové přesměrování v šabloně
+  public function actionOpenMiner($id){
     try{
       $miner=$this->minersFacade->findMiner($id);
     }catch (\Exception $e){
@@ -41,7 +42,9 @@ class DataPresenter extends BasePresenter{
     }
 
     $this->checkMinerAccess($miner);
-    $this->template->miner=$miner;
+
+    $url=$this->context->parameters['urls']['open_miner'];
+    $this->redirectUrl(StringsHelper::replaceParams($url,array(':minerId'=>$id)));
   }
 
   public function renderNewMinerFromDatasource($datasource){
@@ -56,9 +59,7 @@ class DataPresenter extends BasePresenter{
       $this->template->miners=$this->minersFacade->findMinersByUser($this->user->id);
       $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($this->user->id);
     }else{
-      //pro anonymní uživatele nebudeme načítat existující minery
-      $this->template->miners=null;
-      $this->template->datasources=null;
+      $this->redirect('User:login');
     }
   }
 
@@ -136,7 +137,7 @@ class DataPresenter extends BasePresenter{
     $form->setTranslator($this->translator);
     $minerName=$form->addText('minerName','Miner name:',null,100)
       ->setRequired('Input miner name!');
-    if ($this->user->loggedIn){
+    if ($this->user->loggedIn){//TODO
       $minersRepository=$this->minersRepository;
       $currentUserId=$this->user->id;
       $minerName->addRule(function($control)use($minersRepository,$currentUserId){
@@ -152,7 +153,7 @@ class DataPresenter extends BasePresenter{
 
     if ($this->user->loggedIn){
       $tableName=$form->addText('table','Table name:')
-        ->setRequired('Input table name!');
+        ->setRequired('Input table name!');//TODO
       $datasourcesRepository=$this->datasourcesRepository;
       $currentUserId=$this->user->id;
       $tableName->addRule(Form::MAX_LENGTH,'Table name is too long!',30)

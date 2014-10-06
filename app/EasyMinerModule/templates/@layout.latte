@@ -1,0 +1,47 @@
+{**
+ * @param string   $basePath web base path
+ * @param array    $flashes  flash messages
+ *}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>{ifset #title}{include title|striptags} :: {/ifset}EasyMiner</title>
+
+	<link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/screen.css">
+	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
+	{block head}{/block}
+	{block scripts}
+    <script src="{$basePath}/js/jquery.js"></script>
+  	<script src="{$basePath}/js/netteForms.js"></script>
+  	<script src="{$basePath}/js/main.js"></script>
+  {/block}
+  <script> document.documentElement.className+=' js' </script>
+</head>
+<body>
+  <header>
+    <h1>
+      EasyMiner<sup>1.0</sup>
+      <span>easy association rule mining</span>
+    </h1>
+
+    <div class="links">
+    {if ($user->loggedIn)}
+      {$user->identity->name} - <a href="{link User:logout}">{_'logout'}</a>
+    {else}
+      <a href="{link User:login}">{_'login'}</a>
+    {/if}
+    </div>
+
+  </header>
+  <main>
+    <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
+    {include content}
+  </main>
+  <footer>
+
+  </footer>
+</body>
+</html>
