@@ -8,11 +8,14 @@
           {else}
             {var $first=false;}
           {/if}
+          {var $colsCounter=0;}
           {foreach $row as $item}
+            {var $colsCounter=$colsCounter+1;}
+            {continueIf ($colsCounter>$colsCount)}
             {if $first}
-              <th scope="col">{$item}</th>
+              <th scope="col">{$iterator->counter} {$item}</th>
             {else}
-              <td>{$item}</td>
+              <td>{$iterator->counter} {$item}</td>
             {/if}
           {/foreach}
         </tr>

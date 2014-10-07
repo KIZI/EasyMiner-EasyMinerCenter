@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Stanislav
- * Date: 15.9.14
- * Time: 22:33
- */
 
 namespace App\Model\Data\Databases;
 
@@ -149,6 +143,15 @@ class MySqlDatabase implements IDatabase{
   public function deleteRow($id) {
     $query=$this->db->prepare('DELETE FROM `'.$this->tableName.'` WHERE id=:id LIMIT 1;');
     return $query->execute(array(':id'=>$id));
+  }
+
+  /**
+   * Funkce pro kontrolu, zda existuje tabulka se zadaným názvem
+   * @param string $tableName
+   * @return bool
+   */
+  public function tableExists($tableName) {
+    return ($this->db->query("SHOW TABLES LIKE '" . $tableName . "'")->rowCount() > 0);
   }
 
 }

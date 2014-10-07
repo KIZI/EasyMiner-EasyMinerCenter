@@ -25,6 +25,13 @@ interface IDatabase {
   public function createTable($tableName,$columns);
 
   /**
+   * Funkce pro kontrolu, zda existuje tabulka se zadaným názvem
+   * @param string $tableName
+   * @return bool
+   */
+  public function tableExists($tableName);
+
+  /**
    * @param string $tableName
    * @return bool
    */

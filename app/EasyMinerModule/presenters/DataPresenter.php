@@ -32,6 +32,7 @@ class DataPresenter extends BasePresenter{
   public function renderImportCsvDataPreview($file,$separator=',',$encoding='utf8',$enclosure='"',$escape='\\'){
     $this->layout='blank';
     $this->fileImportsFacade->changeFileEncoding($file,$encoding);
+    $this->template->colsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator,$enclosure,$escape);
     $this->template->rows=$this->fileImportsFacade->getRowsFromCSV($file,20,$separator,$enclosure,$escape);
   }
 
@@ -81,7 +82,13 @@ class DataPresenter extends BasePresenter{
       /** @var Form $form */
       $form=$this->getComponent('import'.$type.'Form');
       $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$name);
-      //TODO analýza nahraného souboru...
+
+      if ($type=='Csv'){
+        $defaultsArr['separator']=$this->fileImportsFacade->getCSVDelimitier($file);
+      }else{
+        //TODO další možnosti importu (ZIP soubor atd.)
+      }
+
       if (!$form->isSubmitted()){
         $form->setDefaults($defaultsArr);//TODO příprava odpovídajícího názvu tabulky
       }
@@ -116,8 +123,8 @@ class DataPresenter extends BasePresenter{
     $form = new Form();
     $form->setTranslator($this->translator);
     $form->addHidden('type','Csv');
-    $form->addUpload('file','CSV file:')
-      ->setRequired('Je nutné nahrát soubor pro import!')
+    $file=$form->addUpload('file','CSV file:');
+    $file->setRequired('Je nutné nahrát soubor pro import!')
       ->addRule(function($control){
         return ($control->value->ok);
       },'Chyba při uploadu souboru!');
@@ -155,7 +162,7 @@ class DataPresenter extends BasePresenter{
     $form = new Form();
     $form->setTranslator($this->translator);
     $tableName=$form->addText('table','Table name:')
-      ->setRequired('Input table name!');//TODO
+      ->setRequired('Input table name!');//TODO vyřešení názvu tabulky s ohledem na typ databáze, která bude použita
     $presenter=$this;
     $currentUserId=$this->user->id;
     $tableName->addRule(Form::MAX_LENGTH,'Table name is too long!',30)
@@ -179,16 +186,17 @@ class DataPresenter extends BasePresenter{
       'iso-8859-1'=>'ISO 8859-1',
     ))->setRequired()
       ->setAttribute('class','normalWidth');
-    $form->addHidden('file');
+    $file=$form->addHidden('file');
     $form->addHidden('type');
     $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
     $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
     $form->addSubmit('submit','Import data into database...')->onClick[]=array($this,'importCsvFormSubmitted');
     $storno=$form->addSubmit('storno','storno');//TODO
     $storno->setValidationScope(array());
-    $storno->onClick[]=function(SubmitButton $button){
+    $storno->onClick[]=function(SubmitButton $button)use($file){
       /** @var DataPresenter $presenter */
       $presenter=$button->form->getParent();
+      $this->fileImportsFacade->deleteFile($file->value);
       $presenter->redirect('Data:newMiner');
     };
     return $form;
@@ -198,6 +206,10 @@ class DataPresenter extends BasePresenter{
     /** @var Form $form */
     $form=$submitButton->form;
     $values=$form->getValues();
+    if ($values['type']=='Csv'){
+
+    }
+
     var_dump($values);//TODO import!!!
     $this->terminate();
     $this->redirect('Data:mapping');

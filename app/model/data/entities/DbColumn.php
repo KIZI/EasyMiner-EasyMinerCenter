@@ -11,4 +11,6 @@ class DbColumn {
   public $name = '';
   /** @var string $dataType */
   public $dataType = '';
+  /** @var string $strLength */
+  public $strLength = 0;
 } 

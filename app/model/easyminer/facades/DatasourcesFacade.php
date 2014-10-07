@@ -55,7 +55,6 @@ class DatasourcesFacade {
     return $this->datasourcesRepository->delete($datasource);
   }
 
-
   /**
    * @param User|int $user
    * @param string $type
