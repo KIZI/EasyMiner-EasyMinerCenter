@@ -18,7 +18,7 @@ parameters:
         password:
         database: brserver2
         encoding: utf8
-    imports_directory: "./temp/fileImports"
+    imports_directory: "e:/Pracovní/EasyMiner/EasyMiner-EasyMinerCenter/temp/fileImports"
     urls:
         open_miner: "http://sewebar-dev.lmcloud.vse.cz/izi-miner/?id_dm={:minerId}"
 

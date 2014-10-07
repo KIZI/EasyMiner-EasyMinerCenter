@@ -3,15 +3,12 @@
 namespace App\EasyMinerModule\Presenters;
 use App\Libs\StringsHelper;
 use App\Model\Data\Facades\FileImportsFacade;
-use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Http\FileUpload;
-use Nette\Utils\DateTime;
-use Tracy\Debugger;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
@@ -81,12 +78,13 @@ class DataPresenter extends BasePresenter{
   public function renderUploadData($file='',$type='',$name=''){
     if ($file && $type){
       //zobrazení nastavení importu (již máme nahraný soubor
-      $function='createComponentImport'.$type.'Form';
       /** @var Form $form */
-      $form=$this->$function();
+      $form=$this->getComponent('import'.$type.'Form');
       $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$name);
       //TODO analýza nahraného souboru...
-      $form->setDefaults($defaultsArr);//TODO příprava odpovídajícího názvu tabulky
+      if (!$form->isSubmitted()){
+        $form->setDefaults($defaultsArr);//TODO příprava odpovídajícího názvu tabulky
+      }
       $this->template->importForm=$form;
     }
   }
@@ -186,10 +184,11 @@ class DataPresenter extends BasePresenter{
     $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
     $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
     $form->addSubmit('submit','Import data into database...')->onClick[]=array($this,'importCsvFormSubmitted');
-    $presenter=$this;
-    $storno=$form->addSubmit('storno','storno');
+    $storno=$form->addSubmit('storno','storno');//TODO
     $storno->setValidationScope(array());
-    $storno->onClick[]=function()use($presenter){
+    $storno->onClick[]=function(SubmitButton $button){
+      /** @var DataPresenter $presenter */
+      $presenter=$button->form->getParent();
       $presenter->redirect('Data:newMiner');
     };
     return $form;

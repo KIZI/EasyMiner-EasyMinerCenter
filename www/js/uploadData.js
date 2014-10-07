@@ -1,13 +1,14 @@
 function renderPreview(){
+  console.log('sem...');
   var datasetPreview=$('#datasetPreview');
   datasetPreview.hide();
   $('#datasetPreviewLoading').show();
   datasetPreview.load(previewPath,{
-    'file':$('#frm-file').val(),
-    'separator':$('#frm-separator').val(),
-    'encoding':$('#frm-encoding').val(),
-    'enclosure':$('#frm-enclosure').val(),
-    'escape':$('#frm-escape').val()
+    'file':$('#frm-importCsvForm-file').val(),
+    'separator':$('#frm-importCsvForm-separator').val(),
+    'encoding':$('#frm-importCsvForm-encoding').val(),
+    'enclosure':$('#frm-importCsvForm-enclosure').val(),
+    'escape':$('#frm-importCsvForm-escape').val()
   },function(){
     $('#datasetPreviewLoading').hide();
     $(this).show();
@@ -16,9 +17,9 @@ function renderPreview(){
 
 
 $(document).ready(function(){
-  $('#frm-separator').change(renderPreview);
-  $('#frm-encoding').change(renderPreview);
-  $('#frm-enclosure').change(renderPreview);
-  $('#frm-escape').change(renderPreview);
-  $('#frm-separator').change();
+  $('#frm-importCsvForm-separator').change(renderPreview);
+  $('#frm-importCsvForm-encoding').change(renderPreview);
+  $('#frm-importCsvForm-enclosure').change(renderPreview);
+  $('#frm-importCsvForm-escape').change(renderPreview);
+  $('#frm-importCsvForm-separator').change();
 });
