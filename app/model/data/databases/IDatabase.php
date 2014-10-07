@@ -2,7 +2,7 @@
 
 namespace App\Model\Data\Databases;
 use App\Model\Data\Entities\DbColumn;
-use App\Model\EasyMiner\Entities\Datasource;
+use App\Model\Data\Entities\DbConnection;
 
 /**
  * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
@@ -11,10 +11,10 @@ use App\Model\EasyMiner\Entities\Datasource;
 interface IDatabase {
 
   /**
-   * @param Datasource $dbConnection
+   * @param DbConnection $dbConnection
    * @return IDatabase
    */
-  public static function getInstance(Datasource $dbConnection);
+  public static function getInstance(DbConnection $dbConnection);
 
   #region funkce pro práci s tabulkami
   /**

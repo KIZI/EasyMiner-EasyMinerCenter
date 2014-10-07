@@ -3,6 +3,7 @@
 namespace App\Model\EasyMiner\Facades;
 
 
+use App\Model\Data\Entities\DbConnection;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\DatasourcesRepository;
@@ -55,14 +56,5 @@ class DatasourcesFacade {
     return $this->datasourcesRepository->delete($datasource);
   }
 
-  /**
-   * @param User|int $user
-   * @param string $type
-   * @param string $tableName
-   * @return bool
-   */
-  public function checkTableNameExists($user, $type, $tableName) {
-    //TODO check table name!!!
-    return false;
-  }
+
 } 

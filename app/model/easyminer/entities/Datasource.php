@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Model\EasyMiner\Entities;
+use App\Model\Data\Entities\DbConnection;
 use LeanMapper\Entity;
 
 /**
@@ -15,6 +16,7 @@ use LeanMapper\Entity;
  * @property string $dbPassword
  * @property string $dbName
  * @property string $dbTable
+ * @property-read DbConnection $dbDonnection
  */
 class Datasource extends Entity{
   /**
@@ -28,4 +30,17 @@ class Datasource extends Entity{
     );
   }
 
+  /**
+   * @return DbConnection
+   */
+  public function getDbConnection(){
+    $dbConnection=new DbConnection();
+    $dbConnection->dbName=$this->dbName;
+    $dbConnection->dbUsername=$this->dbUsername;
+    $dbConnection->dbPassword=$this->dbPassword;
+    $dbConnection->dbPort=$this->dbPort;
+    $dbConnection->dbServer=$this->dbServer;
+    $dbConnection->type=$this->type;
+    return $dbConnection;
+  }
 } 

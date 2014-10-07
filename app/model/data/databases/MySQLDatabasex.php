@@ -3,31 +3,31 @@
 namespace App\Model\Data\Databases;
 
 use App\Model\Data\Entities\DbColumn;
-use App\Model\EasyMiner\Entities\Datasource;
+use App\Model\Data\Entities\DbConnection;
 use Nette\Utils\Strings;
 use \PDO;
 
 /**
- * Class MySqlDatabase
+ * Class MySqlDatabase - třída pro práci s MySQL
  * @package App\Model\Data\Databases
  * @property \PDO $db
  * @property string $tableName
  */
-class MySqlDatabase implements IDatabase{
+class MySQLDatabase implements IDatabase{
   private $db;
   private $tableName;
 
   #region connection
-  private function __construct(Datasource $dbConnection){
+  private function __construct(DbConnection $dbConnection){
     $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->database)?'dbname='.$dbConnection->database.';':'').'charset=utf8';
     $this->pdo=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword);
   }
   /**
-   * @param Datasource $datasource
+   * @param DbConnection $dbConnection
    * @return MySqlDatabase
    */
-  public static function getInstance(Datasource $datasource) {
-    return new MySqlDatabase($datasource);
+  public static function getInstance(DbConnection $dbConnection) {
+    return new MySqlDatabase($dbConnection);
   }
 
   public function selectTable($tableName){

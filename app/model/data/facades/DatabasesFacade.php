@@ -1,7 +1,10 @@
 <?php
 namespace App\Model\Data\Facades;
 use App\Model\Data\Databases\IDatabase;
+use App\Model\Data\Databases\MySQLDatabase;
 use App\Model\Data\Entities\DbColumn;
+use App\Model\Data\Entities\DbConnection;
+use Nette\Application\ApplicationException;
 use Nette\Utils\Strings;
 
 /**
@@ -14,12 +17,41 @@ class DatabasesFacade {
   /** @var string $table - jméno tabulky, se kterou se aktuálně pracuje */
   private $table='';
 
+  const MYSQL_COLUMNS_MAX_COUNT=50;
+  const DB_TYPE_MYSQL='mysql';
+  const DB_TYPE_CASSANDRA='cassandra';
+  const DB_CLASS_MYSQL='\App\Model\Data\Databases\MySQLDatabase';
+  const DB_CLASS_CASSANDRA='\App\Model\Data\Databases\CassandraDatabase';
+
+
   /**
-   * @param int $userId
-   * @param string $type = 'mysql','casandra'
+   * @param DbConnection $dbConnection
+   * @return IDatabase
+   * @throws ApplicationException
    */
-  public function openDefaultDatabase($userId, $type){
-    //TODO
+  public function openDatabase(DbConnection $dbConnection){
+    if ($dbConnection->type==self::DB_TYPE_MYSQL){
+      /** @var IDatabase|string $class */
+      $class=self::DB_CLASS_MYSQL;
+    }elseif($dbConnection->type==self::DB_TYPE_CASSANDRA){
+      /** @var IDatabase|string $class */
+      $class=self::DB_TYPE_CASSANDRA;
+    }else{
+      throw new ApplicationException('Unknown database type!');
+    }
+    return $class::getInstance($dbConnection);
+  }
+
+  /**
+   * @param DbColumn[] $dbColumns
+   * @return string
+   */
+  public function prefferedDatabaseType($dbColumns){
+    if (count($dbColumns)>self::MYSQL_COLUMNS_MAX_COUNT){
+      return self::DB_TYPE_CASSANDRA;
+    }else{
+      return self::DB_TYPE_MYSQL;
+    }
   }
 
   /**
