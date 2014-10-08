@@ -393,7 +393,6 @@ div.uploadData #datasetPreview{
 }
 table.dataPreviewTable{
   border-spacing: 0;
-  width: 1000px;
   border: 1px solid rgb(235,235,235);
 }
 table.dataPreviewTable th{

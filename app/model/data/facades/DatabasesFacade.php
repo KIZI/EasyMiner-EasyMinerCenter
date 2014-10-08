@@ -1,7 +1,6 @@
 <?php
 namespace App\Model\Data\Facades;
 use App\Model\Data\Databases\IDatabase;
-use App\Model\Data\Databases\MySQLDatabase;
 use App\Model\Data\Entities\DbColumn;
 use App\Model\Data\Entities\DbConnection;
 use Nette\Application\ApplicationException;
@@ -87,15 +86,20 @@ class DatabasesFacade {
 
   /**
    * Funkce pro připravení nového jména tabulky, kterou je možné vytvořit...
-   * @param $tableName
+   * @param string $tableName
+   * @param bool $checkExistence = true - pokud je true, je v DB zkontrolována existence tabulky s daným názvem a je vrácen první neobsazený název
    * @return string
    */
-  public function prepareNewTableName($tableName){
+  public function prepareNewTableName($tableName,$checkExistence=true){
     $tableName=Strings::webalize($tableName,'_',true);
-    $tableName=Strings::replace($tableName,'__','_');
+    $tableName=Strings::replace($tableName,'/-/','_');
+    $tableName=Strings::replace($tableName,'/__/','_');
     $firstLetter=Strings::substring($tableName,1,1);
     if (!Strings::match($firstLetter,'/\w/')){
       $tableName='tbl_'.$tableName;
+    }
+    if (!$checkExistence){
+      return $tableName;
     }
     $result=$tableName;
     $counter=1;

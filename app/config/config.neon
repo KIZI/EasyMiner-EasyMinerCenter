@@ -66,6 +66,7 @@ services:
 	- App\Model\EasyMiner\Facades\DatasourcesFacade
 	- App\Model\EasyMiner\Facades\MinersFacade
 	- App\Model\EasyMiner\Facades\UsersFacade
+	- App\Model\Data\Facades\DatabasesFacade
 
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\Repositories\HelperDataRepository

@@ -1,4 +1,7 @@
 {block content}
+  {if $colsCount==0}
+    <div class="error">{_'Error while loading data!'}</div>
+  {/if}
   {if count($rows)}
     <table class="dataPreviewTable">
       {foreach $rows as $row}
@@ -13,9 +16,9 @@
             {var $colsCounter=$colsCounter+1;}
             {continueIf ($colsCounter>$colsCount)}
             {if $first}
-              <th scope="col">{$iterator->counter} {$item}</th>
+              <th scope="col">{$item}</th>
             {else}
-              <td>{$iterator->counter} {$item}</td>
+              <td>{$item}</td>
             {/if}
           {/foreach}
         </tr>

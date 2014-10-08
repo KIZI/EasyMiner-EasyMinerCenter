@@ -2,6 +2,7 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Libs\StringsHelper;
+use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
@@ -22,6 +23,8 @@ class DataPresenter extends BasePresenter{
   private $minersFacade;
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
+  /** @var  DatabasesFacade $databasesFacade */
+  private $databasesFacade;
 
   public function renderMapping(){
     //TODO akce a rozhraní pro mapování na KnowledgeBase!!!
@@ -81,16 +84,18 @@ class DataPresenter extends BasePresenter{
       //zobrazení nastavení importu (již máme nahraný soubor
       /** @var Form $form */
       $form=$this->getComponent('import'.$type.'Form');
-      $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$name);
+      $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$this->databasesFacade->prepareNewTableName($name,false));
 
       if ($type=='Csv'){
-        $defaultsArr['separator']=$this->fileImportsFacade->getCSVDelimitier($file);
+        $separator=$this->fileImportsFacade->getCSVDelimitier($file);
+        $defaultsArr['separator']=$separator;//TODO připojení k výchozí databázi pro kontrolu existence tabulky s daným názvem
+        $this->fileImportsFacade->getColsCountInCSV($file,$separator);
       }else{
         //TODO další možnosti importu (ZIP soubor atd.)
       }
 
       if (!$form->isSubmitted()){
-        $form->setDefaults($defaultsArr);//TODO příprava odpovídajícího názvu tabulky
+        $form->setDefaults($defaultsArr);
       }
       $this->template->importForm=$form;
     }
@@ -191,7 +196,7 @@ class DataPresenter extends BasePresenter{
     $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
     $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
     $form->addSubmit('submit','Import data into database...')->onClick[]=array($this,'importCsvFormSubmitted');
-    $storno=$form->addSubmit('storno','storno');//TODO
+    $storno=$form->addSubmit('storno','storno');
     $storno->setValidationScope(array());
     $storno->onClick[]=function(SubmitButton $button)use($file){
       /** @var DataPresenter $presenter */
@@ -207,8 +212,19 @@ class DataPresenter extends BasePresenter{
     $form=$submitButton->form;
     $values=$form->getValues();
     if ($values['type']=='Csv'){
-
+      //$this->fileImportsFacade->importCsvFile()
     }
+    /*object(Nette\Utils\ArrayHash)#121 (7) { ["table"]=> string(4) "grfd" ["separator"]=> string(1) ";" ["encoding"]=> string(4) "utf8" ["file"]=> string(10) "1412760169" ["type"]=> string(3) "Csv" ["enclosure"]=> string(1) """ ["escape"]=> string(1) "\" }
+
+
+
+    254.1 ms
+    5.45 MB
+    EasyMiner:Data:uploadData
+
+    ×
+
+*/
 
     var_dump($values);//TODO import!!!
     $this->terminate();
@@ -237,11 +253,18 @@ class DataPresenter extends BasePresenter{
   public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade){
     $this->fileImportsFacade=$fileImportsFacade;
   }
+
+  /**
+   * @param DatabasesFacade $databasesFacade
+   */
+  public function injectDatabasesFacade(DatabasesFacade $databasesFacade){
+    $this->databasesFacade=$databasesFacade;
+  }
   #endregion
 
 
   public function startup(){
-    parent::startup();//TODO lepší kontrola přihlášení uživatele
+    parent::startup();
     if (!$this->user->isLoggedIn()){
       $this->flashMessage('For using of EasyMiner, you have to log in...','error');
       $this->redirect('User:login');

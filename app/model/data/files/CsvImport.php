@@ -43,24 +43,26 @@ class CsvImport {
    * @param string $delimitier = ','
    * @param string $enclosure = '"'
    * @param string $escapeCharacter = '\\'
+   * @param int $offset = 0
    * @return array
    */
-  public static function getRowsFromCSV($filename,$count=10000,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
+  public static function getRowsFromCSV($filename,$count=10000,$delimitier=',',$enclosure='"',$escapeCharacter='\\',$offset=0){
     $file=fopen($filename,'r');
     if ($file===false){return null;}
-    $counter=$count;
+    $counter=0;
     $outputArr=array();
     if ($delimitier=='\t'){
       $delimitier="\t";
     }
-    while (($counter>0)&&($data=fgetcsv($file,0,$delimitier,$enclosure,$escapeCharacter))){
-    ///while (($counter>0)&&($data=fgetcsv($file,0,$delimitier,$enclosure))){ //pro starší verze PHP
-      if ($counter==$count){
-        $counter--;
-        continue;
-      }
+    while($offset>0){
+      //přeskakujeme řádky, které nemají být importovány...
+      fgets($file,null);
+      $offset--;
+    }
+
+    while (($counter<$count)&&($data=fgetcsv($file,null,$delimitier,$enclosure,$escapeCharacter))){
       $outputArr[]=$data;
-      $counter--;
+      $counter++;
     }
     fclose($file);
     return $outputArr;
@@ -75,12 +77,14 @@ class CsvImport {
    * @return string[]
    */
   public static function getColsNamesInCsv($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    $columnNames=self::getRowsFromCSV($filename,1,$delimitier,$enclosure,$escapeCharacter);
-    for ($i=count($columnNames)-1;$i>=0;$i++){
+    $columnNames=self::getRowsFromCSV($filename,1,$delimitier,$enclosure,$escapeCharacter)[0];
+
+    for ($i=count($columnNames)-1;$i>=0;$i--){
       if (Strings::trim($columnNames[$i])==''){
         unset($columnNames[$i]);
       }
     }
+
     return $columnNames;
   }
 
