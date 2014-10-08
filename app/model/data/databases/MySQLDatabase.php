@@ -39,11 +39,30 @@ class MySQLDatabase implements IDatabase{
   /**
    * @param string $tableName
    * @param DbColumn[] $columns - pole s definicemi sloupců (
+   * @throws \Exception
    * @return bool
    */
   public function createTable($tableName, $columns) {
-    // TODO: Implement createTable() method.
     $this->tableName=$tableName;
+
+    $sql='CREATE TABLE `'.$tableName.'` (`id` int(11) NOT NULL AUTO_INCREMENT ';
+    if (count($columns)){
+      foreach ($columns as $column){
+        if ($column->dataType==DbColumn::TYPE_STRING){
+          $sql.=', `'.$column->name.'` varchar('.$column->strLength.') NOT NULL';
+        }elseif($column->dataType==DbColumn::TYPE_INTEGER){
+          $sql.=', `'.$column->name.'` int(11) NOT NULL';
+        }elseif($column->dataType==DbColumn::TYPE_FLOAT){
+          $sql.=', `'.$column->name.'` float NOT NULL';
+        }
+      }
+    }else{
+      throw new \Exception('No columns specified!');
+    }
+    $sql.=' PRIMARY KEY (`id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;';
+    $query=$this->db->prepare($sql);
+    return $query->execute();
   }
 
   /**

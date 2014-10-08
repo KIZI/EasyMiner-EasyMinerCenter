@@ -13,4 +13,8 @@ class DbColumn {
   public $dataType = '';
   /** @var string $strLength */
   public $strLength = 0;
+
+  const TYPE_STRING='string';
+  const TYPE_INTEGER='int';
+  const TYPE_FLOAT='float';
 } 

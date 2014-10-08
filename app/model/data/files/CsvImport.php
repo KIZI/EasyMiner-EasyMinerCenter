@@ -182,11 +182,11 @@ class CsvImport {
     $outputArr=array();
     for ($i=0;$i<$columnsCount;$i++){
       if ($numericalArr[$i]==2){
-        $datatype='float';
+        $datatype=DbColumn::TYPE_FLOAT;
       }elseif ($numericalArr[$i]==1){
-        $datatype='int';
+        $datatype=DbColumn::TYPE_INTEGER;
       }else{
-        $datatype='string';
+        $datatype=DbColumn::TYPE_STRING;
       }
       $dbColumn=new DbColumn();
       $dbColumn->dataType=$datatype;
