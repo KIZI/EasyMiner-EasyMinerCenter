@@ -23,4 +23,9 @@ class BasePresenter extends \App\Presenters\BasePresenter{
     //TODO kontrola, jestli má uživatel přístup k datům daného EasyMineru
     throw new ForbiddenRequestException();
   }
+
+  protected function checkDatasourceAccess($datasource){
+    return true;
+    //TODO kontrola, jesli má aktuální uživatel právo přistupovat k datovému zdroji
+  }
 } 

@@ -13,7 +13,7 @@ use Nette;
  * @property int|null $userId = null
  * @property string $name = ''
  * @property string $type m:Enum('lm','r')
- * @property int|null $idDatasource
+ * @property DataSource|null $datasource m:belongsToOne
  */
 class Miner extends Entity{
 

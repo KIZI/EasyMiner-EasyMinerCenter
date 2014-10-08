@@ -2,6 +2,7 @@
 
 namespace App\Model\Data\Databases;
 use App\Model\Data\Entities\DbColumn;
+use App\Model\Data\Entities\DbColumnValuesStatistic;
 use App\Model\Data\Entities\DbConnection;
 
 /**
@@ -65,6 +66,14 @@ interface IDatabase {
   public function getRows($where='',$whereParams=null,$limitStart=0,$limitCount=0);
 
   /**
+   * @param string $column
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array[]
+   */
+  public function getColumnValues($column='',$limitStart=0,$limitCount=0);
+
+  /**
    * @param array $data
    * @return bool
    */
@@ -85,4 +94,15 @@ interface IDatabase {
   #endregion
 
 
+  /**
+   * @param string $name
+   * @return DbColumn
+   */
+  public function getColumn($name);
+
+  /**
+   * @param string $name
+   * @return DbColumnValuesStatistic
+   */
+  public function getColumnValuesStatistic($name);
 } 

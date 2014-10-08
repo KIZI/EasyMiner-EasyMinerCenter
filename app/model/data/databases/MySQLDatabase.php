@@ -3,6 +3,7 @@
 namespace App\Model\Data\Databases;
 
 use App\Model\Data\Entities\DbColumn;
+use App\Model\Data\Entities\DbColumnValuesStatistic;
 use App\Model\Data\Entities\DbConnection;
 use Nette\Utils\Strings;
 use \PDO;
@@ -173,4 +174,59 @@ class MySQLDatabase implements IDatabase{
     return ($this->db->query("SHOW TABLES LIKE '" . $tableName . "'")->rowCount() > 0);
   }
 
+  /**
+   * @param string $column
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array[]
+   */
+  public function getColumnValues($column = '', $limitStart = 0, $limitCount = 0) {
+    $query='SELECT `'.$column.'` FROM `'.$this->tableName.'`';
+    if ($limitCount>0){
+      $query.=' LIMIT '.intval($limitCount);
+    }
+    if ($limitStart>0){
+      $query.=' OFFSET '.intval($limitStart);
+    }
+    $query=$this->db->prepare($query);
+    $query->execute();
+    $query->fetchAll(PDO::FETCH_COLUMN,0);
+  }
+
+  /**
+   * @param string $name
+   * @return DbColumn
+   */
+  public function getColumn($name) {
+    $select=$this->db->query('SELECT `'.$name.'` FROM `'.$this->tableName.'`;');
+    $pdoColumnMeta=$select->getColumnMeta(0);
+    $dbColumn=new DbColumn();
+    $dbColumn->name=$pdoColumnMeta['name'];
+    //TODO typy
+    //$dbColumn->dataType='';
+    //$dbColumn->strLen='';
+  }
+
+  /**
+   * @param string $name
+   * @return DbColumnValuesStatistic
+   */
+  public function getColumnValuesStatistic($name){
+    $result=new DbColumnValuesStatistic($this->getColumn($name));
+    if ($result->dataType=DbColumn::TYPE_STRING){
+      //u řetězce vracíme jen info o počtu řádků
+      $select=$this->db->query('SELECT count('.$name.') as rowsCount from `'.$this->tableName.'`);');
+      $selectResult=$select->fetch(PDO::FETCH_ASSOC);
+      $result->rowsCount=$selectResult['rowsCount'];
+    }else{
+      //u čísel vracíme info o min, max a avg
+      $select=$this->db->query('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`);');
+      $selectResult=$select->fetch(PDO::FETCH_ASSOC);
+      $result->rowsCount=$selectResult['rowsCount'];
+      $result->minValue=$selectResult['minValue'];
+      $result->maxValue=$selectResult['maxValue'];
+      $result->avgValue=$selectResult['avgValue'];
+    }
+    return $result;
+  }
 }

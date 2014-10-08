@@ -2,6 +2,7 @@
 namespace App\Model\Data\Facades;
 use App\Model\Data\Databases\IDatabase;
 use App\Model\Data\Entities\DbColumn;
+use App\Model\Data\Entities\DbColumnValuesStatistic;
 use App\Model\Data\Entities\DbConnection;
 use Nette\Application\ApplicationException;
 use Nette\Utils\Strings;
@@ -116,5 +117,20 @@ class DatabasesFacade {
    */
   private function checkDatabase(){
     return ($this->database instanceof \PDO);
+  }
+
+  /**
+   * Funkce pro vypočtení statistik na základě databázového sloupce
+   * @param string $tableName - jméno databázové tabulky
+   * @param string|DbColumn $column - sloupec, ze kterého má být získána statistika
+   * @return DbColumnValuesStatistic
+   */
+  public function getColumnValuesStatistic($tableName, $column){
+    $this->database->selectTable($tableName);
+    if ($column instanceof DbColumn){
+      return $this->database->getColumnValuesStatistic($column);
+    }else{
+      return $this->database->getColumnValuesStatistic($column);
+    }
   }
 } 

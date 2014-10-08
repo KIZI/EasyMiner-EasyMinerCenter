@@ -116,11 +116,36 @@ class DataPresenter extends BasePresenter{
   }
 
   public function renderAttributeHistogram($miner,$attribute){
+    $miner=$this->minersFacade->findMiner($miner);
+    $datasource=$miner->datasource;
+    $datasource->getDbConnection();
     //TODO vykreslení histogramu pro konkrétní atribut
   }
 
-  public function renderColumnHistogram($miner,$column){
-    //TODO vykreslení histogramu pro konkrétní datový sloupec
+  /**
+   * Akce pro vykreslení histogramu z hodnot konkrétního sloupce v DB
+   * @param int $datasource = null
+   * @param int $miner = null
+   * @param string $column
+   * @throws BadRequestException
+   * @throws \Nette\Application\ApplicationException
+   * @throws \Nette\Application\ForbiddenRequestException
+   */
+  public function renderColumnHistogram($datasource=null, $miner=null ,$column){
+    if ($miner){
+      $miner=$this->minersFacade->findMiner($miner);
+      $this->checkMinerAccess($miner);
+      $datasource=$miner->datasource;
+    }elseif($datasource){
+      $datasource=$this->datasourcesFacade->findDatasource($datasource);
+      $this->checkDatasourceAccess($datasource);
+    }
+    if (!$datasource){
+      throw new BadRequestException('Requested data not specified!');
+    }
+
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    $this->template->dbColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$column);
   }
 
   #region componentUploadForm
@@ -214,17 +239,16 @@ class DataPresenter extends BasePresenter{
     if ($values['type']=='Csv'){
       //$this->fileImportsFacade->importCsvFile()
     }
-    /*object(Nette\Utils\ArrayHash)#121 (7) { ["table"]=> string(4) "grfd" ["separator"]=> string(1) ";" ["encoding"]=> string(4) "utf8" ["file"]=> string(10) "1412760169" ["type"]=> string(3) "Csv" ["enclosure"]=> string(1) """ ["escape"]=> string(1) "\" }
-
-
-
-    254.1 ms
-    5.45 MB
-    EasyMiner:Data:uploadData
-
-    ×
-
-*/
+    /*
+    object(Nette\Utils\ArrayHash)#121 (7) {
+    ["table"]=> string(4) "grfd"
+    ["separator"]=> string(1) ";"
+    ["encoding"]=> string(4) "utf8"
+    ["file"]=> string(10) "1412760169"
+    ["type"]=> string(3) "Csv"
+    ["enclosure"]=> string(1) """
+    ["escape"]=> string(1) "\" }
+    */
 
     var_dump($values);//TODO import!!!
     $this->terminate();
