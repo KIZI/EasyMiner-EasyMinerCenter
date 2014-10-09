@@ -8,7 +8,6 @@ use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
-use LeanMapper\Exception\Exception;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
@@ -230,7 +229,13 @@ class DataPresenter extends BasePresenter{
       ->addRule(Form::MIN_LENGTH,'Max length of the table name is %s characters!',3)
       ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','/[a-zA-Z]\w+/')
       ->addRule(function(TextInput $control)use($currentUserId,$minersFacade){
-        return ($minersFacade->findMinerByName($currentUserId,$control->value)==null);
+        try{
+          $miner=$minersFacade->findMinerByName($currentUserId,$control->value);
+          if ($miner instanceof Miner){
+            return false;
+          }
+        }catch (\Exception $e){/*chybu ignorujeme (nenalezený miner je OK)*/}
+        return true;
       },'Miner with this name already exists!');
 
     $form->addSelect('type','Miner type:',Miner::getTypes())->setDefaultValue(Miner::DEFAULT_TYPE);

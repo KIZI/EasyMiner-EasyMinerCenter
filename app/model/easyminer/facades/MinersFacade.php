@@ -35,16 +35,15 @@ class MinersFacade {
   /**
    * @param User|int $user
    * @param string $name
-   * @return Miner|null
+   * @return Miner
+   * @throws \Exception
    */
   public function findMinerByName($user, $name) {
     if ($user instanceof User){
       $user=$user->userId;
     }
-    if ($data=$this->database->table(self::TABLE)->select('*')->where(array('name'=>$name,'user_id'=>$user))->limit(1)->fetch()){
-      return new Miner($data,$this->database);
-    }
-    return null;
+
+    return $this->minersRepository->findBy(array('name'=>$name,'user_id'=>$user));
   }
 
 
