@@ -13,7 +13,7 @@ use Nette;
  * @property User $user = null m:belongsToOne
  * @property string $name = ''
  * @property string $type m:Enum('lm','r')
- * @property DataSource|null $datasource m:belongsToOne
+ * @property DataSource|null $datasource m:belongsToOne - zdroj původních dat v DB
  * @property Nette\Utils\DateTime|null $created = null
  * @property Nette\Utils\DateTime|null $lastOpened = null
  */

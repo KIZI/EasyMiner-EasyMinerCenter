@@ -218,4 +218,42 @@ class CsvImport {
       return 0;
     }
   }
+
+  /**
+   * @param string $filename
+   * @return resource
+   */
+  public static function openCsv($filename){
+    return fopen($filename,'r');
+  }
+
+  /**
+   * @param resource $resource
+   */
+  public static function closeCsv($resource){
+    fclose($resource);
+  }
+
+  /**
+   * Funkce vracející zvolený počet řádků z CSV souboru (ignoruje 1. řádek se záhlavím)
+   * @param resource $fileResource
+   * @param int $count = 10000
+   * @param string $delimitier = ','
+   * @param string $enclosure = '"'
+   * @param string $escapeCharacter = '\\'
+   * @return array
+   */
+  public static function getRowsFromOpenedCSVfile($fileResource,$count=10000,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
+    $counter=0;
+    $outputArr=array();
+    if ($delimitier=='\t'){
+      $delimitier="\t";
+    }
+
+    while (($counter<$count)&&($data=fgetcsv($fileResource,null,$delimitier,$enclosure,$escapeCharacter))){
+      $outputArr[]=$data;
+      $counter++;
+    }
+    return $outputArr;
+  }
 } 

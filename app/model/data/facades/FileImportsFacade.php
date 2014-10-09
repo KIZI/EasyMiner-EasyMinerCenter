@@ -10,9 +10,12 @@ use App\Model\Data\Files\CsvImport;
 class FileImportsFacade {
   /** @var  string $dataDirectory */
   private $dataDirectory;
+  /** @var DatabasesFacade $databasesFacade */
+  private $databasesFacade;
 
-  public function __construct($dataDirectory){
+  public function __construct($dataDirectory,DatabasesFacade $databasesFacade){
     $this->dataDirectory=$dataDirectory;
+    $this->databasesFacade=$databasesFacade;
   }
 
   /**
@@ -71,6 +74,18 @@ class FileImportsFacade {
   }
 
   /**
+   * Funkce vracející přehled sloupců v CSV souboru
+   * @param string $filename
+   * @param string $delimitier
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @return \App\Model\Data\Entities\DbColumn[]
+   */
+  public function getColsInCSV($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
+    return CsvImport::analyzeCSVColumns($filename,$delimitier,$enclosure,$escapeCharacter);
+  }
+
+  /**
    * Funkce vracející výchozí oddělovač...
    * @param string $filename
    * @return string
@@ -96,7 +111,30 @@ class FileImportsFacade {
   }
 
   public function importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    //TODO import do databáze...
+    //připravení parametrů pro DB tabulku
+    $this->changeFileEncoding($filename,$encoding);
+    $csvColumns=$this->getColsInCSV($filename,$delimitier,$enclosure,$escapeCharacter);
+
+    //otevření databáze a vytvoření DB tabulky
+    $this->databasesFacade->openDatabase($dbConnection);
+    $this->databasesFacade->createTable($table,$csvColumns);
+
+    //projití CSV souboru a import dat do DB
+    $colsNames=array();
+    foreach ($csvColumns as $column){
+      $colsNames[]=$column->name;
+    }
+    $colsCount=count($colsNames);
+
+    $csvFile=CsvImport::openCsv($this->getFilePath($filename));
+    while($row=CsvImport::getRowsFromOpenedCSVfile($csvFile,1,$delimitier,$enclosure,$escapeCharacter)){
+      $insertArr=array();
+      for ($i=0;$i<$colsCount;$i++){
+        $insertArr[$colsNames[$i]]=$row[$i];
+      }
+      $this->databasesFacade->insertRow($table,$insertArr);
+    }
+    CsvImport::closeCsv($csvFile);
   }
 
 } 

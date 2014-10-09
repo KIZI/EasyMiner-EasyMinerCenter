@@ -34,6 +34,7 @@ class DataPresenter extends BasePresenter{
   private $usersFacade;
 
   public function renderMapping($datasource){
+    $this->template->datasource=$datasource;
     //TODO akce a rozhraní pro mapování na KnowledgeBase!!!
     echo 'MAPPING!!!';
     $this->terminate();
@@ -81,7 +82,7 @@ class DataPresenter extends BasePresenter{
     /** @var Form $form */
     $form=$this->getComponent('newMinerForm');
     $dateTime=new DateTime();
-    $form->setDefaults(array('datasource'=>$datasource->datasourceId,'name'=>$datasource->dbName.' '.$dateTime->format('u')));
+    $form->setDefaults(array('datasource'=>$datasource->datasourceId,'datasourceName'=>$datasource->dbName,'name'=>$datasource->dbName.' '.$dateTime->format('u')));
   }
 
   /**
@@ -223,8 +224,11 @@ class DataPresenter extends BasePresenter{
     $form->addHidden('datasource');
     $minersFacade=$this->minersFacade;
     $currentUserId = $this->user->id;
+    $form->addText('datasourceName','Datasource:')
+      ->setAttribute('readonly');
     $form->addText('name', 'Miner name:')
       ->setRequired('Input the miner name!')
+      ->setAttribute('autofocus')
       ->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
       ->addRule(Form::MIN_LENGTH,'Max length of the table name is %s characters!',3)
       ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','/[a-zA-Z]\w+/')
