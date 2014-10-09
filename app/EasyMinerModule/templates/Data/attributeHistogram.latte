@@ -1,0 +1,23 @@
+{block content}
+
+  <div class="{if $template=='default'}block centerContent{else}main{/if}">
+
+    <h1>{$attributeValuesStatistic->name}</h1>
+
+    <table class="listTable">
+      <tr>
+        <td>{_'Distinct values count:'}</td>
+        <td>{$attributeValuesStatistic->valuesCount}</td>
+      </tr>
+    </table>
+
+    {var $graphData=$attributeValuesStatistic->valuesArr;}
+
+    {*vykreslení histogramu pomocí google grafu*}
+    {includeblock '#histogramGraph.latte'}
+
+  </div>
+
+{/block}
+
+

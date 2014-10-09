@@ -141,11 +141,35 @@ class DataPresenter extends BasePresenter{
     //TODO
   }
 
-  public function renderAttributeHistogram($miner,$attribute){
-    $miner=$this->minersFacade->findMiner($miner);
-    $datasource=$miner->datasource;
-    $datasource->getDbConnection();
-    //TODO vykreslení histogramu pro konkrétní atribut
+  /**
+   * Akce pro vykreslení histogramu z hodnot konkrétního atributu
+   * @param int $miner = null
+   * @param string $attribute
+   * @param string $layout = 'default'|'component'|'iframe'
+   * @throws BadRequestException
+   * @throws \Nette\Application\ApplicationException
+   * @throws \Nette\Application\ForbiddenRequestException
+   */
+  public function renderAttributeHistogram($miner,$attribute, $layout='default'){
+    if ($miner){
+      try{
+        $miner=$this->minersFacade->findMiner($miner);
+      }catch (\Exception $e){
+        throw new BadRequestException('Requested miner not specified!', 404, $e);
+      }
+      $this->checkMinerAccess($miner);
+    }
+    try{
+      $datasource=$miner->getAttributesDatasource();
+      $this->databasesFacade->openDatabase($datasource->getDbConnection());
+      $this->template->attributeValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$attribute);
+    }catch (\Exception $e){
+      throw new BadRequestException('Requested attribute not found!',500,$e);
+    }
+    if ($this->isAjax() || $layout=='component' || $layout=='iframe'){
+      $this->layout='iframe';
+      $this->template->layout=$layout;
+    }
   }
 
   /**
