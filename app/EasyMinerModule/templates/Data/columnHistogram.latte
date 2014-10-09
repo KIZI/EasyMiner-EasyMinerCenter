@@ -8,15 +8,28 @@
       <tr>
         <td>{_'Type:'}</td>
         <td>{$dbColumnValuesStatistic->dataType}</td>
+        {ifset $dbColumnValuesStatistic->minValue}
+          <td>{_'Min value:'}</td>
+          <td>{$dbColumnValuesStatistic->minValue}</td>
+        {/ifset}
       </tr>
       <tr>
         <td>{_'Distinct values count:'}</td>
         <td>{$dbColumnValuesStatistic->valuesCount}</td>
+        {ifset $dbColumnValuesStatistic->maxValue}
+          <td>{_'Max value:'}</td>
+          <td>{$dbColumnValuesStatistic->maxValue}</td>
+        {/ifset}
       </tr>
       <tr>
         <td>{_'Rows count:'}</td>
         <td>{$dbColumnValuesStatistic->rowsCount}</td>
+        {ifset $dbColumnValuesStatistic->maxValue}
+          <td>{_'Average value:'}</td>
+          <td>{$dbColumnValuesStatistic->avgValue}</td>
+        {/ifset}
       </tr>
+
     </table>
 
     {var $graphData=$dbColumnValues->valuesArr;}
