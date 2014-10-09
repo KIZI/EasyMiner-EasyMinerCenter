@@ -54,10 +54,6 @@ form th, form td {
 form th {
   text-align: right;
 }
-/*TODO
-form .required label {
-  font-weight: bold;
-}*/
 
 form .error {
   color: #D00;

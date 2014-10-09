@@ -4,11 +4,14 @@ namespace App\EasyMinerModule\Presenters;
 use App\Libs\StringsHelper;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
+use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
+use LeanMapper\Exception\Exception;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
+use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Http\FileUpload;
@@ -65,9 +68,15 @@ class DataPresenter extends BasePresenter{
   /**
    * Akce pro vytvoření mineru nad konkrétním datovým zdrojem
    * @param int $datasource
+   * @throws BadRequestException
    */
   public function renderNewMinerFromDatasource($datasource){
-    $datasource=$this->datasourcesFacade->findDatasource($datasource);
+    try{
+      $datasource=$this->datasourcesFacade->findDatasource($datasource);
+    }catch (\Exception $e){
+      throw new BadRequestException('Requested datasource was not found!',404,$e);
+    }
+
     $this->checkDatasourceAccess($datasource);
     $this->template->datasource=$datasource;
     /** @var Form $form */
@@ -80,12 +89,8 @@ class DataPresenter extends BasePresenter{
    * Akce pro založení nového EasyMineru či otevření stávajícího
    */
   public function renderNewMiner(){
-    if ($this->user->id){
-      $this->template->miners=$this->minersFacade->findMinersByUser($this->user->id);
-      $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($this->user->id);
-    }else{
-      $this->redirect('User:login');
-    }
+    $this->template->miners=$this->minersFacade->findMinersByUser($this->user->id);
+    $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($this->user->id);
   }
 
   /**
@@ -102,9 +107,15 @@ class DataPresenter extends BasePresenter{
       $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$this->databasesFacade->prepareNewTableName($name,false));
 
       if ($type=='Csv'){
+        //detekce pravděpodobného oddělovače
         $separator=$this->fileImportsFacade->getCSVDelimitier($file);
-        $defaultsArr['separator']=$separator;//TODO připojení k výchozí databázi pro kontrolu existence tabulky s daným názvem
-        $this->fileImportsFacade->getColsCountInCSV($file,$separator);
+        $defaultsArr['separator']=$separator;
+        //připojení k DB pro zjištění názvu tabulky, který zatím není obsazen (dle typu preferované databáze)
+        $csvColumnsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator);
+        $databaseType=$this->databasesFacade->prefferedDatabaseType($csvColumnsCount);
+        $newDatasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->user->id,$databaseType);
+        $this->databasesFacade->openDatabase($newDatasource->getDbConnection());
+        $defaultsArr['table']=$this->databasesFacade->checkTableExists($name);
       }else{
         //TODO další možnosti importu (ZIP soubor atd.)
       }
@@ -203,6 +214,7 @@ class DataPresenter extends BasePresenter{
   }
   #endregion componentUploadForm
 
+  #region componentNewMinerForm
   /**
    * @return Form
    */
@@ -221,7 +233,16 @@ class DataPresenter extends BasePresenter{
         return ($minersFacade->findMinerByName($currentUserId,$control->value)==null);
       },'Miner with this name already exists!');
 
+    $form->addSelect('type','Miner type:',Miner::getTypes())->setDefaultValue(Miner::DEFAULT_TYPE);
+
     $form->addSubmit('submit','Create miner...')->onClick[]=array($this,'newMinerFormSubmitted');
+    $stornoButton=$form->addSubmit('storno','storno');
+    $stornoButton->setValidationScope(array());
+    $stornoButton->onClick[]=function(SubmitButton $button){
+      /** @var Presenter $presenter */
+      $presenter=$button->form->getParent();
+      $presenter->redirect('Data:newMiner');
+    };
     return $form;
   }
 
@@ -229,8 +250,15 @@ class DataPresenter extends BasePresenter{
     /** @var Form $form */
     $form=$submitButton->form;
     $values=$form->getValues();
-    //TODO
+    $miner=new Miner();
+    $miner->user=$this->usersFacade->findUser($this->user->id);
+    $miner->name=$values['name'];
+    $miner->created=new DateTime();
+    $miner->type=$values['type'];
+    $this->minersFacade->saveMiner($miner);
+    $this->redirect('Data:openMiner',array('id'=>$miner->minerId));
   }
+  #endregion componentNewMinerForm
 
   #region componentImportCsvForm
   /**
