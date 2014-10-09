@@ -1,8 +1,28 @@
 {block content}
 
-  <div class="newMiner {if (count($miners))}twoColumns{/if}">
+  <div class="{if $template=='default'}block centerContent{else}main{/if}">
 
-HISTOGRAM
+    <h1>{$dbColumnValuesStatistic->name}</h1>
+
+    <table class="listTable">
+      <tr>
+        <td>{_'Type:'}</td>
+        <td>{$dbColumnValuesStatistic->dataType}</td>
+      </tr>
+      <tr>
+        <td>{_'Distinct values count:'}</td>
+        <td>{$dbColumnValuesStatistic->valuesCount}</td>
+      </tr>
+      <tr>
+        <td>{_'Rows count:'}</td>
+        <td>{$dbColumnValuesStatistic->rowsCount}</td>
+      </tr>
+    </table>
+
+    {var $graphData=$dbColumnValues->valuesArr;}
+
+    {*vykreslení histogramu pomocí google grafu*}
+    {includeblock '#histogramGraph.latte'}
 
   </div>
 

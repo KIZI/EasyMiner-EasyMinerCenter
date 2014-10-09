@@ -20,6 +20,9 @@ class DbColumnValuesStatistic extends DbColumn{
   /** @var null|int $valuesCount */
   public $valuesCount = null;
 
+  /** @var array|null $valuesArr - pole s hodnotami z daného DB sloupce */
+  public $valuesArr=null;
+
   public function __construct($dbColumn=null){
     if ($dbColumn instanceof DbColumn){
       $this->dataType=$dbColumn->dataType;

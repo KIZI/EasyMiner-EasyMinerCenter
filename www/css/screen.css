@@ -117,6 +117,11 @@ body > header a:hover{
   color: white;
   text-decoration: underline;
 }
+
+body.iframe{
+  background: white;
+}
+
 div.centerContent{
   margin: 10px auto;
 }

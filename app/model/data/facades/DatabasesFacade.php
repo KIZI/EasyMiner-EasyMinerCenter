@@ -142,7 +142,7 @@ class DatabasesFacade {
   public function getColumnValuesStatistic($tableName, $column){
     $this->database->selectTable($tableName);
     if ($column instanceof DbColumn){
-      return $this->database->getColumnValuesStatistic($column);
+      return $this->database->getColumnValuesStatistic($column->name);
     }else{
       return $this->database->getColumnValuesStatistic($column);
     }

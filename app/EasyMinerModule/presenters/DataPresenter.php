@@ -153,11 +153,12 @@ class DataPresenter extends BasePresenter{
    * @param int $datasource = null
    * @param int $miner = null
    * @param string $column
+   * @param string $layout = 'default'|'component'|'iframe'
    * @throws BadRequestException
    * @throws \Nette\Application\ApplicationException
    * @throws \Nette\Application\ForbiddenRequestException
    */
-  public function renderColumnHistogram($datasource=null, $miner=null ,$column){
+  public function renderColumnHistogram($datasource=null, $miner=null ,$column, $layout='default'){
     if ($miner){
       $miner=$this->minersFacade->findMiner($miner);
       $this->checkMinerAccess($miner);
@@ -172,6 +173,11 @@ class DataPresenter extends BasePresenter{
 
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $this->template->dbColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$column);
+
+    if ($this->isAjax() || $layout=='component' || $layout=='iframe'){
+      $this->layout='iframe';
+      $this->template->layout=$layout;
+    }
   }
 
 

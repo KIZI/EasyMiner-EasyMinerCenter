@@ -181,7 +181,7 @@ class MySQLDatabase implements IDatabase{
    * @return array[]
    */
   public function getColumnValues($column = '', $limitStart = 0, $limitCount = 0) {
-    $query='SELECT `'.$column.'` FROM `'.$this->tableName.'`';
+    $query='SELECT `'.$column.'` FROM `'.$this->tableName.'` ORDER BY `'.$column.'`';
     if ($limitCount>0){
       $query.=' LIMIT '.intval($limitCount);
     }
@@ -211,7 +211,7 @@ class MySQLDatabase implements IDatabase{
    * @param string $name
    * @return DbColumnValuesStatistic
    */
-  public function getColumnValuesStatistic($name){
+  public function getColumnValuesStatistic($name,$includeValues=true){
     $result=new DbColumnValuesStatistic($this->getColumn($name));
     if ($result->dataType=DbColumn::TYPE_STRING){
       //u řetězce vracíme jen info o počtu řádků
@@ -227,6 +227,18 @@ class MySQLDatabase implements IDatabase{
       $result->maxValue=$selectResult['maxValue'];
       $result->avgValue=$selectResult['avgValue'];
     }
+
+    if ($includeValues){
+      //načtení hodnot s četnostmi
+      $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` GROUP BY `'.$name.'` LIMIT 10000;');
+      $query->execute();
+      $valuesArr=array();
+      while ($row=$query->fetchObject()){
+        $valuesArr[$row->hodnota]=$row->pocet;
+      }
+      $result->valuesArr=$valuesArr;
+    }
+
     return $result;
   }
 }
