@@ -6,6 +6,7 @@ use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
+use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
@@ -25,8 +26,10 @@ class DataPresenter extends BasePresenter{
   private $fileImportsFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var  UsersFacade $usersFacade */
+  private $usersFacade;
 
-  public function renderMapping(){
+  public function renderMapping($datasource){
     //TODO akce a rozhraní pro mapování na KnowledgeBase!!!
     echo 'MAPPING!!!';
     $this->terminate();
@@ -148,6 +151,7 @@ class DataPresenter extends BasePresenter{
     $this->template->dbColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$column);
   }
 
+
   #region componentUploadForm
   public function createComponentUploadForm(){
     $form = new Form();
@@ -236,23 +240,27 @@ class DataPresenter extends BasePresenter{
     /** @var Form $form */
     $form=$submitButton->form;
     $values=$form->getValues();
-    if ($values['type']=='Csv'){
-      //$this->fileImportsFacade->importCsvFile()
-    }
-    /*
-    object(Nette\Utils\ArrayHash)#121 (7) {
-    ["table"]=> string(4) "grfd"
-    ["separator"]=> string(1) ";"
-    ["encoding"]=> string(4) "utf8"
-    ["file"]=> string(10) "1412760169"
-    ["type"]=> string(3) "Csv"
-    ["enclosure"]=> string(1) """
-    ["escape"]=> string(1) "\" }
-    */
+    $user=$this->usersFacade->findUser($this->user->id);
+    #region params
+    $table=$values['table'];
+    $separator=$values["separator"];
+    $encoding=$values["encoding"];
+    $file=$values["file"];
+    $enclosure=$values["enclosure"];
+    $escape=$values["escape"];
+    #endregion
 
-    var_dump($values);//TODO import!!!
-    $this->terminate();
-    $this->redirect('Data:mapping');
+    $colsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator,$enclosure,$escape);
+    $dbType=$this->databasesFacade->prefferedDatabaseType($colsCount);
+    //připravení připojení k DB
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($user,$dbType);
+    $this->fileImportsFacade->importCsvFile($file,$datasource->getDbConnection(),$table,$encoding,$separator,$enclosure,$escape);
+    $datasource->dbTable=$table;
+    //uložíme datasource
+    $this->datasourcesFacade->saveDatasource($datasource);
+    //smažeme dočasné soubory...
+    $this->fileImportsFacade->deleteFile($file);
+    $this->redirect('Data:mapping',array('datasource'=>$datasource));
   }
   #endregion importCsvForm
 
@@ -283,6 +291,13 @@ class DataPresenter extends BasePresenter{
    */
   public function injectDatabasesFacade(DatabasesFacade $databasesFacade){
     $this->databasesFacade=$databasesFacade;
+  }
+
+  /**
+   * @param UsersFacade $usersFacade
+   */
+  public function injectUsersFacade(UsersFacade $usersFacade){
+    $this->usersFacade=$usersFacade;
   }
   #endregion
 

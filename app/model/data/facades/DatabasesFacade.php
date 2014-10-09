@@ -43,11 +43,16 @@ class DatabasesFacade {
   }
 
   /**
-   * @param DbColumn[] $dbColumns
+   * @param DbColumn[]|int $dbColumns
    * @return string
    */
   public function prefferedDatabaseType($dbColumns){
-    if (count($dbColumns)>self::MYSQL_COLUMNS_MAX_COUNT){
+    if (is_numeric($dbColumns)){
+      $dbColumnsCount=$dbColumns;
+    }else{
+      $dbColumnsCount=count($dbColumns);
+    }
+    if ($dbColumnsCount>self::MYSQL_COLUMNS_MAX_COUNT){
       return self::DB_TYPE_CASSANDRA;
     }else{
       return self::DB_TYPE_MYSQL;

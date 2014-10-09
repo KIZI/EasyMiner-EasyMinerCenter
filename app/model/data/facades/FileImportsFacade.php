@@ -1,5 +1,6 @@
 <?php
 namespace App\Model\Data\Facades;
+use App\Model\Data\Entities\DbConnection;
 use App\Model\Data\Files\CsvImport;
 
 /**
@@ -92,6 +93,10 @@ class FileImportsFacade {
 
   public function getFilePath($filename){
     return $this->dataDirectory.'/'.$filename;
+  }
+
+  public function importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
+    //TODO import do databáze...
   }
 
 } 

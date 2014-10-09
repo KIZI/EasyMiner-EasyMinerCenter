@@ -57,4 +57,16 @@ class DatasourcesFacade {
   }
 
 
+  /**
+   * Funkce pro připravení parametrů nového datového zdroje pro daného uživatele...
+   * @param User $user
+   * @param string $dbType
+   * @return Datasource
+   */
+  public function prepareNewDatasourceForUser(User $user,$dbType){
+    //TODO kontrola existence výchozí databáze, vytvoření tabulky atd.
+  }
+
+
+
 } 
