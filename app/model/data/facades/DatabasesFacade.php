@@ -117,6 +117,15 @@ class DatabasesFacade {
   }
 
   /**
+   * Funkce pro kontrolu, jestli v DB existuje tabulka se zadaným jménem
+   * @param string $tableName
+   * @return bool
+   */
+  public function checkTableExists($tableName){
+    return $this->database->tableExists($tableName);
+  }
+
+  /**
    * Funkce pro kontrolu, jestli je dostupná databáze, se kterou máme pracovat...
    * @return bool
    */

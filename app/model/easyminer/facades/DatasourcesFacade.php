@@ -59,11 +59,11 @@ class DatasourcesFacade {
 
   /**
    * Funkce pro připravení parametrů nového datového zdroje pro daného uživatele...
-   * @param User $user
+   * @param User|int $user
    * @param string $dbType
    * @return Datasource
    */
-  public function prepareNewDatasourceForUser(User $user,$dbType){
+  public function prepareNewDatasourceForUser($user,$dbType){
     //TODO kontrola existence výchozí databáze, vytvoření tabulky atd.
   }
 

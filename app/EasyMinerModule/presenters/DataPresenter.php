@@ -10,7 +10,9 @@ use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
+use Nette\Forms\Controls\TextInput;
 use Nette\Http\FileUpload;
+use Nette\Utils\DateTime;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
@@ -60,8 +62,18 @@ class DataPresenter extends BasePresenter{
     $this->redirectUrl(StringsHelper::replaceParams($url,array(':minerId'=>$id)));
   }
 
+  /**
+   * Akce pro vytvoření mineru nad konkrétním datovým zdrojem
+   * @param int $datasource
+   */
   public function renderNewMinerFromDatasource($datasource){
-    //TODO
+    $datasource=$this->datasourcesFacade->findDatasource($datasource);
+    $this->checkDatasourceAccess($datasource);
+    $this->template->datasource=$datasource;
+    /** @var Form $form */
+    $form=$this->getComponent('newMinerForm');
+    $dateTime=new DateTime();
+    $form->setDefaults(array('datasource'=>$datasource->datasourceId,'name'=>$datasource->dbName.' '.$dateTime->format('u')));
   }
 
   /**
@@ -191,20 +203,56 @@ class DataPresenter extends BasePresenter{
   }
   #endregion componentUploadForm
 
+  /**
+   * @return Form
+   */
+  public function createComponentNewMinerForm() {
+    $form = new Form();
+    $form->setTranslator($this->translator);
+    $form->addHidden('datasource');
+    $minersFacade=$this->minersFacade;
+    $currentUserId = $this->user->id;
+    $form->addText('name', 'Miner name:')
+      ->setRequired('Input the miner name!')
+      ->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
+      ->addRule(Form::MIN_LENGTH,'Max length of the table name is %s characters!',3)
+      ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','/[a-zA-Z]\w+/')
+      ->addRule(function(TextInput $control)use($currentUserId,$minersFacade){
+        return ($minersFacade->findMinerByName($currentUserId,$control->value)==null);
+      },'Miner with this name already exists!');
+
+    $form->addSubmit('submit','Create miner...')->onClick[]=array($this,'newMinerFormSubmitted');
+    return $form;
+  }
+
+  public function newMinerFormSubmitted(SubmitButton $submitButton){
+    /** @var Form $form */
+    $form=$submitButton->form;
+    $values=$form->getValues();
+    //TODO
+  }
+
   #region componentImportCsvForm
+  /**
+   * @return Form
+   */
   public function createComponentImportCsvForm(){
     $form = new Form();
     $form->setTranslator($this->translator);
     $tableName=$form->addText('table','Table name:')
-      ->setRequired('Input table name!');//TODO vyřešení názvu tabulky s ohledem na typ databáze, která bude použita
-    $presenter=$this;
-    $currentUserId=$this->user->id;
-    $tableName->addRule(Form::MAX_LENGTH,'Table name is too long!',30)
-      ->addRule(Form::PATTERN,'Invalid table name!','\w+')
       ->setAttribute('class','normalWidth')
-      ->addRule(function($control)use($presenter,$currentUserId){
-        return true;
-        //TODO return (!$datasourcesFacade->checkTableNameExists($currentUserId,$type->value,$control->value));
+      ->setRequired('Input table name!');
+    $presenter=$this;
+    $tableName->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
+      ->addRule(Form::MIN_LENGTH,'Max length of the table name is %s characters!',3)
+      ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','/[a-zA-Z]\w+/')
+      ->addRule(function(TextInput $control)use($presenter){
+        $formValues=$control->form->getValues(true);
+        $csvColumnsCount=$presenter->fileImportsFacade->getColsCountInCSV($formValues['file'],$formValues['separator'],$formValues['enclosure'],$formValues['escapeCharacter']);
+        $databaseType=$presenter->databasesFacade->prefferedDatabaseType($csvColumnsCount);
+        $newDatasource=$presenter->datasourcesFacade->prepareNewDatasourceForUser($presenter->user->id,$databaseType);
+        $presenter->databasesFacade->openDatabase($newDatasource->getDbConnection());
+        return (!$presenter->databasesFacade->checkTableExists($control->value));
       },'Table with this name already exists!');
 
     $form->addSelect('separator','Separator:',array(
