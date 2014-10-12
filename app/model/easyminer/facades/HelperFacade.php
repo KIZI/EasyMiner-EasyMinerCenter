@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\EasyMiner\Facades;
 
+use app\model\easyminer\entities\HelperData;
 use App\Model\EasyMiner\Repositories\HelperDataRepository;
 
 class HelperFacade {
@@ -9,6 +10,15 @@ class HelperFacade {
 
   public function __construct(HelperDataRepository $helperDataRepository){
     $this->helperDataRepository=$helperDataRepository;
+  }
+
+  /**
+   * @param int $id
+   * @return HelperData
+   */
+  public function findHelperData($id){
+    /** @var HelperData $helperData */
+    return $this->helperDataRepository->find($id);
   }
 
   //TODO

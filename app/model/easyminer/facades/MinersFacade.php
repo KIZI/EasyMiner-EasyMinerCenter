@@ -33,6 +33,26 @@ class MinersFacade {
   }
 
   /**
+   * Funkce pro kontrolu, jestli je uživatel vlastníkem daného mineru
+   * @param Miner|int $miner
+   * @param User|int $user
+   * @return bool
+   */
+  public function checkMinerAccess($miner,$user){
+    if ($miner instanceof Miner){
+      $miner=$miner->minerId;
+    }
+    if ($user instanceof User){
+      $user=$user->userId;
+    }
+    try{
+      $miner=$this->minersRepository->findBy(array('miner_id'=>$id,'user_id'=>$user));
+      return true;
+    }catch (\Exception $e){/*chybu ignorujeme*/}
+    return false;
+  }
+
+  /**
    * @param User|int $user
    * @param string $name
    * @return Miner
