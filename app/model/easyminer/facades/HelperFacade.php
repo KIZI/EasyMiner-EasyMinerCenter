@@ -2,7 +2,9 @@
 namespace App\Model\EasyMiner\Facades;
 
 use app\model\easyminer\entities\HelperData;
+use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Repositories\HelperDataRepository;
+use Nette\Utils\Json;
 
 class HelperFacade {
   /** @var  HelperDataRepository $helperDataRepository */
@@ -13,29 +15,62 @@ class HelperFacade {
   }
 
   /**
-   * @param int $id
+   * Funkce pro načtení entity HelperData
+   * @param int|Miner $miner
+   * @param string $type
    * @return HelperData
+   * @throws \Exception
    */
-  public function findHelperData($id){
+  private function findHelperData($miner,$type){
+    if ($miner instanceof Miner){
+      $miner=$miner->minerId;
+    }
     /** @var HelperData $helperData */
-    return $this->helperDataRepository->find($id);
+    return $this->helperDataRepository->findBy(array('miner_id'=>$miner,'type'=>$type));
   }
 
-  //TODO
-  /*
-  public function saveData($miner,$type,$data){
-    $this->helperDataRepository->pe
-
-    database->table(self::TABLE)->insert(array('miner'=>$miner,'type'=>$type,'data'=>$data));
+  /**
+   * @param int|Miner $miner
+   * @param string $type
+   * @return string
+   */
+  public function loadHelperData($miner,$type){
+    if ($miner instanceof Miner){
+      $miner=$miner->minerId;
+    }
+    $helperData=$this->findHelperData($miner,$type);
+    return $helperData->data;
   }
 
-  public function loadData($miner,$type){
-    $result=$this->database->query('SELECT `data` FROM `'.self::TABLE.'` WHERE miner=? AND `type`=?',$miner,$type);
-    return $result->fetchField();
+  /**
+   * @param int|Miner $miner
+   * @param string $type
+   * @param string $data
+   */
+  public function saveHelperData($miner,$type,$data){
+    try{
+      $helperData=$this->findHelperData($miner,$type);
+    }catch (\Exception $e){
+      /*chybu ignorujeme (prostě jen nebyla daná data nalezena...)*/
+      $helperData=new HelperData();
+      $helperData->miner=($miner instanceof Miner?$miner->minerId:$miner);
+      $helperData->type=$type;
+    }
+    if (!is_string($data)){
+      $data=Json::encode($data);
+    }
+    $helperData->data=$data;
+    $this->helperDataRepository->persist($helperData);
   }
 
-  public function deleteData($miner,$type){
-    $this->database->table(self::TABLE)->where('miner=? AND `type`=?',array($miner,$type))->delete();
+  /**
+   * @param $miner
+   * @param $type
+   * @throws \LeanMapper\Exception\InvalidStateException
+   */
+  public function deleteHelperData($miner,$type){
+    $helperData=$this->findHelperData($miner,$type);
+    $this->helperDataRepository->delete($helperData);
   }
-  */
+
 } 
