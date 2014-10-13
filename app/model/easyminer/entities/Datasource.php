@@ -11,7 +11,7 @@ use LeanMapper\Entity;
  * @property int|null $userId = null
  * @property string $type = m:Enum('mysql','cassandra')
  * @property string $dbServer
- * @property string $dbPort
+ * @property int|null $dbPort = null
  * @property string $dbUsername
  * @property string $dbPassword
  * @property string $dbName

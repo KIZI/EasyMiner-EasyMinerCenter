@@ -8,7 +8,6 @@ use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\DatasourcesRepository;
-use LeanMapper\Exception\Exception;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 
@@ -98,11 +97,12 @@ class DatasourcesFacade {
 
     try{
       $this->databasesFacade->openDatabase($dbConnection);
-    }catch (Exception $e){
+    }catch (\Exception $e){
       //pokud došlo k chybě, pokusíme se vygenerovat uživatelský účet a databázi
       $this->databasesFacade->openDatabase($this->getAdminDbConnection($dbType));
       $this->databasesFacade->createUserDatabase($dbConnection);
     }
+    return $datasource;
   }
 
   /**
@@ -122,6 +122,7 @@ class DatasourcesFacade {
   private function getAdminDbConnection($dbType){
     $dbConnection=new DbConnection();
     $databaseConfig=$this->databasesConfig[$dbType];
+    $dbConnection->type=$dbType;
     $dbConnection->dbUsername=$databaseConfig['username'];
     $dbConnection->dbPassword=$databaseConfig['password'];
     $dbConnection->dbServer=$databaseConfig['server'];

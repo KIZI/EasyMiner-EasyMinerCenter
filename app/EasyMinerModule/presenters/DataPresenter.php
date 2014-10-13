@@ -113,7 +113,7 @@ class DataPresenter extends BasePresenter{
         //připojení k DB pro zjištění názvu tabulky, který zatím není obsazen (dle typu preferované databáze)
         $csvColumnsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator);
         $databaseType=$this->databasesFacade->prefferedDatabaseType($csvColumnsCount);
-        $newDatasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->user->id,$databaseType);
+        $newDatasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->usersFacade->findUser($this->user->id),$databaseType);
         $this->databasesFacade->openDatabase($newDatasource->getDbConnection());
         $defaultsArr['table']=$this->databasesFacade->checkTableExists($name);
       }else{

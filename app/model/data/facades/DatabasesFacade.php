@@ -31,9 +31,13 @@ class DatabasesFacade {
     return array(self::DB_TYPE_MYSQL,self::DB_TYPE_CASSANDRA);
   }
 
+  /**
+   * Fukce pro založení uživatelského účtu s databází
+   * @param DbConnection $dbConnection
+   * @return bool
+   */
   public function createUserDatabase(DbConnection $dbConnection){
-
-    //TODO
+    return $this->database->createUserDatabase($dbConnection);
   }
 
 
@@ -52,7 +56,7 @@ class DatabasesFacade {
     }else{
       throw new ApplicationException('Unknown database type!');
     }
-    return $class::getInstance($dbConnection);
+    $this->database=$class::getInstance($dbConnection);
   }
 
   /**

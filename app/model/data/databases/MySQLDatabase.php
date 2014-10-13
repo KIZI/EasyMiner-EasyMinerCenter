@@ -21,7 +21,7 @@ class MySQLDatabase implements IDatabase{
   #region connection
   private function __construct(DbConnection $dbConnection){
     $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->database)?'dbname='.$dbConnection->database.';':'').'charset=utf8';
-    $this->pdo=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword);
+    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword);
   }
   /**
    * @param DbConnection $dbConnection
@@ -248,7 +248,7 @@ class MySQLDatabase implements IDatabase{
    * @return bool
    */
   public function createUserDatabase(DbConnection $dbConnection) {
-    $query1=$this->db->prepare('CREATE USER IF NOT EXISTS :username@"%" IDENTIFIED BY :password;');
+    $query1=$this->db->prepare('CREATE USER :username@"%" IDENTIFIED BY :password;');
     $result1=$query1->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
     $query2=$this->db->prepare("GRANT USAGE ON * . * TO :username@'%' IDENTIFIED BY :password WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;");
     $result2=$query2->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
@@ -256,6 +256,6 @@ class MySQLDatabase implements IDatabase{
     $result3=$query3->execute();
     $query4=$this->db->prepare('GRANT ALL PRIVILEGES ON `'.$dbConnection->dbName.'`.* TO "'.$dbConnection->dbUsername.'"@"%";');
     $result4=$query4->execute();
-    return ($result1 && $result2 && $result3 && $result4);
+    return ($result2 && $result3 && $result4);
   }
 }
