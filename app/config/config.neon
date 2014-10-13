@@ -21,6 +21,19 @@ parameters:
     imports_directory: "e:/Pracovní/EasyMiner/EasyMiner-EasyMinerCenter/temp/fileImports"
     urls:
         open_miner: "http://sewebar-dev.lmcloud.vse.cz/izi-miner/?id_dm={:minerId}"
+    databases:
+        mysql:
+            _username: 'user*'
+            _database: 'user*'
+            username: root
+            password:
+            server: localhost
+        cassandra:
+            _username: 'user*'
+            _database: 'user*'
+            username:
+            password:
+            server:
 
 facebook:
     appId: "713356372046344"
@@ -63,7 +76,7 @@ services:
 	- App\Model\EasyMiner\Mappers\StandardMapper
 
 	- App\Model\EasyMiner\Facades\HelperFacade
-	- App\Model\EasyMiner\Facades\DatasourcesFacade
+	- App\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
 	- App\Model\EasyMiner\Facades\MinersFacade
 	- App\Model\EasyMiner\Facades\UsersFacade
 	- App\Model\Data\Facades\DatabasesFacade

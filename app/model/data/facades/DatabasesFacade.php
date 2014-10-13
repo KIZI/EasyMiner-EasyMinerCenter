@@ -23,6 +23,19 @@ class DatabasesFacade {
   const DB_CLASS_MYSQL='\App\Model\Data\Databases\MySQLDatabase';
   const DB_CLASS_CASSANDRA='\App\Model\Data\Databases\CassandraDatabase';
 
+  /**
+   * Funkce vracející přehled podporovaných typů databází
+   * @return string[]
+   */
+  public static function getDatabaseTypes(){
+    return array(self::DB_TYPE_MYSQL,self::DB_TYPE_CASSANDRA);
+  }
+
+  public function createUserDatabase(DbConnection $dbConnection){
+
+    //TODO
+  }
+
 
   /**
    * @param DbConnection $dbConnection

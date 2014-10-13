@@ -241,4 +241,21 @@ class MySQLDatabase implements IDatabase{
 
     return $result;
   }
+
+  /**
+   * Funkce pro vytvoření uživatele a databáze na základě zadaných údajů
+   * @param DbConnection $dbConnection
+   * @return bool
+   */
+  public function createUserDatabase(DbConnection $dbConnection) {
+    $query1=$this->db->prepare('CREATE USER IF NOT EXISTS :username@"%" IDENTIFIED BY :password;');
+    $result1=$query1->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
+    $query2=$this->db->prepare("GRANT USAGE ON * . * TO :username@'%' IDENTIFIED BY :password WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;");
+    $result2=$query2->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
+    $query3=$this->db->prepare('CREATE DATABASE `'.$dbConnection->dbName.'` DEFAULT CHARACTER SET utf8 COLLATE utf8_czech_ci;');
+    $result3=$query3->execute();
+    $query4=$this->db->prepare('GRANT ALL PRIVILEGES ON `'.$dbConnection->dbName.'`.* TO "'.$dbConnection->dbUsername.'"@"%";');
+    $result4=$query4->execute();
+    return ($result1 && $result2 && $result3 && $result4);
+  }
 }

@@ -3,6 +3,7 @@
 namespace App\Model\EasyMiner\Facades;
 
 
+use App\Libs\StringsHelper;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\UsersRepository;
 use Nette\Security\AuthenticationException;
@@ -236,6 +237,7 @@ class UsersFacade implements IAuthenticator{
     $user->password=Passwords::hash($params['password']);
     $user->name=$params['name'];
     $user->active=true;
+    $user->dbPassword=StringsHelper::randString(8);
     $this->saveUser($user);
     return $user;
   }

@@ -11,6 +11,7 @@ use Nette\Utils\DateTime;
  * @property string $name
  * @property string $email
  * @property string $password
+ * @property string $dbPassword
  * @property string|null $facebookId
  * @property string|null $googleId
  * @property DateTime $lastLogin

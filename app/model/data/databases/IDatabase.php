@@ -17,6 +17,13 @@ interface IDatabase {
    */
   public static function getInstance(DbConnection $dbConnection);
 
+  /**
+   * Funkce pro vytvoření uživatele a databáze na základě zadaných údajů
+   * @param DbConnection $dbConnection
+   * @return bool
+   */
+  public function createUserDatabase(DbConnection $dbConnection);
+
   #region funkce pro práci s tabulkami
   /**
    * @param string $tableName
