@@ -85,7 +85,7 @@ class UserPresenter  extends BasePresenter{
     $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values) use ($presenter){
       try{
         $user = $presenter->usersFacade->registerUser($values);
-      }catch (Exception $e){
+      }catch (Exception $e){//TODO ???
         $presenter->flashMessage('Welcome! Your user account was successfully registered.');
       }
       $presenter->getUser()->login($values['email'],$values['password']);
