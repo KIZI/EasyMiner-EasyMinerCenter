@@ -17,6 +17,7 @@ class DatasourcesFacade {
   private $datasourcesRepository;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var array $databasesConfig - konfigurace jednotlivých připojení k DB */
   private $databasesConfig;
 
   /**
