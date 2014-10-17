@@ -25,7 +25,7 @@ class UserPresenter  extends BasePresenter{
    * Akce pro odhlášení uživatele
    */
   public function actionLogout(){
-    $this->getUser()->logout();
+    $this->getUser()->logout(true);
     $this->redirect('login');
   }
 
