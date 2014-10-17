@@ -101,7 +101,9 @@ class DatasourcesFacade {
     }catch (\Exception $e){
       //pokud došlo k chybě, pokusíme se vygenerovat uživatelský účet a databázi
       $this->databasesFacade->openDatabase($this->getAdminDbConnection($dbType));
-      $this->databasesFacade->createUserDatabase($dbConnection);
+      if (!$this->databasesFacade->createUserDatabase($dbConnection)){
+        throw new \Exception('Database creation failed!');
+      }
     }
     return $datasource;
   }

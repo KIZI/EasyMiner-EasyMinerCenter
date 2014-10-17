@@ -5,6 +5,7 @@ namespace App\Model\Data\Databases;
 use App\Model\Data\Entities\DbColumn;
 use App\Model\Data\Entities\DbColumnValuesStatistic;
 use App\Model\Data\Entities\DbConnection;
+use Nette\Application\ApplicationException;
 use Nette\Utils\Strings;
 use \PDO;
 
@@ -58,9 +59,9 @@ class MySQLDatabase implements IDatabase{
         }
       }
     }else{
-      throw new \Exception('No columns specified!');
+      throw new ApplicationException('No columns specified!');
     }
-    $sql.=' PRIMARY KEY (`id`)
+    $sql.=', PRIMARY KEY (`id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;';
     $query=$this->db->prepare($sql);
     return $query->execute();

@@ -2,6 +2,7 @@
 namespace App\Model\Data\Facades;
 use App\Model\Data\Entities\DbConnection;
 use App\Model\Data\Files\CsvImport;
+use Nette\Application\ApplicationException;
 
 /**
  * Class FileImportsFacade - model pro práci s importy souborů
@@ -110,6 +111,16 @@ class FileImportsFacade {
     return $this->dataDirectory.'/'.$filename;
   }
 
+  /**
+   * @param string $filename
+   * @param DbConnection $dbConnection
+   * @param string $table
+   * @param string $encoding
+   * @param string $delimitier
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @throws ApplicationException
+   */
   public function importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
     //připravení parametrů pro DB tabulku
     $this->changeFileEncoding($filename,$encoding);
@@ -117,7 +128,9 @@ class FileImportsFacade {
 
     //otevření databáze a vytvoření DB tabulky
     $this->databasesFacade->openDatabase($dbConnection);
-    $this->databasesFacade->createTable($table,$csvColumns);
+    if (!$this->databasesFacade->createTable($table,$csvColumns)){
+      throw new ApplicationException('Table creation failed!');
+    }
 
     //projití CSV souboru a import dat do DB
     $colsNames=array();
