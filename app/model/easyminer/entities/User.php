@@ -22,9 +22,8 @@ class User extends Entity{
    * @return string
    */
   public function getDbPassword(){
-    $password=$this->row->db_password;
-    if (empty($password)){return null;}
-    return StringsHelper::decodePassword($password);
+    if (empty($this->row->db_password)){return null;}
+    return StringsHelper::decodePassword($this->row->db_password);
   }
 
   /**

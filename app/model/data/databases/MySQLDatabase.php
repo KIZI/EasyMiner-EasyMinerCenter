@@ -20,7 +20,7 @@ class MySQLDatabase implements IDatabase{
 
   #region connection
   private function __construct(DbConnection $dbConnection){
-    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->database)?'dbname='.$dbConnection->database.';':'').'charset=utf8';
+    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->dbName)?'dbname='.$dbConnection->dbName.';':'').'charset=utf8';
     $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword);
   }
   /**
@@ -171,7 +171,9 @@ class MySQLDatabase implements IDatabase{
    * @return bool
    */
   public function tableExists($tableName) {
-    return ($this->db->query("SHOW TABLES LIKE '" . $tableName . "'")->rowCount() > 0);
+    $result=$this->db->query("SHOW TABLES LIKE '" . $tableName . "'");
+    if (!$result){return false;}
+    return ($result->rowCount() > 0);
   }
 
   /**

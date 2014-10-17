@@ -82,7 +82,7 @@ class DataPresenter extends BasePresenter{
     /** @var Form $form */
     $form=$this->getComponent('newMinerForm');
     $dateTime=new DateTime();
-    $form->setDefaults(array('datasource'=>$datasource->datasourceId,'datasourceName'=>$datasource->dbName,'name'=>$datasource->dbName.' '.$dateTime->format('u')));
+    $form->setDefaults(array('datasource'=>$datasource->datasourceId,'datasourceName'=>$datasource->type.': '.$datasource->dbTable,'name'=>$datasource->dbTable.' '.$dateTime->format('Y-m-d H:i:s')));
   }
 
   /**
@@ -115,7 +115,7 @@ class DataPresenter extends BasePresenter{
         $databaseType=$this->databasesFacade->prefferedDatabaseType($csvColumnsCount);
         $newDatasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->usersFacade->findUser($this->user->id),$databaseType);
         $this->databasesFacade->openDatabase($newDatasource->getDbConnection());
-        $defaultsArr['table']=$this->databasesFacade->checkTableExists($name);
+        $defaultsArr['table']=$this->databasesFacade->prepareNewTableName($name);
       }else{
         //TODO další možnosti importu (ZIP soubor atd.)
       }
@@ -255,13 +255,14 @@ class DataPresenter extends BasePresenter{
     $minersFacade=$this->minersFacade;
     $currentUserId = $this->user->id;
     $form->addText('datasourceName','Datasource:')
+      ->setAttribute('class','noBorder normalWidth')
       ->setAttribute('readonly');
     $form->addText('name', 'Miner name:')
       ->setRequired('Input the miner name!')
       ->setAttribute('autofocus')
-      ->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
-      ->addRule(Form::MIN_LENGTH,'Max length of the table name is %s characters!',3)
-      ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','/[a-zA-Z]\w+/')
+      ->setAttribute('class','normalWidth')
+      ->addRule(Form::MAX_LENGTH,'Max length of miner name is %s characters!',30)
+      ->addRule(Form::MIN_LENGTH,'Min length of miner name is %s characters!',3)
       ->addRule(function(TextInput $control)use($currentUserId,$minersFacade){
         try{
           $miner=$minersFacade->findMinerByName($currentUserId,$control->value);
@@ -272,7 +273,7 @@ class DataPresenter extends BasePresenter{
         return true;
       },'Miner with this name already exists!');
 
-    $form->addSelect('type','Miner type:',Miner::getTypes())->setDefaultValue(Miner::DEFAULT_TYPE);
+    $form->addSelect('type','Miner type:',Miner::getTypes())->setAttribute('class','normalWidth')->setDefaultValue(Miner::DEFAULT_TYPE);
 
     $form->addSubmit('submit','Create miner...')->onClick[]=array($this,'newMinerFormSubmitted');
     $stornoButton=$form->addSubmit('storno','storno');
@@ -311,13 +312,13 @@ class DataPresenter extends BasePresenter{
       ->setRequired('Input table name!');
     $presenter=$this;
     $tableName->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
-      ->addRule(Form::MIN_LENGTH,'Max length of the table name is %s characters!',3)
-      ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','/[a-zA-Z]\w+/')
+      ->addRule(Form::MIN_LENGTH,'Min length of the table name is %s characters!',3)
+      ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z0-9_]+')
       ->addRule(function(TextInput $control)use($presenter){
         $formValues=$control->form->getValues(true);
-        $csvColumnsCount=$presenter->fileImportsFacade->getColsCountInCSV($formValues['file'],$formValues['separator'],$formValues['enclosure'],$formValues['escapeCharacter']);
+        $csvColumnsCount=$presenter->fileImportsFacade->getColsCountInCSV($formValues['file'],$formValues['separator'],$formValues['enclosure'],$formValues['escape']);
         $databaseType=$presenter->databasesFacade->prefferedDatabaseType($csvColumnsCount);
-        $newDatasource=$presenter->datasourcesFacade->prepareNewDatasourceForUser($presenter->user->id,$databaseType);
+        $newDatasource=$presenter->datasourcesFacade->prepareNewDatasourceForUser($this->usersFacade->findUser($presenter->user->id),$databaseType);
         $presenter->databasesFacade->openDatabase($newDatasource->getDbConnection());
         return (!$presenter->databasesFacade->checkTableExists($control->value));
       },'Table with this name already exists!');

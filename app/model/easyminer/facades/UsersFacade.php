@@ -63,6 +63,10 @@ class UsersFacade implements IAuthenticator{
    * @return bool
    */
   public function saveUser(User &$user){
+    if ($user->isDetached() && $user->getDbPassword()==''){
+      //při ukládání nového uživatele mu přiřadíme heslo...
+      $user->setDbPassword(StringsHelper::randString(8));
+    }
     return $this->usersRepository->persist($user);
   }
 
@@ -118,7 +122,7 @@ class UsersFacade implements IAuthenticator{
         $user->name=$googleProfile->givenName.' '.$googleProfile->familyName;;
       }
       $user->lastLogin=new DateTime();
-      $this->usersRepository->persist($user);
+      $this->saveUser($user);
     }
     //stáhnutí obrázku
     $this->saveUserImageFromUrl($user,$googleProfile->picture);
@@ -166,7 +170,7 @@ class UsersFacade implements IAuthenticator{
       $user->name=$facebookMe->first_name.' '.$facebookMe->last_name;
       $user->active=true;
       $user->lastLogin=new DateTime();
-      $this->usersRepository->persist($user);
+      $this->saveUser($user);
     }else{
       //kontrola, jestli není uživatel zablokován
       if (!$user->active){
@@ -237,7 +241,7 @@ class UsersFacade implements IAuthenticator{
     $user->password=Passwords::hash($params['password']);
     $user->name=$params['name'];
     $user->active=true;
-    $user->dbPassword=StringsHelper::randString(8);
+    $user->setDbPassword(StringsHelper::randString(8));
     $this->saveUser($user);
     return $user;
   }

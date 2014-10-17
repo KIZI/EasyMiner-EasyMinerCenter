@@ -85,9 +85,10 @@ class DatasourcesFacade {
     $databaseConfig=$this->databasesConfig[$dbType];
 
     $datasource->type=$dbType;
+    $datasource->user=$user;
     $datasource->dbName=str_replace('*',$user->userId,$databaseConfig['_database']);
     $datasource->dbUsername=str_replace('*',$user->userId,$databaseConfig['_username']);
-    $datasource->dbPassword=$this->getUserDbPassword($user);
+    $datasource->setDbPassword($this->getUserDbPassword($user));
     $datasource->dbServer=$databaseConfig['server'];
     if (!empty($databaseConfig['port'])){
       $datasource->dbPort=$databaseConfig['port'];
@@ -111,7 +112,7 @@ class DatasourcesFacade {
    * @return string
    */
   private function getUserDbPassword(User $user){
-    return Strings::substring($user->dbPassword,2,3).Strings::substring(sha1($user->userId.$user->dbPassword),4,5);
+    return Strings::substring($user->getDbPassword(),2,3).Strings::substring(sha1($user->userId.$user->getDbPassword()),4,5);
   }
 
   /**

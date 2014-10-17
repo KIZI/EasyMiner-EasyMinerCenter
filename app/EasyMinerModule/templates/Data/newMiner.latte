@@ -10,12 +10,13 @@
         <!--TODO existing database-->
 
         {if (count($datasources))}
-          <a href="" onclick="$(\'.existingSource\').show();$(this).hide();return false;">{_'New miner from existing datasource'}</a>
-
-          <h3 class="existingSource">{_'New miner from existing datasource'}</h3>
-          {foreach $datasources as $datasource}
-            <a href="{link Data:newMinerFromDatasource datasource=>$datasource->idDatasource}" class="existingSource">{$datasource->type}: {$datasource->db_table}</a>
-          {/foreach}
+          <a href="" onclick="$('.existingSource').show();$(this).hide();return false;">{_'New miner from existing datasource'}</a>
+          <div class="existingSource">
+            <h3>{_'New miner from existing datasource'}</h3>
+            {foreach $datasources as $datasource}
+              <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}">{$datasource->type}: {$datasource->dbTable}</a>
+            {/foreach}
+          </div>
         {/if}
       </div>
     </div>
@@ -25,7 +26,7 @@
         <h2>{_'Open existing EasyMiner'}</h2>
         <div class="actionsDiv bigButtons">
           {foreach $miners as $miner}
-            <a href="{link Data:openMiner id=>$miner->idMiner}" class="existingMiner">{$miner->name}</a>
+            <a href="{link Data:openMiner id=>$miner->minerId}" class="existingMiner">{$miner->name}</a>
           {/foreach}
         </div>
       </div>

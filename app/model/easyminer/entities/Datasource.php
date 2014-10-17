@@ -9,7 +9,7 @@ use LeanMapper\Entity;
  * Class Datasource
  * @package App\Model\EasyMiner\Entities
  * @property int|null $datasourceId = null
- * @property int|null $userId = null
+ * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','cassandra')
  * @property string $dbServer
  * @property int|null $dbPort = null
@@ -37,7 +37,7 @@ class Datasource extends Entity{
     $dbConnection=new DbConnection();
     $dbConnection->dbName=$this->dbName;
     $dbConnection->dbUsername=$this->dbUsername;
-    $dbConnection->dbPassword=$this->dbPassword;
+    $dbConnection->dbPassword=$this->getDbPassword();
     $dbConnection->dbPort=$this->dbPort;
     $dbConnection->dbServer=$this->dbServer;
     $dbConnection->type=$this->type;
@@ -48,9 +48,8 @@ class Datasource extends Entity{
    * @return string
    */
   public function getDbPassword(){
-    $password=$this->row->db_password;
-    if (empty($password)){return null;}
-    return StringsHelper::decodePassword($password);
+    if (empty($this->row->db_password)){return null;}
+    return StringsHelper::decodePassword($this->row->db_password);
   }
 
   /**

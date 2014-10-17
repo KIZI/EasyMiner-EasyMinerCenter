@@ -82,7 +82,7 @@ class FileImportsFacade {
    * @return \App\Model\Data\Entities\DbColumn[]
    */
   public function getColsInCSV($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    return CsvImport::analyzeCSVColumns($filename,$delimitier,$enclosure,$escapeCharacter);
+    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimitier,$enclosure,$escapeCharacter);
   }
 
   /**
@@ -127,10 +127,18 @@ class FileImportsFacade {
     $colsCount=count($colsNames);
 
     $csvFile=CsvImport::openCsv($this->getFilePath($filename));
+    CsvImport::getRowsFromOpenedCSVfile($csvFile,1,$delimitier,$enclosure,$escapeCharacter);//přeskakujeme první řádek
+
     while($row=CsvImport::getRowsFromOpenedCSVfile($csvFile,1,$delimitier,$enclosure,$escapeCharacter)){
+      if (isset($row[0])){$row=$row[0];/*chceme jen jeden řádek*/}
       $insertArr=array();
       for ($i=0;$i<$colsCount;$i++){
-        $insertArr[$colsNames[$i]]=$row[$i];
+        if (isset($row[$i])){
+          $insertArr[$colsNames[$i]]=$row[$i];
+        }else{
+          $insertArr[$colsNames[$i]]='';
+        }
+
       }
       $this->databasesFacade->insertRow($table,$insertArr);
     }
