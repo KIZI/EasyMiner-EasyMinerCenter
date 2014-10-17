@@ -1,16 +1,44 @@
+#
+#   Soubor s konfigurací aplikace pro konkrétní server
+#
+
 parameters:
-	arc2:
-		db_name: 'easyminer_core'
-		db_user: 'root'
-		db_pwd: ''
-		store_name: 'easyminerkb'
-		max_errors: 100
+    arc2:
+        db_name:
+        db_user:
+        db_pwd:
+        store_name: 'easyminerkb'
+        max_errors: 1000
+    leanmapper:
+        driver: mysqli
+        host: localhost
+        username: root
+        password:
+        database:
+        encoding: utf8
+    imports_directory: "absolutePath"
+    urls:
+        open_miner: "http://sewebar-dev.lmcloud.vse.cz/izi-miner/?id_dm={:minerId}"
+    databases:
+        mysql:
+            _username: 'user*'
+            _database: 'user*'
+            username: root
+            password:
+            server: localhost
+        cassandra:
+            _username: 'user*'
+            _database: 'user*'
+            username:
+            password:
+            server: localhost
 
-nette:
-	application:
-		errorPresenter: Error
-		mapping:
-			*: App\*Module\Presenters\*Presenter
+facebook:
+    appId: ""
+    appSecret: ""
+    permissions: [email,public_profile]
 
-	session:
-		expiration: 14 days
+google:
+    clientId: ""
+    clientSecret: ""
+    returnUri: ':EasyMiner:User:oauthGoogle'(do=login-google-response)
