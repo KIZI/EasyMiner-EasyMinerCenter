@@ -48,7 +48,9 @@ class Datasource extends Entity{
    * @return string
    */
   public function getDbPassword(){
-    return StringsHelper::decodePassword($this->row->db_password);
+    $password=$this->row->db_password;
+    if (empty($password)){return null;}
+    return StringsHelper::decodePassword($password);
   }
 
   /**
