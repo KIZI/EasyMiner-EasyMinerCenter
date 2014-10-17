@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Počítač: 127.0.0.1
--- Vytvořeno: Pon 22. zář 2014, 16:28
+-- Vytvořeno: Pát 17. říj 2014, 17:20
 -- Verze serveru: 5.6.16
 -- Verze PHP: 5.5.9
 
@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `datasources` (
   `user_id` int(11) NOT NULL,
   `type` enum('mysql') COLLATE utf8_czech_ci NOT NULL,
   `db_server` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  `db_port` smallint(6) DEFAULT NULL,
   `db_username` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_password` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
@@ -73,15 +74,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `email` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  `db_password` varchar(8) COLLATE utf8_czech_ci NOT NULL COMMENT 'Heslo pro přístup k databázi s daty',
   `password` varchar(200) COLLATE utf8_czech_ci NOT NULL,
   `facebook_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `google_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `last_login` datetime NOT NULL,
   `active` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users' AUTO_INCREMENT=2 ;
 
---
+
 -- Omezení pro exportované tabulky
 --
 
