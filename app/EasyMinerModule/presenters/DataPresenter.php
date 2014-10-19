@@ -84,7 +84,7 @@ class DataPresenter extends BasePresenter{
       //přesměrování na mapování
       $this->flashMessage($this->translate('Select datasource has not been corrently mapped yet. You have to setup mappins...'));
       $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
-
+      return;
     }
 
     $this->template->datasource=$datasource;

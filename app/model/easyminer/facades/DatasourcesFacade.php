@@ -63,6 +63,9 @@ class DatasourcesFacade {
    * @return bool
    */
   public function checkDatasourceColumnsFormatsMappings($datasource, $reloadColumns = false){
+    if ($datasource->isDetached()){
+      exit('xxx');
+    }
     if (!($datasource instanceof Datasource)){
       $datasource=$this->findDatasource($datasource);
     }
@@ -72,8 +75,8 @@ class DatasourcesFacade {
     }
 
     $datasourceColumns=$datasource->datasourceColumns;
-    foreach ($datasourceColumns as $datasourceColumn){
-      if ($datasourceColumn->formatId==''){
+    foreach ($datasourceColumns as &$datasourceColumn){
+      if (empty($datasourceColumn->formatId)){
         //TODO kontrola, jestli existuje daný formát
         return false;
       }
@@ -100,17 +103,19 @@ class DatasourcesFacade {
    * @throws \LeanMapper\Exception\InvalidStateException
    * @throws \Nette\Application\ApplicationException
    */
-  public function reloadDatasourceColumns(Datasource $datasource){
+  public function reloadDatasourceColumns(Datasource &$datasource){
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $datasourceColumns=$datasource->datasourceColumns;
     $datasourceColumnsArr=array();
     if (!empty($datasourceColumns)){
       foreach ($datasourceColumns as $datasourceColumn){
-        $datasourceColumnsArr[$datasourceColumn->name]=$datasourceColumn->name;
+        $datasourceColumnsArr[$datasourceColumn->name]=$datasourceColumn;
       }
     }
+
     /** @var DbColumn[] $dbColumns */
     $dbColumns = $this->databasesFacade->getColumns($datasource->dbTable);
+
     if (!empty($dbColumns)) {
       foreach ($dbColumns as $dbColumn) {
         if (isset($datasourceColumnsArr[$dbColumn->name])) {
@@ -124,13 +129,15 @@ class DatasourcesFacade {
         }
       }
     }
-    if (!empty($datasourceColumns)) {
-      foreach ($datasourceColumns as $datasourceColumn) {
+    if (!empty($datasourceColumnsArr)) {
+      foreach ($datasourceColumnsArr as $datasourceColumn) {
         //odmažeme info o sloupcích, které v datové tabulce již neexistují
         $this->datasourceColumnsRepository->delete($datasourceColumn);
       }
     }
-}
+
+    $datasource=$this->findDatasource($datasource->datasourceId);
+  }
   /**
    * @param Datasource|int $datasource
    * @return int
