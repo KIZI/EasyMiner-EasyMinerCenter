@@ -58,12 +58,19 @@ class DatasourcesFacade {
 
   /**
    * Funkce pro kontrolu, jestli jsou všechny sloupce z daného datového zdroje namapované na formáty z knowledge base
+   * @param Datasource|int $datasource
+   * @param bool $reloadColumns = false
    * @return bool
    */
-  public function checkDatasourceColumnsFormatsMappings($datasource){
+  public function checkDatasourceColumnsFormatsMappings($datasource, $reloadColumns = false){
     if (!($datasource instanceof Datasource)){
       $datasource=$this->findDatasource($datasource);
     }
+
+    if ($reloadColumns){
+      $this->reloadDatasourceColumns($datasource);
+    }
+
     $datasourceColumns=$datasource->datasourceColumns;
     foreach ($datasourceColumns as $datasourceColumn){
       if ($datasourceColumn->formatId==''){
