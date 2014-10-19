@@ -78,6 +78,15 @@ class DataPresenter extends BasePresenter{
     }
 
     $this->checkDatasourceAccess($datasource);
+
+    //kontrola, jestli je daný datový zdroj namapován na knowledge base
+    if (!$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource)){
+      //přesměrování na mapování
+      $this->flashMessage($this->translate('Select datasource has not been corrently mapped yet. You have to setup mappins...'));
+      $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
+
+    }
+
     $this->template->datasource=$datasource;
     /** @var Form $form */
     $form=$this->getComponent('newMinerForm');
@@ -376,7 +385,7 @@ class DataPresenter extends BasePresenter{
     $this->datasourcesFacade->saveDatasource($datasource);
     //smažeme dočasné soubory...
     $this->fileImportsFacade->deleteFile($file);
-    $this->redirect('Data:mapping',array('datasource'=>$datasource));
+    $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
   }
   #endregion importCsvForm
 

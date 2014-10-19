@@ -39,6 +39,7 @@ services:
 	- App\Model\Data\Facades\DatabasesFacade
 
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
+	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
 	- App\Model\EasyMiner\Repositories\HelperDataRepository
 	- App\Model\EasyMiner\Repositories\MinersRepository
 	- App\Model\EasyMiner\Repositories\UsersRepository

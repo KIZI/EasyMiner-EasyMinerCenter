@@ -30,18 +30,18 @@ class DatasourcesFacade {
    * @param DatasourceColumnsRepository $datasourceColumnsRepository
    * @param DatabasesFacade $databasesFacade
    */
-  public function __construct($databasesConfig, DatasourcesRepository $datasourcesRepository, DatasourceColumnsRepository $datasourceColumnsRepository, DatabasesFacade $databasesFacade){
-    $this->datasourcesRepository=$datasourcesRepository;
-    $this->datasourceColumnsRepository=$datasourceColumnsRepository;
-    $this->databasesConfig=$databasesConfig;
-    $this->databasesFacade=$databasesFacade;
+  public function __construct($databasesConfig, DatasourcesRepository $datasourcesRepository, DatasourceColumnsRepository $datasourceColumnsRepository, DatabasesFacade $databasesFacade) {
+    $this->datasourcesRepository = $datasourcesRepository;
+    $this->datasourceColumnsRepository = $datasourceColumnsRepository;
+    $this->databasesConfig = $databasesConfig;
+    $this->databasesFacade = $databasesFacade;
   }
 
   /**
    * @param int $id
    * @return Datasource
    */
-  public function findDatasource($id){
+  public function findDatasource($id) {
     return $this->datasourcesRepository->find($id);
   }
 
@@ -49,23 +49,51 @@ class DatasourcesFacade {
    * @param int|User $user
    * @return Datasource[]|null
    */
-  public function findDatasourcesByUser($user){
-    if ($user instanceof User){
-      $user=$user->userId;
+  public function findDatasourcesByUser($user) {
+    if ($user instanceof User) {
+      $user = $user->userId;
     }
-    return $this->datasourcesRepository->findAllBy(array('user_id'=>$user));
+    return $this->datasourcesRepository->findAllBy(array('user_id' => $user));
   }
 
-
+  /**
+   * Funkce pro kontrolu, jestli jsou všechny sloupce z daného datového zdroje namapované na formáty z knowledge base
+   * @return bool
+   */
+  public function checkDatasourceColumnsFormatsMappings($datasource){
+    if (!($datasource instanceof Datasource)){
+      $datasource=$this->findDatasource($datasource);
+    }
+    $datasourceColumns=$datasource->datasourceColumns;
+    foreach ($datasourceColumns as $datasourceColumn){
+      if ($datasourceColumn->formatId==''){
+        //TODO kontrola, jestli existuje daný formát
+        return false;
+      }
+    }
+    return true;
+  }
 
   /**
    * @param Datasource $datasource
    * @param bool $reloadColumns = true - true, pokud má být zaktualizován seznam
    * @return bool
    */
-  public function saveDatasource(Datasource &$datasource, $reloadColumns=true){
-    $result=$this->datasourcesRepository->persist($datasource);
-    if (!$reloadColumns){return $result;}
+  public function saveDatasource(Datasource &$datasource, $reloadColumns = true) {
+    $result = $this->datasourcesRepository->persist($datasource);
+    if ($reloadColumns) {
+      $this->reloadDatasourceColumns($datasource);
+    }
+    return $result;
+  }
+
+  /**
+   * Funkce pro aktualizaci info o sloupcích v daném datovém zdroji
+   * @param Datasource $datasource
+   * @throws \LeanMapper\Exception\InvalidStateException
+   * @throws \Nette\Application\ApplicationException
+   */
+  public function reloadDatasourceColumns(Datasource $datasource){
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $datasourceColumns=$datasource->datasourceColumns;
     $datasourceColumnsArr=array();
@@ -75,29 +103,27 @@ class DatasourcesFacade {
       }
     }
     /** @var DbColumn[] $dbColumns */
-    $dbColumns=$this->databasesFacade->getColumns($datasource->dbTable);
-    if (!empty($dbColumns)){
-      foreach ($dbColumns as $dbColumn){
-        if (isset($datasourceColumnsArr[$dbColumn->name])){
+    $dbColumns = $this->databasesFacade->getColumns($datasource->dbTable);
+    if (!empty($dbColumns)) {
+      foreach ($dbColumns as $dbColumn) {
+        if (isset($datasourceColumnsArr[$dbColumn->name])) {
           unset($datasourceColumnsArr[$dbColumn->name]);
-        }else{
+        } else {
           //vytvoříme info o datovém sloupci
-          $datasourceColumn=new DatasourceColumn();
-          $datasourceColumn->name=$dbColumn->name;
-          $datasourceColumn->datasource=$datasource;
+          $datasourceColumn = new DatasourceColumn();
+          $datasourceColumn->name = $dbColumn->name;
+          $datasourceColumn->datasource = $datasource;
           $this->datasourceColumnsRepository->persist($datasourceColumn);
         }
       }
     }
-    if (!empty($datasourceColumns)){
-      foreach ($datasourceColumns as $datasourceColumn){
+    if (!empty($datasourceColumns)) {
+      foreach ($datasourceColumns as $datasourceColumn) {
         //odmažeme info o sloupcích, které v datové tabulce již neexistují
         $this->datasourceColumnsRepository->delete($datasourceColumn);
       }
     }
-    return $result;
-  }
-
+}
   /**
    * @param Datasource|int $datasource
    * @return int
