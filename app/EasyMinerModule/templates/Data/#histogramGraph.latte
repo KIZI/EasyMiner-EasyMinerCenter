@@ -6,6 +6,8 @@
       var data = google.visualization.arrayToDataTable([
           ['Value', 'Count'],
           {foreach $graphData as $value=>$count}
+            {var $value=(string)$value;}
+            {var $count=$count*1;}
             [{$value},{$count}],
           {/foreach}
         ]);

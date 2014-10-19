@@ -154,14 +154,15 @@ class DatabasesFacade {
    * Funkce pro vypočtení statistik na základě databázového sloupce
    * @param string $tableName - jméno databázové tabulky
    * @param string|DbColumn $column - sloupec, ze kterého má být získána statistika
+   * @param bool $includeValues = true
    * @return DbColumnValuesStatistic
    */
-  public function getColumnValuesStatistic($tableName, $column){
+  public function getColumnValuesStatistic($tableName, $column, $includeValues = true){
     $this->database->selectTable($tableName);
     if ($column instanceof DbColumn){
-      return $this->database->getColumnValuesStatistic($column->name);
+      return $this->database->getColumnValuesStatistic($column->name, $includeValues);
     }else{
-      return $this->database->getColumnValuesStatistic($column);
+      return $this->database->getColumnValuesStatistic($column, $includeValues);
     }
   }
 

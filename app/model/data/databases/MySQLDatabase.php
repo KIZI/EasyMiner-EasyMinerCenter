@@ -212,18 +212,21 @@ class MySQLDatabase implements IDatabase{
 
   /**
    * @param string $name
+   * @param bool $includeValues=true
    * @return DbColumnValuesStatistic
    */
   public function getColumnValuesStatistic($name,$includeValues=true){
     $result=new DbColumnValuesStatistic($this->getColumn($name));
     if ($result->dataType=DbColumn::TYPE_STRING){
       //u řetězce vracíme jen info o počtu řádků
-      $select=$this->db->query('SELECT count('.$name.') as rowsCount from `'.$this->tableName.'`);');
+      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount from `'.$this->tableName.'`);');
+      $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
       $result->rowsCount=$selectResult['rowsCount'];
     }else{
       //u čísel vracíme info o min, max a avg
-      $select=$this->db->query('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`);');
+      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`);');
+      $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
       $result->rowsCount=$selectResult['rowsCount'];
       $result->minValue=$selectResult['minValue'];
@@ -231,13 +234,18 @@ class MySQLDatabase implements IDatabase{
       $result->avgValue=$selectResult['avgValue'];
     }
 
+    $selectValuesCount=$this->db->prepare('SELECT count(DISTINCT `'.$name.'`) as distinctValuesCount FROM `'.$this->tableName.'`;');
+    $selectValuesCount->execute();
+    $result->valuesCount=$selectValuesCount->fetchColumn(0);
+
     if ($includeValues){
       //načtení hodnot s četnostmi
-      $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` GROUP BY `'.$name.'` LIMIT 10000;');
+      $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` GROUP BY `'.$name.'` ORDER BY `'.$name.'` LIMIT 10000;');
       $query->execute();
       $valuesArr=array();
       while ($row=$query->fetchObject()){
-        $valuesArr[$row->hodnota]=$row->pocet;
+        $hodnota=$row->hodnota;
+        $valuesArr[$hodnota]=$row->pocet;
       }
       $result->valuesArr=$valuesArr;
     }

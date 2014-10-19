@@ -109,9 +109,10 @@ interface IDatabase {
 
   /**
    * @param string $name
+   * @param bool $includeValues = true
    * @return DbColumnValuesStatistic
    */
-  public function getColumnValuesStatistic($name);
+  public function getColumnValuesStatistic($name, $includeValues=true);
 
   /**
    * @return DbColumn[]

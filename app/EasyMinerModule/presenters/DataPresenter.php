@@ -4,6 +4,7 @@ namespace App\EasyMinerModule\Presenters;
 use App\Libs\StringsHelper;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
+use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
@@ -33,11 +34,41 @@ class DataPresenter extends BasePresenter{
   /** @var  UsersFacade $usersFacade */
   private $usersFacade;
 
-  public function renderMapping($datasource){
+  /**
+   * Akce pro úpravu datasource a nastavení mapování datových sloupců na knowledge base
+   * @param int $datasource
+   * @param int|null $column
+   */
+  public function renderMapping($datasource,$column=null){
+    /** @var Datasource $datasource */
+    $datasource=$this->datasourcesFacade->findDatasource($datasource);
+    $this->checkDatasourceAccess($datasource);
+
+    $datasourceColumns=$datasource->datasourceColumns;
+    if (empty($datasourceColumns)){
+      $this->datasourcesFacade->reloadDatasourceColumns($datasource);
+      $datasourceColumns=$datasource->datasourceColumns;
+    }
+
+    if ($column){
+      //zkusíme najít konkrétní datasourceColumn
+      foreach ($datasourceColumns as $datasourceColumn){
+        if ($datasourceColumn->datasourceColumnId==$column){
+          $this->template->datasourceColumn=$datasourceColumn;
+          break;
+        }
+      }
+      if (empty($this->template->datasourceColumn)){
+        $this->flashMessage($this->translate('Requested data field not found!'),'error');
+      }else{
+        $this->databasesFacade->openDatabase($datasource->getDbConnection());
+        $this->template->datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$this->template->datasourceColumn->name);
+      }
+      //TODO zobrazení histogramu...
+    }
+
     $this->template->datasource=$datasource;
-    //TODO akce a rozhraní pro mapování na KnowledgeBase!!!
-    echo 'MAPPING!!!';
-    $this->terminate();
+    $this->template->datasourceColumns=$datasourceColumns;
   }
 
   public function renderImportCsvDataPreview($file,$separator=',',$encoding='utf8',$enclosure='"',$escape='\\'){
@@ -82,7 +113,7 @@ class DataPresenter extends BasePresenter{
     //kontrola, jestli je daný datový zdroj namapován na knowledge base
     if (!$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true)){
       //přesměrování na mapování
-      $this->flashMessage($this->translate('Select datasource has not been corrently mapped yet. You have to setup mappins...'));
+      $this->flashMessage($this->translate('Select datasource has not been corrently mapped yet. You have to setup mappings...'));
       $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
       return;
     }
