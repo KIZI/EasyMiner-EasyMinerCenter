@@ -21,10 +21,11 @@
 		"semsol/arc2": "v2.2.4",
 		"tharos/leanmapper": "v2.2.0",
 		"kdyby/facebook": "v1.2.0",
-		"kdyby/google": "dev-master"
+		"kdyby/google": "dev-master",
+		"srigi/nette-confirmationdialog": "1.0.1"
 	},
 	"require-dev": {
 		"nette/tester": "~1.0"
 	},
-	"minimum-stability": "stable"
+	"minimum-stability": "dev"
 }

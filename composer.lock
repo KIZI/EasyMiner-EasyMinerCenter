@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "97592bf2a0b826eae87d81dc450e0838",
+    "hash": "56ef01cd09430a0d255e13ff9feec74c",
     "packages": [
         {
             "name": "dg/adminer-custom",
@@ -1456,6 +1456,53 @@
                 "sparql"
             ],
             "time": "2013-12-12 15:02:21"
+        },
+        {
+            "name": "srigi/nette-confirmationdialog",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/srigi/nette-confirmationdialog.git",
+                "reference": "31dc56b0bd09caaf517696b52b01eeb95b709200"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/srigi/nette-confirmationdialog/zipball/31dc56b0bd09caaf517696b52b01eeb95b709200",
+                "reference": "31dc56b0bd09caaf517696b52b01eeb95b709200",
+                "shasum": ""
+            },
+            "require": {
+                "nette/nette": "~2.0",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "ConfirmationDialog": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL",
+                "CC-BY",
+                "WTFPL"
+            ],
+            "authors": [
+                {
+                    "name": "Igor Hlina",
+                    "email": "srigi@srigi.sk"
+                },
+                {
+                    "name": "Václav Šír",
+                    "email": "vaclav.sir@gmail.com"
+                },
+                {
+                    "name": "Lukáš Doležal",
+                    "email": "dolezal@gdmt.cz"
+                }
+            ],
+            "description": "Addon to display confirmation dialog in Nette  webapplications",
+            "time": "2013-02-21 17:07:49"
         },
         {
             "name": "tharos/leanmapper",
