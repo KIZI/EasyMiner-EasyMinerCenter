@@ -3,10 +3,13 @@
 namespace App\Model\EasyMiner\Facades;
 
 
+use App\Model\Data\Entities\DbColumn;
 use App\Model\Data\Entities\DbConnection;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\EasyMiner\Entities\Datasource;
+use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Entities\User;
+use App\Model\EasyMiner\Repositories\DatasourceColumnsRepository;
 use App\Model\EasyMiner\Repositories\DatasourcesRepository;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
@@ -14,6 +17,8 @@ use Nette\Utils\Strings;
 class DatasourcesFacade {
   /** @var DatasourcesRepository $datasourcesRepository */
   private $datasourcesRepository;
+  /** @var  DatasourceColumnsRepository $datasourceColumnsRepository */
+  private $datasourceColumnsRepository;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
   /** @var array $databasesConfig - konfigurace jednotlivých připojení k DB */
@@ -22,9 +27,12 @@ class DatasourcesFacade {
   /**
    * @param array $databasesConfig
    * @param DatasourcesRepository $datasourcesRepository
+   * @param DatasourceColumnsRepository $datasourceColumnsRepository
+   * @param DatabasesFacade $databasesFacade
    */
-  public function __construct($databasesConfig, DatasourcesRepository $datasourcesRepository, DatabasesFacade $databasesFacade){
+  public function __construct($databasesConfig, DatasourcesRepository $datasourcesRepository, DatasourceColumnsRepository $datasourceColumnsRepository, DatabasesFacade $databasesFacade){
     $this->datasourcesRepository=$datasourcesRepository;
+    $this->datasourceColumnsRepository=$datasourceColumnsRepository;
     $this->databasesConfig=$databasesConfig;
     $this->databasesFacade=$databasesFacade;
   }
@@ -52,10 +60,42 @@ class DatasourcesFacade {
 
   /**
    * @param Datasource $datasource
+   * @param bool $reloadColumns = true - true, pokud má být zaktualizován seznam
    * @return bool
    */
-  public function saveDatasource(Datasource &$datasource){
-    $this->datasourcesRepository->persist($datasource);
+  public function saveDatasource(Datasource &$datasource, $reloadColumns=true){
+    $result=$this->datasourcesRepository->persist($datasource);
+    if (!$reloadColumns){return $result;}
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    $datasourceColumns=$datasource->datasourceColumns;
+    $datasourceColumnsArr=array();
+    if (!empty($datasourceColumns)){
+      foreach ($datasourceColumns as $datasourceColumn){
+        $datasourceColumnsArr[$datasourceColumn->name]=$datasourceColumn->name;
+      }
+    }
+    /** @var DbColumn[] $dbColumns */
+    $dbColumns=$this->databasesFacade->getColumns($datasource->dbTable);
+    if (!empty($dbColumns)){
+      foreach ($dbColumns as $dbColumn){
+        if (isset($datasourceColumnsArr[$dbColumn->name])){
+          unset($datasourceColumnsArr[$dbColumn->name]);
+        }else{
+          //vytvoříme info o datovém sloupci
+          $datasourceColumn=new DatasourceColumn();
+          $datasourceColumn->name=$dbColumn->name;
+          $datasourceColumn->datasource=$datasource;
+          $this->datasourceColumnsRepository->persist($datasourceColumn);
+        }
+      }
+    }
+    if (!empty($datasourceColumns)){
+      foreach ($datasourceColumns as $datasourceColumn){
+        //odmažeme info o sloupcích, které v datové tabulce již neexistují
+        $this->datasourceColumnsRepository->delete($datasourceColumn);
+      }
+    }
+    return $result;
   }
 
   /**
@@ -75,6 +115,8 @@ class DatasourcesFacade {
    * @param User $user
    * @param string $dbType
    * @throws BadRequestException
+   * @throws \Exception
+   * @throws \Nette\Application\ApplicationException
    * @return Datasource
    */
   public function prepareNewDatasourceForUser(User $user,$dbType){

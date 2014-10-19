@@ -261,4 +261,22 @@ class MySQLDatabase implements IDatabase{
     $result4=$query4->execute();
     return ($result2 && $result3 && $result4);
   }
+
+  /**
+   * Funkce vracející přehled datových sloupců v DB tabulce
+   * @return DbColumn[]
+   */
+  public function getColumns() {
+    $query=$this->db->prepare('SHOW COLUMNS IN `'.$this->tableName.'`;');
+    $query->execute();
+    $columns=$query->fetchAll(PDO::FETCH_CLASS);
+    $result=array();
+    foreach ($columns as $column){
+      $dbColumn=new DbColumn();
+      $dbColumn->name=$column->Field;
+      //TODO datový typ!!!
+      $result[]=$dbColumn;
+    }
+    return $result;
+  }
 }

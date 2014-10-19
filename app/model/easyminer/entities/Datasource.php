@@ -16,6 +16,7 @@ use LeanMapper\Entity;
  * @property string $dbUsername
  * @property string $dbName
  * @property string $dbTable
+ * @property DatasourceColumn[] $datasourceColumns m:belongsToOne
  * @property-read DbConnection $dbDonnection
  */
 class Datasource extends Entity{

@@ -112,4 +112,9 @@ interface IDatabase {
    * @return DbColumnValuesStatistic
    */
   public function getColumnValuesStatistic($name);
+
+  /**
+   * @return DbColumn[]
+   */
+  public function getColumns();
 } 

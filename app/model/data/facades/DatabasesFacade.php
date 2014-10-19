@@ -78,26 +78,26 @@ class DatabasesFacade {
 
   /**
    * Funkce pro vytvoření databázové tabulky na základě zadaného jména a informace o sloupcích
-   * @param string $table
+   * @param string $tableName
    * @param DbColumn[] $columns
    * @return bool
    */
-  public function createTable($table,$columns){
+  public function createTable($tableName,$columns){
     $this->checkDatabase();
-    return $this->database->createTable($table,$columns);
+    return $this->database->createTable($tableName,$columns);
   }
 
   /**
    * Funkce pro vložení řádku do databáze
-   * @param string $table
+   * @param string $tableName
    * @param array $data
    * @return bool
    */
-  public function insertRow($table, array $data){
+  public function insertRow($tableName, array $data){
     $this->checkDatabase();
-    if ($this->table!=$table){
-      if ($this->database->selectTable($table)){
-        $this->table=$table;
+    if ($this->table!=$tableName){
+      if ($this->database->selectTable($tableName)){
+        $this->table=$tableName;
       }
     }
     try{
@@ -163,5 +163,15 @@ class DatabasesFacade {
     }else{
       return $this->database->getColumnValuesStatistic($column);
     }
+  }
+
+  /**
+   * Funkce vracející přehled DB sloupců v datové tabulce
+   * @param string $tableName
+   * @return DbColumn[]
+   */
+  public function getColumns($tableName) {
+    $this->database->selectTable($tableName);
+    return $this->database->getColumns();
   }
 } 
