@@ -12,6 +12,7 @@ use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
+use Nette\Forms\Controls\HiddenField;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Http\FileUpload;
@@ -64,7 +65,6 @@ class DataPresenter extends BasePresenter{
         $this->databasesFacade->openDatabase($datasource->getDbConnection());
         $this->template->datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$this->template->datasourceColumn->name);
       }
-      //TODO zobrazení histogramu...
     }
 
     $this->template->datasource=$datasource;
@@ -419,6 +419,112 @@ class DataPresenter extends BasePresenter{
     $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
   }
   #endregion importCsvForm
+
+  #region confirmationDialog
+  /**
+   * Funkce pro vytvoření komponenty potvrzovacího dialogu
+   * @return \ConfirmationDialog
+   */
+  protected function createComponentConfirmationDialog(){
+    $form=new \ConfirmationDialog($this->getSession('confirmationDialog'));
+    $translator=$this->translator;
+    $form->addConfirmer('deleteDatasourceColumn',array($this,'deleteDatasourceColumn'),
+      function($dialog,$params)use($translator){
+        return $translator->translate('Do your really want to delete this data field?');
+      }
+    );
+    return $form;
+  }
+
+  /**
+   * Funkce pro smazání datového sloupce z datasource
+   * @param int $datasource
+   * @param int $column
+   */
+  function deleteDatasourceColumn($datasource,$column){
+    if ($this->datasourcesFacade->deleteDatasourceColumn($datasource,$column)){
+      $this->flashMessage($this->translate('Data field successfully removed.'));
+    }else{
+      $this->flashMessage($this->translate('Error occured while removing of data field.'));
+    }
+    $this->redirect('this');
+  }
+  #endregion confirmationDialog
+
+
+  #region renameDatasourceColumnDialog
+  protected function createComponentDatasourceColumnRenameDialog(){
+    $presenter=$this;
+    $form = new Form();
+    $form->setAction($this->link('getDatasourceColumnRenameDialog!'));
+    $form->translator=$this->translator;
+    $form->addHidden('datasource');
+    $form->addHidden('column');
+    $nameInput=$form->addText('name','Data field name:')->setAttribute('class','normalWidth');
+    $nameInput->addRule(Form::MAX_LENGTH,'Max length of the data field name is %s characters!',15)
+      ->addRule(Form::MIN_LENGTH,'You have to input data field name!',1)
+      ->addRule(Form::PATTERN,'Data field name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z0-9_]+')
+      ->addRule(function(TextInput $control)use($presenter){
+        //kontrola, jestli existuje data field se stejným jménem
+        /** @var HiddenField $datasourceInput */
+        $datasourceInput=$control->form->getComponent('datasource');
+        $datasource=$presenter->datasourcesFacade->findDatasource($datasourceInput->value);
+        $datasourceColumns=$datasource->datasourceColumns;
+        foreach ($datasourceColumns as $datasourceColumn){
+          if ($datasourceColumn->name==$control->value){
+            /** @var HiddenField $columnInput */
+            $columnInput=$control->form->getComponent('column');
+            if ($columnInput->value==$datasourceColumn->datasourceColumnId){
+              return true;
+            }else{
+              return false;
+            }
+          }
+        }
+        return true;
+      },'Data field with this name already exists!');
+    $form->onError[]=function()use($presenter){
+      //při chybě opět zobrazíme přejmenovávací formulář
+      $presenter->template->showDatasourceColumnRenameDialog=true;
+      if ($presenter->isAjax()) {
+        $presenter->redrawControl('datasourceColumnRenameDialog');
+      }
+    };
+    $form->addSubmit('rename','Rename data field')->onClick[]=function(SubmitButton $button)use($presenter){
+      //přejmenování data fieldu
+      $formValues=$button->form->values;
+      $presenter->datasourcesFacade->renameDatasourceColumn($formValues['datasource'],$formValues['column'],$formValues['name']);
+      $presenter->redirect('this');
+    };
+    $stornoButton=$form->addSubmit('storno','Storno');
+    $stornoButton->validationScope=array();
+    $stornoButton->onClick[]=function()use($presenter){
+      if ($presenter->isAjax()){
+        $presenter->redrawControl('datasourceColumnRenameDialog');
+      }else{
+        $presenter->redirect('this');
+      }
+    };
+    return $form;
+  }
+
+  public function handleGetDatasourceColumnRenameDialog($datasource,$column){
+    $this->template->showDatasourceColumnRenameDialog=true;
+    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
+    /** @var Form $form */
+    $form=$this->getComponent('datasourceColumnRenameDialog');
+    $form->setDefaults(array(
+      'name'=>$datasourceColumn->name,
+      'datasource'=>$datasource,
+      'column'=>$column
+    ));
+    if ($this->presenter->isAjax()) {
+      $this->redrawControl('datasourceColumnRenameDialog');
+    }
+  }
+
+  #endregion renameDatasourceColumnDialog
+
 
   #region injections
   /**

@@ -82,11 +82,9 @@ class ConfirmationDialog extends Nette\Application\UI\Control
 	 * @param string $signal
 	 * @return string
 	 */
-	public function formatSignalMethod($signal)
+	public static function formatSignalMethod($signal)
 	{
-		if (    stripos($signal, 'confirm') === 0
-			&&  isset($this->confirmationHandlers[lcfirst(substr($signal, 7))])
-		) {
+		if (    stripos($signal, 'confirm') === 0) {
 			return '_handleShow';
 		}
 
@@ -241,7 +239,7 @@ class ConfirmationDialog extends Nette\Application\UI\Control
 		list(,$signal) = $this->presenter->getSignal();
 		$confirmName = (substr($signal, 7));
 		$confirmName{0} = strtolower($confirmName{0});
-		$params = $this->getParameter();
+		$params = $this->getParameters();
 
 		$this->showConfirm($confirmName, $params);
 	}

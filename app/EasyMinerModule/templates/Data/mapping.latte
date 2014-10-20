@@ -8,73 +8,82 @@
 
 {block content}
 
-    <div class="uploadData">
-      <div class="smallBlock">
-        <h1>{_'Data fields'}</h1>
-        {foreach $datasourceColumns as $datasourceColumnItem}
-          {continueIf $datasourceColumnItem->name=='id'}
-          <a class="datasourceColumnItem {if isset($datasourceColumn) && ($datasourceColumnItem->datasourceColumnId==$datasourceColumn->datasourceColumnId)}selected{/if}" href="{link Data:mapping datasource=>$datasource->datasourceId,column=>$datasourceColumnItem->datasourceColumnId}">
-            <span class="title">{$datasourceColumnItem->name}</span>
-            <span class="subtitle">
-              {if !$datasourceColumnItem->formatId}
-                <span class="stateErr">{_'not mapped'}</span>
-              {/if}
-            </span>
-          </a>
-        {/foreach}
-      </div>
-      <div class="block">
-        {ifset $datasourceColumn}
-          <h2>{_'Data field:'} {$datasourceColumn->name}</h2>
-          <table class="listTable">
-            <tr>
-              <td>{_'Data type:'}</td>
-              <td>{$datasourceColumnValuesStatistic->dataType}</td>
-            </tr>
-            <tr>
-              <td>{_'Distinct values:'}</td>
-              <td>{$datasourceColumnValuesStatistic->valuesCount}</td>
-            </tr>
-            {ifset $datasourceColumnValuesStatistic->minValue}
-              <tr>
-                <td>{_'Min value:'}</td>
-                <td>{$datasourceColumnValuesStatistic->minValue}</td>
-              </tr>
-            {/ifset}
-            {ifset $datasourceColumnValuesStatistic->maxValue}
-              <tr>
-                <td>{_'Max value:'}</td>
-                <td>{$datasourceColumnValuesStatistic->maxValue}</td>
-              </tr>
-            {/ifset}
-            {ifset $datasourceColumnValuesStatistic->avgValue}
-              <tr>
-                <td>{_'Average value:'}</td>
-                <td>{$datasourceColumnValuesStatistic->avgValue}</td>
-              </tr>
-            {/ifset}
-          </table>
-
-          <div class="actionsDiv">
-            <a href="">{_'Select metaattribute...'}</a>
-            &nbsp;
-            <a href="">{_'Rename data field'}</a>
-            <a href="">{_'Delete'}</a>
-          </div>
-
-          <h3>{_'Values'}</h3>
-          {var $graphData=$datasourceColumnValuesStatistic->valuesArr;}
-          {*vykreslení histogramu pomocí google grafu*}
-          {includeblock '#histogramGraph.latte'}
-
-        {else}
-          <h2>{_'Configure data fields...'}</h2>
-          <p>
-            {_'In this interface, you can edit datafields in current datasource.'}<br />
-            {_'Please start with selection of an attribute in the left column...'}
-          </p>
-        {/ifset}
-      </div>
+  <div class="uploadData">
+    <div class="smallBlock">
+      <h1>{_'Data fields'}</h1>
+      {foreach $datasourceColumns as $datasourceColumnItem}
+        {continueIf $datasourceColumnItem->name=='id'}
+        <a class="datasourceColumnItem {if isset($datasourceColumn) && ($datasourceColumnItem->datasourceColumnId==$datasourceColumn->datasourceColumnId)}selected{/if}" href="{link Data:mapping datasource=>$datasource->datasourceId,column=>$datasourceColumnItem->datasourceColumnId}">
+          <span class="title">{$datasourceColumnItem->name}</span>
+          <span class="subtitle">
+            {if !$datasourceColumnItem->formatId}
+              <span class="stateErr">{_'not mapped'}</span>
+            {/if}
+          </span>
+        </a>
+      {/foreach}
     </div>
+    <div class="block">
+      {ifset $datasourceColumn}
+        <h2>{_'Data field:'} {$datasourceColumn->name}</h2>
+        <table class="listTable">
+          <tr>
+            <td>{_'Data type:'}</td>
+            <td>{$datasourceColumnValuesStatistic->dataType}</td>
+          </tr>
+          <tr>
+            <td>{_'Distinct values:'}</td>
+            <td>{$datasourceColumnValuesStatistic->valuesCount}</td>
+          </tr>
+          {ifset $datasourceColumnValuesStatistic->minValue}
+            <tr>
+              <td>{_'Min value:'}</td>
+              <td>{$datasourceColumnValuesStatistic->minValue}</td>
+            </tr>
+          {/ifset}
+          {ifset $datasourceColumnValuesStatistic->maxValue}
+            <tr>
+              <td>{_'Max value:'}</td>
+              <td>{$datasourceColumnValuesStatistic->maxValue}</td>
+            </tr>
+          {/ifset}
+          {ifset $datasourceColumnValuesStatistic->avgValue}
+            <tr>
+              <td>{_'Average value:'}</td>
+              <td>{$datasourceColumnValuesStatistic->avgValue}</td>
+            </tr>
+          {/ifset}
+        </table>
+
+        <div class="actionsDiv">
+          <a href="">{_'Select metaattribute...'}</a>
+          &nbsp;
+          <a href="{link getDatasourceColumnRenameDialog!}">{_'Rename data field'}</a>
+          <a href="{link confirmationDialog:confirmDeleteDatasourceColumn! datasource=>$datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">{_'Delete'}</a>
+        </div>
+
+        <h3>{_'Values'}</h3>
+        {var $graphData=$datasourceColumnValuesStatistic->valuesArr;}
+        {*vykreslení histogramu pomocí google grafu*}
+        {includeblock '#histogramGraph.latte'}
+
+      {else}
+        <h2>{_'Configure data fields...'}</h2>
+        <p>
+          {_'In this interface, you can edit datafields in current datasource.'}<br />
+          {_'Please start with selection of an attribute in the left column...'}
+        </p>
+      {/ifset}
+    </div>
+  </div>
+
+  {control confirmationDialog}
+
+  {snippet datasourceColumnRenameDialog}
+    {if isset($showDatasourceColumnRenameDialog)&&$showDatasourceColumnRenameDialog}
+      <div class="overlay"></div>
+      <div class="modal">{control datasourceColumnRenameDialog}</div>
+    {/if}
+  {/snippet}
 
 {/block}

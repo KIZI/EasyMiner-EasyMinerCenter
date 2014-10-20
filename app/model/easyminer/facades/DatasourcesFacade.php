@@ -46,6 +46,18 @@ class DatasourcesFacade {
   }
 
   /**
+   * @param Datasource|int $datasource
+   * @param int $column
+   * @return DatasourceColumn
+   */
+  public function findDatasourceColumn($datasource,$column) {
+    if ($datasource instanceof Datasource){
+      $datasource=$datasource->datasourceId;
+    }
+    return $this->datasourceColumnsRepository->findBy(array('datasource_id'=>$datasource,'datasource_column_id'=>$column));
+  }
+
+  /**
    * @param int|User $user
    * @return Datasource[]|null
    */
@@ -217,4 +229,23 @@ class DatasourcesFacade {
     return $dbConnection;
   }
 
+  /**
+   * @param Datasource|int $datasource
+   * @param DatasourceColumn|int $column
+   * @return bool
+   */
+  public function deleteDatasourceColumn($datasource, $column){
+    //TODO IMPLEMENT!!!!
+  }
+
+  /**
+   * @param Datasource|int $datasource
+   * @param DatasourceColumn|int $column
+   * @param string $newName
+   * @return bool
+   */
+  public function renameDatasourceColumn($datasource, $column, $newName){
+    //TODO IMPLEMENT!!!!
+    exit('rename ');
+  }
 } 
