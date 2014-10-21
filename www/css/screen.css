@@ -465,7 +465,7 @@ div.overlay{
   background-color:#000;
   background-color:rgba(0,0,0,0.5);
 }
-div.modal {
+div.modal, section.modal {
   position: fixed;
   background: #ffffff;
   z-index: 102;

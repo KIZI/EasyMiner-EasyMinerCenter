@@ -45,3 +45,9 @@ services:
 	- App\Model\EasyMiner\Repositories\UsersRepository
 
 	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%)
+
+	- App\Model\Rdf\Repositories\MetaAttributesRepository(@arc2Store)
+
+	- App\Model\Rdf\Facades\MetaAttributesFacade
+
+	- App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory

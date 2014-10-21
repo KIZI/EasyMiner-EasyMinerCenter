@@ -15,8 +15,8 @@ use Nette\Utils\Strings;
  * Class KnowledgeRepository
  * @package App\Model\Rdf\Repositories
  * @method saveMetaAttribute(MetaAttribute $metaAttribute,&$urisArr=array())
- * @method findMetaAttribute($uri):MetaAttribute
- * @method findMetaAttributes($params, int $limit=-1, int $offset=-1):MetaAttribute[]
+ * @method MetaAttribute findMetaAttribute($uri)
+ * @method MetaAttribute[] findMetaAttributes($params, int $limit=-1, int $offset=-1)
  */
 class MetaAttributesRepository extends BaseRepository{
 

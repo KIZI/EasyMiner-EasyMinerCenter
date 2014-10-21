@@ -18,7 +18,12 @@ class KnowledgeBasePresenter extends BasePresenter{
   /** @var  MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
 
-  public function selectMetaAttribute($datasource,$column){//TODO stránkování metaatributů
+  /**
+   * Akce pro výběr metaatributu k daném datovému sloupci
+   * @param int $datasource
+   * @param int $column
+   */
+  public function renderSelectMetaAttribute($datasource,$column){//TODO stránkování metaatributů
     $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
     $this->checkDatasourceAccess($datasourceColumn->datasource);
 
@@ -26,7 +31,23 @@ class KnowledgeBasePresenter extends BasePresenter{
     $this->template->metaAttributes=$this->metaAttributesFacade->findMetaAttributes();
   }
 
-
+  /**
+   * Akce pro výběr odpovídajícího formátu
+   * @param int $datasource
+   * @param int $column
+   * @param string $metaAttribute - uri metaatributu
+   */
+  public function renderSelectFormat($datasource,$column,$metaAttribute){
+    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
+    $this->checkDatasourceAccess($datasourceColumn->datasource);
+    try{
+      $this->template->metaAttribute=$this->metaAttributesFacade->findMetaAttribute($metaAttribute);
+    }catch (\Exception $e){
+      $this->flashMessage($this->translate('Requested meta-attribute not found!'),'error');
+      $this->redirect('KnowledgeBase:selectMetaAttribute',array('datasource'=>$datasource,'column'=>$column));
+    }
+    $this->template->formats=$this->template->metaAttribute->formats;
+  }
 
 
 

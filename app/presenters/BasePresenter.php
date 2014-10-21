@@ -33,4 +33,8 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter{
     return $this->translator->translate($message,$count);
   }
 
+  public function getTranslator(){
+    return $this->translator;
+  }
+
 }

@@ -1,11 +1,3 @@
-{*
-{block head}
-  <script type="text/javascript">
-    previewPath={link Data:importCsvDataPreview};
-  </script>
-  <script type="text/javascript" src="{$basePath}/js/uploadData.js"></script>
-{/block}*}
-
 {block content}
 
   <div class="uploadData">
@@ -56,7 +48,8 @@
         </table>
 
         <div class="actionsDiv">
-          <a href="">{_'Select metaattribute...'}</a>
+          <a href="http://www.citizenship-aei.org/wp-content/uploads/Testing.jpg" class="fancybox">test</a>
+          <a href="{link selectMetaAttributeDialog:selectMetaAttribute! datasource=>$datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">{_'Select meta-attribute...'}</a>
           &nbsp;
           <a href="{link getDatasourceColumnRenameDialog!}">{_'Rename data field'}</a>
           <a href="{link confirmationDialog:confirmDeleteDatasourceColumn! datasource=>$datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">{_'Delete'}</a>
@@ -82,7 +75,14 @@
   {snippet datasourceColumnRenameDialog}
     {if isset($showDatasourceColumnRenameDialog)&&$showDatasourceColumnRenameDialog}
       <div class="overlay"></div>
-      <div class="modal">{control datasourceColumnRenameDialog}</div>
+      <section class="modal">{control datasourceColumnRenameDialog}</section>
+    {/if}
+  {/snippet}
+
+  {snippet selectMetaAttributeDialog}
+    {if isset($showSelectMetaAttributeDialog)&&$showSelectMetaAttributeDialog}
+      <div class="overlay"></div>
+      <section class="modal">{control selectMetaAttributeDialog datasource=>$datasource,}</section>
     {/if}
   {/snippet}
 

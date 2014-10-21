@@ -1,6 +1,8 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
+use App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory;
+use App\EasyMinerModule\Components\MetaAttributesSelectControl;
 use App\Libs\StringsHelper;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
@@ -34,6 +36,8 @@ class DataPresenter extends BasePresenter{
   private $databasesFacade;
   /** @var  UsersFacade $usersFacade */
   private $usersFacade;
+  /** @var  IMetaAttributesSelectControlFactory $iMetaAttributesSelectControlFactory */
+  private $iMetaAttributesSelectControlFactory;
 
   /**
    * Akce pro úpravu datasource a nastavení mapování datových sloupců na knowledge base
@@ -451,6 +455,40 @@ class DataPresenter extends BasePresenter{
   }
   #endregion confirmationDialog
 
+  #region selectMetaAttributeDialog
+  /**
+   * @return \App\EasyMinerModule\Components\MetaAttributesSelectControl
+   */
+  protected function createComponentSelectMetaAttributeDialog(){
+    /** @var MetaAttributesSelectControl $metaAttributesSelectControl */
+    $metaAttributesSelectControl=$this->iMetaAttributesSelectControlFactory->create();
+    $presenter=$this;
+    $metaAttributesSelectControl->onCompomentShow[]=function()use(&$presenter){
+      $this->template->showSelectMetaAttributeDialog=true;
+    };
+    $metaAttributesSelectControl->onCompomentHide[]=function()use(&$presenter){
+      $this->template->showSelectMetaAttributeDialog=false;
+    };
+    return $metaAttributesSelectControl;
+  }
+
+  /**
+   * Signál vracející přejmenovávací dialog
+   * @param int $datasource
+   * @param int $column
+   */
+  public function handleGetSelectMetaAttributeDialog($datasource,$column){
+    $this->template->showSelectMetaAttributeDialog=true;
+    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
+    /** @var MetaAttributesSelectControl $metaAttributesSelectControl */
+    $metaAttributesSelectControl=$this->getComponent('selectMetaAttributeDialog');
+    if ($this->presenter->isAjax()) {
+      $this->redrawControl('selectMetaAttributeDialog');
+    }
+  }
+
+  #endregion selectMetaAttributeDialog
+
 
   #region renameDatasourceColumnDialog
   protected function createComponentDatasourceColumnRenameDialog(){
@@ -508,6 +546,11 @@ class DataPresenter extends BasePresenter{
     return $form;
   }
 
+  /**
+   * Signál vracející přejmenovávací dialog
+   * @param int $datasource
+   * @param int $column
+   */
   public function handleGetDatasourceColumnRenameDialog($datasource,$column){
     $this->template->showDatasourceColumnRenameDialog=true;
     $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
@@ -559,6 +602,10 @@ class DataPresenter extends BasePresenter{
    */
   public function injectUsersFacade(UsersFacade $usersFacade){
     $this->usersFacade=$usersFacade;
+  }
+
+  public function injectIMetaAttributesSelectControlFactory(IMetaAttributesSelectControlFactory $iMetaAttributesSelectControlFactory){
+    $this->iMetaAttributesSelectControlFactory=$iMetaAttributesSelectControlFactory;
   }
   #endregion
 
