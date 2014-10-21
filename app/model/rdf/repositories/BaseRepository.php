@@ -2,6 +2,7 @@
 namespace App\Model\Rdf\Repositories;
 
 use App\Model\Rdf\Entities\BaseEntity;
+use Nette\Application\BadRequestException;
 use Nette\Object;
 use Nette\Utils\Strings;
 
@@ -167,4 +168,40 @@ class BaseRepository extends Object{
     return null;
   }
 
+
+  /**
+   * Funkce pro načtení entit...
+   * @param string $functionName
+   * @param array $params
+   * @return BaseEntity[]|BaseEntity|mixed
+   * @throws \Nette\Application\BadRequestException
+   */
+  public function __call($functionName,$params){
+    $callFunctionName='';
+    if (Strings::startsWith($functionName,'find') || Strings::startsWith($functionName,'save')){
+      if (Strings::endsWith($functionName,'s')){
+        //chceme načítat kolekci entit
+        $entityClassName=Strings::substring($functionName,4,Strings::length($functionName)-5);
+        $callFunctionName='findEntities';
+      }else{
+        //chceme načítat jen jednu entitu
+        $entityClassName=Strings::substring($functionName,4);
+        $callFunctionName=Strings::substring($functionName,0,4).'Entity';
+      }
+    }
+    if (empty($entityClassName) || !(class_exists($entityClassName) || class_exists(self::BASIC_ENTITY_NAMESPACE.'\\'.$entityClassName)) || !isset($params[0])){
+      throw new BadRequestException('Function not exists: '.$functionName);
+    }else{
+      if (Strings::startsWith($functionName,'save')){
+        if (isset($params[1])){
+          return $this->$callFunctionName($params[0],$params[1]);
+        }else{
+          return $this->$callFunctionName($params[0]);
+        }
+
+      }else{
+        return $this->$callFunctionName($entityClassName,$params[0]);
+      }
+    }
+  }
 } 

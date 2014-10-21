@@ -525,7 +525,6 @@ class DataPresenter extends BasePresenter{
 
   #endregion renameDatasourceColumnDialog
 
-
   #region injections
   /**
    * @param DatasourcesFacade $datasourcesFacade

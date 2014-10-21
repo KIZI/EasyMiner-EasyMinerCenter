@@ -428,3 +428,55 @@ table.dataPreviewTable td:first-child{
   background: url("../images/spinner.gif") left center no-repeat;
   padding-left: 30px;
 }
+
+a.datasourceColumnItem {
+  display: block;
+  margin: 5px auto;
+  padding:12px 15px;
+  background: #075783;
+  border: 1px solid rgb(49,78,100);
+  color: white;
+  cursor: pointer;
+}
+a.datasourceColumnItem:hover, a.datasourceColumnItem:focus, a.datasourceColumnItem.selected{
+  border: 1px solid #2d83be;
+  background-color:#2d83be;
+  text-decoration: none;
+}
+a.datasourceColumnItem .title{
+  display: block;
+  margin-bottom: 5px;
+}
+a.datasourceColumnItem .subtitle{
+  color: rgb(230,230,230);
+}
+a.datasourceColumnItem .subtitle .stateErr {
+  color: orange;
+}
+
+/*region overlay*/
+div.overlay{
+  position: fixed;
+  z-index:100;
+  top: 0;
+  left: 0;
+  height:100%;
+  width:100%;
+  background-color:#000;
+  background-color:rgba(0,0,0,0.5);
+}
+div.modal {
+  position: fixed;
+  background: #ffffff;
+  z-index: 102;
+  color:#000000;
+  border: none;
+  padding: 30px;
+  text-align:left;
+  top:50px;
+  left:50px;
+  margin: 0 auto;
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+}
+/*endregion overlay*/
