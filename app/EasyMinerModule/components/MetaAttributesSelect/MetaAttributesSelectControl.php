@@ -9,8 +9,10 @@ use App\Model\Rdf\Entities\MetaAttribute;
 use App\Model\Rdf\Facades\MetaAttributesFacade;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
+use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Localization\ITranslator;
+use Nette\Utils\Strings;
 
 /**
  * Class MetaAttributesSelectControl
@@ -47,7 +49,6 @@ class MetaAttributesSelectControl extends Control{
    */
   public function render(){
     $template=$this->template;
-    $template->translator=$this->translator;
     $template->render();
   }
 
@@ -65,6 +66,12 @@ class MetaAttributesSelectControl extends Control{
     }catch (\Exception $e){
       $this->onComponentHide();
     }
+  }
+
+  public function createTemplate(){
+    $template=parent::createTemplate();
+    $template->setTranslator($this->translator);
+    return $template;
   }
 
   /**
@@ -107,11 +114,19 @@ class MetaAttributesSelectControl extends Control{
     $this->template->datasourceColumn=$datasourceColumn;
     /** @var Form $form */
     $form=$this->getComponent('newMetaAttributeForm');
-    $form->setDefaults(array(
+    $defaults=array(
       'datasource'=>$datasource,
       'column'=>$column,
       'metaAttributeName'=>$datasourceColumn->name
-    ));
+    );
+    if ($datasourceColumn->type=='string'){
+      /** @var SelectBox $formatType */
+      $formatType=$form->getComponent('formatType');
+      $formatType->setDefaultValue('values');
+      $defaults['formatType']='values';
+      $formatType->setDisabled();
+    }
+    $form->setDefaults($defaults);
   }
 
   /**
@@ -132,12 +147,20 @@ class MetaAttributesSelectControl extends Control{
 
     /** @var Form $form */
     $form=$this->getComponent('newFormatForm');
-    $form->setDefaults(array(
+    $defaults=array(
       'datasource'=>$datasource,
       'column'=>$column,
       'metaAttributeName'=>$metaAttribute->name,
       'metaAttribute'=>$metaAttribute->uri,
-    ));
+    );
+    if ($datasourceColumn->type=='string'){
+      /** @var SelectBox $formatType */
+      $formatType=$form->getComponent('formatType');
+      $formatType->setDefaultValue('values');
+      $defaults['formatType']='values';
+      $formatType->setDisabled();
+    }
+    $form->setDefaults($defaults);
   }
 
   /**
@@ -161,11 +184,12 @@ class MetaAttributesSelectControl extends Control{
     $form->addText('formatName','Format name:')->setRequired();//TODO kontrola, jestli zatím neexistuje metaatribut se stejným jménem...
     $form->addHidden('datasource');
     $form->addHidden('column');
+    $form->addSelect('formatType','Values range:',array('interval'=>'Continuous values (interval)','values'=>'Distinct values (enumeration)'));
     $form->addSubmit('create','Create meta-attribute')->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
-        $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn);
+        $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn,@$values->formatType);
         $datasourceColumn->formatId=$format->uri;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
@@ -173,7 +197,9 @@ class MetaAttributesSelectControl extends Control{
       }
       $this->redirect('Close');
     };
-    $form->addSubmit('storno','Storno')->onClick[]=function(SubmitButton $button){
+    $storno=$form->addSubmit('storno','Storno');
+    $storno->setValidationScope(array());
+    $storno->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       $this->redirect('SelectMetaAttribute',array('datasource'=>$values->datasource,'column'=>$values->column));
     };
@@ -195,12 +221,13 @@ class MetaAttributesSelectControl extends Control{
     $form->addHidden('metaAttribute');
     $form->addText('metaAttributeName','Meta-attribute:')->setAttribute('readonly','readonly');
     $form->addText('name','Format name:')->setRequired();//TODO regex pro kontrolu jména formátu a kontrola existence formátu se stejným jménem
+    $form->addSelect('formatType','Values range:',array('interval'=>'Continuous values (interval)','values'=>'Distinct values (enumeration)'));
     $form->addSubmit('create','Create format')->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
         $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($values->metaAttributeName);
-        $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn);
+        $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,@$values->formatType);
         $datasourceColumn->formatId=$format->uri;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
@@ -208,7 +235,9 @@ class MetaAttributesSelectControl extends Control{
       }
       $this->redirect('Close');
     };
-    $form->addSubmit('storno','Storno')->onClick[]=function(SubmitButton $button){
+    $storno=$form->addSubmit('storno','Storno');
+    $storno->setValidationScope(array());
+    $storno->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       $this->redirect('SelectFormat',array('datasource'=>$values->datasource,'column'=>$values->column,'metaAttribute'=>$values->metaAttribute));
     };
@@ -223,13 +252,14 @@ class MetaAttributesSelectControl extends Control{
    * @param string $metaAttributeName
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
+   * @param string $formatType
    * @return Format
    */
-  private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn){
+  private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn,$formatType){
     $metaAttribute=new MetaAttribute();
     $metaAttribute->name=$metaAttributeName;
     $this->metaAttributesFacade->saveMetaAttribute($metaAttribute);
-    return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn);
+    return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$formatType);
   }
 
   /**
@@ -237,10 +267,11 @@ class MetaAttributesSelectControl extends Control{
    * @param MetaAttribute $metaAttribute
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
+   * @param string $formatType=values - 'interval'|'values'
    * @return Format
    */
-  private function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn){
-    $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($datasourceColumn);
+  private function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,$formatType='values'){
+    $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($datasourceColumn,(Strings::lower($formatType)=='interval'?'interval':'values'));
     $format->name=$formatName;
     $format->metaAttribute=$metaAttribute;
     $this->metaAttributesFacade->saveFormat($format);

@@ -9,8 +9,11 @@ use LeanMapper\Entity;
  * @property int|null $datasourceColumnId=null
  * @property Datasource $datasource m:hasOne
  * @property string $name
+ * @property string $type m:Enum('string','int','float')
  * @property int $formatId
  */
 class DatasourceColumn extends Entity{
-
+  const TYPE_STRING='string';
+  const TYPE_INTEGER='int';
+  const TYPE_FLOAT='float';
 } 

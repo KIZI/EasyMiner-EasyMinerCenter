@@ -17,9 +17,10 @@ class MetaAttributesFacade {
 
   /**
    * @param DatasourceColumn $datasourceColumn
+   * @param string $formatType = values - values|interval (info o tom, jakým způsobem mají být zachyceny číselné hodnoty)
    * @return Format
    */
-  public function createFormatFromDatasourceColumn(DatasourceColumn $datasourceColumn){
+  public function createFormatFromDatasourceColumn(DatasourceColumn $datasourceColumn,$formatType='values'){
     $format=new Format();
     //TODO vytvoření formátu metaatributu
   }

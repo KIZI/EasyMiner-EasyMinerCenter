@@ -148,6 +148,11 @@ class DatasourcesFacade {
           $datasourceColumn = new DatasourceColumn();
           $datasourceColumn->name = $dbColumn->name;
           $datasourceColumn->datasource = $datasource;
+          switch ($dbColumn->dataType){
+            case DbColumn::TYPE_FLOAT: $datasourceColumn->type=DatasourceColumn::TYPE_FLOAT;break;
+            case DbColumn::TYPE_INTEGER: $datasourceColumn->type=DatasourceColumn::TYPE_INTEGER;break;
+            default: $datasourceColumn->type=DatasourceColumn::TYPE_STRING;
+          }
           $this->datasourceColumnsRepository->persist($datasourceColumn);
         }
       }
