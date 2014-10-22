@@ -109,6 +109,17 @@ class DatasourcesFacade {
     return $result;
   }
 
+
+  /**
+   * Funkce pro uložení entity DatasourceColumn
+   * @param DatasourceColumn $datasource
+   * @return int|bool
+   */
+  public function saveDatasourceColumn(DatasourceColumn &$datasource){
+    $result = $this->datasourceColumnsRepository->persist($datasource);
+    return $result;
+  }
+
   /**
    * Funkce pro aktualizaci info o sloupcích v daném datovém zdroji
    * @param Datasource $datasource
