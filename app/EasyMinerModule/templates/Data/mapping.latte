@@ -15,6 +15,14 @@
         </a>
       {/foreach}
     </div>
+
+    {if (@$mappingFinished)}
+      <div class="block">
+        {_'Mapping and editation finished...'} &nbsp;&nbsp;&nbsp;
+        <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}" class="button">{_'Create new EasyMiner'}</a>
+      </div>
+    {/if}
+
     <div class="block">
       {ifset $datasourceColumn}
         <h2>{_'Data field:'} {$datasourceColumn->name}</h2>

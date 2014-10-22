@@ -123,8 +123,7 @@ class MetaAttributesSelectControl extends Control{
     $form->addSubmit('create','Create format')->onClick[]=function(SubmitButton $submitButton){
       //vytvoření nového metaatributu
       exit('vytvoření nového formátu na základě dat z datasource column');
-
-
+      
       $this->onComponentHide();
     };
     $form->onError[]=function(){

@@ -73,6 +73,7 @@ class DataPresenter extends BasePresenter{
 
     $this->template->datasource=$datasource;
     $this->template->datasourceColumns=$datasourceColumns;
+    $this->template->mappingFinished=$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true);
   }
 
   public function renderImportCsvDataPreview($file,$separator=',',$encoding='utf8',$enclosure='"',$escape='\\'){
@@ -463,10 +464,10 @@ class DataPresenter extends BasePresenter{
     /** @var MetaAttributesSelectControl $metaAttributesSelectControl */
     $metaAttributesSelectControl=$this->iMetaAttributesSelectControlFactory->create();
     $presenter=$this;
-    $metaAttributesSelectControl->onCompomentShow[]=function()use(&$presenter){
+    $metaAttributesSelectControl->onComponentShow[]=function()use(&$presenter){
       $this->template->showSelectMetaAttributeDialog=true;
     };
-    $metaAttributesSelectControl->onCompomentHide[]=function()use(&$presenter){
+    $metaAttributesSelectControl->onComponentHide[]=function()use(&$presenter){
       $this->template->showSelectMetaAttributeDialog=false;
     };
     return $metaAttributesSelectControl;
