@@ -306,7 +306,11 @@ class MySQLDatabase implements IDatabase{
     $columnInfoQuery=$this->db->prepare('SHOW COLUMNS FROM `'.$this->tableName.'` LIKE :name ;');
     $columnInfoQuery->execute(array(':name'=>$oldName));
     $columnInfo=$columnInfoQuery->fetchObject();
-                                   //ALTER TABLE `znalosti2014_assets` CHANGE `id` `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary Key';
+
+    if (!$columnInfo){
+      return false;
+    }
+
     $sql= 'ALTER TABLE `'.$this->tableName.'` CHANGE `'.$oldName.'` `'.$newName.'` '.$columnInfo->Type;
     $params=array();
     if (@$columnInfo->Collation!=''){

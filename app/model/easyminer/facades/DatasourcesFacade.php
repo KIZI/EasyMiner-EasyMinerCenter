@@ -250,12 +250,12 @@ class DatasourcesFacade {
     if (!$datasource instanceof Datasource){
       $datasource=$this->findDatasource($datasource);
     }
-    if ($column instanceof DatasourceColumn){
-      $column=$column->name;
+    if (!($column instanceof DatasourceColumn)){
+      $column=$this->findDatasourceColumn($datasource,$column);
     }
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    if ($this->databasesFacade->deleteColumn($datasource->dbTable,$column)){
-      $this->datasourceColumnsRepository->delete($this->findDatasourceColumn($datasource,$column));
+    if ($this->databasesFacade->deleteColumn($datasource->dbTable,$column->name)){
+      $this->datasourceColumnsRepository->delete($column);
       $this->reloadDatasourceColumns($datasource);
       return true;
     }else{
@@ -272,17 +272,16 @@ class DatasourcesFacade {
    * @return bool
    */
   public function renameDatasourceColumn($datasource, $column, $newName){
-    if (!$datasource instanceof Datasource){
+    if (!($datasource instanceof Datasource)){
       $datasource=$this->findDatasource($datasource);
     }
-    if ($column instanceof DatasourceColumn){
-      $column=$column->name;
+    if (!($column instanceof DatasourceColumn)){
+      $column=$this->findDatasourceColumn($datasource,$column);
     }
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    if ($this->databasesFacade->renameColumn($datasource->dbTable,$column,$newName)){
-      $datasourceColumn=$this->findDatasourceColumn($datasource,$column);
-      $datasourceColumn->name=$newName;
-      $this->saveDatasourceColumn($datasourceColumn);
+    if ($this->databasesFacade->renameColumn($datasource->dbTable,$column->name,$newName)){
+      $column->name=$newName;
+      $this->saveDatasourceColumn($column);
       $this->reloadDatasourceColumns($datasource);
       return true;
     }else{

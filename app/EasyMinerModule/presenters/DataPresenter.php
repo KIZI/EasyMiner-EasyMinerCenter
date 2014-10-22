@@ -19,6 +19,7 @@ use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Http\FileUpload;
 use Nette\Utils\DateTime;
+use Nette\Utils\Html;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
@@ -435,7 +436,9 @@ class DataPresenter extends BasePresenter{
     $translator=$this->translator;
     $form->addConfirmer('deleteDatasourceColumn',array($this,'deleteDatasourceColumn'),
       function($dialog,$params)use($translator){
-        return $translator->translate('Do your really want to delete this data field?');
+        $html=Html::el('div');
+        $html->setHtml('<h1>'.$translator->translate('Delete data field').'</h1><p>'.$translator->translate('Do your really want to delete this data field?').'</p>');
+        return $html;
       }
     );
     return $form;
@@ -452,7 +455,7 @@ class DataPresenter extends BasePresenter{
     }else{
       $this->flashMessage($this->translate('Error occured while removing of data field.'));
     }
-    $this->redirect('this');
+    $this->redirect('mapping',array('datasource'=>$datasource));
   }
   #endregion confirmationDialog
 
