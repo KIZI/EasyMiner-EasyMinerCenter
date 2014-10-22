@@ -47,6 +47,7 @@ services:
 	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%)
 
 	- App\Model\Rdf\Repositories\MetaAttributesRepository(@arc2Store)
+	- App\Model\Rdf\Repositories\FormatsRepository(@arc2Store)
 
 	- App\Model\Rdf\Facades\MetaAttributesFacade
 
