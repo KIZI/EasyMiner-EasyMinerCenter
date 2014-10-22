@@ -241,22 +241,53 @@ class DatasourcesFacade {
   }
 
   /**
+   * Funkce pro odstranění datového sloupce z databáze
    * @param Datasource|int $datasource
    * @param DatasourceColumn|int $column
    * @return bool
    */
   public function deleteDatasourceColumn($datasource, $column){
-    //TODO IMPLEMENT!!!!
+    if (!$datasource instanceof Datasource){
+      $datasource=$this->findDatasource($datasource);
+    }
+    if ($column instanceof DatasourceColumn){
+      $column=$column->name;
+    }
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    if ($this->databasesFacade->deleteColumn($datasource->dbTable,$column)){
+      $this->datasourceColumnsRepository->delete($this->findDatasourceColumn($datasource,$column));
+      $this->reloadDatasourceColumns($datasource);
+      return true;
+    }else{
+      $this->reloadDatasourceColumns($datasource);
+      return false;
+    }
   }
 
   /**
+   * Funkce pro přejmenování datového sloupce v databázi
    * @param Datasource|int $datasource
    * @param DatasourceColumn|int $column
    * @param string $newName
    * @return bool
    */
   public function renameDatasourceColumn($datasource, $column, $newName){
-    //TODO IMPLEMENT!!!!
-    exit('rename ');
+    if (!$datasource instanceof Datasource){
+      $datasource=$this->findDatasource($datasource);
+    }
+    if ($column instanceof DatasourceColumn){
+      $column=$column->name;
+    }
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    if ($this->databasesFacade->renameColumn($datasource->dbTable,$column,$newName)){
+      $datasourceColumn=$this->findDatasourceColumn($datasource,$column);
+      $datasourceColumn->name=$newName;
+      $this->saveDatasourceColumn($datasourceColumn);
+      $this->reloadDatasourceColumns($datasource);
+      return true;
+    }else{
+      $this->reloadDatasourceColumns($datasource);
+      return false;
+    }
   }
 } 

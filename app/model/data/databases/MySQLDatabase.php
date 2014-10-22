@@ -287,4 +287,47 @@ class MySQLDatabase implements IDatabase{
     }
     return $result;
   }
+
+  /**
+   * @param string $name
+   * @return bool
+   */
+  public function deleteColumn($name){
+    $query=$this->db->prepare('ALTER TABLE `'.$this->tableName.'` DROP `'.$name.'`;');
+    return $query->execute();
+  }
+
+  /**
+   * @param string $oldName
+   * @param string $newName
+   * @return bool
+   */
+  public function renameColumn($oldName, $newName) {
+    $columnInfoQuery=$this->db->prepare('SHOW COLUMNS FROM `'.$this->tableName.'` LIKE :name ;');
+    $columnInfoQuery->execute(array(':name'=>$oldName));
+    $columnInfo=$columnInfoQuery->fetchObject();
+                                   //ALTER TABLE `znalosti2014_assets` CHANGE `id` `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary Key';
+    $sql= 'ALTER TABLE `'.$this->tableName.'` CHANGE `'.$oldName.'` `'.$newName.'` '.$columnInfo->Type;
+    $params=array();
+    if (@$columnInfo->Collation!=''){
+      $sql.=' COLLATE '.$columnInfo->Collation;
+    }
+    if (Strings::upper(@$columnInfo->Null)=='YES'){
+      $sql.=' NULL ';
+    }else{
+      $sql.=' NOT NULL ';
+    }
+    if (@$columnInfo->Default!=''){
+      $sql.=' DEFAULT :default ';
+      $params[':default']=$columnInfo->Default;
+    }
+    $sql.=' '.@$columnInfo->Extra;
+    if (@$columnInfo->Comment!=''){
+      $sql.=' COMMENT :comment ';
+      $params[':comment']=$columnInfo->Comment;
+    }
+    $sql.=';';
+    $renameQuery=$this->db->prepare($sql);
+    return $renameQuery->execute($params);
+  }
 }

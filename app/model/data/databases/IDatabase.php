@@ -118,4 +118,17 @@ interface IDatabase {
    * @return DbColumn[]
    */
   public function getColumns();
+
+  /**
+   * @param string $name
+   * @return bool
+   */
+  public function deleteColumn($name);
+
+  /**
+   * @param string $oldName
+   * @param string $newName
+   * @return bool
+   */
+  public function renameColumn($oldName,$newName);
 } 

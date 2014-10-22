@@ -175,4 +175,51 @@ class DatabasesFacade {
     $this->database->selectTable($tableName);
     return $this->database->getColumns();
   }
+
+  /**
+   * Funkce pro kontrolu, jestli existuje v DB tabulce sloupec se zadaným názvem
+   * @param string $tableName
+   * @param string $column
+   * @return bool
+   */
+  public function checkColumnExists($tableName,$column){
+    try {
+      $this->database->selectTable($tableName);
+      $dbColumn=$this->database->getColumn($column);
+      return (!($dbColumn instanceof DbColumn));
+    }catch (\Exception $e){
+      return false;
+    }
+  }
+
+  /**
+   * Funkce pro přejmenování DB sloupce
+   * @param string $tableName
+   * @param string $column
+   * @param string $columnNewName
+   * @return bool
+   */
+  public function renameColumn($tableName,$column,$columnNewName){
+    try{
+      $this->database->selectTable($tableName);
+      return $this->database->renameColumn($column,$columnNewName);
+    }catch (\Exception $e){
+      return false;
+    }
+  }
+
+  /**
+   * Funkce pro smazání sloupce z DB tabulky
+   * @param string $tableName
+   * @param string $column
+   * @return bool
+   */
+  public function deleteColumn($tableName,$column){
+    try{
+      $this->database->selectTable($tableName);
+      return $this->database->deleteColumn($column);
+    }catch (\Exception $e){
+      return false;
+    }
+  }
 } 
