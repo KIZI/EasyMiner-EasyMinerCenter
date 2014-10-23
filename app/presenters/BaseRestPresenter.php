@@ -5,6 +5,7 @@ namespace App\Presenters;
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\IResponse;
 use Nette\Http\Response;
+use Nette\Utils\Json;
 
 class BaseRestPresenter extends BasePresenter{
   /**
@@ -43,7 +44,7 @@ class BaseRestPresenter extends BasePresenter{
    */
   protected function sendJsonResponse($data){
     $httpResponse=$this->getHttpResponse();
-    $httpResponse->setContentType('application/xml','UTF-8');
-    $this->sendResponse(new TextResponse((is_string($data)?$data:json_encode($data))));
+    $httpResponse->setContentType('application/json','UTF-8');
+    $this->sendResponse(new TextResponse((is_string($data)?$data:Json::encode($data))));
   }
 } 
