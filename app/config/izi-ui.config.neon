@@ -5,13 +5,12 @@
 
 parameters:
     izi-ui:
-        DDPath: '/data/datadescription_0.2.xml'
-        #FLPath: '/data/featureList_beginner.xml'
-        FLPath: '/data/featureList_exploration.xml'
-        FGCPath: '/data/fieldGroupConfig.xml'
+        DDPath: '/libs/IZI-Data/datadescription_0.2.xml'
+        FLPath: '/config/izi/featureList_exploration.xml'
+        FGCPath: '/libs/IZI-Data/fieldGroupConfig.xml'
         ERPath: null
         ETreePath: null
-        FAPath: '/data/frequencyAnalysis.xml'
+        FAPath: '/libs/IZI-Data/data/frequencyAnalysis.xml'
         KB_CONF_ID: 6 # KBI query ID - confirmation
         KB_EXC_ID: 7 # KBI query ID - exception
         MAX_INITIALIZATION_REQUESTS: 15

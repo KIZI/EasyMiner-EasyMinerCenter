@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arf:GUHAFeatureList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://keg.vse.cz/ns/arfeatures_08 http://sewebar.vse.cz/schemas/GUHAARfeature.xsd"
+	xmlns:arf="http://keg.vse.cz/ns/arfeatures_08" mode="AssociationRules" procedure="4ft">
+	<UserInterface priority="1">
+		<AllowMultipleRules>false</AllowMultipleRules>
+		<Name>Beginner</Name>
+		<LocalizedName lang="en">Beginner</LocalizedName>
+		<Explanation lang="en">In this mode, the user selects one target field and its value.</Explanation>
+		<AutoSuggest>
+			<Option default="true">
+				<Name>heuristic</Name>
+				<LocalizedName lang="en">Heuristic</LocalizedName>
+				<Explanation lang="en">The system will sort features according to their ability to predict the value of the target attribute. The prediction is fast, but only approximative.</Explanation>
+			</Option>
+		</AutoSuggest>
+	</UserInterface>
+
+	<RulePattern>
+		<Antecedent minNumberOfBBAs="1" />
+		<Consequent minNumberOfBBAs="1" maxNumberOfBBAs="1" />
+		<Condition minNumberOfBBAs="0" maxNumberOfBBAs="0" />
+		<GeneralConstraint minNumberOfBBAs="2" />
+	</RulePattern>
+
+	<BuildingBlocks>
+		<InterestMeasures threshold="required">
+			<Types>
+				<Type>
+					<Name>FUI</Name>
+                    <Default>true</Default>
+					<LocalizedName lang="en">Confidence</LocalizedName>
+					<LocalizedName lang="cs">Spolehlivost</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">At lest specified percentage of instances matching the left side of the rule must match also the right side of the rule.</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.7</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>SUPP</Name>
+                    <Default>true</Default>
+					<LocalizedName lang="en">Support</LocalizedName>
+					<LocalizedName lang="cs">Podpora</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Percentage of objects the rule must match.</Explanation>
+					<Explanation lang="cs">Relativní podpora pravidla</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.05</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>CHI</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Chi-Square</LocalizedName>
+					<LocalizedName lang="cs">Chí-kvadrát</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The degree of dependence between the conditions expressed by the left and right side of the rule must pass chi-square test on level alpha</Explanation>
+					<Field>
+						<Name>alpha</Name>
+						<DefaultValue>0.01</DefaultValue>
+						<LocalizedName lang="en">alpha</LocalizedName>
+						<LocalizedName lang="cs">alfa</LocalizedName>
+						<Validation>
+							<Value>0.01</Value>
+							<Value>0.025</Value>
+							<Value>0.05</Value>
+							<Datatype>enum</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+			</Types>
+			<SupportedInterestMeasureCombinations>
+				<SupportedIMCombination>
+					<InterestMeasure>FUI</InterestMeasure>
+					<InterestMeasure>SUPP</InterestMeasure>
+				</SupportedIMCombination>
+				<SupportedIMCombination>
+					<InterestMeasure>CHI</InterestMeasure>
+					<InterestMeasure>SUPP</InterestMeasure>
+				</SupportedIMCombination>
+				<SupportedIMCombination>
+					<InterestMeasure>CHI</InterestMeasure>
+				</SupportedIMCombination>
+				<SupportedIMCombination>
+					<InterestMeasure>CHI</InterestMeasure>
+					<InterestMeasure>SUPP</InterestMeasure>
+					<InterestMeasure>FUI</InterestMeasure>
+				</SupportedIMCombination>
+			</SupportedInterestMeasureCombinations>
+
+		</InterestMeasures>
+
+		<BasicBooleanAttribute coefficient="required">
+			<Coefficient scope="all">
+				<Type>
+					<Name>Subset</Name>
+					<LocalizedName lang="en">Any one value</LocalizedName>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Minimum number of values</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field hidden="true">
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Maximum number of values</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>One category</Name>
+					<LocalizedName lang="en">One fixed value</LocalizedName>
+                    <Explanation lang="en">Only specified value will be considered for the value of the field. </Explanation>
+					<Field>
+						<Name>category</Name>
+						<LocalizedName lang="en">Value</LocalizedName>
+						<LocalizedName lang="cs">Kategorie</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<Datatype>string</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>Left cut</Name>
+					<LocalizedName lang="en">Only low values</LocalizedName>
+					<Explanation lang="en">Only lowest values will be consideredfor the value of the field.</Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Min length</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field>
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Number of values considered as low</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>3</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>Right cut</Name>
+					<LocalizedName lang="en">Only highest values will be considered for the value of the field. </LocalizedName>
+					<Explanation lang="en">For the value of the field, only highest values will be considered. How many values you want to be processed as low.</Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Minimum number of values
+						</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field>
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Number of values considered as high</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>3</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+			</Coefficient>
+		</BasicBooleanAttribute>
+
+		<DerivedBooleanAttribute>
+			<NestingConstraints scope="antecedent">
+				<MaxLevels>3</MaxLevels>
+				<NestingConstraint level="1">
+					<Connectives>
+						<Conjunction allowed="yes" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+				<NestingConstraint level="2">
+					<Connectives>
+						<Conjunction allowed="yes" />
+						<Disjunction allowed="yes" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+				<NestingConstraint level="3">
+					<Connectives>
+						<Conjunction allowed="no" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="yes" />
+					</Connectives>
+				</NestingConstraint>
+			</NestingConstraints>
+			<NestingConstraints scope="consequent">
+				<MaxLevels>3</MaxLevels>
+				<NestingConstraint level="1">
+					<Connectives>
+						<Conjunction allowed="no" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+				<NestingConstraint level="2">
+					<Connectives>
+						<Conjunction allowed="no" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+				<NestingConstraint level="3">
+					<Connectives>
+						<Conjunction allowed="no" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+			</NestingConstraints>
+
+		</DerivedBooleanAttribute>
+	</BuildingBlocks>
+</arf:GUHAFeatureList>

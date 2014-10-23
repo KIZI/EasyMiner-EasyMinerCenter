@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fg:FieldGroupConfigs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://keg.vse.cz/ns/fieldgroupconfig0_1 http://sewebar.vse.cz/schemas/FieldGroupConfig0_1.xsd"
+ xmlns:fg="http://keg.vse.cz/ns/fieldgroupconfig0_1" rootConfigID="1">
+    
+    <FieldGroupConfig id="1">        
+        <Name>Personal characteristics</Name>
+        <LocalizedName lang="en">Pers. characteristics</LocalizedName>
+        <Explanation lang="en">Personal characteristics of a client.</Explanation>
+        <FieldConfigs>
+            <FieldConfig>
+                <FieldRef>Age</FieldRef>
+                <Coefficient>
+                    <Type>Subset</Type>
+                    <MinimalLength>1</MinimalLength>
+                    <MaximalLength>2</MaximalLength>                    
+                </Coefficient>
+            </FieldConfig>  
+            <FieldConfig>
+                <FieldRef>Sex</FieldRef>                
+                <Coefficient>
+                    <Type>One category</Type>
+                    <Category>M</Category>
+                </Coefficient>
+            </FieldConfig>  
+        </FieldConfigs>
+    </FieldGroupConfig>
+
+</fg:FieldGroupConfigs>
+

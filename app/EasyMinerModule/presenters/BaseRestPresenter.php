@@ -1,17 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Stanislav
- * Date: 22.9.14
- * Time: 18:08
- */
 
 namespace App\EasyMinerModule\Presenters;
 
-
 use Nette\Application\ForbiddenRequestException;
 
-abstract class BasePresenter extends \App\Presenters\BasePresenter{
+abstract class BaseRestPresenter extends \App\Presenters\BaseRestPresenter{
 
   /**
    * @param string $miner

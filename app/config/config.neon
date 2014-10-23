@@ -28,7 +28,7 @@ services:
 	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
 
-    - IZI\IZIConfig(%izi-ui%)
+	- IZI\IZIConfig(%izi-ui%)
 
 	- LeanMapper\Connection(%leanmapper%)
 	- LeanMapper\DefaultEntityFactory

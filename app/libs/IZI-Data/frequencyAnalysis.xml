@@ -1,0 +1,1445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrequencyAnalysis>
+	<Frequency>
+		<Condition>
+			<Name>Age</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Amount</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt;21;31)">0.30075187969925</Value>
+			<Value cat="&lt;31;41)">0.40983606557377</Value>
+			<Value cat="&lt;41;51)">0.40342124019957</Value>
+			<Value cat="&lt;51;61)">0.35805243445693</Value>
+			<Value cat="&lt;61;71)">0.37586685159501</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Age</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>District</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt;21;31)">0.14285714285714</Value>
+			<Value cat="&lt;31;41)">0.11213114754098</Value>
+			<Value cat="&lt;41;51)">0.13471133285816</Value>
+			<Value cat="&lt;51;61)">0.080898876404494</Value>
+			<Value cat="&lt;61;71)">0.099861303744799</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Age</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Duration</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt;21;31)">0.2406015037594</Value>
+			<Value cat="&lt;31;41)">0.24196721311475</Value>
+			<Value cat="&lt;41;51)">0.23734853884533</Value>
+			<Value cat="&lt;51;61)">0.23595505617978</Value>
+			<Value cat="&lt;61;71)">0.249653259362</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Age</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Quality</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt;21;31)">0.8796992481203</Value>
+			<Value cat="&lt;31;41)">0.88524590163934</Value>
+			<Value cat="&lt;41;51)">0.89166072701354</Value>
+			<Value cat="&lt;51;61)">0.88314606741573</Value>
+			<Value cat="&lt;61;71)">0.86130374479889</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Age</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Repayment</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt;21;31)">0.15789473684211</Value>
+			<Value cat="&lt;31;41)">0.17847769028871</Value>
+			<Value cat="&lt;41;51)">0.19885958660014</Value>
+			<Value cat="&lt;51;61)">0.20224719101124</Value>
+			<Value cat="&lt;61;71)">0.249653259362</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Age</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Salary</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt;21;31)">0.37593984962406</Value>
+			<Value cat="&lt;31;41)">0.36262295081967</Value>
+			<Value cat="&lt;41;51)">0.39629365645046</Value>
+			<Value cat="&lt;51;61)">0.38426966292135</Value>
+			<Value cat="&lt;61;71)">0.374479889043</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Age</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Sex</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt;21;31)">0.6015037593985</Value>
+			<Value cat="&lt;31;41)">0.51016393442623</Value>
+			<Value cat="&lt;41;51)">0.51960085531005</Value>
+			<Value cat="&lt;51;61)">0.54157303370787</Value>
+			<Value cat="&lt;61;71)">0.68654646324549</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Amount</Name>
+			<NumCategories>6</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Age</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt; 20">0.27272727272727</Value>
+			<Value cat="&lt;20;50)">0.27884615384615</Value>
+			<Value cat="&lt;50;100)">0.26782393056417</Value>
+			<Value cat="&lt;100;250)">0.27173913043478</Value>
+			<Value cat="&lt;250;500)">0.26446280991736</Value>
+			<Value cat="&gt;= 500">0.4</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Amount</Name>
+			<NumCategories>6</NumCategories>
+		</Condition>
+		<Class>
+			<Name>District</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt; 20">0.22727272727273</Value>
+			<Value cat="&lt;20;50)">0.11538461538462</Value>
+			<Value cat="&lt;50;100)">0.12275263484191</Value>
+			<Value cat="&lt;100;250)">0.09</Value>
+			<Value cat="&lt;250;500)">0.13223140495868</Value>
+			<Value cat="&gt;= 500">0.2</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Amount</Name>
+			<NumCategories>6</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Duration</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt; 20">0.63636363636364</Value>
+			<Value cat="&lt;20;50)">0.54807692307692</Value>
+			<Value cat="&lt;50;100)">0.30254184748915</Value>
+			<Value cat="&lt;100;250)">0.28434782608696</Value>
+			<Value cat="&lt;250;500)">0.54545454545455</Value>
+			<Value cat="&gt;= 500">1</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Amount</Name>
+			<NumCategories>6</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Quality</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt; 20">1</Value>
+			<Value cat="&lt;20;50)">0.95192307692308</Value>
+			<Value cat="&lt;50;100)">0.89832610043397</Value>
+			<Value cat="&lt;100;250)">0.88826086956522</Value>
+			<Value cat="&lt;250;500)">0.76859504132231</Value>
+			<Value cat="&gt;= 500">0.8</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Amount</Name>
+			<NumCategories>6</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Repayment</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt; 20">0.5</Value>
+			<Value cat="&lt;20;50)">0.28846153846154</Value>
+			<Value cat="&lt;50;100)">0.25108493490391</Value>
+			<Value cat="&lt;100;250)">0.25837320574163</Value>
+			<Value cat="&lt;250;500)">0.27272727272727</Value>
+			<Value cat="&gt;= 500">0.6</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Amount</Name>
+			<NumCategories>6</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Salary</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt; 20">0.40909090909091</Value>
+			<Value cat="&lt;20;50)">0.41346153846154</Value>
+			<Value cat="&lt;50;100)">0.38623682579045</Value>
+			<Value cat="&lt;100;250)">0.38217391304348</Value>
+			<Value cat="&lt;250;500)">0.39669421487603</Value>
+			<Value cat="&gt;= 500">0.6</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Amount</Name>
+			<NumCategories>6</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Sex</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="&lt; 20">0.72727272727273</Value>
+			<Value cat="&lt;20;50)">0.51923076923077</Value>
+			<Value cat="&lt;50;100)">0.50898946063236</Value>
+			<Value cat="&lt;100;250)">0.52565217391304</Value>
+			<Value cat="&lt;250;500)">0.5702479338843</Value>
+			<Value cat="&gt;= 500">0.6</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>District</Name>
+			<NumCategories>77</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Age</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="Benesov">0.42857142857143</Value>
+			<Value cat="Beroun">0.85714285714286</Value>
+			<Value cat="Blansko">0.57142857142857</Value>
+			<Value cat="Breclav">0.5</Value>
+			<Value cat="Brno">0.26086956521739</Value>
+			<Value cat="Brno - venkov">0.45454545454545</Value>
+			<Value cat="Bruntal">0.49090909090909</Value>
+			<Value cat="Ceska Lipa">0.5</Value>
+			<Value cat="Ceske Budejovice">0.44444444444444</Value>
+			<Value cat="Cesky Krumlov">0.57142857142857</Value>
+			<Value cat="Decin">0.4</Value>
+			<Value cat="Domazlice">0.5</Value>
+			<Value cat="Frydek - Mistek">0.46666666666667</Value>
+			<Value cat="Havlickuv Brod">0.67441860465116</Value>
+			<Value cat="Hodonin">0.375</Value>
+			<Value cat="Hradec Kralove">0.5</Value>
+			<Value cat="Cheb">0.75</Value>
+			<Value cat="Chomutov">0.375</Value>
+			<Value cat="Chrudim">0.42857142857143</Value>
+			<Value cat="Jablonec n. Nisou">0.5</Value>
+			<Value cat="Jesenik">0.5</Value>
+			<Value cat="Jicin">0.42857142857143</Value>
+			<Value cat="Jihlava">0.33333333333333</Value>
+			<Value cat="Jindrichuv Hradec">0.27272727272727</Value>
+			<Value cat="Karlovy Vary">0.5</Value>
+			<Value cat="Karvina">0.28</Value>
+			<Value cat="Kladno">0.5</Value>
+			<Value cat="Klatovy">1</Value>
+			<Value cat="Kolin">0.45454545454545</Value>
+			<Value cat="Kromeriz">0.45454545454545</Value>
+			<Value cat="Kutna Hora">0.375</Value>
+			<Value cat="Liberec">0.28571428571429</Value>
+			<Value cat="Litomerice">0.42857142857143</Value>
+			<Value cat="Louny">0.46153846153846</Value>
+			<Value cat="Melnik">0.6</Value>
+			<Value cat="Mlada Boleslav">0.4</Value>
+			<Value cat="Most">0.55737704918033</Value>
+			<Value cat="Nachod">0.25</Value>
+			<Value cat="Novy Jicin">0.4</Value>
+			<Value cat="Nymburk">0.22222222222222</Value>
+			<Value cat="Olomouc">0.46666666666667</Value>
+			<Value cat="Opava">0.375</Value>
+			<Value cat="Ostrava - mesto">0.35</Value>
+			<Value cat="Pardubice">0.3</Value>
+			<Value cat="Pelhrimov">0.33333333333333</Value>
+			<Value cat="Pisek">0.33333333333333</Value>
+			<Value cat="Plzen">0.33333333333333</Value>
+			<Value cat="Plzen - jih">0.44444444444444</Value>
+			<Value cat="Plzen - sever">0.57142857142857</Value>
+			<Value cat="Praha">0.26582278481013</Value>
+			<Value cat="Praha - vychod">0.4</Value>
+			<Value cat="Praha - zapad">0.4</Value>
+			<Value cat="Prachatice">0.5</Value>
+			<Value cat="Prerov">0.66666666666667</Value>
+			<Value cat="Pribram">0.4</Value>
+			<Value cat="Prostejov">0.33333333333333</Value>
+			<Value cat="Rakovnik">0.33333333333333</Value>
+			<Value cat="Rokycany">0.375</Value>
+			<Value cat="Rychnov nad Kneznou">0.6</Value>
+			<Value cat="Semily">0.33333333333333</Value>
+			<Value cat="Sokolov">1</Value>
+			<Value cat="Strakonice">0.4</Value>
+			<Value cat="Sumperk">0.5</Value>
+			<Value cat="Svitavy">0.33333333333333</Value>
+			<Value cat="Tabor">0.375</Value>
+			<Value cat="Tachov">0.36363636363636</Value>
+			<Value cat="Teplice">0.6</Value>
+			<Value cat="Trebic">0.5</Value>
+			<Value cat="Trutnov">0.42857142857143</Value>
+			<Value cat="Uherske Hradiste">0.55555555555556</Value>
+			<Value cat="Usti nad Labem">0.66666666666667</Value>
+			<Value cat="Usti nad Orlici">0.33333333333333</Value>
+			<Value cat="Vsetin">0.42857142857143</Value>
+			<Value cat="Vyskov">0.5</Value>
+			<Value cat="Zdar nad Sazavou">0.42857142857143</Value>
+			<Value cat="Zlin">0.375</Value>
+			<Value cat="Znojmo">0.33333333333333</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>District</Name>
+			<NumCategories>77</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Amount</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="Benesov">0.42857142857143</Value>
+			<Value cat="Beroun">0.28571428571429</Value>
+			<Value cat="Blansko">0.42857142857143</Value>
+			<Value cat="Breclav">0.33333333333333</Value>
+			<Value cat="Brno">0.34782608695652</Value>
+			<Value cat="Brno - venkov">0.36363636363636</Value>
+			<Value cat="Bruntal">0.67272727272727</Value>
+			<Value cat="Ceska Lipa">0.33333333333333</Value>
+			<Value cat="Ceske Budejovice">0.44444444444444</Value>
+			<Value cat="Cesky Krumlov">0.42857142857143</Value>
+			<Value cat="Decin">0.2</Value>
+			<Value cat="Domazlice">0.5</Value>
+			<Value cat="Frydek - Mistek">0.33333333333333</Value>
+			<Value cat="Havlickuv Brod">0.47674418604651</Value>
+			<Value cat="Hodonin">0.375</Value>
+			<Value cat="Hradec Kralove">0.33333333333333</Value>
+			<Value cat="Cheb">0.75</Value>
+			<Value cat="Chomutov">0.375</Value>
+			<Value cat="Chrudim">0.42857142857143</Value>
+			<Value cat="Jablonec n. Nisou">0.5</Value>
+			<Value cat="Jesenik">0.375</Value>
+			<Value cat="Jicin">0.57142857142857</Value>
+			<Value cat="Jihlava">0.66666666666667</Value>
+			<Value cat="Jindrichuv Hradec">0.54545454545455</Value>
+			<Value cat="Karlovy Vary">0.33333333333333</Value>
+			<Value cat="Karvina">0.32</Value>
+			<Value cat="Kladno">0.5</Value>
+			<Value cat="Klatovy">0.5</Value>
+			<Value cat="Kolin">0.36363636363636</Value>
+			<Value cat="Kromeriz">0.45454545454545</Value>
+			<Value cat="Kutna Hora">0.375</Value>
+			<Value cat="Liberec">0.42857142857143</Value>
+			<Value cat="Litomerice">0.42857142857143</Value>
+			<Value cat="Louny">0.38461538461538</Value>
+			<Value cat="Melnik">0.4</Value>
+			<Value cat="Mlada Boleslav">0.4</Value>
+			<Value cat="Most">0.44262295081967</Value>
+			<Value cat="Nachod">0.375</Value>
+			<Value cat="Novy Jicin">0.6</Value>
+			<Value cat="Nymburk">0.33333333333333</Value>
+			<Value cat="Olomouc">0.4</Value>
+			<Value cat="Opava">0.5</Value>
+			<Value cat="Ostrava - mesto">0.6</Value>
+			<Value cat="Pardubice">0.6</Value>
+			<Value cat="Pelhrimov">0.66666666666667</Value>
+			<Value cat="Pisek">1</Value>
+			<Value cat="Plzen">0.5</Value>
+			<Value cat="Plzen - jih">0.33333333333333</Value>
+			<Value cat="Plzen - sever">0.57142857142857</Value>
+			<Value cat="Praha">0.29113924050633</Value>
+			<Value cat="Praha - vychod">0.6</Value>
+			<Value cat="Praha - zapad">0.4</Value>
+			<Value cat="Prachatice">0.58333333333333</Value>
+			<Value cat="Prerov">0.33333333333333</Value>
+			<Value cat="Pribram">0.2</Value>
+			<Value cat="Prostejov">0.44444444444444</Value>
+			<Value cat="Rakovnik">0.33333333333333</Value>
+			<Value cat="Rokycany">0.5</Value>
+			<Value cat="Rychnov nad Kneznou">0.6</Value>
+			<Value cat="Semily">0.66666666666667</Value>
+			<Value cat="Sokolov">0.91666666666667</Value>
+			<Value cat="Strakonice">0.6</Value>
+			<Value cat="Sumperk">0.33333333333333</Value>
+			<Value cat="Svitavy">0.66666666666667</Value>
+			<Value cat="Tabor">0.375</Value>
+			<Value cat="Tachov">0.54545454545455</Value>
+			<Value cat="Teplice">0.4</Value>
+			<Value cat="Trebic">0.5</Value>
+			<Value cat="Trutnov">0.42857142857143</Value>
+			<Value cat="Uherske Hradiste">0.44444444444444</Value>
+			<Value cat="Usti nad Labem">0.66666666666667</Value>
+			<Value cat="Usti nad Orlici">0.33333333333333</Value>
+			<Value cat="Vsetin">0.42857142857143</Value>
+			<Value cat="Vyskov">0.25</Value>
+			<Value cat="Zdar nad Sazavou">0.42857142857143</Value>
+			<Value cat="Zlin">0.3125</Value>
+			<Value cat="Znojmo">0.66666666666667</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>District</Name>
+			<NumCategories>77</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Duration</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="Benesov">0.42857142857143</Value>
+			<Value cat="Beroun">0.28571428571429</Value>
+			<Value cat="Blansko">0.28571428571429</Value>
+			<Value cat="Breclav">0.33333333333333</Value>
+			<Value cat="Brno">0.30434782608696</Value>
+			<Value cat="Brno - venkov">0.45454545454545</Value>
+			<Value cat="Bruntal">0.50909090909091</Value>
+			<Value cat="Ceska Lipa">0.33333333333333</Value>
+			<Value cat="Ceske Budejovice">0.44444444444444</Value>
+			<Value cat="Cesky Krumlov">0.42857142857143</Value>
+			<Value cat="Decin">0.6</Value>
+			<Value cat="Domazlice">0.5</Value>
+			<Value cat="Frydek - Mistek">0.33333333333333</Value>
+			<Value cat="Havlickuv Brod">0.41860465116279</Value>
+			<Value cat="Hodonin">0.625</Value>
+			<Value cat="Hradec Kralove">0.33333333333333</Value>
+			<Value cat="Cheb">0.75</Value>
+			<Value cat="Chomutov">0.375</Value>
+			<Value cat="Chrudim">0.42857142857143</Value>
+			<Value cat="Jablonec n. Nisou">0.5</Value>
+			<Value cat="Jesenik">0.375</Value>
+			<Value cat="Jicin">0.71428571428571</Value>
+			<Value cat="Jihlava">0.66666666666667</Value>
+			<Value cat="Jindrichuv Hradec">0.36363636363636</Value>
+			<Value cat="Karlovy Vary">0.5</Value>
+			<Value cat="Karvina">0.36</Value>
+			<Value cat="Kladno">0.5</Value>
+			<Value cat="Klatovy">1</Value>
+			<Value cat="Kolin">0.36363636363636</Value>
+			<Value cat="Kromeriz">0.36363636363636</Value>
+			<Value cat="Kutna Hora">0.25</Value>
+			<Value cat="Liberec">0.42857142857143</Value>
+			<Value cat="Litomerice">0.42857142857143</Value>
+			<Value cat="Louny">0.38461538461538</Value>
+			<Value cat="Melnik">0.4</Value>
+			<Value cat="Mlada Boleslav">0.4</Value>
+			<Value cat="Most">0.40983606557377</Value>
+			<Value cat="Nachod">0.5</Value>
+			<Value cat="Novy Jicin">0.4</Value>
+			<Value cat="Nymburk">0.33333333333333</Value>
+			<Value cat="Olomouc">0.33333333333333</Value>
+			<Value cat="Opava">0.375</Value>
+			<Value cat="Ostrava - mesto">0.35</Value>
+			<Value cat="Pardubice">0.4</Value>
+			<Value cat="Pelhrimov">0.33333333333333</Value>
+			<Value cat="Pisek">0.66666666666667</Value>
+			<Value cat="Plzen">0.33333333333333</Value>
+			<Value cat="Plzen - jih">0.33333333333333</Value>
+			<Value cat="Plzen - sever">0.42857142857143</Value>
+			<Value cat="Praha">0.24050632911392</Value>
+			<Value cat="Praha - vychod">0.4</Value>
+			<Value cat="Praha - zapad">0.4</Value>
+			<Value cat="Prachatice">0.33333333333333</Value>
+			<Value cat="Prerov">0.33333333333333</Value>
+			<Value cat="Pribram">0.4</Value>
+			<Value cat="Prostejov">0.55555555555556</Value>
+			<Value cat="Rakovnik">0.33333333333333</Value>
+			<Value cat="Rokycany">0.375</Value>
+			<Value cat="Rychnov nad Kneznou">0.4</Value>
+			<Value cat="Semily">0.66666666666667</Value>
+			<Value cat="Sokolov">0.91666666666667</Value>
+			<Value cat="Strakonice">0.6</Value>
+			<Value cat="Sumperk">0.5</Value>
+			<Value cat="Svitavy">0.41666666666667</Value>
+			<Value cat="Tabor">0.625</Value>
+			<Value cat="Tachov">0.36363636363636</Value>
+			<Value cat="Teplice">0.4</Value>
+			<Value cat="Trebic">0.5</Value>
+			<Value cat="Trutnov">0.42857142857143</Value>
+			<Value cat="Uherske Hradiste">0.33333333333333</Value>
+			<Value cat="Usti nad Labem">0.66666666666667</Value>
+			<Value cat="Usti nad Orlici">0.46666666666667</Value>
+			<Value cat="Vsetin">0.28571428571429</Value>
+			<Value cat="Vyskov">0.375</Value>
+			<Value cat="Zdar nad Sazavou">0.42857142857143</Value>
+			<Value cat="Zlin">0.375</Value>
+			<Value cat="Znojmo">0.66666666666667</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>District</Name>
+			<NumCategories>77</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Quality</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="Benesov">1</Value>
+			<Value cat="Beroun">0.71428571428571</Value>
+			<Value cat="Blansko">0.85714285714286</Value>
+			<Value cat="Breclav">0.83333333333333</Value>
+			<Value cat="Brno">0.78260869565217</Value>
+			<Value cat="Brno - venkov">0.90909090909091</Value>
+			<Value cat="Bruntal">0.67272727272727</Value>
+			<Value cat="Ceska Lipa">1</Value>
+			<Value cat="Ceske Budejovice">0.88888888888889</Value>
+			<Value cat="Cesky Krumlov">0.85714285714286</Value>
+			<Value cat="Decin">1</Value>
+			<Value cat="Domazlice">0.5</Value>
+			<Value cat="Frydek - Mistek">0.93333333333333</Value>
+			<Value cat="Havlickuv Brod">0.62790697674419</Value>
+			<Value cat="Hodonin">1</Value>
+			<Value cat="Hradec Kralove">0.83333333333333</Value>
+			<Value cat="Cheb">1</Value>
+			<Value cat="Chomutov">1</Value>
+			<Value cat="Chrudim">0.71428571428571</Value>
+			<Value cat="Jablonec n. Nisou">1</Value>
+			<Value cat="Jesenik">0.75</Value>
+			<Value cat="Jicin">1</Value>
+			<Value cat="Jihlava">1</Value>
+			<Value cat="Jindrichuv Hradec">0.90909090909091</Value>
+			<Value cat="Karlovy Vary">0.66666666666667</Value>
+			<Value cat="Karvina">0.88</Value>
+			<Value cat="Kladno">0.66666666666667</Value>
+			<Value cat="Klatovy">1</Value>
+			<Value cat="Kolin">0.90909090909091</Value>
+			<Value cat="Kromeriz">0.81818181818182</Value>
+			<Value cat="Kutna Hora">0.75</Value>
+			<Value cat="Liberec">1</Value>
+			<Value cat="Litomerice">1</Value>
+			<Value cat="Louny">1</Value>
+			<Value cat="Melnik">1</Value>
+			<Value cat="Mlada Boleslav">0.8</Value>
+			<Value cat="Most">0.73770491803279</Value>
+			<Value cat="Nachod">1</Value>
+			<Value cat="Novy Jicin">1</Value>
+			<Value cat="Nymburk">1</Value>
+			<Value cat="Olomouc">0.8</Value>
+			<Value cat="Opava">0.625</Value>
+			<Value cat="Ostrava - mesto">0.85</Value>
+			<Value cat="Pardubice">1</Value>
+			<Value cat="Pelhrimov">1</Value>
+			<Value cat="Pisek">1</Value>
+			<Value cat="Plzen">0.83333333333333</Value>
+			<Value cat="Plzen - jih">1</Value>
+			<Value cat="Plzen - sever">1</Value>
+			<Value cat="Praha">0.92405063291139</Value>
+			<Value cat="Praha - vychod">1</Value>
+			<Value cat="Praha - zapad">0.9</Value>
+			<Value cat="Prachatice">0.91666666666667</Value>
+			<Value cat="Prerov">1</Value>
+			<Value cat="Pribram">1</Value>
+			<Value cat="Prostejov">0.77777777777778</Value>
+			<Value cat="Rakovnik">0.88888888888889</Value>
+			<Value cat="Rokycany">0.875</Value>
+			<Value cat="Rychnov nad Kneznou">1</Value>
+			<Value cat="Semily">1</Value>
+			<Value cat="Sokolov">1</Value>
+			<Value cat="Strakonice">0.6</Value>
+			<Value cat="Sumperk">1</Value>
+			<Value cat="Svitavy">0.75</Value>
+			<Value cat="Tabor">0.75</Value>
+			<Value cat="Tachov">0.81818181818182</Value>
+			<Value cat="Teplice">1</Value>
+			<Value cat="Trebic">0.83333333333333</Value>
+			<Value cat="Trutnov">1</Value>
+			<Value cat="Uherske Hradiste">1</Value>
+			<Value cat="Usti nad Labem">1</Value>
+			<Value cat="Usti nad Orlici">0.93333333333333</Value>
+			<Value cat="Vsetin">0.85714285714286</Value>
+			<Value cat="Vyskov">1</Value>
+			<Value cat="Zdar nad Sazavou">1</Value>
+			<Value cat="Zlin">0.9375</Value>
+			<Value cat="Znojmo">0.83333333333333</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>District</Name>
+			<NumCategories>77</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Repayment</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="Benesov">0.28571428571429</Value>
+			<Value cat="Beroun">0.42857142857143</Value>
+			<Value cat="Blansko">0.28571428571429</Value>
+			<Value cat="Breclav">0.33333333333333</Value>
+			<Value cat="Brno">0.17391304347826</Value>
+			<Value cat="Brno - venkov">0.27272727272727</Value>
+			<Value cat="Bruntal">0.49090909090909</Value>
+			<Value cat="Ceska Lipa">0.33333333333333</Value>
+			<Value cat="Ceske Budejovice">0.33333333333333</Value>
+			<Value cat="Cesky Krumlov">0.28571428571429</Value>
+			<Value cat="Decin">0.4</Value>
+			<Value cat="Domazlice">0.5</Value>
+			<Value cat="Frydek - Mistek">0.4</Value>
+			<Value cat="Havlickuv Brod">0.45882352941176</Value>
+			<Value cat="Hodonin">0.375</Value>
+			<Value cat="Hradec Kralove">0.33333333333333</Value>
+			<Value cat="Cheb">0.5</Value>
+			<Value cat="Chomutov">0.5</Value>
+			<Value cat="Chrudim">0.28571428571429</Value>
+			<Value cat="Jablonec n. Nisou">0.5</Value>
+			<Value cat="Jesenik">0.375</Value>
+			<Value cat="Jicin">0.28571428571429</Value>
+			<Value cat="Jihlava">0.33333333333333</Value>
+			<Value cat="Jindrichuv Hradec">0.36363636363636</Value>
+			<Value cat="Karlovy Vary">0.33333333333333</Value>
+			<Value cat="Karvina">0.2</Value>
+			<Value cat="Kladno">0.5</Value>
+			<Value cat="Klatovy">0.5</Value>
+			<Value cat="Kolin">0.27272727272727</Value>
+			<Value cat="Kromeriz">0.36363636363636</Value>
+			<Value cat="Kutna Hora">0.25</Value>
+			<Value cat="Liberec">0.28571428571429</Value>
+			<Value cat="Litomerice">0.28571428571429</Value>
+			<Value cat="Louny">0.30769230769231</Value>
+			<Value cat="Melnik">0.4</Value>
+			<Value cat="Mlada Boleslav">0.2</Value>
+			<Value cat="Most">0.40983606557377</Value>
+			<Value cat="Nachod">0.25</Value>
+			<Value cat="Novy Jicin">0.4</Value>
+			<Value cat="Nymburk">0.33333333333333</Value>
+			<Value cat="Olomouc">0.2</Value>
+			<Value cat="Opava">0.375</Value>
+			<Value cat="Ostrava - mesto">0.3</Value>
+			<Value cat="Pardubice">0.3</Value>
+			<Value cat="Pelhrimov">0.5</Value>
+			<Value cat="Pisek">0.66666666666667</Value>
+			<Value cat="Plzen">0.5</Value>
+			<Value cat="Plzen - jih">0.33333333333333</Value>
+			<Value cat="Plzen - sever">0.28571428571429</Value>
+			<Value cat="Praha">0.16455696202532</Value>
+			<Value cat="Praha - vychod">0.4</Value>
+			<Value cat="Praha - zapad">0.2</Value>
+			<Value cat="Prachatice">0.25</Value>
+			<Value cat="Prerov">0.33333333333333</Value>
+			<Value cat="Pribram">0.2</Value>
+			<Value cat="Prostejov">0.44444444444444</Value>
+			<Value cat="Rakovnik">0.33333333333333</Value>
+			<Value cat="Rokycany">0.25</Value>
+			<Value cat="Rychnov nad Kneznou">0.4</Value>
+			<Value cat="Semily">0.66666666666667</Value>
+			<Value cat="Sokolov">0.83333333333333</Value>
+			<Value cat="Strakonice">0.4</Value>
+			<Value cat="Sumperk">0.33333333333333</Value>
+			<Value cat="Svitavy">0.25</Value>
+			<Value cat="Tabor">0.25</Value>
+			<Value cat="Tachov">0.27272727272727</Value>
+			<Value cat="Teplice">0.4</Value>
+			<Value cat="Trebic">0.5</Value>
+			<Value cat="Trutnov">0.42857142857143</Value>
+			<Value cat="Uherske Hradiste">0.33333333333333</Value>
+			<Value cat="Usti nad Labem">0.33333333333333</Value>
+			<Value cat="Usti nad Orlici">0.26666666666667</Value>
+			<Value cat="Vsetin">0.28571428571429</Value>
+			<Value cat="Vyskov">0.25</Value>
+			<Value cat="Zdar nad Sazavou">0.28571428571429</Value>
+			<Value cat="Zlin">0.1875</Value>
+			<Value cat="Znojmo">0.33333333333333</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>District</Name>
+			<NumCategories>77</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Salary</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="Benesov">1</Value>
+			<Value cat="Beroun">1</Value>
+			<Value cat="Blansko">1</Value>
+			<Value cat="Breclav">1</Value>
+			<Value cat="Brno">1</Value>
+			<Value cat="Brno - venkov">1</Value>
+			<Value cat="Bruntal">1</Value>
+			<Value cat="Ceska Lipa">1</Value>
+			<Value cat="Ceske Budejovice">1</Value>
+			<Value cat="Cesky Krumlov">1</Value>
+			<Value cat="Decin">1</Value>
+			<Value cat="Domazlice">1</Value>
+			<Value cat="Frydek - Mistek">1</Value>
+			<Value cat="Havlickuv Brod">1</Value>
+			<Value cat="Hodonin">1</Value>
+			<Value cat="Hradec Kralove">1</Value>
+			<Value cat="Cheb">1</Value>
+			<Value cat="Chomutov">1</Value>
+			<Value cat="Chrudim">1</Value>
+			<Value cat="Jablonec n. Nisou">1</Value>
+			<Value cat="Jesenik">1</Value>
+			<Value cat="Jicin">1</Value>
+			<Value cat="Jihlava">1</Value>
+			<Value cat="Jindrichuv Hradec">1</Value>
+			<Value cat="Karlovy Vary">1</Value>
+			<Value cat="Karvina">1</Value>
+			<Value cat="Kladno">1</Value>
+			<Value cat="Klatovy">1</Value>
+			<Value cat="Kolin">1</Value>
+			<Value cat="Kromeriz">1</Value>
+			<Value cat="Kutna Hora">1</Value>
+			<Value cat="Liberec">1</Value>
+			<Value cat="Litomerice">1</Value>
+			<Value cat="Louny">1</Value>
+			<Value cat="Melnik">1</Value>
+			<Value cat="Mlada Boleslav">1</Value>
+			<Value cat="Most">1</Value>
+			<Value cat="Nachod">1</Value>
+			<Value cat="Novy Jicin">1</Value>
+			<Value cat="Nymburk">1</Value>
+			<Value cat="Olomouc">1</Value>
+			<Value cat="Opava">1</Value>
+			<Value cat="Ostrava - mesto">1</Value>
+			<Value cat="Pardubice">1</Value>
+			<Value cat="Pelhrimov">1</Value>
+			<Value cat="Pisek">1</Value>
+			<Value cat="Plzen">1</Value>
+			<Value cat="Plzen - jih">1</Value>
+			<Value cat="Plzen - sever">1</Value>
+			<Value cat="Praha">1</Value>
+			<Value cat="Praha - vychod">1</Value>
+			<Value cat="Praha - zapad">1</Value>
+			<Value cat="Prachatice">1</Value>
+			<Value cat="Prerov">1</Value>
+			<Value cat="Pribram">1</Value>
+			<Value cat="Prostejov">1</Value>
+			<Value cat="Rakovnik">1</Value>
+			<Value cat="Rokycany">1</Value>
+			<Value cat="Rychnov nad Kneznou">1</Value>
+			<Value cat="Semily">1</Value>
+			<Value cat="Sokolov">1</Value>
+			<Value cat="Strakonice">1</Value>
+			<Value cat="Sumperk">1</Value>
+			<Value cat="Svitavy">1</Value>
+			<Value cat="Tabor">1</Value>
+			<Value cat="Tachov">1</Value>
+			<Value cat="Teplice">1</Value>
+			<Value cat="Trebic">1</Value>
+			<Value cat="Trutnov">1</Value>
+			<Value cat="Uherske Hradiste">1</Value>
+			<Value cat="Usti nad Labem">1</Value>
+			<Value cat="Usti nad Orlici">1</Value>
+			<Value cat="Vsetin">1</Value>
+			<Value cat="Vyskov">1</Value>
+			<Value cat="Zdar nad Sazavou">1</Value>
+			<Value cat="Zlin">1</Value>
+			<Value cat="Znojmo">1</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>District</Name>
+			<NumCategories>77</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Sex</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="Benesov">0.57142857142857</Value>
+			<Value cat="Beroun">0.71428571428571</Value>
+			<Value cat="Blansko">0.85714285714286</Value>
+			<Value cat="Breclav">0.5</Value>
+			<Value cat="Brno">0.60869565217391</Value>
+			<Value cat="Brno - venkov">0.81818181818182</Value>
+			<Value cat="Bruntal">0.83636363636364</Value>
+			<Value cat="Ceska Lipa">0.5</Value>
+			<Value cat="Ceske Budejovice">0.55555555555556</Value>
+			<Value cat="Cesky Krumlov">0.85714285714286</Value>
+			<Value cat="Decin">0.8</Value>
+			<Value cat="Domazlice">0.5</Value>
+			<Value cat="Frydek - Mistek">0.53333333333333</Value>
+			<Value cat="Havlickuv Brod">0.68604651162791</Value>
+			<Value cat="Hodonin">0.625</Value>
+			<Value cat="Hradec Kralove">0.83333333333333</Value>
+			<Value cat="Cheb">0.75</Value>
+			<Value cat="Chomutov">0.75</Value>
+			<Value cat="Chrudim">0.71428571428571</Value>
+			<Value cat="Jablonec n. Nisou">0.5</Value>
+			<Value cat="Jesenik">0.75</Value>
+			<Value cat="Jicin">0.85714285714286</Value>
+			<Value cat="Jihlava">0.83333333333333</Value>
+			<Value cat="Jindrichuv Hradec">0.54545454545455</Value>
+			<Value cat="Karlovy Vary">0.83333333333333</Value>
+			<Value cat="Karvina">0.72</Value>
+			<Value cat="Kladno">0.5</Value>
+			<Value cat="Klatovy">0.5</Value>
+			<Value cat="Kolin">0.54545454545455</Value>
+			<Value cat="Kromeriz">0.63636363636364</Value>
+			<Value cat="Kutna Hora">0.5</Value>
+			<Value cat="Liberec">0.71428571428571</Value>
+			<Value cat="Litomerice">0.71428571428571</Value>
+			<Value cat="Louny">0.61538461538462</Value>
+			<Value cat="Melnik">0.8</Value>
+			<Value cat="Mlada Boleslav">0.6</Value>
+			<Value cat="Most">0.55737704918033</Value>
+			<Value cat="Nachod">0.625</Value>
+			<Value cat="Novy Jicin">0.6</Value>
+			<Value cat="Nymburk">0.55555555555556</Value>
+			<Value cat="Olomouc">0.73333333333333</Value>
+			<Value cat="Opava">0.5</Value>
+			<Value cat="Ostrava - mesto">0.65</Value>
+			<Value cat="Pardubice">0.6</Value>
+			<Value cat="Pelhrimov">0.5</Value>
+			<Value cat="Pisek">0.66666666666667</Value>
+			<Value cat="Plzen">0.66666666666667</Value>
+			<Value cat="Plzen - jih">0.55555555555556</Value>
+			<Value cat="Plzen - sever">0.57142857142857</Value>
+			<Value cat="Praha">0.53164556962025</Value>
+			<Value cat="Praha - vychod">0.8</Value>
+			<Value cat="Praha - zapad">0.6</Value>
+			<Value cat="Prachatice">0.58333333333333</Value>
+			<Value cat="Prerov">0.66666666666667</Value>
+			<Value cat="Pribram">0.6</Value>
+			<Value cat="Prostejov">0.66666666666667</Value>
+			<Value cat="Rakovnik">0.66666666666667</Value>
+			<Value cat="Rokycany">0.625</Value>
+			<Value cat="Rychnov nad Kneznou">0.6</Value>
+			<Value cat="Semily">1</Value>
+			<Value cat="Sokolov">1</Value>
+			<Value cat="Strakonice">0.6</Value>
+			<Value cat="Sumperk">0.66666666666667</Value>
+			<Value cat="Svitavy">0.75</Value>
+			<Value cat="Tabor">0.75</Value>
+			<Value cat="Tachov">0.72727272727273</Value>
+			<Value cat="Teplice">0.6</Value>
+			<Value cat="Trebic">0.66666666666667</Value>
+			<Value cat="Trutnov">0.57142857142857</Value>
+			<Value cat="Uherske Hradiste">0.55555555555556</Value>
+			<Value cat="Usti nad Labem">0.66666666666667</Value>
+			<Value cat="Usti nad Orlici">0.53333333333333</Value>
+			<Value cat="Vsetin">0.71428571428571</Value>
+			<Value cat="Vyskov">0.5</Value>
+			<Value cat="Zdar nad Sazavou">0.71428571428571</Value>
+			<Value cat="Zlin">0.5</Value>
+			<Value cat="Znojmo">0.5</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Duration</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Age</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="1 year">0.24555461473328</Value>
+			<Value cat="2 years">0.29686242960579</Value>
+			<Value cat="3 years">0.24706867671692</Value>
+			<Value cat="4 years">0.2444089456869</Value>
+			<Value cat="5 years">0.25171624713959</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Duration</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Amount</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="1 year">0.43437764606266</Value>
+			<Value cat="2 years">0.42799678197908</Value>
+			<Value cat="3 years">0.54773869346734</Value>
+			<Value cat="4 years">0.47523961661342</Value>
+			<Value cat="5 years">0.45308924485126</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Duration</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>District</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="1 year">0.14479254868755</Value>
+			<Value cat="2 years">0.12308930008045</Value>
+			<Value cat="3 years">0.1356783919598</Value>
+			<Value cat="4 years">0.093450479233227</Value>
+			<Value cat="5 years">0.082379862700229</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Duration</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Quality</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="1 year">0.91447925486876</Value>
+			<Value cat="2 years">0.87610619469027</Value>
+			<Value cat="3 years">0.86683417085427</Value>
+			<Value cat="4 years">0.87699680511182</Value>
+			<Value cat="5 years">0.87871853546911</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Duration</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Repayment</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="1 year">0.22861981371719</Value>
+			<Value cat="2 years">0.18825422365245</Value>
+			<Value cat="3 years">0.18844221105528</Value>
+			<Value cat="4 years">0.1797124600639</Value>
+			<Value cat="5 years">0.17862595419847</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Duration</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Salary</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="1 year">0.37510584250635</Value>
+			<Value cat="2 years">0.3620273531778</Value>
+			<Value cat="3 years">0.34589614740369</Value>
+			<Value cat="4 years">0.35223642172524</Value>
+			<Value cat="5 years">0.4233409610984</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Duration</Name>
+			<NumCategories>5</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Sex</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="1 year">0.55038103302286</Value>
+			<Value cat="2 years">0.50040225261464</Value>
+			<Value cat="3 years">0.56281407035176</Value>
+			<Value cat="4 years">0.52555910543131</Value>
+			<Value cat="5 years">0.52860411899313</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Quality</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Age</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="good">0.24752475247525</Value>
+			<Value cat="bad">0.24071526822558</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Quality</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Amount</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="good">0.37458745874587</Value>
+			<Value cat="bad">0.353507565337</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Quality</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>District</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="good">0.12046204620462</Value>
+			<Value cat="bad">0.074277854195323</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Quality</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Duration</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="good">0.21122112211221</Value>
+			<Value cat="bad">0.21870701513067</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Quality</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Repayment</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="good">0.18811881188119</Value>
+			<Value cat="bad">0.21074380165289</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Quality</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Salary</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="good">0.33993399339934</Value>
+			<Value cat="bad">0.37964236588721</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Quality</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Sex</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="good">0.50660066006601</Value>
+			<Value cat="bad">0.52544704264099</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Repayment</Name>
+			<NumCategories>10</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Age</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="(0;1&gt;">0.24923076923077</Value>
+			<Value cat="(1;2&gt;">0.31701631701632</Value>
+			<Value cat="(2;3&gt;">0.23711340206186</Value>
+			<Value cat="(3;4&gt;">0.25409836065574</Value>
+			<Value cat="(4;5&gt;">0.27488687782805</Value>
+			<Value cat="(5;6&gt;">0.32187070151307</Value>
+			<Value cat="(6;7&gt;">0.28739495798319</Value>
+			<Value cat="(7;8&gt;">0.34</Value>
+			<Value cat="(8;9&gt;">0.35357142857143</Value>
+			<Value cat="(9;10&gt;">0.5</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Repayment</Name>
+			<NumCategories>10</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Amount</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="(0;1&gt;">0.60923076923077</Value>
+			<Value cat="(1;2&gt;">0.47202797202797</Value>
+			<Value cat="(2;3&gt;">0.45360824742268</Value>
+			<Value cat="(3;4&gt;">0.54098360655738</Value>
+			<Value cat="(4;5&gt;">0.55995475113122</Value>
+			<Value cat="(5;6&gt;">0.59147180192572</Value>
+			<Value cat="(6;7&gt;">0.49915966386555</Value>
+			<Value cat="(7;8&gt;">0.46</Value>
+			<Value cat="(8;9&gt;">0.45</Value>
+			<Value cat="(9;10&gt;">0.5</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Repayment</Name>
+			<NumCategories>10</NumCategories>
+		</Condition>
+		<Class>
+			<Name>District</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="(0;1&gt;">0.083076923076923</Value>
+			<Value cat="(1;2&gt;">0.13636363636364</Value>
+			<Value cat="(2;3&gt;">0.082474226804124</Value>
+			<Value cat="(3;4&gt;">0.10655737704918</Value>
+			<Value cat="(4;5&gt;">0.091628959276018</Value>
+			<Value cat="(5;6&gt;">0.099037138927098</Value>
+			<Value cat="(6;7&gt;">0.18151260504202</Value>
+			<Value cat="(7;8&gt;">0.14</Value>
+			<Value cat="(8;9&gt;">0.16071428571429</Value>
+			<Value cat="(9;10&gt;">0.2</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Repayment</Name>
+			<NumCategories>10</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Duration</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="(0;1&gt;">0.28</Value>
+			<Value cat="(1;2&gt;">0.22027972027972</Value>
+			<Value cat="(2;3&gt;">0.25773195876289</Value>
+			<Value cat="(3;4&gt;">0.24590163934426</Value>
+			<Value cat="(4;5&gt;">0.26470588235294</Value>
+			<Value cat="(5;6&gt;">0.27235213204952</Value>
+			<Value cat="(6;7&gt;">0.25714285714286</Value>
+			<Value cat="(7;8&gt;">0.3</Value>
+			<Value cat="(8;9&gt;">0.28928571428571</Value>
+			<Value cat="(9;10&gt;">0.5</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Repayment</Name>
+			<NumCategories>10</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Quality</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="(0;1&gt;">0.99692307692308</Value>
+			<Value cat="(1;2&gt;">0.93356643356643</Value>
+			<Value cat="(2;3&gt;">0.87628865979381</Value>
+			<Value cat="(3;4&gt;">0.9344262295082</Value>
+			<Value cat="(4;5&gt;">0.87556561085973</Value>
+			<Value cat="(5;6&gt;">0.87895460797799</Value>
+			<Value cat="(6;7&gt;">0.90756302521008</Value>
+			<Value cat="(7;8&gt;">0.66</Value>
+			<Value cat="(8;9&gt;">0.77142857142857</Value>
+			<Value cat="(9;10&gt;">0.8</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Repayment</Name>
+			<NumCategories>10</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Salary</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="(0;1&gt;">0.38769230769231</Value>
+			<Value cat="(1;2&gt;">0.36713286713287</Value>
+			<Value cat="(2;3&gt;">0.36082474226804</Value>
+			<Value cat="(3;4&gt;">0.35245901639344</Value>
+			<Value cat="(4;5&gt;">0.35859728506787</Value>
+			<Value cat="(5;6&gt;">0.35625859697387</Value>
+			<Value cat="(6;7&gt;">0.3781512605042</Value>
+			<Value cat="(7;8&gt;">0.36</Value>
+			<Value cat="(8;9&gt;">0.45</Value>
+			<Value cat="(9;10&gt;">0.5</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Repayment</Name>
+			<NumCategories>10</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Sex</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="(0;1&gt;">1</Value>
+			<Value cat="(1;2&gt;">1</Value>
+			<Value cat="(2;3&gt;">1</Value>
+			<Value cat="(3;4&gt;">1</Value>
+			<Value cat="(4;5&gt;">1</Value>
+			<Value cat="(5;6&gt;">1</Value>
+			<Value cat="(6;7&gt;">1</Value>
+			<Value cat="(7;8&gt;">1</Value>
+			<Value cat="(8;9&gt;">1</Value>
+			<Value cat="(9;10&gt;">1</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Salary</Name>
+			<NumCategories>3</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Age</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="low">0.26988775012201</Value>
+			<Value cat="avg">0.25663716814159</Value>
+			<Value cat="high">0.2650142993327</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Salary</Name>
+			<NumCategories>3</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Amount</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="low">0.4289897510981</Value>
+			<Value cat="avg">0.35398230088496</Value>
+			<Value cat="high">0.33412774070543</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Salary</Name>
+			<NumCategories>3</NumCategories>
+		</Condition>
+		<Class>
+			<Name>District</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="low">0.06588579795022</Value>
+			<Value cat="avg">0.066371681415929</Value>
+			<Value cat="high">0.33889418493804</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Salary</Name>
+			<NumCategories>3</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Duration</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="low">0.27086383601757</Value>
+			<Value cat="avg">0.2212389380531</Value>
+			<Value cat="high">0.21115347950429</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Salary</Name>
+			<NumCategories>3</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Quality</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="low">0.86530014641288</Value>
+			<Value cat="avg">0.89823008849558</Value>
+			<Value cat="high">0.8836987607245</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Salary</Name>
+			<NumCategories>3</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Repayment</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="low">0.17138671875</Value>
+			<Value cat="avg">0.19026548672566</Value>
+			<Value cat="high">0.17159199237369</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Salary</Name>
+			<NumCategories>3</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Sex</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="low">0.52074182528062</Value>
+			<Value cat="avg">0.5</Value>
+			<Value cat="high">0.54623450905624</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Sex</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Age</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="F">0.23751987281399</Value>
+			<Value cat="M">0.2562582345191</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Sex</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Amount</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="F">0.34689984101749</Value>
+			<Value cat="M">0.39822134387352</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Sex</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>District</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="F">0.12019077901431</Value>
+			<Value cat="M">0.1096837944664</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Sex</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Duration</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="F">0.22034976152623</Value>
+			<Value cat="M">0.22134387351779</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Sex</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Quality</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="F">0.8785373608903</Value>
+			<Value cat="M">0.88636363636364</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Sex</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Repayment</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="F">0.1631160572337</Value>
+			<Value cat="M">0.19275123558484</Value>
+		</Values>
+	</Frequency>
+	<Frequency>
+		<Condition>
+			<Name>Sex</Name>
+			<NumCategories>2</NumCategories>
+		</Condition>
+		<Class>
+			<Name>Salary</Name>
+			<NumCategories>0</NumCategories>
+		</Class>
+		<Values>
+			<Value cat="F">0.36438791732909</Value>
+			<Value cat="M">0.35144927536232</Value>
+		</Values>
+	</Frequency>
+</FrequencyAnalysis>

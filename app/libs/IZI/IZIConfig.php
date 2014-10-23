@@ -2,6 +2,7 @@
 namespace IZI;
 
 use Nette\Object;
+use Nette\Utils\Strings;
 
 /**
  * Class IZIConfig - konfigurace IziUI
@@ -39,7 +40,12 @@ class IZIConfig{
    * @return string|null
    */
   public function __get($name){
-    return @$this->params[$name];
+    $value=@$this->params[$name];
+    if (Strings::startsWith($value,'/')){
+      //pokud začínáme lomítkem, doplníme cestu na absolutní
+      return __DIR__.'/../..'.$value;
+    }
+    return $value;
   }
 
   /**

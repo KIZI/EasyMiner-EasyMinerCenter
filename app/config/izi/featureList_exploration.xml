@@ -1,0 +1,741 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arf:GUHAFeatureList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://keg.vse.cz/ns/arfeatures_08 http://sewebar.vse.cz/schemas/GUHAARfeature.xsd"
+	xmlns:arf="http://keg.vse.cz/ns/arfeatures_08" mode="AssociationRules" procedure="4ft">
+	<UserInterface priority="2">
+		<AllowMultipleRules>false</AllowMultipleRules>
+		<Name>Exploration</Name>
+		<LocalizedName lang="en">Exploration full</LocalizedName>
+		<Explanation lang="en">All features are enabled.</Explanation>
+		<AutoSuggest>
+			<Option default="false">
+				<Name>heuristic</Name>
+				<LocalizedName lang="en">Heuristic</LocalizedName>
+				<Explanation lang="en">The system will sort features according to their ability to predict the value of the target attribute. The prediction is fast, but only approximative. </Explanation>
+			</Option>
+		</AutoSuggest>
+	</UserInterface>
+
+	<RulePattern>
+		<Antecedent minNumberOfBBAs="0" />
+		<Consequent minNumberOfBBAs="1" />
+		<Condition minNumberOfBBAs="0" maxNumberOfBBAs="0" />
+		<GeneralConstraint minNumberOfBBAs="1" />
+	</RulePattern>
+
+	<BuildingBlocks>
+		<InterestMeasures threshold="required">
+			<Types>
+				<Type>
+					<Name>FUI</Name>
+                    <Default>true</Default>
+					<LocalizedName lang="en">Confidence</LocalizedName>
+					<LocalizedName lang="cs">Spolehlivost</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">At lest specified percentage of instances matching the left side of the rule must match also the right side of the rule.</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.7</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>SUPP</Name>
+                    <Default>true</Default>
+					<LocalizedName lang="en">Support</LocalizedName>
+					<LocalizedName lang="cs">Podpora</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Percentage of objects the rule must match.</Explanation>
+					<Explanation lang="cs">Relativní podpora pravidla</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.05</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0.01</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>CHI</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Chi-Square</LocalizedName>
+					<LocalizedName lang="cs">Chí-kvadrát</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The degree of dependence between the conditions expressed by the left and right side of the rule must pass chi-square test on level alpha</Explanation>
+					<Field>
+						<Name>alpha</Name>
+						<DefaultValue>0.01</DefaultValue>
+						<LocalizedName lang="en">alpha</LocalizedName>
+						<LocalizedName lang="cs">alfa</LocalizedName>
+						<Validation>
+							<Value>0.001</Value>
+							<Value>0.005</Value>
+							<Value>0.01</Value>
+							<Value>0.05</Value>
+							<Value>0.1</Value>
+							<Datatype>enum</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>FSH</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Fisher</LocalizedName>
+					<LocalizedName lang="cs">Fisher</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The one-sided Fisher test rejects on the level alpha the null hypothesis of independence of A and S in favour of the alernative hypothesis of their positive logarithmic interaction. </Explanation>
+					<Field>
+						<Name>alpha</Name>
+						<DefaultValue>0.01</DefaultValue>
+						<LocalizedName lang="en">alpha</LocalizedName>
+						<LocalizedName lang="cs">alfa</LocalizedName>
+						<Validation>
+							<Value>0.001</Value>
+							<Value>0.005</Value>
+							<Value>0.01</Value>
+							<Value>0.05</Value>
+							<Value>0.1</Value>
+							<Datatype>enum</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>AAD</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Lift*</LocalizedName>
+					<LocalizedName lang="cs">Above Average Dependance</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
+					The value is decreased by one compared to the formula typically used in the literature.
+					</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.10</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="no">5</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>BAD</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Negative Lift</LocalizedName>
+					<LocalizedName lang="cs">Below Average Dependance</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  lower if the antecedent is specified than is the total percentage of instances satisfying the consequent.</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.10</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="no">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>DFUI</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Double Founded Implication</LocalizedName>
+					<LocalizedName lang="cs">Double Founded Implication</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">At least a specified percentage of instances satisfying antecedent or consequent satisfy both antecedent and consequent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.7</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>DLCI</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Double Lower Critical Implication</LocalizedName>
+					<LocalizedName lang="cs">Double Lower Critical Implication</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The binomical test rejects on the level alpha the null hypothesis P (A and C | A or C) &lt;= p in favour of the alternative hypothesis P (A and C | A or C) &gt; p </Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.10</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+					<Field>
+						<Name>alpha</Name>
+						<DefaultValue>0.01</DefaultValue>
+						<LocalizedName lang="en">alpha</LocalizedName>
+						<LocalizedName lang="cs">alfa</LocalizedName>
+						<Validation>
+							<Value>0.001</Value>
+							<Value>0.005</Value>
+							<Value>0.01</Value>
+							<Value>0.05</Value>
+							<Value>0.1</Value>
+							<Datatype>enum</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>DUCI</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Double Upper Critical Implication</LocalizedName>
+					<LocalizedName lang="cs">Double Upper Critical Implication</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The binomical test does not reject on the level alpha the null hypothesis P (A and C | A or C) &lt;= p in favour of the alternative hypothesis P (A and C | A or C) &gt; p </Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.10</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+					<Field>
+						<Name>alpha</Name>
+						<DefaultValue>0.01</DefaultValue>
+						<LocalizedName lang="en">alpha</LocalizedName>
+						<LocalizedName lang="cs">alfa</LocalizedName>
+						<Validation>
+							<Value>0.001</Value>
+							<Value>0.005</Value>
+							<Value>0.01</Value>
+							<Value>0.05</Value>
+							<Value>0.1</Value>
+							<Datatype>enum</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>FUE</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Founded Equivalence</LocalizedName>
+					<LocalizedName lang="cs">Fundovaná ekvivalence</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">At least a specified percentage of instances has the same truth value for Antecedent and Consequent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.7</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>LCE</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Lower Critical Equivalence</LocalizedName>
+					<LocalizedName lang="cs">Lower Critical Equivalence</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The binomical test rejects on the level alpha the null hypothesis P (A and C have the same truth value) &lt;= p in favour of the alternative hypothesis P (A and C have the same truth value) &gt; p </Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.10</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+					<Field>
+						<Name>alpha</Name>
+						<DefaultValue>0.01</DefaultValue>
+						<LocalizedName lang="en">alpha</LocalizedName>
+						<LocalizedName lang="cs">alfa</LocalizedName>
+						<Validation>
+							<Value>0.001</Value>
+							<Value>0.005</Value>
+							<Value>0.01</Value>
+							<Value>0.05</Value>
+							<Value>0.1</Value>
+							<Datatype>enum</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>UCE</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">Upper Critical Equivalence</LocalizedName>
+					<LocalizedName lang="cs">Upper Critical Equivalence</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">The binomical test does not reject on the level alpha the null hypothesis P (A and C have the same truth value) &lt;= p in favour of the alternative hypothesis P (A and C have the same truth value) &gt; p </Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.10</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+					<Field>
+						<Name>alpha</Name>
+						<DefaultValue>0.01</DefaultValue>
+						<LocalizedName lang="en">alpha</LocalizedName>
+						<LocalizedName lang="cs">alfa</LocalizedName>
+						<Validation>
+							<Value>0.001</Value>
+							<Value>0.005</Value>
+							<Value>0.01</Value>
+							<Value>0.05</Value>
+							<Value>0.1</Value>
+							<Datatype>enum</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>a-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">a-frequency</LocalizedName>
+					<LocalizedName lang="cs">a-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that match both antecedent and consequent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>b-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">b-frequency</LocalizedName>
+					<LocalizedName lang="cs">b-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that match the antecedent but not the consequent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>c-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">c-frequency</LocalizedName>
+					<LocalizedName lang="cs">c-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that match the consequent but not the antecedent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>d-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">d-frequency</LocalizedName>
+					<LocalizedName lang="cs">d-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that do not match neither the consequent nor the antecedent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>r-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">r-frequency</LocalizedName>
+					<LocalizedName lang="cs">r-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that match the antecedent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>s-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">s-frequency</LocalizedName>
+					<LocalizedName lang="cs">s-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that do not match the antecedent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>k-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">k-frequency</LocalizedName>
+					<LocalizedName lang="cs">k-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that match the consequent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>l-frequency</Name>
+                    <Default>false</Default>
+					<LocalizedName lang="en">l-frequency</LocalizedName>
+					<LocalizedName lang="cs">l-frequency</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Number of objects that do not match the consequent</Explanation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">9999999</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+			</Types>
+			<SupportedInterestMeasureCombinations />
+		</InterestMeasures>
+
+		<BasicBooleanAttribute coefficient="required">
+			<Coefficient scope="all">
+				<Type>
+					<Name>Subset</Name>
+					<LocalizedName lang="en">Subset of values</LocalizedName>
+					<Explanation lang="en">The system will try to use all individual attribute values. If maximum number of values parameter is set to a value greater than 1, dynamic binning will be activated. </Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Minimum number of values</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field hidden="true">
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Maximum number of values</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Explanation lang="en">If set to a value greater than 2, the system will go through all combinations of up to a specified number of values.</Explanation>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>5</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>One category</Name>
+					<LocalizedName lang="en">Fixed value</LocalizedName>
+                    <Explanation lang="en">Only the specified value will be considered for the value of the field. </Explanation>
+					<Field>
+						<Name>category</Name>
+						<LocalizedName lang="en">Value</LocalizedName>
+						<LocalizedName lang="cs">Kategorie</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<Datatype>string</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>Interval</Name>
+					<LocalizedName lang="en">Adjacent values</LocalizedName>
+					<Explanation lang="en">Dynamic Binning wildcard - specified number of adjacent values will be  merged and the resulting value considered for the value of the field.  </Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Min length</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+					<Field>
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Maximum length</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Explanation lang="en">Number of values considered as adjacent.</Explanation>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>5</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>Cyclical intervals</Name>
+					<LocalizedName lang="en">Cyclical adjacent values</LocalizedName>
+					<Explanation lang="en">Dynamic Binning - specified number of adjacent values will be considered for the value of the field. The lowest and highest value are considered as adjacent. </Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Min length</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+					<Field>
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Number of values considered as adjacent</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>3</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>Left cut</Name>
+					<LocalizedName lang="en">Lowest values</LocalizedName>
+					<Explanation lang="en">Only lowest values will be considered for the value of the field.</Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Min length</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field>
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Number of values considered as low</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>3</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>Right cut</Name>
+					<LocalizedName lang="en">Highest values</LocalizedName>
+					<Explanation lang="en">For the value of the field, only highest values will be considered. How many values you want to be processed as low.</Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Minimum number of values</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field>
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Number of values considered as high</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>3</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>Cut</Name>
+					<LocalizedName lang="en">Extreme values</LocalizedName>
+					<Explanation lang="en">For the value of the field, only lowest and highest values will be considered. How many values you want to be processed as low.</Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Minimum number of values</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field>
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Number of values considered as high</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>3</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+			</Coefficient>
+
+		</BasicBooleanAttribute>
+
+		<DerivedBooleanAttribute>
+			<NestingConstraints scope="all">
+				<MaxLevels>3</MaxLevels>
+				<NestingConstraint level="1">
+					<Connectives>
+						<Conjunction allowed="yes" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+				<NestingConstraint level="2">
+					<Connectives>
+						<Conjunction allowed="yes" />
+						<Disjunction allowed="yes" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+				<NestingConstraint level="3">
+					<Connectives>
+						<Conjunction allowed="no" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="yes" />
+					</Connectives>
+				</NestingConstraint>
+			</NestingConstraints>
+
+		</DerivedBooleanAttribute>
+	</BuildingBlocks>
+</arf:GUHAFeatureList>
