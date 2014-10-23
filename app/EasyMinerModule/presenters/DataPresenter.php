@@ -46,7 +46,7 @@ class DataPresenter extends BasePresenter{
    * @param int|null $column
    */
   public function renderMapping($datasource,$column=null){
-    /** @var Datasource $datasource */
+    /** @var Datasource|int $datasource */
     $datasource=$this->datasourcesFacade->findDatasource($datasource);
     $this->checkDatasourceAccess($datasource);
 
@@ -97,6 +97,10 @@ class DataPresenter extends BasePresenter{
     }
 
     $this->checkMinerAccess($miner);
+
+    //zaktualizujeme info o posledním otevření mineru
+    $miner->lastOpened=new DateTime();
+    $this->minersFacade->saveMiner($miner);
 
     $url=$this->context->parameters['urls']['open_miner'];
     $this->redirectUrl(StringsHelper::replaceParams($url,array(':minerId'=>$id)));
@@ -307,7 +311,7 @@ class DataPresenter extends BasePresenter{
       ->setRequired('Input the miner name!')
       ->setAttribute('autofocus')
       ->setAttribute('class','normalWidth')
-      ->addRule(Form::MAX_LENGTH,'Max length of miner name is %s characters!',30)
+      ->addRule(Form::MAX_LENGTH,'Max length of miner name is %s characters!',100)
       ->addRule(Form::MIN_LENGTH,'Min length of miner name is %s characters!',3)
       ->addRule(function(TextInput $control)use($currentUserId,$minersFacade){
         try{
@@ -339,6 +343,7 @@ class DataPresenter extends BasePresenter{
     $miner=new Miner();
     $miner->user=$this->usersFacade->findUser($this->user->id);
     $miner->name=$values['name'];
+    $miner->datasource=$this->datasourcesFacade->findDatasource($values['datasource']);
     $miner->created=new DateTime();
     $miner->type=$values['type'];
     $this->minersFacade->saveMiner($miner);

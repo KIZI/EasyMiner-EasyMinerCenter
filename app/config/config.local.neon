@@ -18,7 +18,7 @@ parameters:
         encoding: utf8
     imports_directory: "absolutePath"
     urls:
-        open_miner: "http://sewebar-dev.lmcloud.vse.cz/izi-miner/?id_dm={:minerId}"
+        open_miner: "/easyminer/web?id_dm={:minerId}"
     databases:
         mysql:
             _username: 'user*'

@@ -10,10 +10,10 @@ use Nette;
  * @package App\Model\EasyMiner\Entities
  *
  * @property int|null $minerId = null
- * @property User $user = null m:hasOne
+ * @property User|null $user = null m:hasOne
  * @property string $name = ''
  * @property string $type m:Enum('lm','r')
- * @property DataSource|null $datasource m:hasOne - zdroj původních dat v DB
+ * @property DataSource|null $datasource m:hasOne(datasource_id:) - zdroj původních dat v DB
  * @property-read string $attributesTable
  * @property-read string $attributesDatasource
  * @property Nette\Utils\DateTime|null $created = null
