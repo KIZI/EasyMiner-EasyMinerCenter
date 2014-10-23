@@ -112,11 +112,11 @@ class DatasourcesFacade {
 
   /**
    * Funkce pro uložení entity DatasourceColumn
-   * @param DatasourceColumn $datasource
+   * @param DatasourceColumn $datasourceColumn
    * @return int|bool
    */
-  public function saveDatasourceColumn(DatasourceColumn &$datasource){
-    $result = $this->datasourceColumnsRepository->persist($datasource);
+  public function saveDatasourceColumn(DatasourceColumn &$datasourceColumn){
+    $result = $this->datasourceColumnsRepository->persist($datasourceColumn);
     return $result;
   }
 
@@ -141,6 +141,7 @@ class DatasourcesFacade {
 
     if (!empty($dbColumns)) {
       foreach ($dbColumns as $dbColumn) {
+        if ($dbColumn->name=='id'){continue;/*ignorujeme sloupec s ID*/}
         if (isset($datasourceColumnsArr[$dbColumn->name])) {
           unset($datasourceColumnsArr[$dbColumn->name]);
         } else {

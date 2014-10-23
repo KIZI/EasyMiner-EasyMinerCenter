@@ -182,6 +182,7 @@ class MetaAttributesSelectControl extends Control{
    */
   public function handleSetDatasourceColumnFormat($datasource,$column,$format){
     //TODO propojení a kontrola, jestli datový rozsah formátu odpovídá datovému rozsahu (jestli hodnoty z DatasourceColumn spadají do rozsahu formátu)
+
   }
 
 
@@ -191,7 +192,9 @@ class MetaAttributesSelectControl extends Control{
    */
   protected function createComponentNewMetaAttributeForm(){
     $form = new Form();
-    $metaAttributeName=$form->addText('metaAttributeName','Meta-attribute name:')->setRequired();
+    $metaAttributeName=$form->addText('metaAttributeName','Meta-attribute name:')
+      ->setRequired()
+      ->setAttribute('class','normalWidth');
     $metaAttributeName->addRule(Form::MIN_LENGTH,'Min length of meta-attribute name is %s characters!',3);
     $metaAttributeName->addRule(function(TextInput $control){
       try{
@@ -203,12 +206,16 @@ class MetaAttributesSelectControl extends Control{
       return true;
     },'Meta-attribute with this name already exists!');
     $formatName=$form->addText('formatName','Format name:')->setRequired()->addRule(Form::MIN_LENGTH,'Min length of format name is %s characters!',3);
+    $formatName->setAttribute('class','normalWidth');
     $form->addHidden('datasource');
     $form->addHidden('column');
     $form->addSelect('formatType','Values range:',array('interval'=>'Continuous values (interval)','values'=>'Distinct values (enumeration)'))
     ->setAttribute('class','normalWidth');
     $submit=$form->addSubmit('create','Create meta-attribute');
     $submit->setValidationScope(array($metaAttributeName,$formatName));
+    /*$form->onSubmit[]=function(Form $form){
+      exit(var_dump($form->getErrors()));
+    };*/
     $submit->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       try{
@@ -227,8 +234,9 @@ class MetaAttributesSelectControl extends Control{
       $values=$button->form->values;
       $this->redirect('SelectMetaAttribute',array('datasource'=>$values->datasource,'column'=>$values->column));
     };
-    $form->onError[]=function(){
-      $this->onComponentShow();
+    $form->onError[]=function($form){
+      $values=$form->values;
+      $this->handleNewMetaAttribute($values->datasource,$values->column);
     };
     return $form;
   }
@@ -244,7 +252,7 @@ class MetaAttributesSelectControl extends Control{
     $form->addHidden('column');
     $metaAttribute=$form->addHidden('metaAttribute');
     $form->addText('metaAttributeName','Meta-attribute:')->setAttribute('readonly','readonly')->setAttribute('class','normalWidth');
-    $formatName=$form->addText('name','Format name:')->setRequired()->setAttribute('class','normalWidth');
+    $formatName=$form->addText('formatName','Format name:')->setRequired()->setAttribute('class','normalWidth');
     $formatName->addRule(Form::MIN_LENGTH,'Min length of format name is %s characters!',3);
     $formatName->addRule(function(TextInput $control)use($metaAttribute){
       try{
@@ -261,10 +269,9 @@ class MetaAttributesSelectControl extends Control{
     $submit->setValidationScope(array($formatName));
     $submit->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
-      var_dump($values);exit();
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
-        $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($values->metaAttributeName);
+        $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($values->metaAttribute);
         $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,@$values->formatType);
         $datasourceColumn->formatId=$format->uri;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
@@ -279,8 +286,9 @@ class MetaAttributesSelectControl extends Control{
       $values=$button->form->values;
       $this->redirect('SelectFormat',array('datasource'=>$values->datasource,'column'=>$values->column,'metaAttribute'=>$values->metaAttribute));
     };
-    $form->onError[]=function(){
-      $this->onComponentShow();
+    $form->onError[]=function(Form $form){
+      $values=$form->values;
+      $this->handleNewFormat($values->datasource,$values->column,$values->metaAttribute);
     };
     return $form;
   }
@@ -313,6 +321,7 @@ class MetaAttributesSelectControl extends Control{
     $format->name=$formatName;
     $format->metaAttribute=$metaAttribute;
     $this->metaAttributesFacade->saveFormat($format);
+    return $format;
   }
 
 

@@ -23,6 +23,8 @@ class MetaAttributesFacade {
   public function createFormatFromDatasourceColumn(DatasourceColumn $datasourceColumn,$formatType='values'){
     $format=new Format();
     //TODO vytvoření formátu metaatributu
+
+    return $format;
   }
 
   /**
@@ -108,7 +110,7 @@ class MetaAttributesFacade {
   /**
    * @param Format $format
    */
-  public function saveFormat(Format $format){
+  public function saveFormat(Format &$format){
     $this->formatsRepository->saveFormat($format);
   }
 

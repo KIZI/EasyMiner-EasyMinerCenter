@@ -10,7 +10,7 @@ use LeanMapper\Entity;
  * @property Datasource $datasource m:hasOne
  * @property string $name
  * @property string $type m:Enum('string','int','float')
- * @property int $formatId
+ * @property string $formatId
  */
 class DatasourceColumn extends Entity{
   const TYPE_STRING='string';
