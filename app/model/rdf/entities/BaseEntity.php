@@ -2,6 +2,7 @@
 
 namespace App\Model\Rdf\Entities;
 
+use App\Model\Rdf\Repositories\BaseRepository;
 use App\Model\Rdf\Repositories\KnowledgeRepository;
 use Nette\Object;
 use Nette\Utils\Strings;
@@ -32,12 +33,12 @@ abstract class BaseEntity extends Object{
     $this->entityChanged=$state;
   }
 
-  public function __construct(KnowledgeRepository $knowledgeRepository=null){
+  public function __construct(BaseRepository $knowledgeRepository=null){
     $this->repository=$knowledgeRepository;
     $this->entityChanged=false;
   }
 
-  public function setKnowledgeRepository(KnowledgeRepository $repository){
+  public function setKnowledgeRepository(BaseRepository $repository){
     $this->repository=$repository;
   }
 

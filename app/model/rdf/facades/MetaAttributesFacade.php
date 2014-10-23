@@ -51,6 +51,44 @@ class MetaAttributesFacade {
   }
 
   /**
+   * Funkce pro nalezení metaatributu se zadaným jménem
+   * @param string $metaAttributeName
+   * @return MetaAttribute
+   * @throws \Exception
+   */
+  public function findMetaAttributeByName($metaAttributeName){
+    $metaAttributes=$this->metaAttributesRepository->findMetaAttributes(array('name'=>$metaAttributeName));
+    if (count($metaAttributes)==1){
+      return $metaAttributes[0];
+    }
+
+    throw new \Exception('Meta-attribute with specified name was not found!');
+  }
+
+  /**
+   * Funkce pro nalezení formátu se zadaným názvem v rámci daného metaatributu
+   * @param MetaAttribute|string $metaAttribute
+   * @param string $formatName
+   * @throws \Exception
+   * @return Format
+   */
+  public function findFormatByName($metaAttribute,$formatName){
+    if (!($metaAttribute instanceof MetaAttribute)){
+      $metaAttribute=$this->findMetaAttribute($metaAttribute);
+    }
+    $formats=$metaAttribute->formats;
+    if (count($formats)>0){
+      foreach ($formats as $format){
+        if ($format->name==$formatName){
+          return $format;
+        }
+      }
+    }
+
+    throw new \Exception('Format with specified name was not found!');
+  }
+
+  /**
    * @param array $params = array()
    * @param int $limit = -1
    * @param int $offset = -1
