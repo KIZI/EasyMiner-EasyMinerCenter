@@ -1,0 +1,19 @@
+#
+#   Soubor s konfigurací pro IZI-UI
+#   TODO vyčistit konfigurační parametry...
+#
+
+parameters:
+    izi-ui:
+        DDPath: '/data/datadescription_0.2.xml'
+        #FLPath: '/data/featureList_beginner.xml'
+        FLPath: '/data/featureList_exploration.xml'
+        FGCPath: '/data/fieldGroupConfig.xml'
+        ERPath: null
+        ETreePath: null
+        FAPath: '/data/frequencyAnalysis.xml'
+        KB_CONF_ID: 6 # KBI query ID - confirmation
+        KB_EXC_ID: 7 # KBI query ID - exception
+        MAX_INITIALIZATION_REQUESTS: 15
+        MAX_MINING_REQUESTS: 10
+        MAX_ETREE_REQUESTS: 10

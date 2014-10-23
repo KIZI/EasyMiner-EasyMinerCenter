@@ -18,6 +18,8 @@ $configurator->createRobotLoader()
 $configurator->addConfig(__DIR__ . '/config/config.neon');
 $configurator->addConfig(__DIR__ . '/config/config.local.neon');
 
+$configurator->addConfig(__DIR__ . '/config/izi-ui.config.neon');
+
 $container = $configurator->createContainer();
 
 //TODO dočasné nastavení z důvodu deprecated u mysql rozhraní v ARC2_Store

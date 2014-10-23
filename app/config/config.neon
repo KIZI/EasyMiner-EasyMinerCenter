@@ -28,6 +28,8 @@ services:
 	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
 
+    - IZI\IZIConfig(%izi-ui%)
+
 	- LeanMapper\Connection(%leanmapper%)
 	- LeanMapper\DefaultEntityFactory
 	- App\Model\EasyMiner\Mappers\StandardMapper
