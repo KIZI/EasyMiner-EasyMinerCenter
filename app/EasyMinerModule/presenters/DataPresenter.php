@@ -210,9 +210,9 @@ class DataPresenter extends BasePresenter{
       $this->checkMinerAccess($miner);
     }
     try{
-      $datasource=$miner->getAttributesDatasource();
-      $this->databasesFacade->openDatabase($datasource->getDbConnection());
-      $this->template->attributeValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$attribute);
+      $metasource=$miner->metasource;
+      $this->databasesFacade->openDatabase($metasource->getDbConnection());
+      $this->template->attributeValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($metasource->dbTable,$attribute);
     }catch (\Exception $e){
       throw new BadRequestException('Requested attribute not found!',500,$e);
     }
