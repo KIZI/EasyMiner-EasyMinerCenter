@@ -23,7 +23,7 @@
 </head>
 <body class="iframe">
     {block closeButton}
-      CLOSE BUTTON
+      <a href="javascript:parent.close();" class="closeButton">{_'Close'}</a>
     {/block}
     <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
 

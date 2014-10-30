@@ -49,7 +49,8 @@ class HelperPresenter extends BaseRestPresenter{
       $data=$this->helperFacade->loadHelperData($miner,$type);//TODO není potřeba dekódovat JSON?
       $this->sendJsonResponse(array('result'=>'ok','miner'=>$miner,'type'=>$type,'data'=>$data));
     }catch (\Exception $e){
-      throw new BadRequestException($this->translate('Requested data not found!'));
+      $this->sendJsonResponse(array('result'=>'error'));
+      //throw new BadRequestException($this->translate('Requested data not found!'));
     }
   }
 

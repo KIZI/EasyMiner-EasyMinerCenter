@@ -46,7 +46,7 @@ class MinersFacade {
       $user=$user->userId;
     }
     try{
-      $miner=$this->minersRepository->findBy(array('miner_id'=>$id,'user_id'=>$user));
+      $miner=$this->minersRepository->findBy(array('miner_id'=>$miner,'user_id'=>$user));
       return true;
     }catch (\Exception $e){/*chybu ignorujeme*/}
     return false;
