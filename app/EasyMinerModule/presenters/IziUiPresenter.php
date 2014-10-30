@@ -55,10 +55,10 @@ class IziUiPresenter extends BaseRestPresenter{
 
     $attributessource=null;
     try{
-      $attributessource=$miner->attributessource;
+      $metasource=$miner->metasource;
     }catch (\Exception $e){/*chybu ignorujeme - zatím pravděpodobně neexistují žádné atributy*/}
 
-    $responseContent['DD']=$this->datasourcesFacade->exportDictionariesArr($miner->datasource,$attributessource);
+    $responseContent['DD']=$this->datasourcesFacade->exportDictionariesArr($miner->datasource,$metasource);
 
 
     #endregion připravení informací pro UI - s odděleným připravením DataDictionary
