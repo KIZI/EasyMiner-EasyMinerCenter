@@ -7,6 +7,7 @@ use App\Model\EasyMiner\Facades\MinersFacade;
 use IZI\IZIConfig;
 use IZI\Parser\DataParser;
 use Nette\Application\BadRequestException;
+use Nette\Application\ForbiddenRequestException;
 
 /**
  * Class IziUiPresenter - prezenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
@@ -42,7 +43,9 @@ class IziUiPresenter extends BaseRestPresenter{
     //------------------------------------------------------------------------------------------------------------------
     if ($miner){
       $miner=$this->minersFacade->findMiner($miner);
-      $this->checkMinerAccess($miner);
+      if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
+        throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
+      }
     }
 
     //------------------------------------------------------------------------------------------------------------------
