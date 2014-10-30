@@ -295,4 +295,45 @@ class DatasourcesFacade {
       return false;
     }
   }
+
+  /**
+   * Funkce pro export pole s informacemi z DataDictionary a TransformationDictionary
+   * @param Datasource|int $datasourceDictionary
+   * @param Datasource|int $attributesDictionary
+   * @return array
+   */
+  public function exportDictionariesArr($datasourceDictionary,$attributesDictionary) {
+    if (!$datasourceDictionary instanceof Datasource){
+      $datasourceDictionary=$this->findDatasource($datasourceDictionary);
+    }
+    if (!$attributesDictionary instanceof Datasource && $attributesDictionary!=null){
+      $attributesDictionary=$this->findDatasource($attributesDictionary);
+    }
+    $this->databasesFacade->openDatabase($datasourceDictionary->getDbConnection());
+    $output=array('dataDictionary'=>array(),'transformationDictionary'=>array(),'recordCount'=>$this->databasesFacade->getRowsCount($datasourceDictionary->dbTable));
+    foreach($datasourceDictionary->datasourceColumns as $datasourceColumn){
+      $output['dataDictionary'][$datasourceColumn->name]=($datasourceColumn->type==DatasourceColumn::TYPE_STRING?'string':'integer');//TODO kontrola, jaké má smysl vracet datové typy....
+    }
+
+    if (!empty($attributesDictionary)){
+      $this->databasesFacade->openDatabase($attributesDictionary->getDbConnection());
+      if ($this->databasesFacade->checkTableExists($attributesDictionary->dbTable) && !empty($attributesDictionary->datasourceColumns)){
+        foreach ($attributesDictionary->datasourceColumns as $attributeColumn){
+          $valuesArr=array();
+          try{
+            $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($attributesDictionary->dbTable,$attributeColumn->name,true);
+            if (!empty($valuesStatistics->valuesArr)){
+              foreach ($valuesStatistics->valuesArr as $value=>$count){
+                $valuesArr[]=$value;
+              }
+            }
+          }catch (\Exception $e){}
+          $output['transformationDictionary'][$attributeColumn->name]=array('choices'=>$valuesArr);
+        }
+      }
+    }
+
+
+    return $output;
+  }
 } 

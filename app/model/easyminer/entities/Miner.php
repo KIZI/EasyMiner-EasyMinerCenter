@@ -13,9 +13,9 @@ use Nette;
  * @property User|null $user = null m:hasOne
  * @property string $name = ''
  * @property string $type m:Enum('lm','r')
- * @property DataSource|null $datasource m:hasOne(datasource_id:) - zdroj původních dat v DB
+ * @property Datasource|null $datasource m:hasOne(datasource_id:) - zdroj původních dat v DB
+ * @property Datasource|null $attributessource m:hasOne(attributessource_id:) - zdroj předzpracovaných dat v DB
  * @property-read string $attributesTable
- * @property-read string $attributesDatasource
  * @property Nette\Utils\DateTime|null $created = null
  * @property Nette\Utils\DateTime|null $lastOpened = null
  */
@@ -39,18 +39,8 @@ class Miner extends Entity{
    * Funkce vracející název tabulky s atributy
    * @return string
    */
-  public function getAttributesTable(){
+  public function getAttributesTableName(){
     return 'ATR'.$this->minerId.'_'.$this->datasource->dbTable;
-  }
-
-  /**
-   * Funkce vracející datasource pro připojení k tabulce s atributy
-   * @return DataSource|null
-   */
-  public function getAttributesDatasource(){
-    $datasource=clone $this->datasource;
-    $datasource->dbTable=$this->getAttributesTable();
-    return $datasource;
   }
 
 

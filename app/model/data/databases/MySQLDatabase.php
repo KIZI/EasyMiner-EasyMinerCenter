@@ -334,4 +334,14 @@ class MySQLDatabase implements IDatabase{
     $renameQuery=$this->db->prepare($sql);
     return $renameQuery->execute($params);
   }
+
+  /**
+   * Funkce vracející počet řádků v tabulce
+   * @return int
+   */
+  public function getRowsCount() {
+    $query=$this->db->prepare('SELECT count(*) AS pocet FROM `'.$this->tableName.'`;');
+    $query->execute();
+    return $query->fetchColumn(0);
+  }
 }

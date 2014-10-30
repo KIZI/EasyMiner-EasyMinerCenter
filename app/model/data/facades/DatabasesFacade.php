@@ -222,4 +222,14 @@ class DatabasesFacade {
       return false;
     }
   }
+
+  /**
+   * Funkce vracející počet řádků v tabulce
+   * @param $tableName
+   * @return int
+   */
+  public function getRowsCount($tableName){
+    $this->database->selectTable($tableName);
+    return $this->database->getRowsCount();
+  }
 } 

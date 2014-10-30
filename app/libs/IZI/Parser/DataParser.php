@@ -39,7 +39,10 @@ class DataParser
     public function loadData()
     {
         $loader = new XMLLoader();
-        $this->DD = $loader->load($this->DDPath);
+
+        if (!empty($this->DDPath)){
+          $this->DD = $loader->load($this->DDPath);
+        }
 
         foreach ($this->FLPaths as $FLPath) {
             $FL = $loader->load($FLPath);
@@ -53,8 +56,10 @@ class DataParser
 
     public function parseData()
     {
-        $DDParser = new DataDescriptionParser($this->DD);
-        $this->data = array_merge_recursive($this->data, $DDParser->parseData());
+        if (!empty($this->DD)){
+          $DDParser = new DataDescriptionParser($this->DD);
+          $this->data = array_merge_recursive($this->data, $DDParser->parseData());
+        }
 
         $this->data['FLs'] = array();
         foreach ($this->FLs as $FL) {

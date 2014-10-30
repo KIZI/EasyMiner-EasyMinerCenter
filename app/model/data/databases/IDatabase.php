@@ -131,4 +131,10 @@ interface IDatabase {
    * @return bool
    */
   public function renameColumn($oldName,$newName);
+
+  /**
+   * Funkce vracející počet řádků v tabulce
+   * @return int
+   */
+  public function getRowsCount();
 } 
