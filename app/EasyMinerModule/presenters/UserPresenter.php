@@ -11,7 +11,7 @@ use Kdyby\Facebook\FacebookApiException;
 use Kdyby\Google\Google;
 use Kdyby\Google\Dialog\LoginDialog as GoogleLoginDialog;
 
-class UserPresenter  extends BasePresenter{
+class UserPresenter  extends BaseRestPresenter{
   /** @var Facebook $facebook*/
   private $facebook;
 
@@ -20,6 +20,18 @@ class UserPresenter  extends BasePresenter{
 
   /** @var UsersFacade $usersFacade */
   public $usersFacade;
+
+  public function actionInfo(){
+    if ($identity=$this->getUser()->identity){
+      $this->sendJsonResponse(array(
+        'name'=>$identity->name,
+        'email'=>$identity->email,
+        'id'=>$this->user->id
+      ));
+    }else{
+      $this->sendJsonResponse(array('name'=>null,'email'=>null,'id'=>0));
+    }
+  }
 
   /**
    * Akce pro odhlášení uživatele
@@ -85,7 +97,7 @@ class UserPresenter  extends BasePresenter{
     $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values) use ($presenter){
       try{
         $user = $presenter->usersFacade->registerUser($values);
-      }catch (Exception $e){//TODO ???
+      }catch (Exception $e){
         $presenter->flashMessage('Welcome! Your user account was successfully registered.');
       }
       $presenter->getUser()->login($values['email'],$values['password']);
