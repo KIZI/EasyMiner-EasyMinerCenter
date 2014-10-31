@@ -198,14 +198,7 @@ class DataPresenter extends BasePresenter{
    * @throws \Nette\Application\ForbiddenRequestException
    */
   public function renderAttributeHistogram($miner,$attribute, $layout='default'){
-    if ($miner){
-      try{
-        $miner=$this->minersFacade->findMiner($miner);
-      }catch (\Exception $e){
-        throw new BadRequestException('Requested miner not specified!', 404, $e);
-      }
-      $this->checkMinerAccess($miner);
-    }
+    $miner=$this->findMinerWithCheckAccess($miner);
     try{
       $metasource=$miner->metasource;
       $this->databasesFacade->openDatabase($metasource->getDbConnection());
@@ -223,13 +216,13 @@ class DataPresenter extends BasePresenter{
    * Akce pro vykreslení histogramu z hodnot konkrétního sloupce v DB
    * @param int $datasource = null
    * @param int $miner = null
-   * @param string $column
-   * @param string $layout = 'default'|'component'|'iframe'
+   * @param string $columnName
+   * @param string $mode = 'default'|'component'|'iframe'
    * @throws BadRequestException
    * @throws \Nette\Application\ApplicationException
    * @throws \Nette\Application\ForbiddenRequestException
    */
-  public function renderColumnHistogram($datasource=null, $miner=null ,$column, $layout='default'){
+  public function renderColumnHistogram($datasource=null, $miner=null ,$columnName, $mode='default'){
     if ($miner){
       $miner=$this->minersFacade->findMiner($miner);
       $this->checkMinerAccess($miner);
@@ -243,11 +236,11 @@ class DataPresenter extends BasePresenter{
     }
 
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    $this->template->dbColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$column);
+    $this->template->dbColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$columnName);
 
-    if ($this->isAjax() || $layout=='component' || $layout=='iframe'){
+    if ($this->isAjax() || $mode=='component' || $mode=='iframe'){
       $this->layout='iframe';
-      $this->template->layout=$layout;
+      $this->template->layout=$this->layout;
     }
   }
 

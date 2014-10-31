@@ -31,6 +31,8 @@ namespace App\Model\Rdf\Entities;
  * @rdfEntity(property=$metaAttribute,reverseRelation='kb:hasFormat')
  */
 class Format  extends BaseEntity{
+  const DATATYPE_VALUES='values';
+  const DATATYPE_INTERVAL='interval';
   /**
    * Funkce vracející základ pro novou uri (při ukládání nové entity)
    * @return string
@@ -55,5 +57,6 @@ class Format  extends BaseEntity{
   public function setMetaAttribute(MetaAttribute $metaAttribute){
     $this->metaAttribute=$metaAttribute;
   }
+
   #endregion pracovní metody pro sledování změn
 } 

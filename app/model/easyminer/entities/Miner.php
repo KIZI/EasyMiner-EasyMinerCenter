@@ -39,8 +39,24 @@ class Miner extends Entity{
    * Funkce vracející název tabulky s atributy
    * @return string
    */
-  public function getAttributesTableName(){
-    return 'ATR'.$this->minerId.'_'.$this->datasource->dbTable;
+  public function getAttributesTableName() {
+    return 'ATR' . $this->minerId . '_' . $this->datasource->dbTable;
+  }
+
+  /**
+   * Funkce vracející název tabulky s atributy
+   * @return string
+   */
+  public function getRulesTableName(){
+    return 'RULES'.$this->minerId.'_'.$this->datasource->dbTable;
+  }
+
+  /**
+   * Funkce vracející název tabulky s atributy
+   * @return string
+   */
+  public function getBBATableName(){
+    return 'BBA'.$this->minerId.'_'.$this->datasource->dbTable;
   }
 
 

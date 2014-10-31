@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\EasyMiner\Facades;
 
+use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\MinersRepository;
@@ -8,9 +9,12 @@ use App\Model\EasyMiner\Repositories\MinersRepository;
 class MinersFacade {
   /** @var  MinersRepository $minersRepository */
   private $minersRepository;
+  /** @var  MetasourcesFacade $metasourcesFacade */
+  private $metasourcesFacade;
 
-  public function __construct(MinersRepository $minersRepository) {
+  public function __construct(MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade) {
     $this->minersRepository = $minersRepository;
+    $this->metasourcesFacade=$metasourcesFacade;
   }
 
   /**
@@ -84,6 +88,37 @@ class MinersFacade {
       $miner=$this->findMiner($miner);
     }
     return $this->minersRepository->delete($miner);
+  }
+
+  /**
+   * Funkce pro kontrolu, jestli má miner správně nakonfigurovanou metabázi
+   * @param $miner
+   */
+  public function checkMinerMetasource($miner){
+    if (!($miner instanceof Miner)){
+      $miner=$this->findMiner($miner);
+    }
+    try{
+      $metasource=$miner->metasource;
+
+    }catch (\Exception $e){}
+    if (empty($metasource) || (!$metasource instanceof Metasource)){
+      $datasource=$miner->datasource;
+
+      $metasource=new Metasource();
+      $metasource->miner=$miner;
+      $metasource->user=$datasource->user;
+      $metasource->dbName=$datasource->dbName;
+      $metasource->dbUsername=$datasource->dbUsername;
+      $metasource->dbPort=$datasource->dbPort;
+      $metasource->dbServer=$datasource->dbServer;
+      $metasource->setDbPassword($datasource->getDbPassword());
+      $metasource->attributesTable=$miner->getAttributesTableName();
+      //TODO skutečné založení příslušných tabulek!
+
+      $this->metasourcesFacade->saveMetasource($metasource);
+    }
+
   }
 
 }

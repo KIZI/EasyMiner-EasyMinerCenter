@@ -1,0 +1,39 @@
+{block content}
+
+  <div class="{if $template=='default'}block centerContent{else}main{/if}">
+
+    <h1>{_'New attribute from: '}{$datasourceColumn->name}</h1>
+    <p>
+      {if !empty($metaAttributeName)}
+        {_'MetaAttribute:'} <strong>{$metaAttributeName}</strong> |
+      {/if}
+      {if !empty($format)}
+        {_'Format:'} <strong>{$format->name}</strong>
+      {/if}
+    </p>
+
+    <h2>{_'New preprocessing'}</h2>
+    <div class="actionsDiv bigButtons">
+      {if $format->dataType==\App\Model\Rdf\Entities\Format::DATATYPE_INTERVAL}
+        <a href="{link newPreprocessingIntervalEnumeration miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Interval enumeration'}</a>
+        <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equidistant intervals'}</a>
+      {/if}
+      <a href="{link newPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,type=>'nominalEnumeration'}">{_'Nominal enumeration'}</a>
+    </div>
+
+    <h2>{_'Existing preprocessing definitions'}</h2>
+    <div class="actionsDiv bigButtons">
+      {if !empty($format->preprocessings)}
+        {foreach $format->preprocessings as $preprocessing}
+          <a href="{link showPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->uri}">{$preprocessing->name}</a>
+        {/foreach}
+      {/if}
+      <a href="{link newPreprocessingEachOne miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Each value - one category'}</a>
+    </div>
+
+
+  </div>
+
+{/block}
+
+

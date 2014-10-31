@@ -4,9 +4,11 @@ namespace App\Model\Rdf\Facades;
 
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\Rdf\Entities\Format;
+use App\Model\Rdf\Entities\Preprocessing;
 use App\Model\Rdf\Repositories\FormatsRepository;
 use App\Model\Rdf\Repositories\MetaAttributesRepository;
 use App\Model\Rdf\Entities\MetaAttribute;
+use App\Model\Rdf\Repositories\PreprocessingsRepository;
 
 
 class MetaAttributesFacade {
@@ -14,6 +16,10 @@ class MetaAttributesFacade {
   private $metaAttributesRepository;
   /** @var  FormatsRepository $formatsRepository */
   private $formatsRepository;
+  /** @var  PreprocessingsRepository $preprocessingsRepository */
+  private $preprocessingsRepository;
+
+  const NEW_PREPROCESSING_EACHONE_NAME='Each value - one category';
 
   /**
    * @param DatasourceColumn $datasourceColumn
@@ -22,6 +28,7 @@ class MetaAttributesFacade {
    */
   public function createFormatFromDatasourceColumn(DatasourceColumn $datasourceColumn,$formatType='values'){
     $format=new Format();
+    $format->dataType=$formatType;
     //TODO vytvoření formátu metaatributu
 
     return $format;
@@ -35,6 +42,35 @@ class MetaAttributesFacade {
   public function updateFormatFromDatasourceColumn(Format $format, DatasourceColumn $datasourceColumn){
     //TODO rozšíření rozsahu formátu z datasourceColumn
   }
+
+  /**
+   * Funkce vracející instanci preprocessingu typu each value - one category
+   * @param $format
+   * @return Preprocessing
+   */
+  public function findPreprocessingEachOne($format){
+    if (!$format instanceof Format){
+      $format=$this->findFormat($format);
+    }
+    try{
+      $preprocessings=$format->preprocessings;
+      if (!empty($preprocessings)){
+        foreach ($preprocessings as $preprocessing){
+          if (isset($preprocessing->specialType) && $preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
+            return $preprocessing;
+          }
+        }
+      }
+    }catch (\Exception $e){/*chybu ignorujeme*/}
+    $preprocessing=new Preprocessing();
+    $preprocessing->name=self::NEW_PREPROCESSING_EACHONE_NAME;
+    $preprocessing->specialType=Preprocessing::SPECIALTYPE_EACHONE;
+    $preprocessing->format=$format;
+    $this->savePreprocessing($preprocessing);
+    return $preprocessing;
+  }
+
+
 
   /**
    * @param string $uri
@@ -114,11 +150,19 @@ class MetaAttributesFacade {
     $this->formatsRepository->saveFormat($format);
   }
 
+  /**
+   * @param Preprocessing $preprocessing
+   */
+  public function savePreprocessing(Preprocessing &$preprocessing){
+    $this->preprocessingsRepository->savePreprocessing($preprocessing);
+  }
 
 
-  public function __construct(MetaAttributesRepository $metaAttributesRepository,FormatsRepository $formatsRepository){
+
+  public function __construct(MetaAttributesRepository $metaAttributesRepository,FormatsRepository $formatsRepository, PreprocessingsRepository $preprocessingsRepository){
     $this->metaAttributesRepository=$metaAttributesRepository;
     $this->formatsRepository=$formatsRepository;
+    $this->preprocessingsRepository=$preprocessingsRepository;
   }
 
 } 

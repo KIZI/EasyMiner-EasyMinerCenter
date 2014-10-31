@@ -96,7 +96,6 @@ class BaseRepository extends Object{
       $entity->setUri($this->prepareNewEntityUri($entity->prepareBaseUri(),$urisArr));
     }
     $queriesArr=$entity->getSaveQuery($this,$urisArr);
-
     $this->executeQueries($queriesArr);
     $entity->setChanged(false);
     $entity->setKnowledgeRepository($this);
@@ -152,7 +151,6 @@ class BaseRepository extends Object{
       $filterSparql="?uri kb:isInBase ".BaseEntity::quoteUri($params['knowledgeBase']).". ".$filterSparql;
     }
     #endregion params
-
     $result=$this->executeQuery($entityClass::getLoadQuery('',$filterSparql),'raw',$limit,$offset);
     if ($result && !empty($result['rows'])){
       $output=array();

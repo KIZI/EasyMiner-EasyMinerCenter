@@ -37,19 +37,24 @@ services:
 	- App\Model\EasyMiner\Facades\HelperFacade
 	- App\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
 	- App\Model\EasyMiner\Facades\MinersFacade
+	- App\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
 	- App\Model\EasyMiner\Facades\UsersFacade
 	- App\Model\Data\Facades\DatabasesFacade
 
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
+	- App\Model\EasyMiner\Repositories\MetasourcesRepository
+	- App\Model\EasyMiner\Repositories\TasksRepository
 	- App\Model\EasyMiner\Repositories\HelperDataRepository
 	- App\Model\EasyMiner\Repositories\MinersRepository
 	- App\Model\EasyMiner\Repositories\UsersRepository
+	- App\Model\EasyMiner\Repositories\AttributesRepository
 
 	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%)
 
 	- App\Model\Rdf\Repositories\MetaAttributesRepository(@arc2Store)
 	- App\Model\Rdf\Repositories\FormatsRepository(@arc2Store)
+	- App\Model\Rdf\Repositories\PreprocessingsRepository(@arc2Store)
 
 	- App\Model\Rdf\Facades\MetaAttributesFacade
 

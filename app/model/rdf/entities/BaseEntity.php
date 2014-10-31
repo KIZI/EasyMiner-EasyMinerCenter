@@ -109,61 +109,62 @@ abstract class BaseEntity extends Object{
     return $output;
   }
 
+  /**
+   * @param $name
+   * @return mixed|void
+   * @throws \Exception
+   */
   public function &__get($name){
-    try{
-      return parent::__get($name);
-    }catch (\Exception $e){
-      $mappedProperties=$this->getMappedProperties();
-      if (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['entitiesGroups'][$name]) /*|| isset($mappedProperties['literals'][$name])*/){
+    $mappedProperties=$this->getMappedProperties();
+    if (isset($mappedProperties['entities'][$name]) || isset($mappedProperties['entitiesGroups'][$name]) /*|| isset($mappedProperties['literals'][$name])*/){
 /*        if (isset($mappedProperties['literals'][$name])){
-          //literály jsou aktuálně načítané rovnou -> nemá smysl je donačítat
-          exit('ERROR');
-        }*/
-        if (isset($mappedProperties['entities'][$name])){
-          //načtení jedné související entity
-          if (isset($mappedProperties['entities'][$name]['entity'])){
-            $function='find'.$mappedProperties['entities'][$name]['entity'].'s';
-          }else{
-            $function='find'.Strings::firstUpper($name).'s';
-          }
-
-          if (isset($mappedProperties['entities'][$name]['relation'])){
-            $sparqlQuery=' '.self::quoteUri($this->uri).' '.$mappedProperties['entities'][$name]['relation'].' ?uri';
-          }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
-            $sparqlQuery=' ?uri '.$mappedProperties['entities'][$name]['reverseRelation'].' '.self::quoteUri($this->uri).' ';
-          }
-
-          if (!empty($sparqlQuery)){
-            $result = $this->repository->$function(array('sparql'=>$sparqlQuery));
-            if ($result && isset($result[0])){
-              return $result[0];
-            }
-          }
-        }
-        if (isset($mappedProperties['entitiesGroups'][$name])){
-          //načtení připojené sady entit
-          if (isset($mappedProperties['entitiesGroups'][$name]['entity'])){
-            $function='find'.$mappedProperties['entitiesGroups'][$name]['entity'].'s';
-          }else{
-            $function='find'.Strings::firstUpper($name);
-          }
-
-          if (isset($mappedProperties['entitiesGroups'][$name]['relation'])){
-            $sparqlQuery=' '.self::quoteUri($this->uri).' '.$mappedProperties['entitiesGroups'][$name]['relation'].' ?uri';
-          }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
-            $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['reverseRelation'].' '.self::quoteUri($this->uri).' ';
-          }
-
-          if (!empty($sparqlQuery)){
-            $result= $this->repository->$function(array('sparql'=>$sparqlQuery));
-            return $result;
-          }
+        //literály jsou aktuálně načítané rovnou -> nemá smysl je donačítat
+        exit('ERROR');
+      }*/
+      if (isset($mappedProperties['entities'][$name])){
+        //načtení jedné související entity
+        if (isset($mappedProperties['entities'][$name]['entity'])){
+          $function='find'.$mappedProperties['entities'][$name]['entity'].'s';
+        }else{
+          $function='find'.Strings::firstUpper($name).'s';
         }
 
+        if (isset($mappedProperties['entities'][$name]['relation'])){
+          $sparqlQuery=' '.self::quoteUri($this->uri).' '.$mappedProperties['entities'][$name]['relation'].' ?uri';
+        }elseif(isset($mappedProperties['entities'][$name]['reverseRelation'])){
+          $sparqlQuery=' ?uri '.$mappedProperties['entities'][$name]['reverseRelation'].' '.self::quoteUri($this->uri).' ';
+        }
+
+        if (!empty($sparqlQuery)){
+          $result = $this->repository->$function(array('sparql'=>$sparqlQuery));
+          if ($result && isset($result[0])){
+            return $result[0];
+          }
+        }
       }
-      //pokud se nepodařilo property donačíst, vyhodíme výjimku...
-      throw $e;
+      if (isset($mappedProperties['entitiesGroups'][$name])){
+        //načtení připojené sady entit
+        if (isset($mappedProperties['entitiesGroups'][$name]['entity'])){
+          $function='find'.$mappedProperties['entitiesGroups'][$name]['entity'].'s';
+        }else{
+          $function='find'.Strings::firstUpper($name);
+        }
+
+        if (isset($mappedProperties['entitiesGroups'][$name]['relation'])){
+          $sparqlQuery=' '.self::quoteUri($this->uri).' '.$mappedProperties['entitiesGroups'][$name]['relation'].' ?uri';
+        }elseif(isset($mappedProperties['entitiesGroups'][$name]['reverseRelation'])){
+          $sparqlQuery=' ?uri '.$mappedProperties['entitiesGroups'][$name]['reverseRelation'].' '.self::quoteUri($this->uri).' ';
+        }
+
+        if (!empty($sparqlQuery)){
+          $result= $this->repository->$function(array('sparql'=>$sparqlQuery));
+          return $result;
+        }
+      }
+
     }
+    //pokud se nepodařilo property donačíst, zkusíme nadřazenou funkci
+     return parent::__get($name);
   }
 
   /**
@@ -200,6 +201,7 @@ abstract class BaseEntity extends Object{
     }
     #region vyřešení navázaných entit
     if (!empty($mappedProperties['entities']) && is_array($mappedProperties['entities'])){
+
       foreach ($mappedProperties['entities'] as $entity){
         $property=$entity['property'];
         if (isset($this->$property) /*&& !empty($this->$property->uri)*/){
@@ -217,6 +219,19 @@ abstract class BaseEntity extends Object{
             //TODO optimize!
             $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entity['relation'].' ?relatedUri}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
             $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->uri).' '.$entity['relation'].' '.self::quoteUri($this->$property->uri).'}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
+          }elseif (!empty($entity['reverseRelation'])){
+            //nejprve uložíme navázanou entitu
+            if (!empty($entity['entity'])){
+              $entityName=$entity['entity'];
+            }else{
+              $entityName=Strings::firstUpper($property);
+            }
+            $repositorySaveMethod='save'.$entityName;
+            $repository->$repositorySaveMethod($this->$property,$urisArr);
+            //uložíme relaci připojené entity
+            //TODO optimize!
+            $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {?relatedUri '.$entity['reverseRelation'].' '.self::quoteUri($this->uri).'}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
+            $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {'.self::quoteUri($this->$property->uri).' '.$entity['reverseRelation'].' '.self::quoteUri($this->uri).'}';// WHERE {FILTER NOT EXISTS {<'.$this->uri.'> '.$entity['relation'].' <'.$this->$property->uri.'>}}';
           }/*else{//pravděpodobně není potřeba - ukládáme vždy z té entity, která má zadanou URI
             $queries[]=$queryPrefixes.'DELETE FROM <'.self::BASE_ONTOLOGY.'> {?relatedUri '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';
             $queries[]=$queryPrefixes.'INSERT INTO <'.self::BASE_ONTOLOGY.'> {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>} WHERE {FILTER NOT EXISTS {<'.$this->$property->uri.'> '.$entity['reverseRelation'].' <'.$this->uri.'>}}';

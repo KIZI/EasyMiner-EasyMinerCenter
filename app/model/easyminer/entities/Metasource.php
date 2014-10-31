@@ -9,16 +9,17 @@ use LeanMapper\Entity;
  * Class Metasource
  * @package App\Model\EasyMiner\Entities
  * @property int|null $metasourceId = null
+ * @property Miner $miner m:hasOne
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','cassandra')
  * @property string $dbServer
  * @property int|null $dbPort = null
  * @property string $dbUsername
  * @property string $dbName
- * @property string $dbTable
+ * @property string $attributesTable
  * @property-read Task[] $tasks m:belongsToMany
  * @property-read Attribute[] $attributes m:belongsToMany
- * @property-read DbConnection $dbDonnection
+ * @property-read DbConnection $dbConnection
  */
 class Metasource extends Entity{
   /**

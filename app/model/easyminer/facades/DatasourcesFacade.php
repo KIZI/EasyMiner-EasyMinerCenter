@@ -58,6 +58,18 @@ class DatasourcesFacade {
   }
 
   /**
+   * @param Datasource|int $datasource
+   * @param string $columnName
+   * @return DatasourceColumn
+   */
+  public function findDatasourceColumnByName($datasource,$columnName) {
+    if ($datasource instanceof Datasource){
+      $datasource=$datasource->datasourceId;
+    }
+    return $this->datasourceColumnsRepository->findBy(array('datasource_id'=>$datasource,'name'=>$columnName));
+  }
+
+  /**
    * @param int|User $user
    * @return Datasource[]|null
    */
