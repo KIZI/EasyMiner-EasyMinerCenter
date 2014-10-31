@@ -14,7 +14,7 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter{
   /** @var  Nette\Localization\ITranslator $translator */
   protected  $translator;
 
-  function beforeRender(){
+  protected function beforeRender(){
     /** @noinspection PhpUndefinedMethodInspection */
     $this->template->setTranslator($this->translator);
   }

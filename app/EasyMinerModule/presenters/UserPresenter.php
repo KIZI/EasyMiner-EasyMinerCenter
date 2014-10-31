@@ -11,7 +11,7 @@ use Kdyby\Facebook\FacebookApiException;
 use Kdyby\Google\Google;
 use Kdyby\Google\Dialog\LoginDialog as GoogleLoginDialog;
 
-class UserPresenter  extends BaseRestPresenter{
+class UserPresenter  extends BasePresenter{
   /** @var Facebook $facebook*/
   private $facebook;
 

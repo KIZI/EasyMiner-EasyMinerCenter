@@ -1,15 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Stanislav
- * Date: 15.9.14
- * Time: 23:35
- */
 
 namespace App\EasyMinerModule\Presenters;
-
-
-use App\EasyMinerModule\Presenters\BasePresenter;
 
 class TasksPresenter  extends BasePresenter{
 

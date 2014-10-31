@@ -1,24 +1,19 @@
 <?php
 namespace App\EasyMinerModule\Presenters;
 
-use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\EasyMiner\Facades\MinersFacade;
 use IZI\IZIConfig;
 use IZI\Parser\DataParser;
-use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
  * Class IziUiPresenter - prezenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
  * @package App\EasyMinerModule\Presenters
  */
-class IziUiPresenter extends BaseRestPresenter{
+class IziUiPresenter extends BasePresenter{
   private $lang='en';//TODO předávání jazyka rozhraní
   /** @var  IZIConfig $config */
   private $config;
-  /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
   /** @var  DatasourcesFacade $datasourcesFacade*/
   private $datasourcesFacade;
 
@@ -26,6 +21,7 @@ class IziUiPresenter extends BaseRestPresenter{
    * Akce vracející data description a konfiguraci pro EasyMiner UI
    * @param int $id_dm
    * @param int $miner
+   * @throws ForbiddenRequestException
    */
   public function actionGetData($id_dm,$miner){//TODO ošetření případné chyby!!!
     if (empty($miner)){
@@ -85,10 +81,5 @@ class IziUiPresenter extends BaseRestPresenter{
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
     $this->datasourcesFacade=$datasourcesFacade;
   }
-  /**
-   * @param MinersFacade $minersFacade
-   */
-  public function injectMinersFacade(MinersFacade $minersFacade){
-    $this->minersFacade=$minersFacade;
-  }
+
 } 

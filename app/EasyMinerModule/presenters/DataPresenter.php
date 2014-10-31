@@ -9,7 +9,6 @@ use App\Model\Data\Facades\FileImportsFacade;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
@@ -29,8 +28,6 @@ class DataPresenter extends BasePresenter{
 
   /** @var DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
-  /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
   /** @var  DatabasesFacade $databasesFacade */
@@ -583,13 +580,6 @@ class DataPresenter extends BasePresenter{
    */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
     $this->datasourcesFacade=$datasourcesFacade;
-  }
-
-  /**
-   * @param MinersFacade $minersFacade
-   */
-  public function injectMinersFacade(MinersFacade $minersFacade){
-    $this->minersFacade=$minersFacade;
   }
 
   /**
