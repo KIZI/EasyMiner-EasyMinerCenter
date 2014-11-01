@@ -365,7 +365,7 @@ class MySQLDatabase implements IDatabase{
     $query=$this->db->prepare($query);
     $query->execute();
     $result=array();
-    while ($row=$query->fetch(PDO::FETCH_CLASS)){
+    while ($row=$query->fetch(PDO::FETCH_OBJ)){
       $result[$row->id]=$row->rowData;
     }
     return $result;
