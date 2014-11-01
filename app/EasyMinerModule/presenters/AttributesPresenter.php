@@ -3,6 +3,7 @@
 namespace App\EasyMinerModule\Presenters;
 
 
+use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
@@ -132,7 +133,20 @@ class AttributesPresenter extends BasePresenter{
     $name=$form->addText('attributeName','Attribute name:')->setRequired('Input attribute name!');
     //TODO validátor, zda dosud neexistuje atribut se zadaným jménem!!!
     $form->addSubmit('submit','Create attribute')->onClick[]=function(SubmitButton $button){
-      //TODO vytvoření atributu...
+      $values=$button->form->values;
+      $miner=$this->findMinerWithCheckAccess($values->miner);
+      $this->minersFacade->checkMinerMetasource($miner);
+      $attribute=new Attribute();
+      $attribute->metasource=$miner->metasource;
+      $attribute->datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,$values->column);
+      $attribute->name=$values->attributeName;
+      $attribute->type=$attribute->datasourceColumn->type;
+      $attribute->preprocessingId=$values->preprocessing;
+      $this->minersFacade->prepareAttribute($miner,$attribute);
+
+      echo 'ATTRIBUTE GENERATED...';
+      $this->terminate();
+      //TODO reload...
     };
     $storno=$form->addSubmit('storno','storno');
     $storno->setValidationScope(array());

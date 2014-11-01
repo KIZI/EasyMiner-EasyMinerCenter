@@ -166,6 +166,9 @@ class DatasourcesFacade {
             case DbColumn::TYPE_INTEGER: $datasourceColumn->type=DatasourceColumn::TYPE_INTEGER;break;
             default: $datasourceColumn->type=DatasourceColumn::TYPE_STRING;
           }
+
+          $datasourceColumn->strLen=$dbColumn->strLength;
+
           $this->datasourceColumnsRepository->persist($datasourceColumn);
         }
       }

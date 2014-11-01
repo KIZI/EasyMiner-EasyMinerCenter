@@ -9,7 +9,7 @@ use LeanMapper\Entity;
  * @property int|null $attributeId=null
  * @property Metasource $metasource m:hasOne
  * @property string $name
- * @property string $type m:Enum('string','int','float')
+ * @property string|null $type m:Enum('string','int','float')
  * @property DatasourceColumn $datasourceColumn m:hasOne
  * @property string $preprocessingId
  */

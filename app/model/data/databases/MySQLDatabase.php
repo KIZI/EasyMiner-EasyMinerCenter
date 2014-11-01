@@ -282,6 +282,9 @@ class MySQLDatabase implements IDatabase{
     foreach ($columns as $column){
       $dbColumn=new DbColumn();
       $dbColumn->name=$column->Field;
+      $queryStrLen=$this->db->prepare('SELECT MAX(CHAR_LENGTH(`'.$column->Field.'`)) AS strLen FROM `'.$this->tableName.'`;');
+      $queryStrLen->execute();
+      $dbColumn->strLength=$queryStrLen->fetchColumn(0);
       //TODO datový typ!!!
       $result[]=$dbColumn;
     }
@@ -343,5 +346,38 @@ class MySQLDatabase implements IDatabase{
     $query=$this->db->prepare('SELECT count(*) AS pocet FROM `'.$this->tableName.'`;');
     $query->execute();
     return $query->fetchColumn(0);
+  }
+
+  /**
+   * @param string $column
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array[]
+   */
+  public function getColumnValuesWithId($column, $limitStart = 0, $limitCount = 0) {
+    $query='SELECT id,`'.$column.'` AS rowData FROM `'.$this->tableName.'` ORDER BY id ';
+    if ($limitCount>0){
+      $query.=' LIMIT '.intval($limitCount);
+    }
+    if ($limitStart>0){
+      $query.=' OFFSET '.intval($limitStart);
+    }
+    $query=$this->db->prepare($query);
+    $query->execute();
+    $result=array();
+    while ($row=$query->fetch(PDO::FETCH_CLASS)){
+      $result[$row->id]=$row->rowData;
+    }
+    return $result;
+  }
+
+  /**
+   * @param DbColumn $dbColumn
+   * @return bool
+   */
+  public function createColumn(DbColumn $dbColumn) {
+    $sql= 'ALTER TABLE `'.$this->tableName.'` ADD `'.$dbColumn->name.' VARCHAR('.$dbColumn->strLength.')';//TODO další datové typy...
+    $query=$this->db->prepare($sql);
+    return $query->execute();
   }
 }

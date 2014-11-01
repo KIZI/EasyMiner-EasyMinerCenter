@@ -78,7 +78,15 @@ interface IDatabase {
    * @param int $limitCount
    * @return array[]
    */
-  public function getColumnValues($column='',$limitStart=0,$limitCount=0);
+  public function getColumnValues($column,$limitStart=0,$limitCount=0);
+
+  /**
+   * @param string $column
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array[]
+   */
+  public function getColumnValuesWithId($column,$limitStart=0,$limitCount=0);
 
   /**
    * @param array $data
@@ -131,6 +139,12 @@ interface IDatabase {
    * @return bool
    */
   public function renameColumn($oldName,$newName);
+
+  /**
+   * @param DbColumn $dbColumn
+   * @return bool
+   */
+  public function createColumn(DbColumn $dbColumn);
 
   /**
    * Funkce vracející počet řádků v tabulce

@@ -1,20 +1,25 @@
 <?php
 namespace App\Model\EasyMiner\Facades;
 
+use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\MinersRepository;
+use App\Model\Preprocessing\IPreprocessingDriver;
 
 class MinersFacade {
   /** @var  MinersRepository $minersRepository */
   private $minersRepository;
   /** @var  MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
+  /** @var  IPreprocessingDriver $preprocessingDriver */
+  private $preprocessingDriver;
 
-  public function __construct(MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade) {
+  public function __construct(MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver) {
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
+    $this->preprocessingDriver=$preprocessingDriver;
   }
 
   /**
@@ -114,11 +119,33 @@ class MinersFacade {
       $metasource->dbServer=$datasource->dbServer;
       $metasource->setDbPassword($datasource->getDbPassword());
       $metasource->attributesTable=$miner->getAttributesTableName();
-      //TODO skutečné založení příslušných tabulek!
+
+      $this->metasourcesFacade->createMetasourcesTables($metasource);
 
       $this->metasourcesFacade->saveMetasource($metasource);
-    }
 
+      $miner->metasource=$metasource;
+      $this->saveMiner($miner);
+    }
+  }
+
+  /**
+   * @param Miner|int $miner
+   * @param Attribute|int $attribute
+   */
+  public function prepareAttribute($miner,$attribute){
+    if (!$miner instanceof Miner){
+      $miner=$this->findMiner($miner);
+    }
+    if ($attribute instanceof Attribute){
+      if ($attribute->isDetached() || $attribute->isModified()){
+        $this->metasourcesFacade->saveAttribute($attribute);
+      }
+    }else{
+      $attribute=$this->metasourcesFacade->findAttribute($attribute);
+    }
+    $this->preprocessingDriver->generateAttribute($attribute);
+    //TODO nechat mining driver zkontrolovat existenci všech atributů
   }
 
 }

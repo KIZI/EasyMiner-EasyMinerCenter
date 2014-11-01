@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\mining;
+namespace App\Model\Mining;
 
 /**
  * Class IMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
@@ -34,4 +34,6 @@ interface IMiningDriver {
    * @param string $taskId
    */
   public function importResults($taskId);
+
+  //TODO funkce pro přidání atributu
 } 

@@ -4,6 +4,7 @@ namespace App\Model\EasyMiner\Facades;
 
 use App\Model\Data\Entities\DbConnection;
 use App\Model\Data\Facades\DatabasesFacade;
+use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\AttributesRepository;
@@ -89,4 +90,41 @@ class MetasourcesFacade {//XXX dodelat!!!
     return $dbConnection;
   }
 
+
+  /**
+   * @param Attribute $attribute
+   */
+  public function saveAttribute(Attribute $attribute){
+    $this->attributesRepository->persist($attribute);
+  }
+
+  /**
+   * @param $id
+   * @return Attribute
+   * @throws \Exception
+   */
+  public function findAttribute($id){
+    return $this->attributesRepository->find($id);
+  }
+
+  public function createMetasourcesTables(Metasource $metasource){
+    $datasource=$metasource->miner->datasource;
+
+    $this->databasesFacade->openDatabase($datasource->getDbConnection(),$metasource->getDbConnection());
+    $attributesTable=$metasource->attributesTable;
+    $i=1;
+    while($this->databasesFacade->checkTableExists($attributesTable.DatabasesFacade::SECOND_DB)){
+      $attributesTable=$metasource->attributesTable.$i;
+      $i++;
+    }
+    $this->databasesFacade->createTable($attributesTable,array(),DatabasesFacade::SECOND_DB);
+    //nakopírování hodnot ID
+    $values=$this->databasesFacade->getColumnValuesWithId($metasource->attributesTable,'id',DatabasesFacade::SECOND_DB);
+    if (!empty($values)){
+      foreach ($values as $value){
+        $this->databasesFacade->insertRow($metasource->attributesTable,array('id'=>$value));
+      }
+    }
+  }
+  //TODO skutečné založení dalších příslušných tabulek! (pro pravidla atd.)
 }
