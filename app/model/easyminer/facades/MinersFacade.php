@@ -116,6 +116,7 @@ class MinersFacade {
       $metasource->dbName=$datasource->dbName;
       $metasource->dbUsername=$datasource->dbUsername;
       $metasource->dbPort=$datasource->dbPort;
+      $metasource->type=$datasource->type;
       $metasource->dbServer=$datasource->dbServer;
       $metasource->setDbPassword($datasource->getDbPassword());
       $metasource->attributesTable=$miner->getAttributesTableName();
