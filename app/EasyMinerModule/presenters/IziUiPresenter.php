@@ -52,7 +52,7 @@ class IziUiPresenter extends BasePresenter{
     $dataParser->loadData();
     $responseContent = $dataParser->parseData();
 
-    $attributessource=null;
+    $metasource=null;
     try{
       $metasource=$miner->metasource;
     }catch (\Exception $e){/*chybu ignorujeme - zatím pravděpodobně neexistují žádné atributy*/}

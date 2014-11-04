@@ -58,8 +58,6 @@ class MySQLDatabase implements IDatabase{
           $sql.=', `'.$column->name.'` float NOT NULL';
         }
       }
-    }else{
-      throw new ApplicationException('No columns specified!');
     }
     $sql.=', PRIMARY KEY (`id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;';
@@ -199,15 +197,23 @@ class MySQLDatabase implements IDatabase{
   /**
    * @param string $name
    * @return DbColumn
+   * @throws \Exception
    */
   public function getColumn($name) {
-    $select=$this->db->query('SELECT `'.$name.'` FROM `'.$this->tableName.'`;');
-    $pdoColumnMeta=$select->getColumnMeta(0);
-    $dbColumn=new DbColumn();
-    $dbColumn->name=$pdoColumnMeta['name'];
-    //TODO typy
-    //$dbColumn->dataType='';
-    //$dbColumn->strLen='';
+    if (!($select=$this->db->query('SELECT `'.$name.'` FROM `'.$this->tableName.'`;'))){
+      throw new \Exception('Requested column not found! ('.$name.')');
+    }
+    try{
+      $pdoColumnMeta=$select->getColumnMeta(0);
+      $dbColumn=new DbColumn();
+      $dbColumn->name=$pdoColumnMeta['name'];
+      //TODO typy
+      //$dbColumn->dataType='';
+      //$dbColumn->strLen='';
+      return $dbColumn;
+    }catch (\Exception $e){
+      throw new \Exception('Requested column not found! ('.$name.')');
+    }
   }
 
   /**

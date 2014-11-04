@@ -7,6 +7,7 @@ use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
+use App\Model\EasyMiner\Facades\MetasourcesFacade;
 use App\Model\Rdf\Facades\MetaAttributesFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
@@ -17,6 +18,8 @@ class AttributesPresenter extends BasePresenter{
 
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
+  /** @var  MetasourcesFacade $metasourcesFacade */
+  private $metasourcesFacade;
   /** @var  MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
 
@@ -144,6 +147,8 @@ class AttributesPresenter extends BasePresenter{
       $attribute->preprocessingId=$values->preprocessing;
       $this->minersFacade->prepareAttribute($miner,$attribute);
 
+      $this->metasourcesFacade->saveAttribute($attribute);
+
       echo 'ATTRIBUTE GENERATED...';
       $this->terminate();
       //TODO reload...
@@ -167,6 +172,12 @@ class AttributesPresenter extends BasePresenter{
     $this->datasourcesFacade=$datasourcesFacade;
   }
 
+  /**
+   * @param MetasourcesFacade $metasourcesFacade
+   */
+  public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade){
+    $this->metasourcesFacade=$metasourcesFacade;
+  }
   /**
    * @param MetaAttributesFacade $metaAttributesFacade
    */
