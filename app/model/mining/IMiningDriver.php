@@ -49,8 +49,13 @@ interface IMiningDriver {
 
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
-   * @param Miner|Task $miner
    */
-  public function checkMinerState($miner);
+  public function checkMinerState();
+
+  /**
+   * Funkce volaná po smazání konkrétního mineru
+   * @return mixed
+   */
+  public function deletedMiner();
 
 } 

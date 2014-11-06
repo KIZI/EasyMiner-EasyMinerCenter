@@ -2,10 +2,14 @@
 namespace App\Model\Mining\LM;
 
 
+use App\Model\Data\Entities\DbConnection;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\Mining\IMiningDriver;
+use Kdyby\Curl\Request as CurlRequest;
+use Kdyby\Curl\Response as CurlResponse;
+use Tracy\Debugger;
 
 class LMDriver implements IMiningDriver{
   /** @var  Task $task */
@@ -33,7 +37,11 @@ class LMDriver implements IMiningDriver{
    * @return bool
    */
   public function stopMining() {
-    // TODO: Implement stopMining() method.
+    try{
+      $this->cancelRemoteMinerTask($this->getRemoteMinerTaskName());
+      return true;
+    }catch (\Exception $e){}
+    return false;
   }
 
   /**
@@ -52,21 +60,19 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
+   * Funkce volaná po smazání konkrétního mineru
+   * @return mixed
+   */
+  public function deletedMiner() {
+    // TODO: Implement deletedMiner() method.
+  }
+
+  /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
-   * @param Miner|Task $miner
    * @throws \Exception
    */
-  public function checkMinerState($miner){
-    if ($miner instanceof Task){
-      $this->task=$miner;
-      $this->miner=$miner->miner;
-    }elseif($miner instanceof Miner){
-      $this->miner=$miner;
-    }else{
-      $this->miner=$this->minersFacade->findMiner($miner);
-    }
-
-    $minerConfig=$miner->getConfig();
+  public function checkMinerState(){
+    $minerConfig=$this->miner->getConfig();
     $lmId=$minerConfig['lm_miner'];
     // TODO: Implement checkMinerState() method.
   }
@@ -95,6 +101,38 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
+   * Funkce vracející adresu LM connectu
+   * @return string
+   */
+  private function getRemoteMinerUrl(){
+    //FIXME
+  }
+
+  /**
+   * Funkce vracející typ požadovaného LM pooleru
+   * @return string
+   */
+  private function getRemoteMinerPooler(){
+    //FIXME
+    return 'task';
+  }
+
+  /**
+   * Funkce vracející jméno úlohy na LM connectu
+   * @return string
+   */
+  private function getRemoteMinerTaskName(){
+    //FIXME
+  }
+
+  /**
+   * @return string
+   */
+  private function getAttributesTableName(){
+    //FIXME
+  }
+
+  /**
    * Funkce vracející konfiguraci aktuálně otevřeného mineru
    * @return array
    */
@@ -118,6 +156,304 @@ class LMDriver implements IMiningDriver{
     }
   }
 
+
+  #region kód z KBI ==================================================================================================
+
+  /**
+   * @param DbConnection $dbConnection
+   * @return string ID of registered miner.
+   * @throws \Exception
+   */
+  private function registerRemoteMiner(DbConnection $dbConnection) {
+    /** @var \SimpleXMLElement $requestXml */
+    $requestXml = simplexml_load_string('<RegistrationRequest></RegistrationRequest>');
+
+    /*if (isset($db_cfg['metabase'])) { //nastavení existující metabáze
+      $metabaseXml = $requestXml->addChild('Metabase');
+      $metabaseXml->addAttribute('type', 'Access');
+      $metabaseXml->addChild('File', $db_cfg['metabase']);
+    }*/
+
+    if ($dbConnection->type!='mysql'){
+      throw new \Exception('LMDriver supports only MySQL databases!');
+    }
+
+    $connectionXml = $requestXml->addChild('Connection');
+    $connectionXml->addAttribute('type', $dbConnection->type);
+
+    if ($dbConnection->dbPort!='') {
+      $connectionXml->addChild('Server', $dbConnection->dbServer.':'.$dbConnection->dbPort);
+    }else {
+      $connectionXml->addChild('Server', $dbConnection->dbServer);
+    }
+
+    $connectionXml->addChild('Database', $dbConnection->dbName);
+
+    if (!empty($dbConnection->dbUsername)) {
+      $connectionXml->addChild('Username', $dbConnection->dbUsername);
+    }
+    if (!empty($dbConnection->dbUsername)) {
+      $connectionXml->addChild('Username', $dbConnection->dbUsername);
+    }
+
+    if (!empty($dbConnection->dbPassword)) {
+      $connectionXml->addChild('Password', $dbConnection->dbPassword);
+    }
+
+    $data = $requestXml->asXML();
+
+    $url = $this->getRemoteMinerUrl().'/miners';
+
+    $curlRequest=$this->prepareNewCurlRequest($url);
+    $response=$curlRequest->post($data);
+
+    Debugger::fireLog($response);
+
+    return $this->parseRegisterResponse($response);
+  }
+
+  /**
+   * @param CurlResponse $response
+   * @return string
+   * @throws \Exception
+   */
+  private function parseRegisterResponse(CurlResponse $response) {
+    $body = simplexml_load_string($response->getResponse());
+
+    if ($response->getCode() != 200 || $body['status'] == 'failure') {
+      throw new \Exception(isset($body->message) ? (string)$body->message : $response->getCode());
+    } else if ($body['status'] == 'success') {
+      return (string)$body['id'];
+    }
+
+    throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
+  }
+
+  /**
+   * Funkce pro smazání vzdáleného mineru
+   * @return mixed
+   */
+  private function unregisterRemoteMiner() {
+    $url = $this->getRemoteMinerUrl()."/miners/".$this->getRemoteMinerId();
+
+    $curlRequest=$this->prepareNewCurlRequest($url);
+    $response=$curlRequest->delete();
+
+    return $this->parseResponse($response, "Miner unregistered/removed.");
+  }
+
+  /**
+   * Funkce pro import DataDictionary do LispMineru
+   * @param string|\SimpleXMLElement $dataDictionary
+   * @return string
+   * @throws \Exception
+   */
+  private function importDataDictionary($dataDictionary) {
+    if ($dataDictionary instanceof \SimpleXMLElement){
+      $dataDictionary=$dataDictionary->asXML();
+    }
+    $remoteMinerId=$this->getRemoteMinerId();
+
+    if(!$remoteMinerId){
+      throw new \Exception('LISpMiner ID was not provided.');
+    }
+
+    $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId.'/DataDictionary';
+
+    $curlRequest=$this->prepareNewCurlRequest($url);
+    $response = $curlRequest->put($dataDictionary);
+
+    Debugger::fireLog($response, "Import executed");
+
+    return $this->parseResponse($response);
+  }
+
+  /**
+   * @param string $template
+   * @return string
+   * @throws \Exception
+   */
+  public function getDataDescription($template = '') {
+    $remoteMinerId = $this->getRemoteMinerId();
+
+    if (!$remoteMinerId) {
+      throw new \Exception('LISpMiner ID was not provided.');
+    }
+
+    $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId.'/DataDictionary';
+
+    $requestData = array(
+      'matrix' => $this->getAttributesTableName(),
+      'template' => $template
+    );
+
+    Debugger::fireLog(array($url, $requestData), "getting DataDictionary");
+
+    $curlRequest=$this->prepareNewCurlRequest($url);
+    $response=$curlRequest->get($requestData);
+
+    if ($response->isOk()) {
+      return trim($response->getResponse());
+    }
+
+    return $this->parseResponse($response);
+  }
+
+  public function queryPost($query, $options) {//TODO query a options???
+    $remoteMinerId = $this->getRemoteMinerId();
+
+    if (!$remoteMinerId){
+      throw new \Exception('LISpMiner ID was not provided.');
+    }
+
+    $url = $this->getRemoteMinerUrl();
+
+    $data = array();
+
+    if (isset($options['template'])) {
+      $data['template'] = $options['template'];
+      Debugger::fireLog("Using LM exporting template {$data['template']}");
+    }
+
+    if (isset($options['export'])) {
+      $task = $options['export'];
+      $url .= '/miners/'.$remoteMinerId.'/tasks/'.$task;
+
+      Debugger::fireLog("Making just export of task '{$task}' (no generation).");
+      Debugger::fireLog(array('URL' => $url, 'GET' => $data, 'POST' => $query));
+
+      $curlRequest = $this->prepareNewCurlRequest($url);
+      $response=$curlRequest->get($data);
+    } else {
+      $pooler = $this->getRemoteMinerPooler();
+
+      if (isset($options['pooler'])) {
+        $pooler = $options['pooler'];
+        Debugger::log("Using '{$pooler}' as pooler");
+      }
+
+      switch ($pooler) {
+        case 'grid':
+          $url .= '/miners/'.$remoteMinerId.'/tasks/grid';
+          break;
+        case 'proc':
+          $url .= '/miners/'.$remoteMinerId.'/tasks/proc';
+          break;
+        case 'task':
+        default:
+          $url .= '/miners/'.$remoteMinerId.'/tasks/task';
+      }
+
+      Debugger::log(array('URL' => $url, 'GET' => $data, 'POST' => $query));
+
+      $curlRequest=$this->prepareNewCurlRequest($url);
+      $curlRequest->getUrl()->appendQuery($options);//TODO kontrola připojení parametrů k URL...
+      $response = $curlRequest->post($url, $query);
+    }
+
+    if ($response->isOk()) {
+      return $response->getResponse();
+    }
+
+    return $this->parseResponse($response);
+  }
+
+  /**
+   * Funkce pro zastavení úlohy na LM connectu
+   * @param string $taskName
+   * @return string
+   * @throws \Exception
+   */
+  public function cancelRemoteMinerTask($taskName) {
+    /** @var \SimpleXMLElement $requestXml */
+    $requestXml = simplexml_load_string("<CancelationRequest></CancelationRequest>");
+    $remoteMinerId = $this->getRemoteMinerId();
+
+    if (!$remoteMinerId) {
+      throw new \Exception('LISpMiner ID was not provided.');
+    }
+
+    $url = $this->getRemoteMinerUrl();
+
+    switch ($this->getRemoteMinerPooler()) {
+      case 'grid':
+        $url .= '/miners/'.$remoteMinerId.'/tasks/grid/'.$taskName;
+        break;
+      case 'proc':
+        $url .= '/miners/'.$remoteMinerId.'/tasks/proc/'.$taskName;
+        break;
+      case 'task':
+      default:
+        $url .= '/miners/'.$remoteMinerId.'/tasks/task/'.$taskName;
+    }
+
+    Debugger::fireLog(array($url, 'Canceling task'));
+
+    $curlRequest=$this->prepareNewCurlRequest($url);
+    $response=$curlRequest->put($requestXml->asXML());
+
+    if ($response->isOk()) {
+      return $response->getResponse();
+    }
+
+    return $this->parseResponse($response);
+  }
+
+  /**
+   * Funkce pro otestování existence LM connect mineru
+   * @return bool
+   */
+  private function test(){
+    try {
+      $remoteMinerId = $this->getRemoteMinerId();
+      if (!$remoteMinerId) {
+        throw new \Exception('LISpMiner ID was not provided.');
+      }
+      $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId;
+
+      $curlRequest=$this->prepareNewCurlRequest($url);
+      $response=$curlRequest->get();
+
+      Debugger::fireLog($response, "Test executed");
+
+      $this->parseResponse($response, '');
+
+      return true;
+    } catch (\Exception $ex) {
+      return false;
+    }
+  }
+
+  /**
+   * Funkce parsující stav odpovědi od LM connectu
+   * @param CurlResponse $response
+   * @param string $message
+   * @return string
+   * @throws \Exception
+   */
+  private function parseResponse($response, $message = '') {
+    $body = $response->getResponse();
+    $body=simplexml_load_string($body);
+    if (!$response->isOk() || $body['status'] == 'failure') {
+      throw new \Exception(isset($body->message) ? (string)$body->message : $response->getCode());
+    } else if ($body['status'] == 'success') {
+      return isset($body->message) ? (string)$body->message : $message;
+    }
+    throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response->getResponse())));
+  }
+
+  /**
+   * @param $url
+   * @return CurlRequest
+   */
+  private function prepareNewCurlRequest($url){
+    return new CurlRequest($url);//TODO credentials!!!
+  }
+
+
+  #endregion kód z KBI ===============================================================================================
+
+  #region constructor
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
@@ -137,6 +473,8 @@ class LMDriver implements IMiningDriver{
   public function setTask(Task $task) {
     $this->task=$task;
   }
+
+  #endregion constructor
 
 
 }

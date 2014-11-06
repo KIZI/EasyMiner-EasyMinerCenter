@@ -20,6 +20,7 @@ use Nette\Utils\Json;
  * @property Nette\Utils\DateTime|null $created = null
  * @property Nette\Utils\DateTime|null $lastOpened = null
  * @property string $config
+ * @property-read Task[] $tasks m:belongsToMany
  */
 class Miner extends Entity{
   const TYPE_LM='lm';

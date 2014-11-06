@@ -103,6 +103,21 @@ class MinersFacade {
     if (!($miner instanceof Miner)){
       $miner=$this->findMiner($miner);
     }
+    #region smazání všech navázaných instancí driverů
+    //u samotného driveru
+    $task=new Task();
+    $task->miner=$miner;
+    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this);
+    $miningDriver->deletedMiner();
+    //u jednotlivých úlog
+    $tasks=$miner->tasks;
+    if (!empty($tasks)){
+      foreach ($tasks as $task){
+        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this);
+        $miningDriver->deletedMiner();
+      }
+    }
+    #endregion
     return $this->minersRepository->delete($miner);
   }
 
