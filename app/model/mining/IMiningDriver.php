@@ -37,8 +37,9 @@ interface IMiningDriver {
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
+   * @param array $params = array() - parametry výchozí konfigurace
    */
-  public function __construct(Task $task=null, MinersFacade $minersFacade);
+  public function __construct(Task $task=null, MinersFacade $minersFacade, $params = array());
 
   /**
    * Funkce pro nastavení aktivní úlohy

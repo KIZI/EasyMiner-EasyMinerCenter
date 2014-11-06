@@ -13,8 +13,11 @@ use Nette\Utils\Strings;
  * @package App\Model\Mining
  */
 class MiningDriverFactory extends Object{
-  const DRIVER_LM='\App\Model\Mining\LM\LMDriver';//TODO doplnění adres tříd
-  const DRIVER_R='\App\Model\Mining\R\RDriver';
+  private $params;
+
+  public function __construct($params){
+    $this->params=$params;
+  }
 
   /**
    * @param Task $task
@@ -22,10 +25,10 @@ class MiningDriverFactory extends Object{
    * @return IMiningDriver
    * @throws ArgumentOutOfRangeException
    */
-  public static function getDriverInstance(Task $task ,MinersFacade $minersFacade){
-    $reflection=self::getReflection();
-    if ($driverClass=$reflection->getConstant('DRIVER_'.Strings::upper($task->type))){
-      return new $driverClass($task, $minersFacade);
+  public function getDriverInstance(Task $task ,MinersFacade $minersFacade){
+    if (isset($this->params['driver_'.$task->type])){
+      $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
+      return new $driverClass($task, $minersFacade, $this->params['driver_'.$task->type]);
     }
     throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
   }

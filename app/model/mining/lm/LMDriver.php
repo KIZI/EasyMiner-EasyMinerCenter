@@ -16,6 +16,8 @@ class LMDriver implements IMiningDriver{
   private $minerConfig = null;
   /** @var  MinersFacade $minersFacade */
   private $minersFacade;
+  /** @var array $params - parametry výchozí konfigurace */
+  private $params;
 
 
   /**
@@ -119,10 +121,12 @@ class LMDriver implements IMiningDriver{
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
+   * @param $params = array()
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
+    $this->params=$params;
   }
 
   /**

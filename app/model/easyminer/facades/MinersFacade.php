@@ -21,10 +21,10 @@ class MinersFacade {
   private $preprocessingDriver;
   /** @var  TasksRepository $tasksRepository */
   private $tasksRepository;
-  /** @var  string|MiningDriverFactory $miningDriverFactory */
+  /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
 
-  public function __construct($miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, TasksRepository $tasksRepository){
+  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, TasksRepository $tasksRepository){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
     $this->preprocessingDriver=$preprocessingDriver;
@@ -185,8 +185,7 @@ class MinersFacade {
     if (!$task instanceof Task){
       $task=$this->findTask($task);
     }
-    $miningDriverFactory=$this->miningDriverFactory;
-    return $miningDriverFactory::getDriverInstance($task,$this);
+    return $this->miningDriverFactory->getDriverInstance($task,$this);
   }
 
   /**
