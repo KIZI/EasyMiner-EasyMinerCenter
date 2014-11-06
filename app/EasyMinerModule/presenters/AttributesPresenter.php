@@ -14,6 +14,7 @@ use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
+use Tracy\Debugger;
 
 class AttributesPresenter extends BasePresenter{
 
@@ -71,13 +72,8 @@ class AttributesPresenter extends BasePresenter{
    * @throws ForbiddenRequestException
    */
   public function renderAddAttribute($miner,$column=null,$columnName=null){
-    $miner=new Miner();
-    $miner->type='lm';
-    $this->minersFacade->checkMinerState($miner);exit('x');
-
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->minersFacade->checkMinerMetasource($miner);
-
     $this->template->miner=$miner;
     $this->template->metasource=$miner->metasource;
     try{

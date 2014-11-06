@@ -17,41 +17,16 @@ namespace KBI;
  *
  * @package KBI
  */
-class KBIntegrator implements IKBIntegrator
-{
+class KBIntegrator {
 	public static function create(Array $config)
 	{
 		$type = strtoupper(isset($config['type']) ? $config['type'] : 'GENERIC');
 
 		switch($type){
-			case 'ONTOPIA':
-				require_once 'Integrators/Ontopia.php';
-				return new Ontopia($config);
-			break;
-			case 'SPARQL':
-				require_once 'Integrators/Semsol.php';
-				return new Semsol($config);
-			break;
-			case 'XQUERY':
-				require_once 'Integrators/XQuery.php';
-				return new XQuery($config);
-				break;
-			case 'JUCENE':
-				require_once 'Integrators/Jucene.php';
-				return new Jucene($config);
-				break;
 			case 'LISPMINER':
 				require_once 'Integrators/LispMiner.php';
 				return new LispMiner($config);
 				break;
-            case 'JOOMLA':
-                require_once 'Integrators/Joomla.php';
-                return new JoomlaKBIIntegrator($config);
-                break;
-			case 'GENERIC':
-			default:
-				return new KBIntegrator($config);
-			break;
 		}
 	}
 

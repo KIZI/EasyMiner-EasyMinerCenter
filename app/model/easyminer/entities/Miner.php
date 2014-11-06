@@ -4,6 +4,7 @@ namespace App\Model\EasyMiner\Entities;
 
 use LeanMapper\Entity;
 use Nette;
+use Nette\Utils\Json;
 
 /**
  * Class Miner
@@ -18,6 +19,7 @@ use Nette;
  * @property-read string $attributesTable
  * @property Nette\Utils\DateTime|null $created = null
  * @property Nette\Utils\DateTime|null $lastOpened = null
+ * @property string $config
  */
 class Miner extends Entity{
   const TYPE_LM='lm';
@@ -59,5 +61,25 @@ class Miner extends Entity{
     return 'BBA'.$this->minerId.'_'.$this->datasource->dbTable;
   }
 
+  /**
+   * @return array
+   */
+  public function getConfig(){
+    try{
+      $arr=Nette\Utils\Json::decode($this->row->config,Json::FORCE_ARRAY);
+    }catch (\Exception $e){
+      $arr=array();
+    }
+    return $arr;
+  }
 
+  /**
+   * @param array $config
+   * @throws Nette\Utils\JsonException
+   */
+  public function setConfig($config){
+    if (is_array($config)||is_object($config)){
+      $this->row->config=Json::encode($config);
+    }
+  }
 }

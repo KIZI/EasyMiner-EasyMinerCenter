@@ -10,8 +10,13 @@ use App\Model\Mining\IMiningDriver;
 class LMDriver implements IMiningDriver{
   /** @var  Task $task */
   private $task;
+  /** @var  Miner $miner */
+  private $miner;
+  /** @var  array $minerConfig */
+  private $minerConfig = null;
   /** @var  MinersFacade $minersFacade */
   private $minersFacade;
+
 
   /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
@@ -47,10 +52,68 @@ class LMDriver implements IMiningDriver{
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
    * @param Miner|Task $miner
-   * @return mixed
+   * @throws \Exception
    */
   public function checkMinerState($miner){
+    if ($miner instanceof Task){
+      $this->task=$miner;
+      $this->miner=$miner->miner;
+    }elseif($miner instanceof Miner){
+      $this->miner=$miner;
+    }else{
+      $this->miner=$this->minersFacade->findMiner($miner);
+    }
+
+    $minerConfig=$miner->getConfig();
+    $lmId=$minerConfig['lm_miner'];
     // TODO: Implement checkMinerState() method.
+  }
+
+  /**
+   * Funkce vracející ID aktuálního vzdáleného mineru (lispmineru)
+   * @return null|string
+   */
+  private function getRemoteMinerId(){
+    $minerConfig=$this->getMinerConfig();
+    if (isset($minerConfig['lm_miner_id'])){
+      return $minerConfig['lm_miner_id'];
+    }else{
+      return null;
+    }
+  }
+
+  /**
+   * Funkce nastavující ID aktuálně otevřeného mineru
+   * @param string|null $lmMinerId
+   */
+  private function setRemoteMinerId($lmMinerId){
+    $minerConfig=$this->getMinerConfig();
+    $minerConfig['lm_miner_id']=$lmMinerId;
+    $this->setMinerConfig($minerConfig);
+  }
+
+  /**
+   * Funkce vracející konfiguraci aktuálně otevřeného mineru
+   * @return array
+   */
+  private function getMinerConfig(){
+    if (!$this->minerConfig){
+      $this->minerConfig=$this->miner->getConfig();
+    }
+    return $this->minerConfig;
+  }
+
+  /**
+   * Funkce nastavující konfiguraci aktuálně otevřeného mineru
+   * @param array $minerConfig
+   * @param bool $save = true
+   */
+  private function setMinerConfig($minerConfig,$save=true){
+    $this->miner->setConfig($minerConfig);
+    $this->minerConfig=$minerConfig;
+    if ($save){
+      $this->minersFacade->saveMiner($this->miner);
+    }
   }
 
   /**

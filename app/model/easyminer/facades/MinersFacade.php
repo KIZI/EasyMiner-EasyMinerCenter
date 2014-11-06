@@ -35,6 +35,7 @@ class MinersFacade {
   /**
    * @param int $id
    * @return Miner
+   * @throws \Exception
    */
   public function findMiner($id){
     return $this->minersRepository->find($id);

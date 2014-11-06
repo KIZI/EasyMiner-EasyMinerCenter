@@ -43,14 +43,12 @@ interface IMiningDriver {
   /**
    * Funkce pro nastavení aktivní úlohy
    * @param Task $task
-   * @return mixed
    */
   public function setTask(Task $task);
 
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
    * @param Miner|Task $miner
-   * @return mixed
    */
   public function checkMinerState($miner);
 
