@@ -3,6 +3,13 @@
 #
 
 parameters:
+    miningDriverFactory:
+        driver_lm:
+            class:  App\Model\Mining\LM\LMDriver
+            server:
+        driver_r:
+            class:  App\Model\Mining\LM\RDriver
+            server:
     arc2:
         db_name:
         db_user:

@@ -2,12 +2,8 @@
 # Soubor s globální konfigurací aplikace
 #
 
-parameters:
-    miningDriverFactory: \App\Model\Mining\MiningDriverFactory
-
 php:
 	date.timezone: Europe/Prague
-
 
 nette:
 	application:
@@ -36,10 +32,11 @@ services:
 	- LeanMapper\Connection(%leanmapper%)
 	- LeanMapper\DefaultEntityFactory
 	- App\Model\EasyMiner\Mappers\StandardMapper
+	- App\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
 
 	- App\Model\EasyMiner\Facades\HelperFacade
 	- App\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
-	- App\Model\EasyMiner\Facades\MinersFacade(%miningDriverFactory%)
+	- App\Model\EasyMiner\Facades\MinersFacade
 	- App\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
 	- App\Model\EasyMiner\Facades\UsersFacade
 	- App\Model\Data\Facades\DatabasesFacade
