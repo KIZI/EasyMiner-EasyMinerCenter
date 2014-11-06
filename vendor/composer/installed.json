@@ -1708,5 +1708,85 @@
             }
         ],
         "description": "Addon to display confirmation dialog in Nette  webapplications"
+    },
+    {
+        "name": "kdyby/curl",
+        "version": "v2.2.0",
+        "version_normalized": "2.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Kdyby/Curl.git",
+            "reference": "ef36fcca46bc7617ffe89c55a85c9acbc02c25ec"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Kdyby/Curl/zipball/ef36fcca46bc7617ffe89c55a85c9acbc02c25ec",
+            "reference": "ef36fcca46bc7617ffe89c55a85c9acbc02c25ec",
+            "shasum": ""
+        },
+        "require": {
+            "ext-curl": "*",
+            "nette/http": "~2.2@dev",
+            "nette/utils": "~2.2@dev"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "~0.6",
+            "latte/latte": "~2.2@dev",
+            "nette/application": "~2.2@dev",
+            "nette/bootstrap": "~2.2@dev",
+            "nette/caching": "~2.2@dev",
+            "nette/component-model": "~2.2@dev",
+            "nette/database": "~2.2@dev",
+            "nette/di": "~2.2@dev",
+            "nette/finder": "~2.2@dev",
+            "nette/forms": "~2.2@dev",
+            "nette/mail": "~2.2@dev",
+            "nette/neon": "~2.2@dev",
+            "nette/nette": "~2.2@dev",
+            "nette/php-generator": "~2.2@dev",
+            "nette/reflection": "~2.2@dev",
+            "nette/robot-loader": "~2.2@dev",
+            "nette/safe-stream": "~2.2@dev",
+            "nette/security": "~2.2@dev",
+            "nette/tester": "@dev",
+            "nette/tokenizer": "~2.2@dev",
+            "tracy/tracy": "~2.2@dev"
+        },
+        "time": "2014-07-26 16:52:43",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.2-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Kdyby\\Curl": "src/"
+            },
+            "classmap": [
+                "src/Kdyby/Curl/exceptions.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "GPL-2.0",
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Filip Procházka",
+                "email": "filip@prochazka.su",
+                "homepage": "http://filip-prochazka.com"
+            }
+        ],
+        "description": "Curl wrapper for Nette Framework",
+        "homepage": "http://kdyby.org",
+        "keywords": [
+            "curl",
+            "http",
+            "nette"
+        ]
     }
 ]

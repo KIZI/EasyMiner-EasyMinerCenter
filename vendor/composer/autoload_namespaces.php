@@ -9,5 +9,6 @@ return array(
     'LeanMapper' => array($vendorDir . '/tharos/leanmapper'),
     'Kdyby\\Google\\' => array($vendorDir . '/kdyby/google/src'),
     'Kdyby\\Facebook\\' => array($vendorDir . '/kdyby/facebook/src'),
+    'Kdyby\\Curl' => array($vendorDir . '/kdyby/curl/src'),
     'ConfirmationDialog' => array($vendorDir . '/srigi/nette-confirmationdialog/src'),
 );
