@@ -29,6 +29,7 @@ class MinersFacade {
     $this->metasourcesFacade=$metasourcesFacade;
     $this->preprocessingDriver=$preprocessingDriver;
     $this->tasksRepository=$tasksRepository;
+    $this->miningDriverFactory=$miningDriverFactory;
   }
 
   /**
@@ -168,6 +169,14 @@ class MinersFacade {
   }
 
   /**
+   * @param Task $task
+   * @return mixed
+   */
+  public function saveTask(Task $task){
+    return $this->tasksRepository->persist($task);
+  }
+
+  /**
    * @param Task|int $task
    * @return \App\Model\Mining\IMiningDriver
    */
@@ -176,7 +185,21 @@ class MinersFacade {
       $task=$this->findTask($task);
     }
     $miningDriverFactory=$this->miningDriverFactory;
-    return $miningDriverFactory::getDriverInstance($task);
+    return $miningDriverFactory::getDriverInstance($task,$this);
+  }
+
+  /**
+   * Funkce pro kontrolu stavu konkrétního mineru (jestli jsou nadefinované všechny atributy atd.
+   * @param Miner|int $miner
+   */
+  public function checkMinerState($miner){
+    if (!$miner instanceof Miner){
+      $miner=$this->findMiner($miner);
+    }
+    $task=new Task();
+    $task->type=$miner->type;
+    $miningDriver=$this->getTaskMiningDriver($task);
+    $miningDriver->checkMinerState($miner);
   }
 
 

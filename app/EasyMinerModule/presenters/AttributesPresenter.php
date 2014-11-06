@@ -6,6 +6,7 @@ namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
+use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MetasourcesFacade;
 use App\Model\Rdf\Facades\MetaAttributesFacade;
@@ -70,6 +71,10 @@ class AttributesPresenter extends BasePresenter{
    * @throws ForbiddenRequestException
    */
   public function renderAddAttribute($miner,$column=null,$columnName=null){
+    $miner=new Miner();
+    $miner->type='lm';
+    $this->minersFacade->checkMinerState($miner);exit('x');
+
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->minersFacade->checkMinerMetasource($miner);
 
@@ -148,8 +153,9 @@ class AttributesPresenter extends BasePresenter{
       $this->minersFacade->prepareAttribute($miner,$attribute);
 
       $this->metasourcesFacade->saveAttribute($attribute);
+      $this->minersFacade->checkMinerState($miner);
 
-      echo 'ATTRIBUTE GENERATED...';
+      echo 'ATTRIBUTE GENERATED... TODO: reload UI';
       $this->terminate();
       //TODO reload...
     };

@@ -2,10 +2,16 @@
 namespace App\Model\Mining\LM;
 
 
+use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
+use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\Mining\IMiningDriver;
 
 class LMDriver implements IMiningDriver{
+  /** @var  Task $task */
+  private $task;
+  /** @var  MinersFacade $minersFacade */
+  private $minersFacade;
 
   /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
@@ -39,9 +45,31 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * @param Task $task
+   * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * @param Miner|Task $miner
+   * @return mixed
    */
-  public function __construct(Task $task) {
-    // TODO: Implement __construct() method.
+  public function checkMinerState($miner){
+    // TODO: Implement checkMinerState() method.
   }
+
+  /**
+   * @param Task $task
+   * @param MinersFacade $minersFacade
+   */
+  public function __construct(Task $task = null, MinersFacade $minersFacade) {
+    $this->minersFacade=$minersFacade;
+    $this->setTask($task);
+  }
+
+  /**
+   * Funkce pro nastavení aktivní úlohy
+   * @param Task $task
+   * @return mixed
+   */
+  public function setTask(Task $task) {
+    $this->task=$task;
+  }
+
+
 }

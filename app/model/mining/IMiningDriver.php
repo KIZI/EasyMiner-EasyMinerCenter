@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Model\Mining;
+use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
+use App\Model\EasyMiner\Facades\MinersFacade;
 
 /**
  * Class IMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
@@ -34,10 +36,22 @@ interface IMiningDriver {
 
   /**
    * @param Task $task
+   * @param MinersFacade $minersFacade
    */
-  public function __construct(Task $task);
+  public function __construct(Task $task=null, MinersFacade $minersFacade);
 
+  /**
+   * Funkce pro nastavení aktivní úlohy
+   * @param Task $task
+   * @return mixed
+   */
+  public function setTask(Task $task);
 
+  /**
+   * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * @param Miner|Task $miner
+   * @return mixed
+   */
+  public function checkMinerState($miner);
 
-  //TODO funkce pro přidání atributu
 } 
