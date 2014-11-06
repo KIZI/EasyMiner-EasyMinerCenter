@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Model\Mining;
+use App\Model\EasyMiner\Entities\Task;
 
 /**
  * Class IMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
@@ -10,30 +11,33 @@ interface IMiningDriver {
 
   /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
-   * @param string $taskId
    * @param string $taskConfigJson
    */
-  public function startMining($taskId,$taskConfigJson);
+  public function startMining($taskConfigJson);
 
   /**
    * Funkce pro zastavení dolování
-   * @param string $taskId
    * @return bool
    */
-  public function stopMining($taskId);
+  public function stopMining();
 
   /**
    * Funkce vracející info o aktuálním stavu dané úlohy
-   * @param string $taskId
    * @return string
    */
-  public function taskState($taskId);
+  public function taskState();
 
   /**
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
-   * @param string $taskId
    */
-  public function importResults($taskId);
+  public function importResults();
+
+  /**
+   * @param Task $task
+   */
+  public function __construct(Task $task);
+
+
 
   //TODO funkce pro přidání atributu
 } 

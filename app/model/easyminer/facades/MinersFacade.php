@@ -1,11 +1,15 @@
 <?php
 namespace App\Model\EasyMiner\Facades;
 
+use App\EasyMinerModule\Presenters\TasksPresenter;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Miner;
+use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\MinersRepository;
+use App\Model\EasyMiner\Repositories\TasksRepository;
+use App\Model\Mining\MiningDriverFactory;
 use App\Model\Preprocessing\IPreprocessingDriver;
 
 class MinersFacade {
@@ -15,11 +19,16 @@ class MinersFacade {
   private $metasourcesFacade;
   /** @var  IPreprocessingDriver $preprocessingDriver */
   private $preprocessingDriver;
+  /** @var  TasksRepository $tasksRepository */
+  private $tasksRepository;
+  /** @var  string|MiningDriverFactory $miningDriverFactory */
+  private $miningDriverFactory;
 
-  public function __construct(MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver) {
+  public function __construct($miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, TasksRepository $tasksRepository){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
     $this->preprocessingDriver=$preprocessingDriver;
+    $this->tasksRepository=$tasksRepository;
   }
 
   /**
@@ -148,5 +157,27 @@ class MinersFacade {
     $this->preprocessingDriver->generateAttribute($attribute);
     //TODO nechat mining driver zkontrolovat existenci všech atributů
   }
+
+  /**
+   * @param $id
+   * @return mixed
+   * @throws \Exception
+   */
+  public function findTask($id){
+    return $this->tasksRepository->find($id);
+  }
+
+  /**
+   * @param Task|int $task
+   * @return \App\Model\Mining\IMiningDriver
+   */
+  public function getTaskMiningDriver($task){
+    if (!$task instanceof Task){
+      $task=$this->findTask($task);
+    }
+    $miningDriverFactory=$this->miningDriverFactory;
+    return $miningDriverFactory::getDriverInstance($task);
+  }
+
 
 }
