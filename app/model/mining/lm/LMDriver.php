@@ -7,6 +7,7 @@ use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\Mining\IMiningDriver;
+use Kdyby\Curl\CurlSender;
 use Kdyby\Curl\Request as CurlRequest;
 use Kdyby\Curl\Response as CurlResponse;
 use Tracy\Debugger;
@@ -60,11 +61,16 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce volaná po smazání konkrétního mineru
-   * @return mixed
+   * Funkce volaná před smazáním konkrétního mineru
+   * @return mixed|false
    */
-  public function deletedMiner() {
-    // TODO: Implement deletedMiner() method.
+  public function deleteMiner() {
+    try{
+      $result=$this->unregisterRemoteMiner();
+      return $result;
+    }catch (\Exception $e){
+      return false;
+    }
   }
 
   /**
@@ -73,8 +79,105 @@ class LMDriver implements IMiningDriver{
    */
   public function checkMinerState(){
     $minerConfig=$this->miner->getConfig();
-    $lmId=$minerConfig['lm_miner'];
-    // TODO: Implement checkMinerState() method.
+    if ($metasource=$this->miner->metasource){
+      if (empty($metasource->attributes)){//miner budeme kontrolovat jen v situaci, kdy máme alespoň jeden atribut... (do té doby to nemá smysl)
+        return true;
+      }
+    }
+    $lmId=$minerConfig['lm_miner_id'];
+    if ($lmId){
+      //pokud máme ID vzdáleného mineru, zkusíme otestovat, jestli existuje...
+      if (!$this->testRemoteMinerExists()){
+        $lmId=null;
+      }
+    }
+
+    if (!$lmId){
+      //zaregistrování nového mineru...
+      try{
+        $lmId=$this->registerRemoteMiner($this->miner->metasource->getDbConnection());
+        $this->setRemoteMinerId($lmId);
+      }catch (\Exception $e){
+        throw new \Exception('LM miner registration failed!',$e->getCode(),$e);
+      }
+    }
+    $existingAttributeNamesArr=array();
+    try{
+      $dataDescription=$this->getDataDescription();
+      $attributesXml=simplexml_load_string($dataDescription);
+      if (count($attributesXml->Attribute)>0){
+        foreach($attributesXml->Attribute as $attributeName){
+          $existingAttributeNamesArr[]=(string)$attributeName;
+        }
+      }
+    }catch (\Exception $e){
+      //při exportu se vyskytla chyba... (pravděpodobně nebyl zatím importován dataDictionary)
+    }
+    $attributes=$metasource->attributes;
+    $attributeIdsArr=array();
+    foreach ($attributes as $attribute){
+      if (!in_array($attribute->name,$existingAttributeNamesArr)){
+        $attributeIdsArr[]=$attribute->attributeId;
+      }
+    }
+    if (count($attributeIdsArr)>0){
+      //máme importovat nový atribut
+      $pmml=$this->prepareImportPmml($attributeIdsArr);
+      $this->importDataDictionary($pmml);
+    }
+    return true;
+  }
+
+  /**
+   * Funkce připravující PMML pro import dataDictionary
+   * @param int[] $attributesArr
+   * @return \SimpleXMLElement
+   */
+  private function prepareImportPmml($attributesArr){
+    $metasource=$this->miner->metasource;
+    $pmml=simplexml_load_string('<?xml version="1.0"?>
+<?oxygen SCHSchema="http://sewebar.vse.cz/schemas/GUHARestr0_1.sch"?>
+<PMML version="4.0" xmlns="http://www.dmg.org/PMML-4_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://sewebar.vse.cz/schemas/PMML4.0+GUHA0.1.xsd">
+  <Header>
+    <Extension name="dataset" value="'.$metasource->attributesTable.'"/>
+  </Header>
+  <MiningBuildTask>
+    <Extension name="DatabaseDictionary">
+      <Table name="'.$metasource->attributesTable.'" reloadTableInfo="Yes">
+        <PrimaryKey>
+          <Column name="id" primaryKeyPosition="0"/>
+        </PrimaryKey>
+      </Table>
+    </Extension>
+  </MiningBuildTask>
+  <DataDictionary></DataDictionary>
+  <TransformationDictionary></TransformationDictionary>
+</PMML>');
+    $dataDictionary=$pmml->DataDictionary[0];
+    $transformationDictionary=$pmml->TransformationDictionary[0];
+    $metasourceAttributes=$metasource->attributes;
+    foreach ($metasourceAttributes as $metasourceAttribute){
+      if (in_array($metasourceAttribute->attributeId,$attributesArr)){
+        $dataField=$dataDictionary->addChild('DataField');
+        $dataField->addAttribute('name',$metasourceAttribute->name);
+        $datasourceColumn=$metasourceAttribute->datasourceColumn;
+        $derivedField=$transformationDictionary->addChild('DerivedField');
+        $derivedField->addAttribute('name',$metasourceAttribute->name);
+        $derivedField->addAttribute('dataType',$datasourceColumn->type);
+        //TODO optype
+        $mapValues=$derivedField->addChild('MapValues');
+        $mapValues->addAttribute('outputColumn',$metasourceAttribute->name);
+        $fieldColumnPair=$mapValues->addChild('FieldColumnPair');
+        $fieldColumnPair->addAttribute('column',$metasourceAttribute->name);
+        $fieldColumnPair->addAttribute('field',$metasourceAttribute->name);
+        $autoDiscretize=$derivedField->addChild('AutoDiscretize');
+        $autoDiscretize->addAttribute('type','Enumeration');
+        $autoDiscretize->addAttribute('count','10000');
+        $autoDiscretize->addAttribute('frequencyMin','1');
+        $autoDiscretize->addAttribute('categoryOthers','No');
+      }
+    }
+    return $pmml;
   }
 
   /**
@@ -105,7 +208,7 @@ class LMDriver implements IMiningDriver{
    * @return string
    */
   private function getRemoteMinerUrl(){
-    //FIXME
+    return @$this->params['server'];
   }
 
   /**
@@ -113,8 +216,11 @@ class LMDriver implements IMiningDriver{
    * @return string
    */
   private function getRemoteMinerPooler(){
-    //FIXME
-    return 'task';
+    if (isset($this->params['pooler'])){
+      return $this->params['pooler'];
+    }else{
+      return 'task';
+    }
   }
 
   /**
@@ -129,7 +235,7 @@ class LMDriver implements IMiningDriver{
    * @return string
    */
   private function getAttributesTableName(){
-    //FIXME
+    return @$this->miner->metasource->attributesTable;
   }
 
   /**
@@ -261,8 +367,8 @@ class LMDriver implements IMiningDriver{
     $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId.'/DataDictionary';
 
     $curlRequest=$this->prepareNewCurlRequest($url);
-    $response = $curlRequest->put($dataDictionary);
 
+    $response = $curlRequest->put($dataDictionary);
     Debugger::fireLog($response, "Import executed");
 
     return $this->parseResponse($response);
@@ -273,7 +379,7 @@ class LMDriver implements IMiningDriver{
    * @return string
    * @throws \Exception
    */
-  public function getDataDescription($template = '') {
+  public function getDataDescription($template = 'LMDataSource.Matrix.ARD.Attributes.Template.XML') {
     $remoteMinerId = $this->getRemoteMinerId();
 
     if (!$remoteMinerId) {
@@ -291,6 +397,7 @@ class LMDriver implements IMiningDriver{
 
     $curlRequest=$this->prepareNewCurlRequest($url);
     $response=$curlRequest->get($requestData);
+
 
     if ($response->isOk()) {
       return trim($response->getResponse());
@@ -403,7 +510,7 @@ class LMDriver implements IMiningDriver{
    * Funkce pro otestování existence LM connect mineru
    * @return bool
    */
-  private function test(){
+  private function testRemoteMinerExists(){
     try {
       $remoteMinerId = $this->getRemoteMinerId();
       if (!$remoteMinerId) {
@@ -447,8 +554,14 @@ class LMDriver implements IMiningDriver{
    * @return CurlRequest
    */
   private function prepareNewCurlRequest($url){
-    return new CurlRequest($url);//TODO credentials!!!
+    $curlRequest=new CurlRequest($url);
+    $curlSender=new CurlSender();
+    $curlSender->options['USERPWD']='test:test';//TODO LM credentials!!!
+    $curlRequest->setSender($curlSender);
+    return $curlRequest;
   }
+
+
 
 
   #endregion kód z KBI ===============================================================================================
@@ -472,6 +585,7 @@ class LMDriver implements IMiningDriver{
    */
   public function setTask(Task $task) {
     $this->task=$task;
+    $this->miner=$task->miner;
   }
 
   #endregion constructor

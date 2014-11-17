@@ -329,8 +329,8 @@ class DatasourcesFacade {
     #endregion datafields
 
     #region atributy
-    $this->databasesFacade->openDatabase($metasource->getDbConnection());
     if (!empty($metasource) && !empty($metasource->attributes)) {
+      $this->databasesFacade->openDatabase($metasource->getDbConnection());
       foreach($metasource->attributes as $attribute) {
         $valuesArr=array();
         try{

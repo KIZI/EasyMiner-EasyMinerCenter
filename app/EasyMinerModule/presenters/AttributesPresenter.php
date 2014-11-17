@@ -75,7 +75,7 @@ class AttributesPresenter extends BasePresenter{
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->minersFacade->checkMinerMetasource($miner);
 
-    $this->minersFacade->checkMinerState($miner);echo 'exit';$this->terminate();//XXX pracovní přerušení...
+    $this->minersFacade->checkMinerState($miner);
 
     $this->template->miner=$miner;
     $this->template->metasource=$miner->metasource;

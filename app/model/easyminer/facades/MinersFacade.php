@@ -108,13 +108,13 @@ class MinersFacade {
     $task=new Task();
     $task->miner=$miner;
     $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this);
-    $miningDriver->deletedMiner();
+    $miningDriver->deleteMiner();
     //u jednotlivých úlog
     $tasks=$miner->tasks;
     if (!empty($tasks)){
       foreach ($tasks as $task){
         $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this);
-        $miningDriver->deletedMiner();
+        $miningDriver->deleteMiner();
       }
     }
     #endregion
@@ -213,8 +213,9 @@ class MinersFacade {
     }
     $task=new Task();
     $task->type=$miner->type;
+    $task->miner=$miner;
     $miningDriver=$this->getTaskMiningDriver($task);
-    $miningDriver->checkMinerState($miner);
+    $miningDriver->checkMinerState();
   }
 
 

@@ -53,9 +53,9 @@ interface IMiningDriver {
   public function checkMinerState();
 
   /**
-   * Funkce volaná po smazání konkrétního mineru
+   * Funkce volaná před smazáním konkrétního mineru
    * @return mixed
    */
-  public function deletedMiner();
+  public function deleteMiner();
 
 } 

@@ -45,13 +45,6 @@ class RDriver implements IMiningDriver{
     // TODO: Implement importResults() method.
   }
 
-  /**
-   * @param Task $task
-   */
-  public function __construct(Task $task = null, MinersFacade $minersFacade) {
-    $this->minersFacade=$minersFacade;
-    $this->task=$task;
-  }
 
   /**
    * Funkce pro nastavení aktivní úlohy
@@ -64,10 +57,28 @@ class RDriver implements IMiningDriver{
 
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
-   * @param Miner|Task $miner
-   * @return bool
    */
-  public function checkMinerState($miner) {
+  public function checkMinerState() {
+    /*v rámci R se minery neregistrují...*/
     return true;
+  }
+
+  /**
+   * Funkce volaná před smazáním konkrétního mineru
+   * @return mixed
+   */
+  public function deleteMiner() {
+    /*v rámci R se minery neregistrují...*/
+    return true;
+  }
+
+  /**
+   * @param Task $task
+   * @param MinersFacade $minersFacade
+   * @param array $params = array() - parametry výchozí konfigurace
+   */
+  public function __construct(Task $task = null, MinersFacade $minersFacade, $params = array()) {
+    $this->task=$task;
+    $this->minersFacade=$minersFacade;
   }
 }
