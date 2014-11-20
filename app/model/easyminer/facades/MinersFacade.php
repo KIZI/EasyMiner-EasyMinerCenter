@@ -1,11 +1,11 @@
 <?php
 namespace App\Model\EasyMiner\Facades;
 
-use App\EasyMinerModule\Presenters\TasksPresenter;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
+use App\Model\EasyMiner\Entities\TaskState;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\MinersRepository;
 use App\Model\EasyMiner\Repositories\TasksRepository;
@@ -66,6 +66,10 @@ class MinersFacade {
       $user=$user->userId;
     }
     try{
+
+      /** @noinspection PhpUnusedLocalVariableInspection
+       * @var Miner $miner
+       */
       $miner=$this->minersRepository->findBy(array('miner_id'=>$miner,'user_id'=>$user));
       return true;
     }catch (\Exception $e){/*chybu ignorujeme*/}
@@ -177,7 +181,7 @@ class MinersFacade {
 
   /**
    * @param $id
-   * @return mixed
+   * @return Task
    * @throws \Exception
    */
   public function findTask($id){
@@ -185,10 +189,43 @@ class MinersFacade {
   }
 
   /**
+   * @param Miner|int $miner
+   * @param string $taskUuid
+   * @return Task
+   * @throws \Exception
+   */
+  public function findTaskByUuid($miner,$taskUuid){
+    return $this->tasksRepository->findBy(array('miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner),'task_uuid'=>$taskUuid));
+  }
+
+  /**
+   * Funkce pro uložení úlohy s daným uuid (než se odešle mineru...)
+   * @param Miner|int $miner
+   * @param string $taskUuid
+   * @return \App\Model\EasyMiner\Entities\Task
+   */
+  public function prepareTaskWithUuid($miner,$taskUuid){
+    try{
+      $task=$this->findTaskByUuid($miner,$taskUuid);
+      return $task;
+    }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
+    if (!$miner instanceof Miner){
+      $miner= $this->findMiner($miner);
+    }
+    $task=new Task();
+    $task->taskUuid=$taskUuid;
+    $task->miner=$miner;
+    $task->type=$miner->type;
+    $this->saveTask($task);
+
+    return $task;
+  }
+
+  /**
    * @param Task $task
    * @return mixed
    */
-  public function saveTask(Task $task){
+  public function saveTask(Task &$task){
     return $this->tasksRepository->persist($task);
   }
 
@@ -218,5 +255,20 @@ class MinersFacade {
     $miningDriver->checkMinerState();
   }
 
+  /**
+   * @param Task $task
+   * @param TaskState $taskState
+   */
+  public function updateTaskState(Task &$task,TaskState $taskState){
+    if (!empty($taskState->rulesCount) && $taskState->rulesCount>$task->rulesCount){
+      $task->rulesCount=$taskState->rulesCount;
+    }
+    if (($task->state!=Task::STATE_SOLVED)&&($task->state!=$taskState->state)){
+      $task->state=$taskState->state;
+    }
+    if ($task->isModified()){
+      $this->saveTask($task);
+    }
+  }
 
 }

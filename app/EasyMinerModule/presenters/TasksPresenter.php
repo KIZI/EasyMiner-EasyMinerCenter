@@ -2,90 +2,73 @@
 
 namespace App\EasyMinerModule\Presenters;
 
-use App\Model\EasyMiner\Facades\MinersFacade;
-
+/**
+ * Class TasksPresenter - presenter pro práci s úlohami...
+ * @package App\EasyMinerModule\Presenters
+ */
 class TasksPresenter  extends BasePresenter{
 
   /**
-   * Akce pro spuštění dolování
+   * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
    * @param string $miner
+   * @param string $task
    * @param string $data
    */
-  public function actionStartMining($miner,$data){
-    //TODO import zadání úlohy a vrácení výsledků
+  public function actionStartMining($miner,$task,$data){
+    $taskUuid=$task;
+    /****************************************************************************************************************/
+    //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
+    $miner=$this->minersFacade->findMiner($miner);
+    $this->checkMinerAccess($miner);
+    //nalezení či připravení úlohy...
+    $task=$this->minersFacade->prepareTaskWithUuid($miner,$taskUuid);
+    if ($task->state=='new'){
+      #region nově importovaná úloha
+      //konfigurace úlohy
+      $task->name=$taskUuid;//TODO načtení info o názvu úlohy
+      $task->taskSettingsJson=$data;
+      $this->minersFacade->saveTask($task);
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+      $taskState=$miningDriver->startMining();
+      #endregion
+    }else{
+      #region zjištění stavu již existující úlohy
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+      $taskState=$miningDriver->checkTaskState();
+      #endregion
+    }
+    $this->minersFacade->updateTaskState($task,$taskState);
+    $this->sendJsonResponse($task->taskState);
   }
 
   /**
    * Akce pro zastavení dolování
    * @param string $miner
+   * @param string $task
    */
-  public function actionStopMining($miner, $task){
-    #region pro testy
-    if ($miner === 'TEST') {
-      $this->sendJsonResponse(['status' => 'ok']);
-    }
-    #endregion
+  public function actionStopMining($miner,$task){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    $miner=$this->minersFacade->findMiner($miner);
+    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-    //TODO zastavení dolování
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+    $taskState=$miningDriver->stopMining();
 
-    /***********************************************************************************************/
-    /* { // KBI
-      $requestData = ['pooler' => $taskMode];
+    $this->minersFacade->updateTaskState($task,$taskState);
 
-      // run task
-      $config = array(
-        'source' => intval($id),
-        'query' => '',
-        'xslt' => NULL,
-        'parameters' => NULL
-      );
-
-      $model = new KbiModelTransformator($config);
-      $document = $model->cancelQuery($taskId);
-
-      $ok = (strpos($document, 'kbierror') === false && !preg_match('/status=\"failure\"/', $document));
-
-      if (FB_ENABLED && $debug) { // log into console
-        FB::info(['curl request' => $requestData]);
-        FB::info(['response' => $document]);
-      }
-
-      if (strpos($document, 'kbierror') === false && !preg_match('/status=\"failure\"/', $document)) {
-        $success = preg_match('/status=\"success\"/', $document);
-        if ($success) {
-          $responseContent = ['status' => 'ok'];
-        } else {
-          $responseContent = ['status' => 'error'];
-        }
-      } else {
-        returnError:
-        $responseContent = ['status' => 'error'];
-      }
-    }*/
-
-
-/***********************************************************************************************/
-
-    $this->terminate();
+    $this->sendJsonResponse($taskState->asArray());
   }
 
   /**
    * Akce vracející pravidla pro vykreslení v easymineru
-   * @param $miner
-   * @param $data
+   * @param $task
    * @param $start
    * @param $count
    */
-  public function actionGetRules($miner,$data,$start,$count){
+  public function actionGetRules($task,$start,$count){
     //TODO akce pro vrácení části výsledků
   }
 
 
-
-  #region injections
-
-  #endregion injections
 } 

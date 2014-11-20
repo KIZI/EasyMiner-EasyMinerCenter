@@ -3,6 +3,7 @@
 namespace App\Model\Mining;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
+use App\Model\EasyMiner\Entities\TaskState;
 use App\Model\EasyMiner\Facades\MinersFacade;
 
 /**
@@ -13,21 +14,21 @@ interface IMiningDriver {
 
   /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
-   * @param string $taskConfigJson
+   * @return TaskState
    */
-  public function startMining($taskConfigJson);
+  public function startMining();
 
   /**
    * Funkce pro zastavení dolování
-   * @return bool
+   * @return TaskState
    */
   public function stopMining();
 
   /**
    * Funkce vracející info o aktuálním stavu dané úlohy
-   * @return string
+   * @return TaskState
    */
-  public function taskState();
+  public function checkTaskState();
 
   /**
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB

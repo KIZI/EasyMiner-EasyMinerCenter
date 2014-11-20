@@ -5,7 +5,10 @@ namespace App\Model\Mining\LM;
 use App\Model\Data\Entities\DbConnection;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
+use App\Model\EasyMiner\Entities\TaskState;
 use App\Model\EasyMiner\Facades\MinersFacade;
+use App\Model\EasyMiner\Serializers\PmmlSerializer;
+use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use App\Model\Mining\IMiningDriver;
 use Kdyby\Curl\CurlSender;
 use Kdyby\Curl\Request as CurlRequest;
@@ -23,34 +26,80 @@ class LMDriver implements IMiningDriver{
   private $minersFacade;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
+  /** LISp-Miner šablona pro export informací o stavu úlohy a počtu nalezených pravidel */
+  const TASK_STATE_LM_TEMPLATE=null;//TODO
 
+  #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
+  const MAX_MINING_REQUESTS=10;
+  const REQUEST_DELAY=1;// delay between requests (in seconds)
+  #endregion
 
   /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
-   * @param string $taskConfigJson
+   * @return TaskState
    */
-  public function startMining($taskConfigJson) {
-    // TODO: Implement startMining() method.
-  }
+  public function startMining() {
+    $pmmlSerializer=new PmmlSerializer($this->task);
+    $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
+    $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
+    //import úlohy a spuštění dolování...
+    $numRequests=1;
+    sendRequest:
+      $result=$this->queryPost($pmml,array('template'=>self::TASK_STATE_LM_TEMPLATE));
+      $ok = (strpos($result, 'kbierror') === false && !preg_match('/status=\"failure\"/', $result));
+      if ((++$numRequests < self::MAX_MINING_REQUESTS) && !$ok){sleep(self::REQUEST_DELAY); goto sendRequest;}
 
-  /**
-   * Funkce pro zastavení dolování
-   * @return bool
-   */
-  public function stopMining() {
-    try{
-      $this->cancelRemoteMinerTask($this->getRemoteMinerTaskName());
-      return true;
-    }catch (\Exception $e){}
-    return false;
+    return $this->parseTaskState($result);
   }
 
   /**
    * Funkce vracející info o aktuálním stavu dané úlohy
    * @return string
    */
-  public function taskState() {
-    // TODO: Implement taskState() method.
+  public function checkTaskState() {
+    //TODO implement...
+    $remoteMinerId = $this->getRemoteMinerId();
+    if (!$remoteMinerId) {
+      throw new \Exception('LISpMiner ID was not provided.');
+    }
+    $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId.'/DataDictionary';
+    $requestData = array(
+      'matrix' => $this->getAttributesTableName(),
+      'template' => $template
+    );
+
+    Debugger::fireLog(array($url, $requestData), "getting DataDictionary");
+
+    $curlRequest=$this->prepareNewCurlRequest($url);
+    $response=$curlRequest->get($requestData);
+
+
+    if ($response->isOk()) {
+      return trim($response->getResponse());
+    }
+
+    return $this->parseResponse($response);
+  }
+
+  /**
+   * Funkce pro zastavení dolování
+   * @return TaskState
+   */
+  public function stopMining() {
+    //TODO
+    try{
+      $this->cancelRemoteMinerTask($this->getRemoteMinerTaskName());
+      return true;//FIXME
+    }catch (\Exception $e){}
+    return false;
+  }
+
+  /**
+   * @param $result
+   * @return TaskState
+   */
+  private function parseTaskState($result){
+    //TODO zjištění stavu úlohy z výsledku exportu z LM...
   }
 
   /**
@@ -224,11 +273,11 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející jméno úlohy na LM connectu
+   * Funkce vracející jméno úlohy na LM connectu taskUUID
    * @return string
    */
   private function getRemoteMinerTaskName(){
-    //FIXME
+    return $this->task->taskUuid;
   }
 
   /**
@@ -406,9 +455,18 @@ class LMDriver implements IMiningDriver{
     return $this->parseResponse($response);
   }
 
+  /**
+   * @param \SimpleXMLElement|string $query
+   * @param $options
+   * @return string
+   * @throws \Exception
+   */
   public function queryPost($query, $options) {//TODO query a options???
-    $remoteMinerId = $this->getRemoteMinerId();
+    if ($query instanceof \SimpleXMLElement){
+      $query=$query->asXML();
+    }
 
+    $remoteMinerId = $this->getRemoteMinerId();
     if (!$remoteMinerId){
       throw new \Exception('LISpMiner ID was not provided.');
     }
@@ -417,7 +475,7 @@ class LMDriver implements IMiningDriver{
 
     $data = array();
 
-    if (isset($options['template'])) {
+    if (!empty($options['template'])) {
       $data['template'] = $options['template'];
       Debugger::fireLog("Using LM exporting template {$data['template']}");
     }
@@ -451,13 +509,15 @@ class LMDriver implements IMiningDriver{
           $url .= '/miners/'.$remoteMinerId.'/tasks/task';
       }
 
-      Debugger::log(array('URL' => $url, 'GET' => $data, 'POST' => $query));
-
+      //----Debugger::log(array('URL' => $url, 'GET' => $data, 'POST' => $query));
       $curlRequest=$this->prepareNewCurlRequest($url);
       $curlRequest->getUrl()->appendQuery($options);//TODO kontrola připojení parametrů k URL...
-      $response = $curlRequest->post($url, $query);
+      try{
+        $response = $curlRequest->post($query);
+      }catch (\Exception $e){
+        exit(var_dump($e));
+      }
     }
-
     if ($response->isOk()) {
       return $response->getResponse();
     }
