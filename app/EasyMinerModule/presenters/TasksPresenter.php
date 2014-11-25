@@ -38,7 +38,7 @@ class TasksPresenter  extends BasePresenter{
       #endregion
     }
     $this->minersFacade->updateTaskState($task,$taskState);
-    $this->sendJsonResponse($task->taskState);
+    $this->sendJsonResponse($task->getTaskState()->asArray());
   }
 
   /**
@@ -62,11 +62,13 @@ class TasksPresenter  extends BasePresenter{
 
   /**
    * Akce vracející pravidla pro vykreslení v easymineru
+   * @param $miner
    * @param $task
-   * @param $start
-   * @param $count
+   * @param $offset
+   * @param $limit
+   * @param $order
    */
-  public function actionGetRules($task,$start,$count){
+  public function actionGetRules($miner,$task,$offset=0,$limit=25,$order='id'){
     //TODO akce pro vrácení části výsledků
   }
 

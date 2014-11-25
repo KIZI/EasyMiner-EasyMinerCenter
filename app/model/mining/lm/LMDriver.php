@@ -53,32 +53,13 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející info o aktuálním stavu dané úlohy
+   * Funkce pro kontrolu aktuálního průběhu úlohy (aktualizace seznamu nalezených pravidel...)
+   * @throws \Exception
    * @return string
    */
   public function checkTaskState() {
-    //TODO implement...
-    $remoteMinerId = $this->getRemoteMinerId();
-    if (!$remoteMinerId) {
-      throw new \Exception('LISpMiner ID was not provided.');
-    }
-    $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId.'/DataDictionary';
-    $requestData = array(
-      'matrix' => $this->getAttributesTableName(),
-      'template' => $template
-    );
-
-    Debugger::fireLog(array($url, $requestData), "getting DataDictionary");
-
-    $curlRequest=$this->prepareNewCurlRequest($url);
-    $response=$curlRequest->get($requestData);
-
-
-    if ($response->isOk()) {
-      return trim($response->getResponse());
-    }
-
-    return $this->parseResponse($response);
+    //TODO check...
+    return $this->startMining();
   }
 
   /**
@@ -86,26 +67,43 @@ class LMDriver implements IMiningDriver{
    * @return TaskState
    */
   public function stopMining() {
-    //TODO
+    $taskState=$this->task->getTaskState();
+    if ($taskState->state==Task::STATE_SOLVED || $taskState->state!=Task::STATE_IN_PROGRESS){
+      return $taskState;
+    }
     try{
       $this->cancelRemoteMinerTask($this->getRemoteMinerTaskName());
-      return true;//FIXME
+      $this->task->state=Task::STATE_INTERRUPTED;
     }catch (\Exception $e){}
-    return false;
+
+    return $this->task->getTaskState();
   }
 
   /**
-   * @param $result
+   * @param string $result
    * @return TaskState
+   * @throws \Exception
    */
   private function parseTaskState($result){
-    //TODO zjištění stavu úlohy z výsledku exportu z LM...
+    if ($modelStartPos=strpos($result,'<guha:AssociationModel')){
+      //jde o plné PMML
+      $xml=simplexml_load_string($result);
+      $xml->registerXPathNamespace('guha','http://keg.vse.cz/ns/GUHA0.1rev1');
+      $guhaAssociationModel=$xml->xpath('//guha:AssociationModel');
+      $taskState=new TaskState();
+      if (count($guhaAssociationModel)!=1){throw new \Exception('Task state cannot be parsed!');/*došlo k chybě...*/}else{$guhaAssociationModel=$guhaAssociationModel[0];}
+      $taskState->rulesCount=$guhaAssociationModel['numberOfRules'];
+      $state=$guhaAssociationModel->xpath('TaskSetting//TaskState');
+      $taskState->setState((string)$state[0]);
+      return $taskState;
+    }
+    throw new \Exception('Task state cannot be parsed - UNKNOWN FORMAT!');
   }
 
   /**
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
    */
-  public function importResults() {
+  public function importResults(){
     // TODO: Implement importResults() method.
   }
 
@@ -461,7 +459,7 @@ class LMDriver implements IMiningDriver{
    * @return string
    * @throws \Exception
    */
-  public function queryPost($query, $options) {//TODO query a options???
+  public function queryPost($query, $options){
     if ($query instanceof \SimpleXMLElement){
       $query=$query->asXML();
     }
@@ -509,13 +507,12 @@ class LMDriver implements IMiningDriver{
           $url .= '/miners/'.$remoteMinerId.'/tasks/task';
       }
 
-      //----Debugger::log(array('URL' => $url, 'GET' => $data, 'POST' => $query));
       $curlRequest=$this->prepareNewCurlRequest($url);
-      $curlRequest->getUrl()->appendQuery($options);//TODO kontrola připojení parametrů k URL...
+      $curlRequest->getUrl()->appendQuery($options);
       try{
         $response = $curlRequest->post($query);
       }catch (\Exception $e){
-        exit(var_dump($e));
+        exit(var_dump($e));//FIXME
       }
     }
     if ($response->isOk()) {
@@ -554,14 +551,8 @@ class LMDriver implements IMiningDriver{
         $url .= '/miners/'.$remoteMinerId.'/tasks/task/'.$taskName;
     }
 
-    Debugger::fireLog(array($url, 'Canceling task'));
-
     $curlRequest=$this->prepareNewCurlRequest($url);
     $response=$curlRequest->put($requestXml->asXML());
-
-    if ($response->isOk()) {
-      return $response->getResponse();
-    }
 
     return $this->parseResponse($response);
   }

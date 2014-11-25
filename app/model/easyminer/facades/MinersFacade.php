@@ -216,6 +216,7 @@ class MinersFacade {
     $task->taskUuid=$taskUuid;
     $task->miner=$miner;
     $task->type=$miner->type;
+    $task->state=Task::STATE_NEW;
     $this->saveTask($task);
 
     return $task;

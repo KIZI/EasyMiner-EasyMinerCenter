@@ -2,6 +2,7 @@
 namespace App\Model\EasyMiner\Entities;
 
 use Nette\Object;
+use Nette\Utils\Strings;
 
 /**
  * Class TaskState - pracovní třída pro zachycení stavu úlohy
@@ -35,7 +36,7 @@ class TaskState extends Object{
    * @param $state
    */
   public function setState($state){
-    $this->state=$state;
+    $this->state=str_replace(' ','_',Strings::lower($state));
   }
 
   /**

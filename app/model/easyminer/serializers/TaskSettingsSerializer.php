@@ -100,7 +100,6 @@ class TaskSettingsSerializer {
   private function init($modelName, $hypothesesCountMax) {
     /** @var \SimpleXMLElement $guhaAssociationModelXml */
     $guhaAssociationModelXml=$this->pmml->children('guha',true)[0];
-    $guhaAssociationModelXml->addChild('test',null,'');
     $guhaAssociationModelXml['modelName']=$modelName;
     $guhaAssociationModelXml['functionName']='associationRules';
     $guhaAssociationModelXml['algorithmName']='4ft';
@@ -109,38 +108,38 @@ class TaskSettingsSerializer {
     if (isset($guhaAssociationModelXml->TaskSetting)){
       $this->arQuery = $guhaAssociationModelXml->TaskSetting[0];
     }else{
-      $this->arQuery = $guhaAssociationModelXml->addChild("TaskSetting");
+      $this->arQuery = $guhaAssociationModelXml->addChild("TaskSetting",null,'');
     }
     //TODO kontrola, jestli daná extension zatím neexistuje...
     // extension LISp-Miner
-    $extension = $this->arQuery->addChild('Extension');
+    $extension = $this->arQuery->addChild('Extension',null,'');
     $extension->addAttribute('name', 'LISp-Miner');
-    $extension->addChild('HypothesesCountMax', $hypothesesCountMax);
+    $extension->addChild('HypothesesCountMax', $hypothesesCountMax,'');
 
     if (isset($this->arQuery->BBASettings)){
       $this->bbaSettings = $this->arQuery->BBASettings;
     }else{
-      $this->bbaSettings = $this->arQuery->addChild("BBASettings");
+      $this->bbaSettings = $this->arQuery->addChild("BBASettings",null,'');
     }
     if (isset($this->arQuery->DBASettings)){
       $this->dbaSettings = $this->arQuery->DBASettings;
     }else{
-      $this->dbaSettings = $this->arQuery->addChild("DBASettings");
+      $this->dbaSettings = $this->arQuery->addChild("DBASettings",null,'');
     }
     if (isset($this->arQuery->AntecedentSetting)){
       $this->antecedentSetting = $this->arQuery->AntecedentSetting;
     }else{
-      $this->antecedentSetting = $this->arQuery->addChild("AntecedentSetting");
+      $this->antecedentSetting = $this->arQuery->addChild("AntecedentSetting",null,'');
     }
     if (isset($this->arQuery->ConsequentSetting)){
       $this->consequentSetting = $this->arQuery->ConsequentSetting;
     }else{
-      $this->consequentSetting = $this->arQuery->addChild("ConsequentSetting");
+      $this->consequentSetting = $this->arQuery->addChild("ConsequentSetting",null,'');
     }
     if (isset($this->arQuery->InterestMeasureSetting)){
       $this->interestMeasureSetting = $this->arQuery->InterestMeasureSetting;
     }else{
-      $this->interestMeasureSetting = $this->arQuery->addChild("InterestMeasureSetting");
+      $this->interestMeasureSetting = $this->arQuery->addChild("InterestMeasureSetting",null,'');
     }
   }
 
