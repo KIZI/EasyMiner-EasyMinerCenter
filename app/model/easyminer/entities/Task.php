@@ -9,6 +9,7 @@ use LeanMapper\Entity;
  * @property int|null $taskId=null
  * @property string $taskUuid = ''
  * @property string $type m:Enum(Miner::TYPE_*)
+ * @property bool $inRuleClipboard = false
  * @property string $name = ''
  * @property Miner $miner m:hasOne
  * @property string $state m:Enum(self::STATE_*)

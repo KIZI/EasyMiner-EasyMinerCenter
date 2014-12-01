@@ -19,7 +19,7 @@ abstract class BasePresenter extends \App\Presenters\BaseRestPresenter{
   protected $minersFacade;
 
   /**
-   * @param string $miner
+   * @param Miner|int $miner
    * @throws ForbiddenRequestException
    * @return bool
    */

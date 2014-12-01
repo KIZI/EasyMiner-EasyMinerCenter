@@ -69,6 +69,11 @@ class TasksPresenter  extends BasePresenter{
    * @param $order
    */
   public function actionGetRules($miner,$task,$offset=0,$limit=25,$order='id'){
+    //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
+    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+
     //TODO akce pro vrácení části výsledků
   }
 
