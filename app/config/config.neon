@@ -41,6 +41,7 @@ services:
 	- App\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
 	- App\Model\EasyMiner\Facades\UsersFacade
 	- App\Model\Data\Facades\DatabasesFacade
+	- App\Model\EasyMiner\Facades\RulesFacade
 
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
@@ -50,6 +51,9 @@ services:
 	- App\Model\EasyMiner\Repositories\MinersRepository
 	- App\Model\EasyMiner\Repositories\UsersRepository
 	- App\Model\EasyMiner\Repositories\AttributesRepository
+	- App\Model\EasyMiner\Repositories\RulesRepository
+	- App\Model\EasyMiner\Repositories\CedentsRepository
+	- App\Model\EasyMiner\Repositories\RuleAttributesRepository
 
 	- App\Model\Preprocessing\PhpDatabasePreprocessing
 
