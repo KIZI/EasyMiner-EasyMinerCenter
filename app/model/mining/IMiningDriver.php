@@ -5,6 +5,7 @@ use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Entities\TaskState;
 use App\Model\EasyMiner\Facades\MinersFacade;
+use App\Model\EasyMiner\Facades\RulesFacade;
 
 /**
  * Class IMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
@@ -38,9 +39,10 @@ interface IMiningDriver {
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
+   * @param RulesFacade $rulesFacade
    * @param array $params = array() - parametry výchozí konfigurace
    */
-  public function __construct(Task $task=null, MinersFacade $minersFacade, $params = array());
+  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade, $params = array());
 
   /**
    * Funkce pro nastavení aktivní úlohy

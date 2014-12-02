@@ -17,6 +17,8 @@ class MinersFacade {
   private $minersRepository;
   /** @var  MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
+  /** @var  RulesFacade $rulesFacade */
+  private $rulesFacade;
   /** @var  IPreprocessingDriver $preprocessingDriver */
   private $preprocessingDriver;
   /** @var  TasksRepository $tasksRepository */
@@ -24,12 +26,13 @@ class MinersFacade {
   /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
 
-  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, TasksRepository $tasksRepository){
+  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, TasksRepository $tasksRepository, RulesFacade $rulesFacade){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
     $this->preprocessingDriver=$preprocessingDriver;
     $this->tasksRepository=$tasksRepository;
     $this->miningDriverFactory=$miningDriverFactory;
+    $this->rulesFacade=$rulesFacade;
   }
 
   /**
@@ -111,13 +114,13 @@ class MinersFacade {
     //u samotného driveru
     $task=new Task();
     $task->miner=$miner;
-    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this);
+    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade);
     $miningDriver->deleteMiner();
     //u jednotlivých úlog
     $tasks=$miner->tasks;
     if (!empty($tasks)){
       foreach ($tasks as $task){
-        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this);
+        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade);
         $miningDriver->deleteMiner();
       }
     }
@@ -238,7 +241,7 @@ class MinersFacade {
     if (!$task instanceof Task){
       $task=$this->findTask($task);
     }
-    return $this->miningDriverFactory->getDriverInstance($task,$this);
+    return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade);
   }
 
   /**

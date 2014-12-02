@@ -1,6 +1,7 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
+use App\Model\Mining\LM\LMDriver;
 
 /**
  * Class TasksPresenter - presenter pro práci s úlohami...
@@ -74,6 +75,14 @@ class TasksPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
+
+    $pmml=file_get_contents(__DIR__.'/test.pmml.xml');
+
+    /** @var LMDriver $miningDriver */
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+    $miningDriver->parseRulesPMML($pmml);
+    echo 'DONE';
+    $this->terminate();
     //TODO akce pro vrácení části výsledků
   }
 

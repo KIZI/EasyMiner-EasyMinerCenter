@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Stanislav
- * Date: 1. 12. 2014
- * Time: 11:46
- */
 
 namespace App\Model\EasyMiner\Entities;
 
@@ -17,7 +11,15 @@ use LeanMapper\Entity;
  * @property int $ruleId
  * @property Task $task m:hasOne
  * @property string $text
- * @property
+ * @property Cedent $antecedent m:hasOne(antecedent)
+ * @property Cedent $consequent m:hasOne(consequent)
+ * @property int $a
+ * @property int $b
+ * @property int $c
+ * @property int $d
+ * @property float|null $confidence = null
+ * @property float|null $support = null
+ * @property float|null $lift = null
  */
 class Rule extends Entity{
 

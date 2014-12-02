@@ -3,16 +3,21 @@ namespace App\Model\Mining\LM;
 
 
 use App\Model\Data\Entities\DbConnection;
+use App\Model\EasyMiner\Entities\Cedent;
 use App\Model\EasyMiner\Entities\Miner;
+use App\Model\EasyMiner\Entities\Rule;
+use App\Model\EasyMiner\Entities\RuleAttribute;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Entities\TaskState;
 use App\Model\EasyMiner\Facades\MinersFacade;
+use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Serializers\PmmlSerializer;
 use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use App\Model\Mining\IMiningDriver;
 use Kdyby\Curl\CurlSender;
 use Kdyby\Curl\Request as CurlRequest;
 use Kdyby\Curl\Response as CurlResponse;
+use Nette\Utils\Strings;
 use Tracy\Debugger;
 
 class LMDriver implements IMiningDriver{
@@ -24,11 +29,14 @@ class LMDriver implements IMiningDriver{
   private $minerConfig = null;
   /** @var  MinersFacade $minersFacade */
   private $minersFacade;
+  /** @var  RulesFacade $rulesFacade */
+  private $rulesFacade;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
   /** LISp-Miner šablona pro export informací o stavu úlohy a počtu nalezených pravidel */
   const TASK_STATE_LM_TEMPLATE=null;//TODO
-
+  /** LISp-Miner šablona pro export pravidel */
+  const PMML_LM_TEMPLATE=null;//TODO
   #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
   const MAX_MINING_REQUESTS=10;
   const REQUEST_DELAY=1;// delay between requests (in seconds)
@@ -58,7 +66,6 @@ class LMDriver implements IMiningDriver{
    * @return string
    */
   public function checkTaskState() {
-    //TODO check...
     return $this->startMining();
   }
 
@@ -104,7 +111,17 @@ class LMDriver implements IMiningDriver{
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
    */
   public function importResults(){
-    // TODO: Implement importResults() method.
+    $pmmlSerializer=new PmmlSerializer($this->task);
+    $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
+    $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
+    //import úlohy a spuštění dolování...
+    $numRequests=1;
+    sendRequest:
+    $result=$this->queryPost($pmml,array('template'=>self::PMML_LM_TEMPLATE));
+    $ok = (strpos($result, 'kbierror') === false && !preg_match('/status=\"failure\"/', $result));
+    if ((++$numRequests < self::MAX_MINING_REQUESTS) && !$ok){sleep(self::REQUEST_DELAY); goto sendRequest;}
+
+    return $this->parseRulesPMML($result);
   }
 
   /**
@@ -307,6 +324,153 @@ class LMDriver implements IMiningDriver{
     if ($save){
       $this->minersFacade->saveMiner($this->miner);
     }
+  }
+
+  /**
+   * Funkce pro načtení PMML
+   * @param string $pmml
+   * @return bool
+   */
+  public function parseRulesPMML($pmml){
+    $xml=simplexml_load_string($pmml);
+    $xml->registerXPathNamespace('guha','http://keg.vse.cz/ns/GUHA0.1rev1');
+    $guhaAssociationModel=$xml->xpath('//guha:AssociationModel');
+    $guhaAssociationModel=$guhaAssociationModel[0];
+    /** @var \SimpleXMLElement $associationRulesXml */
+    $associationRulesXml=$guhaAssociationModel->AssociationRules;
+
+    if (count($associationRulesXml->AssociationRule)==0){return true;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+
+    #region zpracování cedentů jen s jedním subcedentem
+    $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)=1]');
+    $alternativeCedentIdsArr=array();
+    if (!empty($dbaItems)){
+      foreach ($dbaItems as $dbaItem){
+        $idStr=(string)$dbaItem['id'];
+        $BARefStr=(string)$dbaItem->BARef;
+        $alternativeCedentIdsArr[$idStr]=(isset($alternativeCedentIdsArr[$BARefStr])?$alternativeCedentIdsArr[$BARefStr]:$BARefStr);
+      }
+    }
+    if (!empty($alternativeCedentIdsArr)){
+      $repeat=true;
+      while ($repeat){
+        $repeat=false;
+        foreach ($alternativeCedentIdsArr as $id=>$referencedId){
+          if (isset($alternativeCedentIdsArr[$referencedId])){
+            $alternativeCedentIdsArr[$id]=$alternativeCedentIdsArr[$referencedId];
+            $repeat=true;
+          }
+        }
+      }
+    }
+    #endregion
+    /** @var Cedent[] $cedentsArr */
+    $cedentsArr=array();
+    /** @var RuleAttribute[] $ruleAttributesArr */
+    $ruleAttributesArr=array();
+    $unprocessedIdsArr=array();
+    #region zpracování rule attributes
+    $bbaItems=$associationRulesXml->xpath('//BBA');
+    if (!empty($bbaItems)){
+      foreach ($bbaItems as $bbaItem){
+        $ruleAttribute=new RuleAttribute();
+        $idStr=(string)$bbaItem['id'];
+        $ruleAttribute->field=(string)$bbaItem->FieldRef;
+        $ruleAttribute->value=(string)$bbaItem->CatRef;
+        $ruleAttributesArr[$idStr]=$ruleAttribute;
+        $this->rulesFacade->saveRuleAttribute($ruleAttribute);
+      }
+    }
+    //pročištění pole s alternativními IDčky
+    if (!empty($alternativeCedentIdsArr)){
+      foreach ($alternativeCedentIdsArr as $id=>$alternativeId){
+        if (isset($ruleAttributesArr[$alternativeId])){
+          unset($alternativeCedentIdsArr[$id]);
+        }
+      }
+    }
+    #endregion
+
+    #region zpracování cedentů s více subcedenty/hodnotami
+    $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)>0]');
+    if (!empty($dbaItems)){
+      do {
+        foreach ($dbaItems as $dbaItem) {
+          $idStr = (string)$dbaItem['id'];
+          if (isset($cedentsArr[$idStr])) {
+            continue;
+          }
+          if (isset($alternativeCedentIdsArr[$idStr])){
+            continue;
+          }
+          if (isset($ruleAttributesArr[$idStr])) {
+            continue;
+          }
+          $process = true;
+          foreach ($dbaItem->BARef as $BARef) {
+            $BARefStr = (string)$BARef;
+            if (isset($alternativeCedentIdsArr[$BARefStr])) {
+              $BARefStr = $alternativeCedentIdsArr[$BARefStr];
+            }
+            if (!isset($cedentsArr[$BARefStr]) && !isset($ruleAttributesArr[$BARefStr])) {
+              $unprocessedIdsArr[$BARefStr] = $BARefStr;
+              $process = false;
+            }
+          }
+          if ($process) {
+            unset($unprocessedIdsArr[$idStr]);
+            //vytvoření konkrétního cedentu...
+            $cedent = new Cedent();
+            if (isset($dbaItem['connective'])) {
+              $cedent->connective = Strings::lower((string)$dbaItem['connective']);
+            } else {
+              $cedent->connective = 'conjunction';
+            }
+            $this->rulesFacade->saveCedent($cedent);
+            $cedentsArr[$idStr] = $cedent;
+            foreach ($dbaItem->BARef as $BARef){
+              $BARefStr = (string)$BARef;
+              if (isset($alternativeCedentIdsArr[$BARefStr])) {
+                $BARefStr = $alternativeCedentIdsArr[$BARefStr];
+              }
+              if (isset($cedentsArr[$BARefStr])){
+                $cedent->addToCedents($cedentsArr[$BARefStr]);
+              }elseif(isset($ruleAttributesArr[$BARefStr])){
+                $cedent->addToRuleAttributes($ruleAttributesArr[$BARefStr]);
+              }
+            }
+            $this->rulesFacade->saveCedent($cedent);
+          } else {
+            $unprocessedIdsArr[$idStr]=$idStr;
+          }
+        }
+      }while(!empty($unprocessedIdsArr));
+    }
+    #endregion
+
+    foreach ($associationRulesXml->AssociationRule as $associationRule){
+      $rule=new Rule();
+      $rule->task=$this->task;
+      $antecedentId=(string)$associationRule['antecedent'];
+      if (isset($alternativeCedentIdsArr[$antecedentId])){
+        $antecedentId=$alternativeCedentIdsArr[$antecedentId];
+      }
+      $rule->antecedent=($cedentsArr[$antecedentId]);
+      $consequentId=(string)$associationRule['consequent'];
+      if (isset($alternativeCedentIdsArr[$consequentId])){
+        $consequentId=$alternativeCedentIdsArr[$consequentId];
+      }
+      $rule->consequent=($cedentsArr[$consequentId]);
+      $rule->text=(string)$associationRule->Text;
+      $fourFtTable=$associationRule->FourFtTable;
+      $rule->a=(string)$fourFtTable['a'];
+      $rule->b=(string)$fourFtTable['b'];
+      $rule->c=(string)$fourFtTable['c'];
+      $rule->d=(string)$fourFtTable['d'];
+      $this->rulesFacade->saveRule($rule);
+    }
+    $this->rulesFacade->calculateMissingInterestMeasures();
+    return true;
   }
 
 
@@ -623,10 +787,11 @@ class LMDriver implements IMiningDriver{
    * @param MinersFacade $minersFacade
    * @param $params = array()
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
+    $this->rulesFacade=$rulesFacade;
   }
 
   /**
