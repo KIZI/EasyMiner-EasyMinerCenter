@@ -1,6 +1,7 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
+use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\Mining\LM\LMDriver;
 
 /**
@@ -8,6 +9,8 @@ use App\Model\Mining\LM\LMDriver;
  * @package App\EasyMinerModule\Presenters
  */
 class TasksPresenter  extends BasePresenter{
+  /** @var  RulesFacade $rulesFacade */
+  private $rulesFacade;
 
   /**
    * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
@@ -69,22 +72,31 @@ class TasksPresenter  extends BasePresenter{
    * @param $limit
    * @param $order
    */
-  public function actionGetRules($miner,$task,$offset=0,$limit=25,$order='id'){
+  public function actionGetRules($miner,$task,$offset=0,$limit=25,$order='rule_id'){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
     $task=$this->minersFacade->findTaskByUuid($miner,$task);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
+    $rules=$this->rulesFacade->findRulesByTask($task,$order,$offset,$limit);
 
-    $pmml=file_get_contents(__DIR__.'/test.pmml.xml');
-
-    /** @var LMDriver $miningDriver */
-    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
-    $miningDriver->parseRulesPMML($pmml);
-    echo 'DONE';
-    $this->terminate();
-    //TODO akce pro vrácení části výsledků
+    $rulesArr=array();
+    if (!empty($rules)){
+      foreach ($rules as $rule){
+        $rulesArr[$rule->ruleId]=array('text'=>$rule->text,'confidence'=>$rule->confidence,'support'=>$rule->support,'lift'=>$rule->lift,
+          'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
+      }
+    }
+    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$task->rulesCount),'rules'=>$rulesArr));
   }
 
 
+  #region injections
+  /**
+   * @param RulesFacade $rulesFacade
+   */
+  public function injectRulesFacade(RulesFacade $rulesFacade){
+    $this->rulesFacade=$rulesFacade;
+  }
+  #endregion
 } 

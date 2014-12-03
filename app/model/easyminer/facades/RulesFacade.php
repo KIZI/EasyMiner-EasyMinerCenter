@@ -5,6 +5,7 @@ namespace App\Model\EasyMiner\Facades;
 use App\Model\EasyMiner\Entities\Cedent;
 use App\Model\EasyMiner\Entities\Rule;
 use App\Model\EasyMiner\Entities\RuleAttribute;
+use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Repositories\CedentsRepository;
 use App\Model\EasyMiner\Repositories\RuleAttributesRepository;
 use App\Model\EasyMiner\Repositories\RulesRepository;
@@ -28,6 +29,20 @@ class RulesFacade {
    */
   public function findRule($ruleId){
     return $this->rulesRepository->find($ruleId);
+  }
+
+  /**
+   * @param Task|int $task
+   * @param string $order
+   * @param int $offset = null
+   * @param int $limit = null
+   * @return Rule[]
+   */
+  public function findRulesByTask($task,$order,$offset=null,$limit=null){
+    if ($task instanceof Task){
+      $task=$task->taskId;
+    }
+    return $this->rulesRepository->findAllBy(array('task_id'=>$task,'order'=>$order),$offset,$limit);
   }
 
   /**

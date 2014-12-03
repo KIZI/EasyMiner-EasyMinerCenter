@@ -20,6 +20,7 @@ use LeanMapper\Entity;
  * @property float|null $confidence = null
  * @property float|null $support = null
  * @property float|null $lift = null
+ * @property bool $inRuleClipboard
  */
 class Rule extends Entity{
 
