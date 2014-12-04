@@ -11,12 +11,12 @@ use LeanMapper\Entity;
  * @property int $ruleId
  * @property Task $task m:hasOne
  * @property string $text
- * @property Cedent $antecedent m:hasOne(antecedent)
+ * @property Cedent|null $antecedent m:hasOne(antecedent)
  * @property Cedent $consequent m:hasOne(consequent)
- * @property int $a
- * @property int $b
- * @property int $c
- * @property int $d
+ * @property int|null $a
+ * @property int|null $b
+ * @property int|null $c
+ * @property int|null $d
  * @property float|null $confidence = null
  * @property float|null $support = null
  * @property float|null $lift = null

@@ -53,11 +53,17 @@ class LMDriver implements IMiningDriver{
     //import úlohy a spuštění dolování...
     $numRequests=1;
     sendRequest:
-      $result=$this->queryPost($pmml,array('template'=>self::TASK_STATE_LM_TEMPLATE));
+      $result=$this->queryPost($pmml,array('template'=>/*self::TASK_STATE_LM_TEMPLATE*/self::PMML_LM_TEMPLATE));
       $ok = (strpos($result, 'kbierror') === false && !preg_match('/status=\"failure\"/', $result));
       if ((++$numRequests < self::MAX_MINING_REQUESTS) && !$ok){sleep(self::REQUEST_DELAY); goto sendRequest;}
 
-    return $this->parseTaskState($result);
+    $taskState=$this->parseTaskState($result);
+    if ($taskState->rulesCount>0){
+      //try{//FIXME
+        $this->parseRulesPMML($result);
+      //}catch (\Exception $e){}
+    }
+    return $taskState;
   }
 
   /**
@@ -451,11 +457,18 @@ class LMDriver implements IMiningDriver{
     foreach ($associationRulesXml->AssociationRule as $associationRule){
       $rule=new Rule();
       $rule->task=$this->task;
-      $antecedentId=(string)$associationRule['antecedent'];
-      if (isset($alternativeCedentIdsArr[$antecedentId])){
-        $antecedentId=$alternativeCedentIdsArr[$antecedentId];
+      if (isset($associationRule['antecedent'])){
+        //jde o pravidlo s antecedentem
+        $antecedentId=(string)$associationRule['antecedent'];
+        if (isset($alternativeCedentIdsArr[$antecedentId])){
+          $antecedentId=$alternativeCedentIdsArr[$antecedentId];
+        }
+        $rule->antecedent=($cedentsArr[$antecedentId]);
+      }else{
+        //jde o pravidlo bez antecedentu
+        $rule->antecedent=null;
       }
-      $rule->antecedent=($cedentsArr[$antecedentId]);
+
       $consequentId=(string)$associationRule['consequent'];
       if (isset($alternativeCedentIdsArr[$consequentId])){
         $consequentId=$alternativeCedentIdsArr[$consequentId];
