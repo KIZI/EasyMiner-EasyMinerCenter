@@ -36,13 +36,34 @@ class RulesFacade {
    * @param string $order
    * @param int $offset = null
    * @param int $limit = null
+   * @param bool $onlyInClipboard = false
    * @return Rule[]
    */
-  public function findRulesByTask($task,$order,$offset=null,$limit=null){
+  public function findRulesByTask($task,$order,$offset=null,$limit=null,$onlyInClipboard=false){
     if ($task instanceof Task){
       $task=$task->taskId;
     }
-    return $this->rulesRepository->findAllBy(array('task_id'=>$task,'order'=>$order),$offset,$limit);
+    $params=array('task_id'=>$task,'order'=>$order);
+    if ($onlyInClipboard){
+      $params['in_rule_clipboard']=true;
+    }
+    return $this->rulesRepository->findAllBy($params,$offset,$limit);
+  }
+
+  /**
+   * @param Task|int $task
+   * @param bool $onlyInClipboard = false
+   * @return Rule[]
+   */
+  public function getRulesCountByTask($task,$onlyInClipboard=false){
+    if ($task instanceof Task){
+      $task=$task->taskId;
+    }
+    $params=array('task_id'=>$task);
+    if ($onlyInClipboard){
+      $params['in_rule_clipboard']=true;
+    }
+    return $this->rulesRepository->findCountBy($params);
   }
 
   /**

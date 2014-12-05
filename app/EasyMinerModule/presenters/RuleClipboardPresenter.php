@@ -2,7 +2,6 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Facades\RulesFacade;
-use LeanMapper\Exception\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
@@ -48,7 +47,15 @@ class RuleClipboardPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-    //TODO akce pro vrácení části výsledků
+    $rules=$this->rulesFacade->findRulesByTask($task,$order,$offset,$limit,true);
+    $rulesArr=array();
+    if (!empty($rules)){
+      foreach ($rules as $rule){
+        $rulesArr[$rule->ruleId]=array('text'=>$rule->text,'FUI'=>$rule->confidence,'SUPP'=>$rule->support,'LIFT'=>$rule->lift,
+          'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
+      }
+    }
+    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
   }
 
   /**
@@ -86,7 +93,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     if (count($ruleIdsArr)>0){
       foreach ($ruleIdsArr as $ruleId){
         try{
-          $rule=$this->rulesFacade->findRule($rule);
+          $rule=$this->rulesFacade->findRule($ruleId);
           //TODO optimalizovat kontroly...
           $ruleTask=$rule->task;
           if ($ruleTask->taskUuid!=$task){
