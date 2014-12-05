@@ -151,6 +151,16 @@ class TaskSettingsSerializer {
     /** @var \SimpleXMLElement $interestMeasureThreshold */
     $interestMeasureThreshold = $this->interestMeasureSetting->addChild("InterestMeasureThreshold");
     $interestMeasureThreshold->addAttribute("id", $this->generateId());
+
+    if ($IM->name=='LIFT'){
+      $IM->name='AAD';
+      foreach ($IM->fields as &$f) {
+        if ($f->name === 'threshold') {
+          $f->value=$f->value-1;
+        }
+      }
+    }
+
     $interestMeasureThreshold->addChild("InterestMeasure", $IM->name);
     foreach ($IM->fields as $f) {
       if ($f->name === 'threshold') {

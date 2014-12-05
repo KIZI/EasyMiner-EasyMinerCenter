@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
+use Nette\Utils\Json;
 
 
 /**
@@ -14,6 +15,7 @@ use LeanMapper\Entity;
  * @property Miner $miner m:hasOne
  * @property string $state m:Enum(self::STATE_*)
  * @property string $taskSettingsJson = ''
+ * @internal string $interestMeasuresJson = ''
  * @property int $rulesCount = 0
  * @property-read TaskState $taskState
  */
@@ -29,5 +31,23 @@ class Task extends Entity{
    */
   public function getTaskState(){
     return new TaskState($this->state,$this->rulesCount);
+  }
+
+  /**
+   * Funkce vracející seznam měr zajímavosti, které jsou použity u dané úlohy
+   * @return string[]
+   */
+  public function getInterestMeasures(){
+    $result=array();
+    try{
+      $taskSettings=Json::decode($this->taskSettingsJson,Json::FORCE_ARRAY);
+      $IMs=$taskSettings['rule0']['IMs'];
+    }catch (\Exception $e){}
+    if (!empty($IMs)){
+      foreach ($IMs as $IM){
+        $result[]=$IM['name'];
+      }
+    }
+    return $result;
   }
 } 

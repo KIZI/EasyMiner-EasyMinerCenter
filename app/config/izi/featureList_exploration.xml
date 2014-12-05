@@ -113,28 +113,50 @@
 						</Validation>
 					</Field>
 				</Type>
-				<Type>
-					<Name>AAD</Name>
-                    <Default>false</Default>
-					<LocalizedName lang="en">Lift*</LocalizedName>
-					<LocalizedName lang="cs">Above Average Dependance</LocalizedName>
-					<ThresholdType>% of all</ThresholdType>
-					<CompareType>Greater than or equal</CompareType>
-					<Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
-					The value is decreased by one compared to the formula typically used in the literature.
-					</Explanation>
-					<Field>
-						<Name>threshold</Name>
-						<DefaultValue>0.10</DefaultValue>
-						<LocalizedName lang="en">min value</LocalizedName>
-						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
-						<Validation>
-							<MinValue inclusive="no">0</MinValue>
-							<MaxValue inclusive="no">5</MaxValue>
-							<Datatype>double</Datatype>
-						</Validation>
-					</Field>
-				</Type>
+        <Type>
+          <Name>AAD</Name>
+          <Default>false</Default>
+          <LocalizedName lang="en">Above Average Dependance</LocalizedName>
+          <LocalizedName lang="cs">Above Average Dependance</LocalizedName>
+          <ThresholdType>% of all</ThresholdType>
+          <CompareType>Greater than or equal</CompareType>
+          <Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
+            The value is decreased by one compared to the formula typically used in the literature.
+          </Explanation>
+          <Field>
+            <Name>threshold</Name>
+            <DefaultValue>0.10</DefaultValue>
+            <LocalizedName lang="en">min value</LocalizedName>
+            <LocalizedName lang="cs">prahová hodnota</LocalizedName>
+            <Validation>
+              <MinValue inclusive="no">0</MinValue>
+              <MaxValue inclusive="no">5</MaxValue>
+              <Datatype>double</Datatype>
+            </Validation>
+          </Field>
+        </Type>
+        <Type>
+          <Name>LIFT</Name><!-- TODO dodělat popis... -->
+          <Default>false</Default>
+          <LocalizedName lang="en">Lift</LocalizedName>
+          <LocalizedName lang="cs">Lift</LocalizedName>
+          <ThresholdType>% of all</ThresholdType>
+          <CompareType>Greater than or equal</CompareType>
+          <Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
+            The value is decreased by one compared to the formula typically used in the literature.
+          </Explanation>
+          <Field>
+            <Name>threshold</Name>
+            <DefaultValue>1.10</DefaultValue>
+            <LocalizedName lang="en">min value</LocalizedName>
+            <LocalizedName lang="cs">prahová hodnota</LocalizedName>
+            <Validation>
+              <MinValue inclusive="no">0</MinValue>
+              <MaxValue inclusive="no">5</MaxValue>
+              <Datatype>double</Datatype>
+            </Validation>
+          </Field>
+        </Type>
 				<Type>
 					<Name>BAD</Name>
                     <Default>false</Default>
