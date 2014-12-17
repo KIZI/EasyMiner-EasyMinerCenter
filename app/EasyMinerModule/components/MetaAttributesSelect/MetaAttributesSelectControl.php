@@ -127,9 +127,12 @@ class MetaAttributesSelectControl extends Control{
     if ($datasourceColumn->type=='string'){
       /** @var SelectBox $formatType */
       $formatType=$form->getComponent('formatType');
-      $formatType->setDefaultValue('values');
+      //$formatType->setValue('values');
       $defaults['formatType']='values';
       $form->setDefaults($defaults);
+      $items=$formatType->items;
+      unset($items['interval']);
+      $formatType->items=$items;
       $formatType->setDisabled();
     }else{
       $form->setDefaults($defaults);
@@ -164,8 +167,10 @@ class MetaAttributesSelectControl extends Control{
     if ($datasourceColumn->type=='string'){
       /** @var SelectBox $formatType */
       $formatType=$form->getComponent('formatType');
-      $formatType->setDefaultValue('values');
       $defaults['formatType']='values';
+      $items=$formatType->items;
+      unset($items['interval']);
+      $formatType->items=$items;
       $form->setDefaults($defaults);
       $formatType->setDisabled();
     }else{

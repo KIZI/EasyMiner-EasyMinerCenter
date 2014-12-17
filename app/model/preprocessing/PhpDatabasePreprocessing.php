@@ -65,7 +65,6 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
     }catch (\Exception $e){
       throw new \Exception('Attribute creation failed!',$e);
     }
-
     $valuesArr=$this->databasesFacade->getColumnValuesWithId($datasource->dbTable,$datasourceColumn->name,DatabasesFacade::FIRST_DB);
     if (!empty($valuesArr)){
       foreach ($valuesArr as $id=>$value){

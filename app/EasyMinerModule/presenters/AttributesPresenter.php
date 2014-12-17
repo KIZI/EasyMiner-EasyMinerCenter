@@ -6,7 +6,6 @@ namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MetasourcesFacade;
 use App\Model\Rdf\Facades\MetaAttributesFacade;
@@ -14,7 +13,6 @@ use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
-use Tracy\Debugger;
 
 class AttributesPresenter extends BasePresenter{
 
@@ -55,7 +53,7 @@ class AttributesPresenter extends BasePresenter{
     $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);//TODO
     $this->template->preprocessing=$preprocessing;
     /** @var Form $form */
-    $form=$this->getComponent('newAttribute');
+    $form=$this->getComponent('newAttributeForm');
     $form->setDefaults(array(
       'miner'=>$miner->minerId,
       'column'=>$column,
@@ -130,7 +128,7 @@ class AttributesPresenter extends BasePresenter{
    * Funkce vracející formulář pro vytvoření atributu na základě vybraného sloupce a preprocessingu
    * @return Form
    */
-  protected function createComponentNewAttribute(){
+  protected function createComponentNewAttributeForm(){
     $form = new Form();
     $presenter=$this;
     $form->setTranslator($this->translator);
@@ -150,13 +148,10 @@ class AttributesPresenter extends BasePresenter{
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessingId=$values->preprocessing;
       $this->minersFacade->prepareAttribute($miner,$attribute);
-
       $this->metasourcesFacade->saveAttribute($attribute);
       $this->minersFacade->checkMinerState($miner);
 
-      echo 'ATTRIBUTE GENERATED... TODO: reload UI';
-      $this->terminate();
-      //TODO reload...
+      $this->redirect('reloadUI');
     };
     $storno=$form->addSubmit('storno','storno');
     $storno->setValidationScope(array());

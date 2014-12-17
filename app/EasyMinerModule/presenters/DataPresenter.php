@@ -199,13 +199,13 @@ class DataPresenter extends BasePresenter{
    */
   public function renderAttributeHistogram($miner,$attribute, $layout='default'){
     $miner=$this->findMinerWithCheckAccess($miner);
-    try{
+  /*  try{*/
       $metasource=$miner->metasource;
       $this->databasesFacade->openDatabase($metasource->getDbConnection());
       $this->template->attributeValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($metasource->dbTable,$attribute);
-    }catch (\Exception $e){
+  /*  }catch (\Exception $e){
       throw new BadRequestException('Requested attribute not found!',500,$e);
-    }
+    }*/
     if ($this->isAjax() || $layout=='component' || $layout=='iframe'){
       $this->layout='iframe';
       $this->template->layout=$layout;

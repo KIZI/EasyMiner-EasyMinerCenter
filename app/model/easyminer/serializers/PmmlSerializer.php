@@ -51,7 +51,7 @@ class PmmlSerializer {
   public function appendMetabaseInfo() {
     /** @var \SimpleXMLElement $headerXml */
     $headerXml=$this->pmml->Header;
-    $dbConnection=$this->miner->metasource->getDbConnection();
+    $dbConnection=$this->miner->metasource->getDbConnection();//TODO přesunutí ve struktuře PMML - kvůli validitě
     $this->addExtensionElement($headerXml,'database-type',$dbConnection->type);
     $this->addExtensionElement($headerXml,'database-server',$dbConnection->dbServer);
     $this->addExtensionElement($headerXml,'database-name',$dbConnection->dbName);

@@ -466,17 +466,18 @@ div.overlay{
   background-color:rgba(0,0,0,0.5);
 }
 div.modal, section.modal {
-  position: fixed;
   background: #ffffff;
   z-index: 102;
   color:#000000;
   border: none;
   padding: 30px;
   text-align:left;
-  top:50px;
-  left:50px;
   margin: 0 auto;
   -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 /*endregion overlay*/

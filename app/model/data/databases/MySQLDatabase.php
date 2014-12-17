@@ -5,7 +5,6 @@ namespace App\Model\Data\Databases;
 use App\Model\Data\Entities\DbColumn;
 use App\Model\Data\Entities\DbColumnValuesStatistic;
 use App\Model\Data\Entities\DbConnection;
-use Nette\Application\ApplicationException;
 use Nette\Utils\Strings;
 use \PDO;
 
@@ -139,9 +138,10 @@ class MySQLDatabase implements IDatabase{
   /**
    * @param array $data
    * @param $id
+   * @param bool $replace = true
    * @return bool
    */
-  public function updateRow(array $data, $id) {
+  public function updateRow(array $data, $id, $insertNotExisting=true) {
     $paramsArr=array(':id'=>$id);
     $sql='';
     $columnId=0;
@@ -152,7 +152,12 @@ class MySQLDatabase implements IDatabase{
     }
     $sql=Strings::substring($sql,1);
     $query=$this->db->prepare('UPDATE `'.$this->tableName.'` SET '.$sql.' WHERE id=:id LIMIT 1;');
-    return $query->execute($paramsArr);
+    $result=$query->execute($paramsArr);
+    if(!$result && $insertNotExisting){
+      $data['id']=$id;
+      $this->insertRow($data,true);
+    }
+    return $result;
   }
 
   /**
@@ -382,7 +387,7 @@ class MySQLDatabase implements IDatabase{
    * @return bool
    */
   public function createColumn(DbColumn $dbColumn) {
-    $sql= 'ALTER TABLE `'.$this->tableName.'` ADD `'.$dbColumn->name.' VARCHAR('.$dbColumn->strLength.')';//TODO další datové typy...
+    $sql= 'ALTER TABLE `'.$this->tableName.'` ADD `'.$dbColumn->name.'` VARCHAR('.$dbColumn->strLength.')';//TODO další datové typy...
     $query=$this->db->prepare($sql);
     return $query->execute();
   }
