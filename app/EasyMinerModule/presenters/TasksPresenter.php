@@ -2,7 +2,6 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\Mining\LM\LMDriver;
 
 /**
  * Class TasksPresenter - presenter pro práci s úlohami...

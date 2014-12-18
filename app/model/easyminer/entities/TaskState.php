@@ -9,20 +9,24 @@ use Nette\Utils\Strings;
  * @package App\Model\EasyMiner\Entities
  * @property string|null $state
  * @property int|null $rulesCount
+ * @property string|null $resultsUrl
  */
 class TaskState extends Object{
   /** @var null|string $state m:Enum(Task::STATE_*) */
   private $state;
   /** @var int|null $rulesCount */
   private $rulesCount;
+  /** @var string|null $resultsUrl */
+  private $resultsUrl;
 
   /**
    * @param string|null $state = null
    * @param int|null $rulesCount = null
    */
-  public function __construct($state=null,$rulesCount=null){
+  public function __construct($state=null,$rulesCount=null,$resultsUrl=null){
     $this->state=$state;
     $this->rulesCount=$rulesCount;
+    $this->resultsUrl=$resultsUrl;
   }
 
   /**
@@ -47,10 +51,28 @@ class TaskState extends Object{
   }
 
   /**
-   * @param $count
+   * @param int|null $count
    */
   public function setRulesCount($count){
     $this->rulesCount=intval($count);
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getResultsUrl(){
+    return $this->resultsUrl;
+  }
+
+  /**
+   * @param string $url
+   */
+  public function setResultsUrl($url){
+    if ($url!=''){
+      $this->resultsUrl=$url;
+    }else{
+      $this->resultsUrl=null;
+    }
   }
 
   /**
@@ -59,9 +81,13 @@ class TaskState extends Object{
    */
   public function asArray(){
     $result=array('state'=>$this->state);
+
     if ($this->rulesCount!==null){
       $result['rulesCount']=$this->rulesCount;
     }
+
+    $result['resultsUrl']=$this->resultsUrl;
+
     return $result;
   }
 } 

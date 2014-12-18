@@ -15,8 +15,8 @@ use Nette\Utils\Json;
  * @property Miner $miner m:hasOne
  * @property string $state m:Enum(self::STATE_*)
  * @property string $taskSettingsJson = ''
- * @internal string $interestMeasuresJson = ''
  * @property int $rulesCount = 0
+ * @property string|null $resultsUrl = ''
  * @property-read TaskState $taskState
  */
 class Task extends Entity{
@@ -30,7 +30,7 @@ class Task extends Entity{
    * @return TaskState
    */
   public function getTaskState(){
-    return new TaskState($this->state,$this->rulesCount);
+    return new TaskState($this->state,$this->rulesCount,$this->resultsUrl);
   }
 
   /**

@@ -115,7 +115,7 @@ class LMDriver implements IMiningDriver{
 
   /**
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
-   */
+
   public function importResults(){
     $pmmlSerializer=new PmmlSerializer($this->task);
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
@@ -128,7 +128,7 @@ class LMDriver implements IMiningDriver{
     if ((++$numRequests < self::MAX_MINING_REQUESTS) && !$ok){sleep(self::REQUEST_DELAY); goto sendRequest;}
 
     return $this->parseRulesPMML($result);
-  }
+  }*/
 
   /**
    * Funkce volaná před smazáním konkrétního mineru

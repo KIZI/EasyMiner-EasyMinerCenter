@@ -33,9 +33,9 @@ interface IMiningDriver {
 
   /**
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
-   */
-  public function importResults();
 
+  public function importResults();
+*/
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade

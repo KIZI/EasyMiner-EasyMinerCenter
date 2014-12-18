@@ -12,10 +12,6 @@ use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Serializers\PmmlSerializer;
 use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use App\Model\Mining\IMiningDriver;
-use Kdyby\Curl\CurlSender;
-use Kdyby\Curl\Request as CurlRequest;
-use Kdyby\Curl\Request;
-use Kdyby\Curl\Response as CurlResponse;
 use Nette\Utils\Strings;
 
 class RDriver implements IMiningDriver{
@@ -33,13 +29,14 @@ class RDriver implements IMiningDriver{
   private $params;
 
   #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
-  const MAX_MINING_REQUESTS=10;
+  const MAX_MINING_REQUESTS=5;
   const REQUEST_DELAY=1;// delay between requests (in seconds)
   #endregion
 
   /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
    * @return TaskState
+   * @throws \Exception
    */
   public function startMining() {
     $pmmlSerializer=new PmmlSerializer($this->task);
@@ -48,69 +45,46 @@ class RDriver implements IMiningDriver{
     $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
     //import úlohy a spuštění dolování...
     $numRequests=1;
-    sendRequest:
-    //try{
-    #region pracovní zjednodušený request
-    $ch = curl_init($this->getRemoteMinerUrl().'/mine');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-    curl_setopt($ch, CURLOPT_HEADER, true);
-    curl_setopt($ch,CURLOPT_MAXREDIRS,0);
-    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    curl_setopt($ch,CURLOPT_POST,true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $pmml->asXML());
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/xml","Content-length: ".strlen($pmml->asXML())));
-
-    $tuData = curl_exec($ch);
-    if(!curl_errno($ch)){
-      $info = curl_getinfo($ch);
-      echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'];
-    } else {
-      echo 'Curl error: ' . curl_error($ch);
-    }
-
-    curl_close($ch);
-    echo $tuData;
-exit('-----');
-
+    sendStartRequest:
+    try{
+      #region pracovní zjednodušený request
+      $response=$this->curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML());
+      $taskState=$this->parseResponse($response);
     #endregion
-
-      $request=$this->prepareNewCurlRequest($this->getRemoteMinerUrl().'/mine');
-      $request->followRedirects=false;
-    $request->maximumRedirects=0;
-    $request->setCertificationVerify(false);
-      $request->returnTransfer=false;
-      $request->headers['Content-Type']='application/xml';
-      $response = $request->post($pmml->asXML());
-
-    //}catch (\Exception $e){
-    //  exit($e->getMessage());
-    //}
-    exit(var_dump($response));
-
-    //exit(var_dump($response->headers));
-
-
-    $result=$this->queryPost($pmml);
-    $ok = (strpos($result, 'kbierror') === false && !preg_match('/status=\"failure\"/', $result));
-    if ((++$numRequests < self::MAX_MINING_REQUESTS) && !$ok){sleep(self::REQUEST_DELAY); goto sendRequest;}
-
-    $taskState=$this->parseTaskState($result);
-    if ($taskState->rulesCount>0){
-      //try{//FIXME
-      $this->parseRulesPMML($result);
-      //}catch (\Exception $e){}
+    }catch (\Exception $e){
+      if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
     }
-    return $taskState;
+    if (!empty($taskState)){
+      return $taskState;
+    }else{
+      throw new \Exception('Task import failed!');
+    }
   }
 
   /**
    * Funkce pro kontrolu aktuálního průběhu úlohy (aktualizace seznamu nalezených pravidel...)
    * @throws \Exception
-   * @return string
+   * @return TaskState
    */
-  public function checkTaskState() {
-    //TODO
+  public function checkTaskState(){
+    if ($this->task->taskState->state==Task::STATE_IN_PROGRESS){
+      if($this->task->resultsUrl!=''){
+        $numRequests=1;
+        sendStartRequest:
+        try{
+          #region zjištění stavu úlohy, případně import pravidel
+          $response=$this->curlRequestResponse($this->getRemoteServerUrl().$this->task->resultsUrl);
+          return $this->parseResponse($response);
+          #endregion
+        }catch (\Exception $e){
+          if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
+        }
+      }else{
+        $taskState=$this->task->taskState;
+        $taskState->state=Task::STATE_FAILED;
+      }
+    }
+    return $this->task->taskState;
   }
 
   /**
@@ -118,53 +92,18 @@ exit('-----');
    * @return TaskState
    */
   public function stopMining() {
-    return false;//TODO
-  }
-
-  /**
-   * @param string $result
-   * @return TaskState
-   * @throws \Exception
-   */
-  private function parseTaskState($result){//TODO
-    if ($modelStartPos=strpos($result,'<guha:AssociationModel')){
-      //jde o plné PMML
-      $xml=simplexml_load_string($result);
-      $xml->registerXPathNamespace('guha','http://keg.vse.cz/ns/GUHA0.1rev1');
-      $guhaAssociationModel=$xml->xpath('//guha:AssociationModel');
-      $taskState=new TaskState();
-      if (count($guhaAssociationModel)!=1){throw new \Exception('Task state cannot be parsed!');/*došlo k chybě...*/}else{$guhaAssociationModel=$guhaAssociationModel[0];}
-      $taskState->rulesCount=$guhaAssociationModel['numberOfRules'];
-      $state=$guhaAssociationModel->xpath('TaskSetting//TaskState');
-      $taskState->setState((string)$state[0]);
-      return $taskState;
+    $taskState=$this->task->taskState;
+    if ($taskState==Task::STATE_IN_PROGRESS){
+      $taskState->state=Task::STATE_INTERRUPTED;
     }
-    throw new \Exception('Task state cannot be parsed - UNKNOWN FORMAT!');
-  }
-
-  /**
-   * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
-   */
-  public function importResults(){
-    //TODO
-    $pmmlSerializer=new PmmlSerializer($this->task);
-    $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
-    $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
-    //import úlohy a spuštění dolování...
-    $numRequests=1;
-    sendRequest:
-    $result=$this->queryPost($pmml,array('template'=>self::PMML_LM_TEMPLATE));
-    $ok = (strpos($result, 'kbierror') === false && !preg_match('/status=\"failure\"/', $result));
-    if ((++$numRequests < self::MAX_MINING_REQUESTS) && !$ok){sleep(self::REQUEST_DELAY); goto sendRequest;}
-
-    return $this->parseRulesPMML($result);
+    return $taskState;
   }
 
   /**
    * Funkce volaná před smazáním konkrétního mineru
    * @return mixed|false
    */
-  public function deleteMiner() {
+  public function deleteMiner(){
     return true;
   }
 
@@ -177,113 +116,19 @@ exit('-----');
   }
 
   /**
-   * Funkce připravující PMML pro import dataDictionary
-   * @param int[] $attributesArr
-   * @return \SimpleXMLElement
-   */
-  private function prepareImportPmml($attributesArr){
-    $metasource=$this->miner->metasource;
-    $pmml=simplexml_load_string('<?xml version="1.0"?>
-<?oxygen SCHSchema="http://sewebar.vse.cz/schemas/GUHARestr0_1.sch"?>
-<PMML version="4.0" xmlns="http://www.dmg.org/PMML-4_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://sewebar.vse.cz/schemas/PMML4.0+GUHA0.1.xsd">
-  <Header>
-    <Extension name="dataset" value="'.$metasource->attributesTable.'"/>
-  </Header>
-  <MiningBuildTask>
-    <Extension name="DatabaseDictionary">
-      <Table name="'.$metasource->attributesTable.'" reloadTableInfo="Yes">
-        <PrimaryKey>
-          <Column name="id" primaryKeyPosition="0"/>
-        </PrimaryKey>
-      </Table>
-    </Extension>
-  </MiningBuildTask>
-  <DataDictionary></DataDictionary>
-  <TransformationDictionary></TransformationDictionary>
-</PMML>');
-    $dataDictionary=$pmml->DataDictionary[0];
-    $transformationDictionary=$pmml->TransformationDictionary[0];
-    $metasourceAttributes=$metasource->attributes;
-    foreach ($metasourceAttributes as $metasourceAttribute){
-      if (in_array($metasourceAttribute->attributeId,$attributesArr)){
-        $dataField=$dataDictionary->addChild('DataField');
-        $dataField->addAttribute('name',$metasourceAttribute->name);
-        $datasourceColumn=$metasourceAttribute->datasourceColumn;
-        $derivedField=$transformationDictionary->addChild('DerivedField');
-        $derivedField->addAttribute('name',$metasourceAttribute->name);
-        $derivedField->addAttribute('dataType',$datasourceColumn->type);
-        //TODO optype
-        $mapValues=$derivedField->addChild('MapValues');
-        $mapValues->addAttribute('outputColumn',$metasourceAttribute->name);
-        $fieldColumnPair=$mapValues->addChild('FieldColumnPair');
-        $fieldColumnPair->addAttribute('column',$metasourceAttribute->name);
-        $fieldColumnPair->addAttribute('field',$metasourceAttribute->name);
-        $autoDiscretize=$derivedField->addChild('AutoDiscretize');
-        $autoDiscretize->addAttribute('type','Enumeration');
-        $autoDiscretize->addAttribute('count','10000');
-        $autoDiscretize->addAttribute('frequencyMin','1');
-        $autoDiscretize->addAttribute('categoryOthers','No');
-      }
-    }
-    return $pmml;
-  }
-
-  /**
-   * Funkce vracející ID aktuálního vzdáleného mineru (lispmineru)
-   * @return null|string
-   */
-  private function getRemoteMinerId(){
-    $minerConfig=$this->getMinerConfig();
-    if (isset($minerConfig['lm_miner_id'])){
-      return $minerConfig['lm_miner_id'];
-    }else{
-      return null;
-    }
-  }
-
-  /**
-   * Funkce nastavující ID aktuálně otevřeného mineru
-   * @param string|null $lmMinerId
-   */
-  private function setRemoteMinerId($lmMinerId){
-    $minerConfig=$this->getMinerConfig();
-    $minerConfig['lm_miner_id']=$lmMinerId;
-    $this->setMinerConfig($minerConfig);
-  }
-
-  /**
-   * Funkce vracející adresu LM connectu
+   * Funkce vracející adresu R connectu
    * @return string
    */
   private function getRemoteMinerUrl(){
+    return $this->getRemoteServerUrl().@$this->params['minerUrl'];
+  }
+
+  /**
+   * Funkce vracející adresu serveru, kde běží R connect
+   * @return string
+   */
+  private function getRemoteServerUrl(){
     return @$this->params['server'];
-  }
-
-  /**
-   * Funkce vracející typ požadovaného LM pooleru
-   * @return string
-   */
-  private function getRemoteMinerPooler(){
-    if (isset($this->params['pooler'])){
-      return $this->params['pooler'];
-    }else{
-      return 'task';
-    }
-  }
-
-  /**
-   * Funkce vracející jméno úlohy na LM connectu taskUUID
-   * @return string
-   */
-  private function getRemoteMinerTaskName(){
-    return $this->task->taskUuid;
-  }
-
-  /**
-   * @return string
-   */
-  private function getAttributesTableName(){
-    return @$this->miner->metasource->attributesTable;
   }
 
   /**
@@ -312,14 +157,22 @@ exit('-----');
 
   /**
    * Funkce pro načtení PMML
-   * @param string $pmml
+   * @param string|\SimpleXMLElement $pmml
+   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
    * @return bool
    */
-  public function parseRulesPMML($pmml){
-    $xml=simplexml_load_string($pmml);
+  public function parseRulesPMML($pmml,&$rulesCount=null){
+    if ($pmml instanceof \SimpleXMLElement) {
+      $xml=$pmml;
+    }else{
+      $xml=simplexml_load_string($pmml);
+    }
     $xml->registerXPathNamespace('guha','http://keg.vse.cz/ns/GUHA0.1rev1');
     $guhaAssociationModel=$xml->xpath('//guha:AssociationModel');
     $guhaAssociationModel=$guhaAssociationModel[0];
+
+    $rulesCount=(string)$guhaAssociationModel['numberOfRules'];
+
     /** @var \SimpleXMLElement $associationRulesXml */
     $associationRulesXml=$guhaAssociationModel->AssociationRules;
 
@@ -466,35 +319,36 @@ exit('-----');
 
   /**
    * Funkce parsující stav odpovědi od LM connectu
-   * @param CurlResponse $response
+   * @param string $response
    * @param string $message
-   * @return string
+   * @return TaskState
    * @throws \Exception
    */
-  private function parseResponse($response, $message = '') {
-    $body = $response->getResponse();
-    $body=simplexml_load_string($body);
-    if (!$response->isOk() || $body['status'] == 'failure') {
-      throw new \Exception(isset($body->message) ? (string)$body->message : $response->getCode());
-    } else if ($body['status'] == 'success') {
-      return isset($body->message) ? (string)$body->message : $message;
+  private function parseResponse($response, $message = ''){
+    $body=simplexml_load_string($response);
+    if ($body->getName()=='status' || $body->getName()=='error'){
+      //jde o informaci o stavu minování
+      $code=substr($body->code,0,3);
+      switch ($code){
+        case '202':
+          //jde o informaci o tom, že je nutné na odpověď dál čekat
+          $this->task->state=Task::STATE_IN_PROGRESS;
+          return new TaskState(Task::STATE_IN_PROGRESS,null,(string)$body->miner->{'result-url'});
+        case '500':
+          //jde o chybu mineru
+          return new TaskState(Task::STATE_FAILED);
+      }
+    }elseif($body->getName()=='PMML'){
+      //jde o export výsledků
+      $rulesCount=0;
+      $this->parseRulesPMML($body,$rulesCount);
+      return new TaskState(Task::STATE_SOLVED);
+    }else{
+      throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
     }
-    throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response->getResponse())));
+    return new TaskState(Task::STATE_FAILED);
   }
 
-  /**
-   * @param $url
-   * @return CurlRequest
-   */
-  private function prepareNewCurlRequest($url){
-    return new CurlRequest($url);
-
-    $curlRequest=new CurlRequest($url);
-    $curlSender=new CurlSender();
-    $curlSender->setFollowRedirects(false);
-    $curlRequest->setSender($curlSender);
-    return $curlRequest;
-  }
 
   #region constructor
   /**
@@ -520,6 +374,38 @@ exit('-----');
   }
 
   #endregion constructor
+
+  /**
+   * @param string $url
+   * @param string $postData
+   * @return string - response data
+   * @throws \Exception - curl error
+   */
+  private function curlRequestResponse($url,$postData=''){
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch,CURLOPT_MAXREDIRS,0);
+    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
+    $headersArr=array('Content-Type: application/xml');
+    if ($postData!=''){
+      curl_setopt($ch,CURLOPT_POST,true);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+      $headersArr[]='Content-length: '.strlen($postData);
+    }
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArr);
+
+    $responseData = curl_exec($ch);
+    if(curl_errno($ch)){
+      $exception=curl_error($ch);
+      curl_close($ch);
+      throw new \Exception($exception);
+    }
+    curl_close($ch);
+    return $responseData;
+  }
+
 
 
 }

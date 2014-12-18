@@ -270,6 +270,8 @@ class MinersFacade {
     if (($task->state!=Task::STATE_SOLVED)&&($task->state!=$taskState->state)){
       $task->state=$taskState->state;
     }
+    $task->resultsUrl=$taskState->resultsUrl;
+
     if ($task->isModified()){
       $this->saveTask($task);
     }
