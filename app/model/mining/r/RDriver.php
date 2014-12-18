@@ -160,6 +160,7 @@ class RDriver implements IMiningDriver{
    * @param string|\SimpleXMLElement $pmml
    * @param int &$rulesCount = null - informace o počtu importovaných pravidel
    * @return bool
+   * @throws \Exception
    */
   public function parseRulesPMML($pmml,&$rulesCount=null){
     if ($pmml instanceof \SimpleXMLElement) {
@@ -172,7 +173,6 @@ class RDriver implements IMiningDriver{
     $guhaAssociationModel=$guhaAssociationModel[0];
 
     $rulesCount=(string)$guhaAssociationModel['numberOfRules'];
-
     /** @var \SimpleXMLElement $associationRulesXml */
     $associationRulesXml=$guhaAssociationModel->AssociationRules;
 
@@ -285,6 +285,8 @@ class RDriver implements IMiningDriver{
     }
     #endregion
 
+    $topCedentsArr=array();
+
     foreach ($associationRulesXml->AssociationRule as $associationRule){
       $rule=new Rule();
       $rule->task=$this->task;
@@ -294,17 +296,52 @@ class RDriver implements IMiningDriver{
         if (isset($alternativeCedentIdsArr[$antecedentId])){
           $antecedentId=$alternativeCedentIdsArr[$antecedentId];
         }
-        $rule->antecedent=($cedentsArr[$antecedentId]);
+
+        if (isset($cedentsArr[$antecedentId])) {
+          $rule->antecedent=($cedentsArr[$antecedentId]);
+        }else{
+          if (isset($ruleAttributesArr[$antecedentId])){
+            if (!isset($topCedentsArr[$antecedentId])){
+              $cedent=new Cedent();
+              $cedent->connective = 'conjunction';
+              $this->rulesFacade->saveCedent($cedent);
+              $topCedentsArr[$antecedentId] = $cedent;
+              $cedent->addToRuleAttributes($ruleAttributesArr[$antecedentId]);
+              $this->rulesFacade->saveCedent($cedent);
+            }
+            $rule->antecedent=$topCedentsArr[$antecedentId];
+          }else{
+            throw new \Exception('Import failed!');
+          }
+        }
+
       }else{
         //jde o pravidlo bez antecedentu
         $rule->antecedent=null;
       }
-
       $consequentId=(string)$associationRule['consequent'];
       if (isset($alternativeCedentIdsArr[$consequentId])){
         $consequentId=$alternativeCedentIdsArr[$consequentId];
       }
-      $rule->consequent=($cedentsArr[$consequentId]);
+
+      if (isset($cedentsArr[$consequentId])) {
+        $rule->consequent=($cedentsArr[$consequentId]);
+      }else{
+        if (isset($ruleAttributesArr[$consequentId])){
+          if (!isset($topCedentsArr[$consequentId])){
+            $cedent=new Cedent();
+            $cedent->connective = 'conjunction';
+            $this->rulesFacade->saveCedent($cedent);
+            $topCedentsArr[$consequentId] = $cedent;
+            $cedent->addToRuleAttributes($ruleAttributesArr[$consequentId]);
+            $this->rulesFacade->saveCedent($cedent);
+          }
+          $rule->consequent=$topCedentsArr[$consequentId];
+        }else{
+          throw new \Exception('Import failed!');
+        }
+      }
+
       $rule->text=(string)$associationRule->Text;
       $fourFtTable=$associationRule->FourFtTable;
       $rule->a=(string)$fourFtTable['a'];
@@ -342,7 +379,7 @@ class RDriver implements IMiningDriver{
       //jde o export výsledků
       $rulesCount=0;
       $this->parseRulesPMML($body,$rulesCount);
-      return new TaskState(Task::STATE_SOLVED);
+      return new TaskState(Task::STATE_SOLVED,$rulesCount);
     }else{
       throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
     }
