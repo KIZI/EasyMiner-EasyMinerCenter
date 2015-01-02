@@ -28,12 +28,13 @@
 			<Types>
 				<Type>
 					<Name>FUI</Name>
-                    <Default>true</Default>
+          <Default>true</Default>
 					<LocalizedName lang="en">Confidence</LocalizedName>
 					<LocalizedName lang="cs">Spolehlivost</LocalizedName>
 					<ThresholdType>% of all</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">At lest specified percentage of instances matching the left side of the rule must match also the right side of the rule.</Explanation>
+					<Calculation>a/(a+b)</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>0.7</DefaultValue>
@@ -55,6 +56,7 @@
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Percentage of objects the rule must match.</Explanation>
 					<Explanation lang="cs">Relativní podpora pravidla</Explanation>
+					<Calculation>a/(a+b+c+d)</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>0.05</DefaultValue>
@@ -361,6 +363,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that match both antecedent and consequent</Explanation>
+					<Calculation>a</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>
@@ -381,6 +384,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that match the antecedent but not the consequent</Explanation>
+					<Calculation>b</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>
@@ -401,6 +405,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that match the consequent but not the antecedent</Explanation>
+					<Calculation>c</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>
@@ -421,6 +426,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that do not match neither the consequent nor the antecedent</Explanation>
+					<Calculation>d</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>
@@ -441,6 +447,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that match the antecedent</Explanation>
+					<Calculation>a+b</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>
@@ -461,6 +468,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that do not match the antecedent</Explanation>
+					<Calculation>c+d</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>
@@ -481,6 +489,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that match the consequent</Explanation>
+					<Calculation>a+c</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>
@@ -501,6 +510,7 @@
 					<ThresholdType>Abs</ThresholdType>
 					<CompareType>Greater than or equal</CompareType>
 					<Explanation lang="en">Number of objects that do not match the consequent</Explanation>
+					<Calculation>b+d</Calculation>
 					<Field>
 						<Name>threshold</Name>
 						<DefaultValue>1</DefaultValue>

@@ -11,8 +11,9 @@ class InterestMeasure
     private $explanation;
     private $fields;
     private $default;
+    private $calculation;
 
-    public function __construct ($name, $localizedName, $thresholdType, $compareType, $explanation, $default)
+    public function __construct ($name, $localizedName, $thresholdType, $compareType, $explanation, $calculation, $default)
     {
         $this->name = $name;
         $this->localizedName = $localizedName;
@@ -20,6 +21,7 @@ class InterestMeasure
         $this->compareType = $compareType;
         $this->explanation = $explanation;
         $this->fields = array();
+        $this->calculation=$calculation;
         $this->default = $default;
     }
 
@@ -53,6 +55,7 @@ class InterestMeasure
         $array = array(
         $this->name => array(
             'default' => $this->default,
+            'calculation' => $this->calculation,
             'localizedName' => $this->localizedName,
             'thresholdType' => $this->thresholdType,
             'compareType' => $this->compareType,
