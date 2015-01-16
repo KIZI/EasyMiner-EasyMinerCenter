@@ -1,7 +1,9 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
+use App\Model\EasyMiner\Entities\Rule;
 use App\Model\EasyMiner\Facades\RulesFacade;
+use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
@@ -62,34 +64,48 @@ class RuleClipboardPresenter  extends BasePresenter{
    * Akce pro přidání pravidla do rule clipboard
    * @param int $miner
    * @param string $task
-   * @param int $rule
+   * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    */
-  public function actionAddRule($miner,$task,$rule){
-    $this->changeRulesClipboardState($miner,$task,$rule,true);
-    $this->sendTextResponse('OK');
+  public function actionAddRule($miner,$task,$rules){
+    $rules=$this->changeRulesClipboardState($miner,$task,$rules,true);
+    $result=array();
+    if (!empty($rules)){
+      foreach($rules as $rule){
+        $result[]=$rule->getBasicDataArr();
+      }
+    }
+    $this->sendJsonResponse(array('rules'=>$result));
   }
 
   /**
    * Akce pro odebrání pravidla z rule clipboard
    * @param int $miner
    * @param string $task
-   * @param int $rule
+   * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    */
-  public function actionRemoveRule($miner,$task,$rule){
-    $this->changeRulesClipboardState($miner,$task,$rule,false);
-    $this->sendTextResponse('OK');
+  public function actionRemoveRule($miner,$task,$rules){
+    $rules=$this->changeRulesClipboardState($miner,$task,$rules,false);
+    $result=array();
+    if (!empty($rules)){
+      foreach($rules as $rule){
+        $result[]=$rule->getBasicDataArr();
+      }
+    }
+    $this->sendJsonResponse(array('rules'=>$result));
   }
 
   /**
    * @param int $miner
    * @param string $task
-   * @param int|string $rule
+   * @param int|string $rules
    * @param bool $inRuleClipboard
    * @throws ForbiddenRequestException
+   * @return Rule[]
    */
-  private function changeRulesClipboardState($miner,$task,$rule,$inRuleClipboard){
+  private function changeRulesClipboardState($miner,$task,$rules,$inRuleClipboard){
     $this->checkMinerAccess($miner);
-    $ruleIdsArr=explode(',',str_replace(';',',',$rule));
+    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
+    $result=array();
     if (count($ruleIdsArr)>0){
       foreach ($ruleIdsArr as $ruleId){
         try{
@@ -97,18 +113,20 @@ class RuleClipboardPresenter  extends BasePresenter{
           //TODO optimalizovat kontroly...
           $ruleTask=$rule->task;
           if ($ruleTask->taskUuid!=$task){
-            throw new \Nette\InvalidArgumentException;
+            throw new InvalidArgumentException;
           }
           if ($ruleTask->miner->minerId!=$miner){
-            throw new \Nette\InvalidArgumentException;
+            throw new InvalidArgumentException;
           }
           if ($rule->inRuleClipboard!=$inRuleClipboard){
             $rule->inRuleClipboard=$inRuleClipboard;
             $this->rulesFacade->saveRule($rule);
           }
+          $result[]=$rule;
         }catch (\Exception $e){continue;}
       }
     }
+    return $result;
   }
 
 

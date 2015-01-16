@@ -21,7 +21,11 @@ use LeanMapper\Entity;
  * @property float|null $support = null
  * @property float|null $lift = null
  * @property bool $inRuleClipboard
+ * @property-read array $basicDataArr
  */
 class Rule extends Entity{
 
-} 
+  public function getBasicDataArr() {
+    return array('text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0'));
+  }
+}
