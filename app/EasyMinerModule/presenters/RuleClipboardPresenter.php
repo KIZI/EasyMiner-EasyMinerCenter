@@ -67,11 +67,11 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    */
   public function actionAddRule($miner,$task,$rules){
-    $rules=$this->changeRulesClipboardState($miner,$task,$rules,true);
+    $resultRules=$this->changeRulesClipboardState($miner,$task,$rules,true);
     $result=array();
-    if (!empty($rules)){
-      foreach($rules as $rule){
-        $result[]=$rule->getBasicDataArr();
+    if (!empty($resultRules)){
+      foreach($resultRules as $rule){
+        $result[$rule->ruleId]=$rule->getBasicDataArr();
       }
     }
     $this->sendJsonResponse(array('rules'=>$result));
@@ -84,11 +84,11 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    */
   public function actionRemoveRule($miner,$task,$rules){
-    $rules=$this->changeRulesClipboardState($miner,$task,$rules,false);
+    $resultRules=$this->changeRulesClipboardState($miner,$task,$rules,false);
     $result=array();
-    if (!empty($rules)){
-      foreach($rules as $rule){
-        $result[]=$rule->getBasicDataArr();
+    if (!empty($resultRules)){
+      foreach($resultRules as $rule){
+        $result[$rule->ruleId]=$rule->getBasicDataArr();
       }
     }
     $this->sendJsonResponse(array('rules'=>$result));
