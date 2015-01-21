@@ -21,6 +21,9 @@ class UserPresenter  extends BasePresenter{
   /** @var UsersFacade $usersFacade */
   public $usersFacade;
 
+  /** @persistent */
+  public $url;
+
   public function actionInfo(){
     if ($identity=$this->getUser()->identity){
       $this->sendJsonResponse(array(
@@ -47,7 +50,7 @@ class UserPresenter  extends BasePresenter{
   public function actionLogin(){
     if ($this->user->isLoggedIn()){
       //pokud je uživatel už přihlášen, přesměrujeme ho na otevření/vytvoření mineru
-      $this->redirect('Data:NewMiner');
+      $this->finalRedirect();
     }
   }
 
@@ -55,7 +58,7 @@ class UserPresenter  extends BasePresenter{
     if ($this->user->isLoggedIn()){
       //pokud je uživatel už přihlášen, nedovolíme mu registrovat nový účet
       $this->flashMessage('You are currently logged in!','error');
-      $this->redirect('Data:NewMiner');
+      $this->finalRedirect();
     }
   }
 
@@ -75,7 +78,7 @@ class UserPresenter  extends BasePresenter{
       ->addRule(Nette\Forms\Form::FILLED,'You have to input your e-mail!')
       ->addRule(function($emailInput)use($presenter){
         try{
-          $user=$presenter->usersFacade->findUserByEmail($emailInput->value);
+          $presenter->usersFacade->findUserByEmail($emailInput->value);
           return false;
         }catch (\Exception $e){}
         return true;
@@ -96,12 +99,12 @@ class UserPresenter  extends BasePresenter{
 
     $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values) use ($presenter){
       try{
-        $user = $presenter->usersFacade->registerUser($values);
+        $presenter->usersFacade->registerUser($values);
       }catch (Exception $e){
         $presenter->flashMessage('Welcome! Your user account was successfully registered.');
       }
       $presenter->getUser()->login($values['email'],$values['password']);
-      $presenter->redirect('Data:newMiner');
+      $presenter->finalRedirect();
     };
     return $form;
   }
@@ -129,7 +132,7 @@ class UserPresenter  extends BasePresenter{
         $presenter->flashMessageLoginFailed('Facebook');
         $presenter->redirect('login');
       }
-      $presenter->redirect('Data:NewMiner');
+      $presenter->finalRedirect();
     };
 
     return $dialog;
@@ -192,13 +195,26 @@ class UserPresenter  extends BasePresenter{
       try{
         $presenter->getUser()->login($values->email, $values->password);
         $presenter->flashMessageLoginSuccess();
-        $presenter->redirect('Data:NewMiner');
+        $presenter->finalRedirect();
 
       } catch (Nette\Security\AuthenticationException $e) {
         $form->addError($e->getMessage());
       }
     };
     return $form;
+  }
+
+  /**
+   * Funkce pro finální přesměrování po přihlášení
+   */
+  protected function finalRedirect(){
+    if (!empty($this->url)){
+      $url=$this->url;
+      $this->url='';
+      $this->redirectUrl($url);
+    }else{
+      $this->redirect('Data:NewMiner');
+    }
   }
 
   protected function flashMessageLoginSuccess($service=''){
