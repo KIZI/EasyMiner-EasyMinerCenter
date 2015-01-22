@@ -22,9 +22,6 @@
   <script> document.documentElement.className+=' js' </script>
 </head>
 <body class="iframe">
-    {block closeButton}
-      <a href="javascript:parent.close();" class="closeButton">{_'Close'}</a>
-    {/block}
     <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
 
     {include content}
