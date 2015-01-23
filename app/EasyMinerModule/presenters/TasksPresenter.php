@@ -91,6 +91,10 @@ class TasksPresenter  extends BasePresenter{
     $this->sendJsonResponse(array('task'=>array('rulesCount'=>$task->rulesCount,'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
   }
 
+  public function actionRenameTask($miner,$task,$name){
+    //TODO Standa
+  }
+
 
   #region injections
   /**

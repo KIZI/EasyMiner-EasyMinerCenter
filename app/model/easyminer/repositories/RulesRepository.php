@@ -9,7 +9,14 @@ class RulesRepository extends BaseRepository{
     $this->connection->query('UPDATE ['.$this->getTable().'] SET support=(a/(a+b+c+d)) WHERE support IS NULL;');
     //TODO zkontrolovat vzorec liftu
     $this->connection->query('UPDATE ['.$this->getTable().'] SET lift=((a*(a+b+c+d))/((a+b)*(a+c))) WHERE lift IS NULL;');
+  }
 
+  /**
+   * @param int $taskId
+   * @param bool $inRuleClipboard
+   */
+  public function changeTaskRulesClipboardState($taskId,$inRuleClipboard){
+    $this->connection->query('UPDATE ['.$this->getTable().'] SET in_rule_clipboard=%b',$inRuleClipboard,'WHERE task_id=%i',$taskId);
   }
   
   

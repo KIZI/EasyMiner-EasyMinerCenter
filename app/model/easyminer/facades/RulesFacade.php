@@ -96,6 +96,14 @@ class RulesFacade {
     $this->rulesRepository->calculateMissingInterestMeasures();
   }
 
+  /**
+   * @param Task $task
+   * @param bool $inRuleClipboard
+   */
+  public function changeAllTaskRulesClipboardState(Task $task, $inRuleClipboard){
+    $this->rulesRepository->changeTaskRulesClipboardState($task->taskId,$inRuleClipboard);
+  }
+
   public function __construct(RulesRepository $rulesRepository, CedentsRepository $cedentsRepository, RuleAttributesRepository $ruleAttributesRepository){
     $this->rulesRepository=$rulesRepository;
     $this->cedentsRepository=$cedentsRepository;

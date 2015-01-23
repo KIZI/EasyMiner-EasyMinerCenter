@@ -2,6 +2,7 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Entities\Rule;
+use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
@@ -13,6 +14,8 @@ use Nette\Application\ForbiddenRequestException;
 class RuleClipboardPresenter  extends BasePresenter{
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
+  /** @var  MinersFacade $minersFacade */
+  private $minersFacade;
 
   /**
    * Funkce vracející přehled úloh, které mají pravidla v RuleClipboard
@@ -65,6 +68,7 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param int $miner
    * @param string $task
    * @param string $rules - IDčka oddělená čárkami, případně jedno ID
+   * @throws ForbiddenRequestException
    */
   public function actionAddRule($miner,$task,$rules){
     $resultRules=$this->changeRulesClipboardState($miner,$task,$rules,true);
@@ -74,6 +78,40 @@ class RuleClipboardPresenter  extends BasePresenter{
         $result[$rule->ruleId]=$rule->getBasicDataArr();
       }
     }
+    $this->sendJsonResponse(array('rules'=>$result));
+  }
+
+  /**
+   * @param int $miner
+   * @param string $task
+   * @param string $returnRules='' - IDčka oddělená čárkami, případně jedno ID
+   * @throws ForbiddenRequestException
+   */
+  public function actionAddAllRules($miner,$task,$returnRules=''){
+    $this->checkMinerAccess($miner);
+    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
+    //označení všech pravidel patřících do dané úlohy
+    $this->rulesFacade->changeAllTaskRulesClipboardState($task,true);
+
+    $result=array();
+    if (count($ruleIdsArr)>0){
+      foreach ($ruleIdsArr as $ruleId){
+        try{
+          $rule=$this->rulesFacade->findRule($ruleId);
+          //TODO optimalizovat kontroly...
+          $ruleTask=$rule->task;
+          if ($ruleTask->taskUuid!=$task){
+            throw new InvalidArgumentException;
+          }
+          if ($ruleTask->miner->minerId!=$miner){
+            throw new InvalidArgumentException;
+          }
+          $result[]=$rule;
+        }catch (\Exception $e){continue;}
+      }
+    }
+
     $this->sendJsonResponse(array('rules'=>$result));
   }
 
@@ -136,6 +174,12 @@ class RuleClipboardPresenter  extends BasePresenter{
    */
   public function injectRulesFacade(RulesFacade $rulesFacade){
     $this->rulesFacade=$rulesFacade;
+  }
+  /**
+   * @param MinersFacade $minersFacade
+   */
+  public function injectMinersFacade(MinersFacade $minersFacade){
+    $this->minersFacade=$minersFacade;
   }
   #endregion injections
 } 
