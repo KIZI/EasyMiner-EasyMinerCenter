@@ -2,6 +2,7 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Facades\RulesFacade;
+use Nette\Utils\Json;
 
 /**
  * Class TasksPresenter - presenter pro práci s úlohami...
@@ -27,8 +28,14 @@ class TasksPresenter  extends BasePresenter{
     $task=$this->minersFacade->prepareTaskWithUuid($miner,$taskUuid);
     if ($task->state=='new'){
       #region nově importovaná úloha
+      //zjištění názvu úlohy z jsonu s nastaveními
+      $dataArr=Json::decode($data);
       //konfigurace úlohy
-      $task->name=$taskUuid;//TODO načtení info o názvu úlohy
+      if (!empty($dataArr['taskName'])){
+        $task->name=$dataArr['taskName'];
+      }else{
+        $task->name=$taskUuid;
+      }
       $task->taskSettingsJson=$data;
       $this->minersFacade->saveTask($task);
       $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
@@ -88,11 +95,26 @@ class TasksPresenter  extends BasePresenter{
         $rulesArr[$rule->ruleId]=$rule->getBasicDataArr();
       }
     }
-    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$task->rulesCount,'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
+    $this->sendJsonResponse(array('task'=>array('name'=>$task->name,'rulesCount'=>$task->rulesCount,'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
   }
 
+  /**
+   * Akce pro přejmenování úlohy v DB
+   * @param int $miner
+   * @param string $task
+   * @param string $name
+   * @throws \Nette\Application\ForbiddenRequestException
+   * @throws \Exception
+   */
   public function actionRenameTask($miner,$task,$name){
-    //TODO Standa
+    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+    $task->name=$name;
+    if (!$this->minersFacade->saveTask($task)){
+      throw new \Exception($this->translator->translate('Task rename failed!'));
+    }
+    $this->sendJsonResponse(array('state'=>'ok'));
   }
 
 

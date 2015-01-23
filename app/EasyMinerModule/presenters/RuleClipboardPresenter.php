@@ -14,8 +14,6 @@ use Nette\Application\ForbiddenRequestException;
 class RuleClipboardPresenter  extends BasePresenter{
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
-  /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
 
   /**
    * Funkce vracející přehled úloh, které mají pravidla v RuleClipboard
@@ -174,12 +172,6 @@ class RuleClipboardPresenter  extends BasePresenter{
    */
   public function injectRulesFacade(RulesFacade $rulesFacade){
     $this->rulesFacade=$rulesFacade;
-  }
-  /**
-   * @param MinersFacade $minersFacade
-   */
-  public function injectMinersFacade(MinersFacade $minersFacade){
-    $this->minersFacade=$minersFacade;
   }
   #endregion injections
 } 
