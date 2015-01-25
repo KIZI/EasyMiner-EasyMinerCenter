@@ -29,7 +29,7 @@ class TasksPresenter  extends BasePresenter{
     if ($task->state=='new'){
       #region nově importovaná úloha
       //zjištění názvu úlohy z jsonu s nastaveními
-      $dataArr=Json::decode($data);
+      $dataArr=Json::decode($data,Json::FORCE_ARRAY);
       //konfigurace úlohy
       if (!empty($dataArr['taskName'])){
         $task->name=$dataArr['taskName'];
@@ -116,6 +116,18 @@ class TasksPresenter  extends BasePresenter{
     }
     $this->sendJsonResponse(array('state'=>'ok'));
   }
+
+  /**
+   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * @param $miner
+   * @param $task
+   */
+  public function renderTaskPMML($miner,$task){
+    //TODO akce pro vykreslení detailů úlohy v podobě PMML
+
+  }
+
+
 
 
   #region injections
