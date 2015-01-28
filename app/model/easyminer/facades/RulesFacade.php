@@ -43,7 +43,10 @@ class RulesFacade {
     if ($task instanceof Task){
       $task=$task->taskId;
     }
-    $params=array('task_id'=>$task,'order'=>$order);
+    $params=array('task_id'=>$task);
+    if (!empty($order)){
+      $params['order']=$order;
+    }
     if ($onlyInClipboard){
       $params['in_rule_clipboard']=true;
     }

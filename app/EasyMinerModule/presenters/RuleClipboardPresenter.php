@@ -54,8 +54,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     $rulesArr=array();
     if (!empty($rules)){
       foreach ($rules as $rule){
-        $rulesArr[$rule->ruleId]=array('text'=>$rule->text,'FUI'=>$rule->confidence,'SUPP'=>$rule->support,'LIFT'=>$rule->lift,
-          'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
+        $rulesArr[$rule->ruleId]=array('text'=>$rule->text,'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
       }
     }
     $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
