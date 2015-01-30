@@ -5,10 +5,8 @@ use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Entities\TaskState;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\MinersRepository;
-use App\Model\EasyMiner\Repositories\TasksRepository;
 use App\Model\Mining\MiningDriverFactory;
 use App\Model\Preprocessing\IPreprocessingDriver;
 
@@ -19,20 +17,20 @@ class MinersFacade {
   private $metasourcesFacade;
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
+  /** @var  TasksFacade $tasksFacade */
+  private $tasksFacade;
   /** @var  IPreprocessingDriver $preprocessingDriver */
   private $preprocessingDriver;
-  /** @var  TasksRepository $tasksRepository */
-  private $tasksRepository;
   /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
 
-  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, TasksRepository $tasksRepository, RulesFacade $rulesFacade){
+  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, RulesFacade $rulesFacade, TasksFacade $tasksFacade){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
     $this->preprocessingDriver=$preprocessingDriver;
-    $this->tasksRepository=$tasksRepository;
     $this->miningDriverFactory=$miningDriverFactory;
     $this->rulesFacade=$rulesFacade;
+    $this->tasksFacade=$tasksFacade;
   }
 
   /**
@@ -168,7 +166,7 @@ class MinersFacade {
    * @param Attribute|int $attribute
    */
   public function prepareAttribute($miner,$attribute){
-    if (!$miner instanceof Miner){
+    if (!$miner instanceof Miner){//TODO na co??
       $miner=$this->findMiner($miner);
     }
     if ($attribute instanceof Attribute){
@@ -183,63 +181,12 @@ class MinersFacade {
   }
 
   /**
-   * @param $id
-   * @return Task
-   * @throws \Exception
-   */
-  public function findTask($id){
-    return $this->tasksRepository->find($id);
-  }
-
-  /**
-   * @param Miner|int $miner
-   * @param string $taskUuid
-   * @return Task
-   * @throws \Exception
-   */
-  public function findTaskByUuid($miner,$taskUuid){
-    return $this->tasksRepository->findBy(array('miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner),'task_uuid'=>$taskUuid));
-  }
-
-  /**
-   * Funkce pro uložení úlohy s daným uuid (než se odešle mineru...)
-   * @param Miner|int $miner
-   * @param string $taskUuid
-   * @return \App\Model\EasyMiner\Entities\Task
-   */
-  public function prepareTaskWithUuid($miner,$taskUuid){
-    try{
-      $task=$this->findTaskByUuid($miner,$taskUuid);
-      return $task;
-    }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
-    if (!$miner instanceof Miner){
-      $miner= $this->findMiner($miner);
-    }
-    $task=new Task();
-    $task->taskUuid=$taskUuid;
-    $task->miner=$miner;
-    $task->type=$miner->type;
-    $task->state=Task::STATE_NEW;
-    $this->saveTask($task);
-
-    return $task;
-  }
-
-  /**
-   * @param Task $task
-   * @return mixed
-   */
-  public function saveTask(Task &$task){
-    return $this->tasksRepository->persist($task);
-  }
-
-  /**
    * @param Task|int $task
    * @return \App\Model\Mining\IMiningDriver
    */
   public function getTaskMiningDriver($task){
     if (!$task instanceof Task){
-      $task=$this->findTask($task);
+      $task=$this->tasksFacade->findTask($task);
     }
     return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade);
   }
@@ -257,36 +204,6 @@ class MinersFacade {
     $task->miner=$miner;
     $miningDriver=$this->getTaskMiningDriver($task);
     $miningDriver->checkMinerState();
-  }
-
-  /**
-   * @param Task $task
-   * @param TaskState $taskState
-   */
-  public function updateTaskState(Task &$task,TaskState $taskState){
-    if (!empty($taskState->rulesCount) && $taskState->rulesCount>$task->rulesCount){
-      $task->rulesCount=$taskState->rulesCount;
-    }
-    if (($task->state!=Task::STATE_SOLVED)&&($task->state!=$taskState->state)){
-      $task->state=$taskState->state;
-    }
-    $task->resultsUrl=$taskState->resultsUrl;
-
-    if ($task->isModified()){
-      $this->saveTask($task);
-    }
-  }
-
-  /**
-   * Funkce pro kontrolu, jestli je zvolená úloha obsažená v Rule Clipboard
-   * @param Task $task
-   */
-  public function checkTaskInRuleClipoard(Task &$task){
-    $rulesCount=$this->rulesFacade->getRulesCountByTask($task,true);
-    if ($rulesCount!=$task->rulesInRuleClipboardCount){
-      $task->rulesInRuleClipboardCount=$rulesCount;
-      $this->saveTask($task);
-    }
   }
 
 }
