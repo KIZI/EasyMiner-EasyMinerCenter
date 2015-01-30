@@ -10,12 +10,12 @@ use Nette\Utils\Json;
  * @property int|null $taskId=null
  * @property string $taskUuid = ''
  * @property string $type m:Enum(Miner::TYPE_*)
- * @property bool $inRuleClipboard = false
+ * @property int $rulesInRuleClipboardCount = 0
+ * @property int $rulesCount = 0
  * @property string $name = ''
  * @property Miner $miner m:hasOne
  * @property string $state m:Enum(self::STATE_*)
  * @property string $taskSettingsJson = ''
- * @property int $rulesCount = 0
  * @property string|null $resultsUrl = ''
  * @property-read TaskState $taskState
  */

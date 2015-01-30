@@ -2,7 +2,6 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
@@ -28,7 +27,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     $result=array();
     if (!empty($tasks)){
       foreach ($tasks as $task){
-        if ($task->inRuleClipboard){
+        if ($task->rulesInRuleClipboardCount>0){
           $result[$task->taskUuid]=$task->name;
         }
       }
@@ -90,6 +89,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
     //označení všech pravidel patřících do dané úlohy
     $this->rulesFacade->changeAllTaskRulesClipboardState($task,true);
+    $this->minersFacade->checkTaskInRuleClipoard($task);
 
     $result=array();
     if (count($ruleIdsArr)>0){
@@ -161,6 +161,7 @@ class RuleClipboardPresenter  extends BasePresenter{
         }catch (\Exception $e){continue;}
       }
     }
+    $this->minersFacade->checkTaskInRuleClipoard($ruleTask);
     return $result;
   }
 

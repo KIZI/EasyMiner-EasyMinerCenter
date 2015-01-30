@@ -277,4 +277,16 @@ class MinersFacade {
     }
   }
 
+  /**
+   * Funkce pro kontrolu, jestli je zvolená úloha obsažená v Rule Clipboard
+   * @param Task $task
+   */
+  public function checkTaskInRuleClipoard(Task &$task){
+    $rulesCount=$this->rulesFacade->getRulesCountByTask($task,true);
+    if ($rulesCount!=$task->rulesInRuleClipboardCount){
+      $task->rulesInRuleClipboardCount=$rulesCount;
+      $this->saveTask($task);
+    }
+  }
+
 }
