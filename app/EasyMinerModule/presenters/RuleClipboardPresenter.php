@@ -3,6 +3,7 @@
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Entities\Rule;
 use App\Model\EasyMiner\Facades\RulesFacade;
+use App\Model\EasyMiner\Facades\TasksFacade;
 use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
 
@@ -13,6 +14,8 @@ use Nette\Application\ForbiddenRequestException;
 class RuleClipboardPresenter  extends BasePresenter{
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
+  /** @var  TasksFacade $tasksFacade */
+  private $tasksFacade;
 
   /**
    * Funkce vracející přehled úloh, které mají pravidla v RuleClipboard
@@ -45,7 +48,7 @@ class RuleClipboardPresenter  extends BasePresenter{
    */
   public function actionGetRules($miner,$task,$offset=0,$limit=25,$order='id'){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
@@ -85,11 +88,11 @@ class RuleClipboardPresenter  extends BasePresenter{
    */
   public function actionAddAllRules($miner,$task,$returnRules=''){
     $this->checkMinerAccess($miner);
-    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
     //označení všech pravidel patřících do dané úlohy
     $this->rulesFacade->changeAllTaskRulesClipboardState($task,true);
-    $this->minersFacade->checkTaskInRuleClipoard($task);
+    $this->tasksFacade->checkTaskInRuleClipoard($task);
 
     $result=array();
     if (count($ruleIdsArr)>0){
@@ -161,7 +164,7 @@ class RuleClipboardPresenter  extends BasePresenter{
         }catch (\Exception $e){continue;}
       }
     }
-    $this->minersFacade->checkTaskInRuleClipoard($ruleTask);
+    $this->tasksFacade->checkTaskInRuleClipoard($ruleTask);
     return $result;
   }
 
@@ -172,6 +175,12 @@ class RuleClipboardPresenter  extends BasePresenter{
    */
   public function injectRulesFacade(RulesFacade $rulesFacade){
     $this->rulesFacade=$rulesFacade;
+  }
+  /**
+   * @param TasksFacade $tasksFacade
+   */
+  public function injectTasksFacade(TasksFacade $tasksFacade){
+    $this->tasksFacade=$tasksFacade;
   }
   #endregion injections
 } 

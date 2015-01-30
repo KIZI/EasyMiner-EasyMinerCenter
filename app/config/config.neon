@@ -23,8 +23,6 @@ services:
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
 	translator: App\Model\BlankTranslator
-	arc2Store: \ARC2::getStore(%arc2%)
-	knowledgeRepository: App\Model\Rdf\Repositories\KnowledgeRepository(@arc2Store)
 	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
 	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
 
@@ -42,6 +40,8 @@ services:
 	- App\Model\EasyMiner\Facades\UsersFacade
 	- App\Model\Data\Facades\DatabasesFacade
 	- App\Model\EasyMiner\Facades\RulesFacade
+	- App\Model\EasyMiner\Facades\TasksFacade
+	- App\Model\EasyMiner\Facades\MetaAttributesFacade
 
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
@@ -54,15 +54,15 @@ services:
 	- App\Model\EasyMiner\Repositories\RulesRepository
 	- App\Model\EasyMiner\Repositories\CedentsRepository
 	- App\Model\EasyMiner\Repositories\RuleAttributesRepository
+	- App\Model\EasyMiner\Repositories\MetaAttributesRepository
+	- App\Model\EasyMiner\Repositories\FormatsRepository
+	- App\Model\EasyMiner\Repositories\RuleSetsRepository
+	- App\Model\EasyMiner\Repositories\IntervalsRepository
+	- App\Model\EasyMiner\Repositories\ValuesRepository
+	- App\Model\EasyMiner\Repositories\KnowledgeBasesRepository
 
 	- App\Model\Preprocessing\PhpDatabasePreprocessing
 
 	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%)
-
-	- App\Model\Rdf\Repositories\MetaAttributesRepository(@arc2Store)
-	- App\Model\Rdf\Repositories\FormatsRepository(@arc2Store)
-	- App\Model\Rdf\Repositories\PreprocessingsRepository(@arc2Store)
-
-	- App\Model\Rdf\Facades\MetaAttributesFacade
 
 	- App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
