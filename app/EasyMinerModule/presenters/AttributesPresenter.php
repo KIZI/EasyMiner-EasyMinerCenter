@@ -8,7 +8,7 @@ use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MetasourcesFacade;
-use App\Model\Rdf\Facades\MetaAttributesFacade;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;
