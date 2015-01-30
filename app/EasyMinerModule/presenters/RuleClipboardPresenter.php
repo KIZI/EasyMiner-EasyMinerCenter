@@ -28,7 +28,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     if (!empty($tasks)){
       foreach ($tasks as $task){
         if ($task->rulesInRuleClipboardCount>0){
-          $result[$task->taskUuid]=$task->name;
+          $result[$task->taskUuid]=array('name'=>$task->name,'rules'=>$task->rulesCount,'rule_clipboard_rules'=>$task->rulesInRuleClipboardCount);
         }
       }
     }
