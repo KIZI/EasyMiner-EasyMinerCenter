@@ -8,7 +8,7 @@ use LeanMapper\Entity;
  * @property int $metaAttributeId
  * @property string $name
  * @property Format[] $formats m:belongsToMany
- * @property KnowledgeBase $knowledgeBase
+ * @property KnowledgeBase|null $knowledgeBase m:hasOne
  */
 class MetaAttribute extends Entity{
 

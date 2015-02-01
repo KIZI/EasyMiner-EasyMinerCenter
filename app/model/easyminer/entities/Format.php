@@ -5,11 +5,13 @@ use LeanMapper\Entity;
 
 /**
  * Class Format
- * @package App\Model\Rdf\Entities
+ * @package App\Model\EasyMiner\Entities
+ *
  * @property int $formatId
  * @property string $name
  * @property string $dataType
  * @property MetaAttribute $metaAttribute m:hasOne
+ *
  * @property Interval[] $intervals m:belongsToMany
  * @property Value[] $values m:belongsToMany
  * @property ValuesBin[] $valuesBins m:belongsToMany

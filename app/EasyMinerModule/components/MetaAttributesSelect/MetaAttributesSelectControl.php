@@ -3,10 +3,10 @@
 namespace App\EasyMinerModule\Components;
 
 use App\Model\EasyMiner\Entities\DatasourceColumn;
+use App\Model\EasyMiner\Entities\Format;
+use App\Model\EasyMiner\Entities\MetaAttribute;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\Rdf\Entities\Format;
-use App\Model\Rdf\Entities\MetaAttribute;
-use App\Model\Rdf\Facades\MetaAttributesFacade;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SelectBox;
@@ -38,6 +38,7 @@ class MetaAttributesSelectControl extends Control{
   /**
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param DatasourcesFacade $datasourcesFacade
+   * @param ITranslator $translator
    */
   public function __construct(MetaAttributesFacade $metaAttributesFacade, DatasourcesFacade $datasourcesFacade, ITranslator $translator){
     $this->metaAttributesFacade=$metaAttributesFacade;
@@ -278,7 +279,7 @@ class MetaAttributesSelectControl extends Control{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
         $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($values->metaAttribute);
         $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,@$values->formatType);
-        $datasourceColumn->formatId=$format->uri;
+        $datasourceColumn->formatId=$format->formatId;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
         $this->flashMessage($this->translator->translate('Format creation failed.'));
@@ -309,7 +310,7 @@ class MetaAttributesSelectControl extends Control{
   private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn,$formatType){
     $metaAttribute=new MetaAttribute();
     $metaAttribute->name=$metaAttributeName;
-    $this->metaAttributesFacade->saveMetaAttribute($metaAttribute);
+    $result=$this->metaAttributesFacade->saveMetaAttribute($metaAttribute);
     return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$formatType);
   }
 

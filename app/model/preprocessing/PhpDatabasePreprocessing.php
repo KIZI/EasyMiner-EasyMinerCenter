@@ -6,18 +6,18 @@ use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Entities\Metasource;
-use App\Model\Rdf\Entities\Preprocessing;
-use App\Model\Rdf\Repositories\PreprocessingsRepository;
+use App\Model\EasyMiner\Entities\Preprocessing;
+use App\Model\EasyMiner\Facades\PreprocessingsFacade;
 use Nette\Utils\Strings;
 
 class PhpDatabasePreprocessing implements IPreprocessingDriver{
-  /** @var  PreprocessingsRepository $preprocessingsRepository */
-  private $preprocessingsRepository;
+  /** @var  PreprocessingsFacade $preprocessingsFacade */
+  private $preprocessingsFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
 
-  public function __construct(PreprocessingsRepository $preprocessingsRepository, DatabasesFacade $databasesFacade){
-    $this->preprocessingsRepository=$preprocessingsRepository;
+  public function __construct(PreprocessingsFacade $preprocessingsFacade, DatabasesFacade $databasesFacade){
+    $this->preprocessingsFacade=$preprocessingsFacade;
     $this->databasesFacade=$databasesFacade;
   }
 
@@ -28,7 +28,7 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
   public function generateAttribute(Attribute $attribute) {
     $datasourceColumn=$attribute->datasourceColumn;
     $metasource=$attribute->metasource;
-    $preprocessing=$this->preprocessingsRepository->findPreprocessing($attribute->preprocessingId);
+    $preprocessing=$this->preprocessingsFacade->findPreprocessing($attribute->preprocessingId);
     if ($preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
       $function=$this->generateAttributeEachOneFunction();
       if ($datasourceColumn->strLen){

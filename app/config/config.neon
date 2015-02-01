@@ -23,8 +23,8 @@ services:
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
 	translator: App\Model\BlankTranslator
-	xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
-	xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
+	#xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
+	#xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
 
 	- IZI\IZIConfig(%izi-ui%)
 
@@ -42,6 +42,7 @@ services:
 	- App\Model\EasyMiner\Facades\RulesFacade
 	- App\Model\EasyMiner\Facades\TasksFacade
 	- App\Model\EasyMiner\Facades\MetaAttributesFacade
+	- App\Model\EasyMiner\Facades\PreprocessingsFacade
 
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
@@ -60,6 +61,7 @@ services:
 	- App\Model\EasyMiner\Repositories\IntervalsRepository
 	- App\Model\EasyMiner\Repositories\ValuesRepository
 	- App\Model\EasyMiner\Repositories\KnowledgeBasesRepository
+	- App\Model\EasyMiner\Repositories\PreprocessingsRepository
 
 	- App\Model\Preprocessing\PhpDatabasePreprocessing
 
