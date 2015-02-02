@@ -9,6 +9,7 @@ use App\Model\Data\Facades\FileImportsFacade;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
@@ -34,8 +35,11 @@ class DataPresenter extends BasePresenter{
   private $databasesFacade;
   /** @var  UsersFacade $usersFacade */
   private $usersFacade;
+  /** @var  MetaAttributesFacade $metaAttributesFacade */
+  private $metaAttributesFacade;
   /** @var  IMetaAttributesSelectControlFactory $iMetaAttributesSelectControlFactory */
   private $iMetaAttributesSelectControlFactory;
+
 
   /**
    * Akce pro úpravu datasource a nastavení mapování datových sloupců na knowledge base
@@ -598,8 +602,18 @@ class DataPresenter extends BasePresenter{
     $this->usersFacade=$usersFacade;
   }
 
+  /**
+   * @param IMetaAttributesSelectControlFactory $iMetaAttributesSelectControlFactory
+   */
   public function injectIMetaAttributesSelectControlFactory(IMetaAttributesSelectControlFactory $iMetaAttributesSelectControlFactory){
     $this->iMetaAttributesSelectControlFactory=$iMetaAttributesSelectControlFactory;
+  }
+
+  /**
+   * @param MetaAttributesFacade $metaAttributesFacade
+   */
+  public function injectMetaAttributesFacade(MetaAttributesFacade $metaAttributesFacade){
+    $this->metaAttributesFacade=$metaAttributesFacade;
   }
   #endregion
 

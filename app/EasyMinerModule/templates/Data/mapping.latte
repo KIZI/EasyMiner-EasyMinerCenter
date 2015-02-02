@@ -8,8 +8,11 @@
         <a class="datasourceColumnItem {if isset($datasourceColumn) && ($datasourceColumnItem->datasourceColumnId==$datasourceColumn->datasourceColumnId)}selected{/if}" href="{link Data:mapping datasource=>$datasource->datasourceId,column=>$datasourceColumnItem->datasourceColumnId}">
           <span class="title">{$datasourceColumnItem->name}</span>
           <span class="subtitle">
-            {if !$datasourceColumnItem->formatId}
+            {if empty($datasourceColumnItem->format)}
               <span class="stateErr">{_'not mapped'}</span>
+            {else}
+              {var $format=$datasourceColumnItem->format;}
+              {$format->metaAttribute->name}: {$format->name}
             {/if}
           </span>
         </a>
@@ -53,6 +56,13 @@
               <td>{$datasourceColumnValuesStatistic->avgValue}</td>
             </tr>
           {/ifset}
+          {if !empty($datasourceColumn->format)}
+            {var $format=$datasourceColumn->format;}
+            <tr>
+              <td>{_'Meta-attribute:'}</td>
+              <td>{$format->metaAttribute->name}: {$format->name}</td>
+            </tr>
+          {/if}
         </table>
 
         <div class="actionsDiv">

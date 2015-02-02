@@ -228,7 +228,7 @@ class MetaAttributesSelectControl extends Control{
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
         $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn,@$values->formatType);
-        $datasourceColumn->formatId=$format->formatId;
+        $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
         $this->flashMessage($this->translator->translate('MetaAttribute creation failed.'));
@@ -280,7 +280,7 @@ class MetaAttributesSelectControl extends Control{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
         $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($values->metaAttribute);
         $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,@$values->formatType);
-        $datasourceColumn->formatId=$format->formatId;
+        $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
         $this->flashMessage($this->translator->translate('Format creation failed.'));

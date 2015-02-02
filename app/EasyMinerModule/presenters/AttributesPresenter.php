@@ -48,7 +48,7 @@ class AttributesPresenter extends BasePresenter{
     $miner=$this->findMinerWithCheckAccess($miner);
     $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
     $this->template->datasourceColumn=$datasourceColumn;
-    $format=$this->metaAttributesFacade->findFormat($datasourceColumn->formatId);
+    $format=$datasourceColumn->format;
     //kontrola, jestli už existuje preprocessing tohoto typu
     $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);//TODO
     $this->template->preprocessing=$preprocessing;
