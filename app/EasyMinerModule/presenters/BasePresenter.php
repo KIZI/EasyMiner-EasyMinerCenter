@@ -11,10 +11,11 @@ namespace App\EasyMinerModule\Presenters;
 
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\MinersFacade;
+use App\Presenters\BaseRestPresenter;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 
-abstract class BasePresenter extends \App\Presenters\BaseRestPresenter{
+abstract class BasePresenter extends BaseRestPresenter{
   /** @var  MinersFacade $minersFacade */
   protected $minersFacade;
 

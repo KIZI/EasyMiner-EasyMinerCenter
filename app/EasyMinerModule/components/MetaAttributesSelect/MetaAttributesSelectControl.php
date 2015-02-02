@@ -71,11 +71,7 @@ class MetaAttributesSelectControl extends Control{
     }
   }
 
-  public function createTemplate(){
-    $template=parent::createTemplate();
-    $template->setTranslator($this->translator);
-    return $template;
-  }
+
 
   /**
    * Signál pro výběr formátu z existujícího metaatributu
@@ -216,6 +212,7 @@ class MetaAttributesSelectControl extends Control{
     $formatName->setAttribute('class','normalWidth');
     $form->addHidden('datasource');
     $form->addHidden('column');
+    $form->addCheckbox('formatShared','Create shared (standard) format');
     $form->addSelect('formatType','Values range:',array('interval'=>'Continuous values (interval)','values'=>'Distinct values (enumeration)'))
     ->setAttribute('class','normalWidth');
     $submit=$form->addSubmit('create','Create meta-attribute');
@@ -227,7 +224,7 @@ class MetaAttributesSelectControl extends Control{
       $values=$button->form->values;
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
-        $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn,@$values->formatType);
+        $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn,@$values->formatType,@$values->formatShared);
         $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
@@ -270,7 +267,7 @@ class MetaAttributesSelectControl extends Control{
       }catch (\Exception $e){/*chybu ignorujeme (nenalezený metaatribut je OK)*/}
       return true;
     },'Format with this name already exists!');
-
+    $form->addCheckbox('formatShared','Create shared (standard) format');
     $form->addSelect('formatType','Values range:',array('interval'=>'Continuous values (interval)','values'=>'Distinct values (enumeration)'))->setAttribute('class','normalWidth')->setDefaultValue('values');
     $submit=$form->addSubmit('create','Create format');
     $submit->setValidationScope(array($formatName));
@@ -279,7 +276,7 @@ class MetaAttributesSelectControl extends Control{
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
         $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($values->metaAttribute);
-        $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,@$values->formatType);
+        $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,@$values->formatType,@$values->formatShared);
         $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
@@ -306,13 +303,14 @@ class MetaAttributesSelectControl extends Control{
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
    * @param string $formatType
+   * @param bool $formatShared
    * @return Format
    */
-  private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn,$formatType){
+  private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn,$formatType,$formatShared=false){
     $metaAttribute=new MetaAttribute();
     $metaAttribute->name=$metaAttributeName;
-    $result=$this->metaAttributesFacade->saveMetaAttribute($metaAttribute);
-    return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$formatType);
+    $this->metaAttributesFacade->saveMetaAttribute($metaAttribute);
+    return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$formatType,$formatShared);
   }
 
   /**
@@ -321,18 +319,29 @@ class MetaAttributesSelectControl extends Control{
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
    * @param string $formatType=values - 'interval'|'values'
+   * @param bool $formatShared=false
    * @return Format
    */
-  private function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,$formatType='values'){
+  private function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,$formatType='values', $formatShared=false){
     $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($datasourceColumn,(Strings::lower($formatType)=='interval'?'interval':'values'));
     $format->name=$formatName;
     $format->metaAttribute=$metaAttribute;
+    //TODO $format->user=
+    if ($formatShared){
+      $format->shared=true;
+    }else{
+      $format->shared=false;
+    }
     $this->metaAttributesFacade->saveFormat($format);
     return $format;
   }
 
 
-
+  public function createTemplate(){
+    $template=parent::createTemplate();
+    $template->setTranslator($this->translator);
+    return $template;
+  }
 
 
 } 

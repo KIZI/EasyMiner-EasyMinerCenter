@@ -87,20 +87,16 @@ class AttributesPresenter extends BasePresenter{
       throw new BadRequestException($this->translate('Requested data field not found!'),404);
     }
     $this->template->datasourceColumn=$datasourceColumn;
-    $format=$this->metaAttributesFacade->findFormat($datasourceColumn->formatId);
+    $format=$datasourceColumn->format;
     $this->template->format=$format;
-
-    try{
-      $this->template->metaAttributeName=$format->metaAttribute->name;
-    }catch (\Exception $e){
-      /*nebyl nalezen metaatribut*/
-    }
-    //FIXME zkontrolovat, jestli je ukládána vazba mezi metaatributem a formátem!!!
+    $this->template->metaAttributeName=$format->metaAttribute->name;
+    $this->template->preprocessings=$this->metaAttributesFacade->findPreprocessingsForUser($format,$this->user->id);
   }
 
-
+  /**
+   * Funkce pro přiřazení výchozího layoutu podle parametru v adrese (normální nebo iframe view)
+   */
   protected function beforeRender(){
-
     if ($this->mode=='component' || $this->mode=='iframe'){
       $this->layout='iframe';
       $this->template->layout='iframe';

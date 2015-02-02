@@ -5,24 +5,29 @@ namespace App\Model\EasyMiner\Facades;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Entities\Format;
 use App\Model\EasyMiner\Entities\MetaAttribute;
-use App\Model\EasyMiner\Entities\Metasource;
+use App\Model\EasyMiner\Entities\Preprocessing;
+use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\MetaAttributesRepository;
 use App\Model\EasyMiner\Repositories\FormatsRepository;
+use App\Model\EasyMiner\Repositories\PreprocessingsRepository;
 
 class MetaAttributesFacade {
   /** @var MetaAttributesRepository $metaAttributesRepository */
   private $metaAttributesRepository;
   /** @var FormatsRepository $formatsRepository */
   private $formatsRepository;
+  /** @var PreprocessingsRepository $preprocessingsRepository */
+  private $preprocessingsRepository;
 
 
   /**
    * @param MetaAttributesRepository $metaAttributesRepository
    * @param FormatsRepository $formatsRepository
    */
-  public function __construct(MetaAttributesRepository $metaAttributesRepository, FormatsRepository $formatsRepository){
+  public function __construct(MetaAttributesRepository $metaAttributesRepository, FormatsRepository $formatsRepository, PreprocessingsRepository $preprocessingsRepository){
     $this->metaAttributesRepository=$metaAttributesRepository;
     $this->formatsRepository=$formatsRepository;
+    $this->preprocessingsRepository=$preprocessingsRepository;
   }
 
   /**
@@ -127,6 +132,62 @@ class MetaAttributesFacade {
   }
 
   /**
+   * @param array $params = array()
+   * @param int $offset = null
+   * @param int $limit = null
+   * @return Format[]|null
+   */
+  public function findFormats($params=array(),$offset=null,$limit=null){
+    if (!empty($params['user'])){
+      $user=$params['user'];
+      if ($user instanceof User){
+        $paramsArr[]=array('user_id=%i OR shared=1',$user->userId);
+      }else{
+        $paramsArr[]=array('user_id=%i OR shared=1',$user);
+      }
+      unset($params['user']);
+    }
+    if (!empty($params['metaAttribute'])){
+      $metaAttribute=$params['metaAttribute'];
+      if ($metaAttribute instanceof MetaAttribute){
+        $paramsArr['meta_attribute_id']=$metaAttribute->metaAttributeId;
+      }else{
+        $paramsArr['meta_attribute_id']=$metaAttribute;
+      }
+      unset($params['metaAttribute']);
+    }
+    return $this->formatsRepository->findAllBy($params,$offset,$limit);
+  }
+
+  /**
+   * @param array $params = array()
+   * @param int $offset = null
+   * @param int $limit = null
+   * @return Preprocessing[]|null
+   */
+  public function findPreprocessings($params=array(),$offset=null,$limit=null){
+    if (!empty($params['user'])){
+      $user=$params['user'];
+      if ($user instanceof User){
+        $paramsArr[]=array('user_id=%i OR shared=1',$user->userId);
+      }else{
+        $paramsArr[]=array('user_id=%i OR shared=1',$user);
+      }
+      unset($params['user']);
+    }
+    if (!empty($params['format'])){
+      $format=$params['format'];
+      if ($format instanceof Format){
+        $paramsArr['format_id']=$format->formatId;
+      }else{
+        $paramsArr['format_id']=$format;
+      }
+      unset($params['format']);
+    }
+    return $this->preprocessingsRepository->findAllBy($params,$offset,$limit);
+  }
+
+  /**
    * @param string $name
    * @return MetaAttribute
    * @throws \Exception
@@ -142,6 +203,24 @@ class MetaAttributesFacade {
    */
   public function findFormatByName($name){
     return $this->formatsRepository->findBy(array('name'=>$name));
+  }
+
+  /**
+   * @param MetaAttribute|int $metaAttribute
+   * @param User|int $user
+   * @return Format[]
+   */
+  public function findFormatsForUser($metaAttribute,$user){
+    return $this->findFormats(array('metaAttribute'=>$metaAttribute,'user'=>$user,'order'=>'name'));
+  }
+
+  /**
+   * @param Format|int $format
+   * @param User|int $user
+   * @return Preprocessing[]
+   */
+  public function findPreprocessingsForUser($format,$user){
+    return $this->findPreprocessings(array('format'=>$format,'user'=>$user,'order'=>'name'));
   }
 
 }

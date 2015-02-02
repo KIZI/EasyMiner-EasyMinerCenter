@@ -11,6 +11,7 @@ use LeanMapper\Entity;
  * @property string $name
  * @property string $dataType
  * @property MetaAttribute $metaAttribute m:hasOne
+ * @property bool $shared = false
  *
  * @property Interval[] $intervals m:belongsToMany
  * @property Value[] $values m:belongsToMany

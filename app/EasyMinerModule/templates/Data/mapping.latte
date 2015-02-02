@@ -56,13 +56,17 @@
               <td>{$datasourceColumnValuesStatistic->avgValue}</td>
             </tr>
           {/ifset}
-          {if !empty($datasourceColumn->format)}
-            {var $format=$datasourceColumn->format;}
-            <tr>
-              <td>{_'Meta-attribute:'}</td>
-              <td>{$format->metaAttribute->name}: {$format->name}</td>
-            </tr>
-          {/if}
+          <tr>
+            <td>{_'Meta-attribute:'}</td>
+            <td>
+              {if !empty($datasourceColumn->format)}
+                {var $format=$datasourceColumn->format;}
+                <strong>{$format->metaAttribute->name}: {$format->name}</strong>
+              {else}
+                <span class="stateErr">{_'not mapped'}</span>
+              {/if}
+            </td>
+          </tr>
         </table>
 
         <div class="actionsDiv">
