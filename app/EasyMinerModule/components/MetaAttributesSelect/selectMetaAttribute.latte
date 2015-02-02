@@ -6,7 +6,7 @@
     <ul>
     {foreach $metaAttributes as $metaAttribute}
       <li>
-        <a href="{link SelectFormat datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId,metaAttribute=>$metaAttribute->uri}">{$metaAttribute->name}</a>
+        <a href="{link SelectFormat datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId,metaAttribute=>$metaAttribute->metaAttributeId}">{$metaAttribute->name}</a>
       </li>
     {/foreach}
     </ul>

@@ -163,7 +163,7 @@ class MetaAttributesSelectControl extends Control{
       'datasource'=>$datasource,
       'column'=>$column,
       'metaAttributeName'=>$metaAttribute->name,
-      'metaAttribute'=>$metaAttribute->uri,
+      'metaAttribute'=>$metaAttribute->metaAttributeId,
     );
     if ($datasourceColumn->type=='string'){
       /** @var SelectBox $formatType */
@@ -187,6 +187,7 @@ class MetaAttributesSelectControl extends Control{
    * @param string $format
    */
   public function handleSetDatasourceColumnFormat($datasource,$column,$format){
+
     //TODO propojení a kontrola, jestli datový rozsah formátu odpovídá datovému rozsahu (jestli hodnoty z DatasourceColumn spadají do rozsahu formátu)
 
   }
@@ -227,7 +228,7 @@ class MetaAttributesSelectControl extends Control{
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
         $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn,@$values->formatType);
-        $datasourceColumn->formatId=$format->uri;
+        $datasourceColumn->formatId=$format->formatId;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
         $this->flashMessage($this->translator->translate('MetaAttribute creation failed.'));

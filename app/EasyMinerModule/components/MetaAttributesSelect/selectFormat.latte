@@ -7,10 +7,10 @@
     <ul>
     {foreach $formats as $format}
       <li>
-        <a href="{link SetDatasourceColumnFormat datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId,format=>$format->uri}">{$format->name}</a>
+        <a href="{link SetDatasourceColumnFormat datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId,format=>$format->formatId}">{$format->name}</a>
       </li>
     {/foreach}
     </ul>
   {/if}
 
-  <a href="{link NewFormat datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId,metaAttribute=>$metaAttribute->uri}">{_'Create new format...'}</a>
+  <a href="{link NewFormat datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId,metaAttribute=>$metaAttribute->metaAttributeId}">{_'Create new format...'}</a>

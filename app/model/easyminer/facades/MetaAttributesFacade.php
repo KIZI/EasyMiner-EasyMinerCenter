@@ -135,4 +135,13 @@ class MetaAttributesFacade {
     return $this->metaAttributesRepository->findBy(array('name'=>$name));
   }
 
+  /**
+   * @param string $name
+   * @return Format
+   * @throws \Exception
+   */
+  public function findFormatByName($name){
+    return $this->formatsRepository->findBy(array('name'=>$name));
+  }
+
 }
