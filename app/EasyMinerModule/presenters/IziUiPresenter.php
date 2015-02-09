@@ -55,10 +55,15 @@ class IziUiPresenter extends BasePresenter{
     }catch (\Exception $e){/*chybu ignorujeme - zatím pravděpodobně neexistují žádné atributy*/}
 
     $responseContent['DD']=$this->datasourcesFacade->exportDictionariesArr($miner->datasource,$metasource);
-
-
     #endregion připravení informací pro UI - s odděleným připravením DataDictionary
 
+    uksort($responseContent['DD']['transformationDictionary'],function($a,$b){
+      return strnatcasecmp($a,$b);
+    });
+    uksort($responseContent['DD']['dataDictionary'],function($a,$b){
+      return strnatcasecmp($a,$b);
+      //return strnatcasecmp(mb_strtolower($a,'utf-8'),mb_strtolower($b,'utf-8'));
+    });
 
     $responseContent['status'] = 'ok';
     $responseContent['miner_type'] = $miner->type;
