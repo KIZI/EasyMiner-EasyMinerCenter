@@ -31,10 +31,19 @@ class RuleClipboardPresenter  extends BasePresenter{
     if (!empty($tasks)){
       foreach ($tasks as $task){
         if ($task->rulesInRuleClipboardCount>0){
-          $result[$task->taskUuid]=array('name'=>$task->name,'rules'=>$task->rulesCount,'rule_clipboard_rules'=>$task->rulesInRuleClipboardCount);
+          $result[$task->taskUuid]=array('task_id'=>$task->taskId,'name'=>$task->name,'rules'=>$task->rulesCount,'rule_clipboard_rules'=>$task->rulesInRuleClipboardCount);
         }
       }
     }
+    uasort($result,function($a,$b){
+      if ($a['task_id']==$b['task_id']){
+        return 0;
+      }elseif($b['task_id']>$a['task_id']){
+        return 1;
+      }else{
+        return 0;
+      }
+    });
     $this->sendJsonResponse($result);
   }
 
