@@ -12,8 +12,10 @@ use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;
+use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Neon\Exception;
+use Nette\Utils\Strings;
 
 class AttributesPresenter extends BasePresenter{
 
@@ -39,6 +41,10 @@ class AttributesPresenter extends BasePresenter{
     //TODO
   }
 
+  public function actionNewPreprocessing($miner,$column,$type){
+    $this->redirect('newPreprocessing'.Strings::firstUpper($type),['miner'=>$miner,'column'=>$column]);
+  }
+
   /**
    * Funkce pro pouřití preprocessingu each value - one category
    * @param int $miner
@@ -60,6 +66,30 @@ class AttributesPresenter extends BasePresenter{
       'miner'=>$miner->minerId,
       'column'=>$column,
       'preprocessing'=>$preprocessing->preprocessingId,
+      'attributeName'=>$datasourceColumn->name
+    ));
+  }
+
+  /**
+   * Funkce pro pouřití preprocessingu each value - one category
+   * @param int $miner
+   * @param int $column
+   * @throws BadRequestException
+   */
+  public function renderNewPreprocessingIntervalEnumeration($miner, $column){
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+    $this->template->datasourceColumn=$datasourceColumn;
+    $format=$datasourceColumn->format;
+    //kontrola, jestli už existuje preprocessing tohoto typu
+    $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);//TODO
+    $this->template->preprocessing=$preprocessing;
+    /** @var Form $form */
+    $form=$this->getComponent('newIntervalEnumerationForm');
+    $form->setDefaults(array(
+      'miner'=>$miner->minerId,
+      'column'=>$column,
       'attributeName'=>$datasourceColumn->name
     ));
   }
@@ -138,6 +168,81 @@ class AttributesPresenter extends BasePresenter{
     }catch (\Exception $e){
       throw new BadRequestException($this->translate('Requested data field not found!'),404);
     }
+  }
+
+  /**
+   * Formulář pro zadání preprocessingu pomocí interval enumeration
+   * @return Form
+   */
+  protected function createComponentNewIntervalEnumerationForm(){
+    $form=new Form();
+    $form->setTranslator($this->translator);
+    $form->addText('preprocessingName','Preprocessing name:')
+      ->setRequired(true);
+    $form->addText('attributeName','Create attribute with name:')
+      ->setRequired(true);
+    $form->addHidden('column');
+    $form->addHidden('miner');
+    /** @var Container $valuesBins */
+    $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin) {
+      $valuesBin->addText('name','Bin name:')->setRequired(true);
+      /** @var Container $intervals */
+      $intervals=$valuesBin->addDynamic('intervals',function(Container $intervals){
+        $intervals->addHidden('leftValue');
+        $intervals->addHidden('leftBound');
+        $intervals->addHidden('rightValue');
+        $intervals->addHidden('rightBound');
+        $intervals->addText('text')->setAttribute('readonly');
+        $intervals->addSubmit('remove','x')
+          ->setValidationScope([])
+          ->onClick[]=function(SubmitButton $submitButton){
+          $intervals = $submitButton->parent->parent;
+          $intervals->remove($submitButton->parent, TRUE);
+        };
+      });
+      $intervals->addSelect('leftBound',null,['closed'=>'[','open'=>'(']);
+      $leftValue=$intervals->addText('leftValue')->setDefaultValue('');
+      $rightValue=$intervals->addText('rightValue')->setDefaultValue('');
+      $intervals->addSelect('rightBound',null,['closed'=>']','open'=>')']);
+      $intervals->addSubmit('addInterval','Add interval')
+        ->setValidationScope([$leftValue,$rightValue])//XXX
+        ->onClick[]=function(SubmitButton $submitButton){
+        /** @var Container $intervalsForm */
+        $intervalsForm=$submitButton->parent;
+        $values=$intervalsForm->getValues(true);
+        $interval=$submitButton->parent->createOne();
+        $interval->setValues([
+          'leftBound'=>$values['leftBound'],
+          'rightBound'=>$values['rightBound'],
+          'leftValue'=>$values['leftValue'],
+          'rightValue'=>$values['rightValue'],
+          'text'=>$values['leftBound'].' '.$values['leftValue'].' ; '.$values['rightValue'].$values['rightBound']
+        ]);
+        $intervalsForm->setDefaults([],true);
+      };
+      $valuesBin->addSubmit('remove','Remove bin')
+        ->setValidationScope([])
+        ->onClick[]=function(SubmitButton $submitButton){
+        $submitButton->getParent()->getParent()->remove($submitButton->getParent(),true);
+      };
+    }, 1);
+    $valuesBins->addSubmit('submit','Add intervals bin')
+      ->onClick[]=function(SubmitButton $submitButton){
+      $submitButton->getParent()->createOne();
+    };
+    $form->addSubmit('submitAll','Save preprocessing & create attribute')
+      ->onClick[]=function(SubmitButton $submitButton){
+      exit(var_dump($submitButton->getParent()->getValues(true)));
+      //FIXME vytvoření preprocessingu a atributu
+    };
+    $presenter=$this;
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $submitButton)use($presenter){
+      $values=$submitButton->getForm()->getValues(true);
+      $presenter->redirect('addAttribute',array('column'=>$values->column,'miner'=>$values->miner));
+    };
+    return $form;
   }
 
   /**
