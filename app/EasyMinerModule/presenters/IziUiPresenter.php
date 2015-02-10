@@ -43,7 +43,6 @@ class IziUiPresenter extends BasePresenter{
 
     //------------------------------------------------------------------------------------------------------------------
     #region připravení informací pro UI - s odděleným připravením DataDictionary
-    //TODO připravení DataDescriptionPMML
     $dataDescriptionPMML=null;
     $dataParser = new DataParser($dataDescriptionPMML, $this->config->$FLPathElement, $this->config->FGCPath, null, null, $this->lang);//TODO kontrola, jestli může být obsah předán bez uložení do souboru
     $dataParser->loadData();

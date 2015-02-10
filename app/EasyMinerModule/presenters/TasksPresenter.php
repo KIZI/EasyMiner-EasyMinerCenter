@@ -131,6 +131,16 @@ class TasksPresenter  extends BasePresenter{
 
   }
 
+  /**
+   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * @param $miner
+   * @param $task
+   */
+  public function renderTaskDetails($miner,$task){
+    //TODO akce pro vykreslení detailů úlohy v podobě PMML
+
+  }
+
 
 
 
