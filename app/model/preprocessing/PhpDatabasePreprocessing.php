@@ -28,7 +28,7 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
   public function generateAttribute(Attribute $attribute) {
     $datasourceColumn=$attribute->datasourceColumn;
     $metasource=$attribute->metasource;
-    $preprocessing=$this->preprocessingsFacade->findPreprocessing($attribute->preprocessingId);
+    $preprocessing=$attribute->preprocessing;
     if ($preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
       $function=$this->generateAttributeEachOneFunction();
       if ($datasourceColumn->strLen){

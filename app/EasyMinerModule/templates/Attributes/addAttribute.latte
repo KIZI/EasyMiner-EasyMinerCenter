@@ -36,7 +36,11 @@
       <h2>{_'Existing preprocessing definitions'}</h2>
       <div class="actionsDiv bigButtons">
         {foreach $preprocessings as $preprocessing}
-          <a href="{link showPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->uri}">{$preprocessing->name}</a>
+          {if $preprocessing->specialType==\App\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
+            <a href="{link newAttribute miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->preprocessingId}">{$preprocessing->name}</a>
+          {else}
+            <a href="{link showPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->preprocessingId}">{$preprocessing->name}</a>
+          {/if}
         {/foreach}
       </div>
     {/if}

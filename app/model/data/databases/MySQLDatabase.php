@@ -152,7 +152,7 @@ class MySQLDatabase implements IDatabase{
     }
     $sql=Strings::substring($sql,1);
     $query=$this->db->prepare('UPDATE `'.$this->tableName.'` SET '.$sql.' WHERE id=:id LIMIT 1;');
-    $result=$query->execute($paramsArr);
+    $result=$query->execute($paramsArr) && ($query->rowCount()>0);
     if(!$result && $insertNotExisting){
       $data['id']=$id;
       $this->insertRow($data,true);

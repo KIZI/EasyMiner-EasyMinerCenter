@@ -13,6 +13,7 @@ use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
+use Nette\Neon\Exception;
 
 class AttributesPresenter extends BasePresenter{
 
@@ -46,6 +47,7 @@ class AttributesPresenter extends BasePresenter{
    */
   public function renderNewPreprocessingEachOne($miner, $column){
     $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
     $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
     $this->template->datasourceColumn=$datasourceColumn;
     $format=$datasourceColumn->format;
@@ -57,7 +59,34 @@ class AttributesPresenter extends BasePresenter{
     $form->setDefaults(array(
       'miner'=>$miner->minerId,
       'column'=>$column,
-      'preprocessing'=>$preprocessing->uri,
+      'preprocessing'=>$preprocessing->preprocessingId,
+      'attributeName'=>$datasourceColumn->name
+    ));
+  }
+
+  /**
+   * Akce pro vytvoření atributu na základě existujícího preprocesingu
+   * @param int $miner
+   * @param int $column
+   * @param string $preprocessing
+   * @throws BadRequestException
+   */
+  public function renderNewAttribute($miner,$column,$preprocessing){
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+    $this->template->datasourceColumn=$datasourceColumn;
+    $preprocessing=$this->metaAttributesFacade->findPreprocessing($preprocessing);
+    if ($datasourceColumn->format->formatId!=$preprocessing->format->formatId){
+      throw new BadRequestException($this->translate('Selected preprocessing is not usable in the context of selected column.'));
+    }
+    $this->template->preprocessing=$preprocessing;
+    /** @var Form $form */
+    $form=$this->getComponent('newAttributeForm');
+    $form->setDefaults(array(
+      'miner'=>$miner->minerId,
+      'column'=>$column,
+      'preprocessing'=>$preprocessing->preprocessingId,
       'attributeName'=>$datasourceColumn->name
     ));
   }
@@ -93,16 +122,7 @@ class AttributesPresenter extends BasePresenter{
     $this->template->preprocessings=$this->metaAttributesFacade->findPreprocessingsForUser($format,$this->user->id);
   }
 
-  /**
-   * Funkce pro přiřazení výchozího layoutu podle parametru v adrese (normální nebo iframe view)
-   */
-  protected function beforeRender(){
-    if ($this->mode=='component' || $this->mode=='iframe'){
-      $this->layout='iframe';
-      $this->template->layout='iframe';
-    }
-    parent::beforeRender();
-  }
+
 
   /**
    * Funkce pro načtení příslušného DatasourceColumn, případně vrácení chyby
@@ -142,7 +162,7 @@ class AttributesPresenter extends BasePresenter{
       $attribute->datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,$values->column);
       $attribute->name=$values->attributeName;
       $attribute->type=$attribute->datasourceColumn->type;
-      $attribute->preprocessingId=$values->preprocessing;
+      $attribute->preprocessing=$this->metaAttributesFacade->findPreprocessing($values->preprocessing);
       $this->minersFacade->prepareAttribute($miner,$attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
       $this->minersFacade->checkMinerState($miner);
@@ -159,6 +179,17 @@ class AttributesPresenter extends BasePresenter{
     return $form;
   }
 
+
+  /**
+   * Funkce pro přiřazení výchozího layoutu podle parametru v adrese (normální nebo iframe view)
+   */
+  protected function beforeRender(){
+    if ($this->mode=='component' || $this->mode=='iframe'){
+      $this->layout='iframe';
+      $this->template->layout='iframe';
+    }
+    parent::beforeRender();
+  }
 
   #region injections
   /**

@@ -184,7 +184,7 @@ class MetaAttributesFacade {
       }
       unset($params['format']);
     }
-    return $this->preprocessingsRepository->findAllBy($params,$offset,$limit);
+    return $this->preprocessingsRepository->findAllBy($paramsArr,$offset,$limit);
   }
 
   /**
@@ -221,6 +221,41 @@ class MetaAttributesFacade {
    */
   public function findPreprocessingsForUser($format,$user){
     return $this->findPreprocessings(array('format'=>$format,'user'=>$user,'order'=>'name'));
+  }
+
+  /**
+   * @param int $id
+   * @return Preprocessing
+   */
+  public function findPreprocessing($id) {
+    return $this->preprocessingsRepository->find($id);
+  }
+
+  /**
+   * @param Format|int $format
+   * @return Preprocessing
+   */
+  public function findPreprocessingEachOne($format){
+    if (!$format instanceof Format){
+      $format=$this->findFormat($format);
+    }
+    try{
+      $preprocessings=$format->preprocessings;
+      if (!empty($preprocessings)){
+        foreach ($preprocessings as $preprocessing){
+          if (isset($preprocessing->specialType) && $preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
+            return $preprocessing;
+          }
+        }
+      }
+    }catch (\Exception $e){/*chybu ignorujeme*/}
+    $preprocessing=new Preprocessing();
+    $preprocessing->name=Preprocessing::NEW_PREPROCESSING_EACHONE_NAME;
+    $preprocessing->specialType=Preprocessing::SPECIALTYPE_EACHONE;
+    $preprocessing->shared=true;
+    $preprocessing->format=$format;
+    $this->preprocessingsRepository->persist($preprocessing);
+    return $preprocessing;
   }
 
 }
