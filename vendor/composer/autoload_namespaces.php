@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'LeanMapper' => array($vendorDir . '/tharos/leanmapper'),
+    'Kdyby\\Replicator\\' => array($vendorDir . '/kdyby/forms-replicator/src'),
     'Kdyby\\Google\\' => array($vendorDir . '/kdyby/google/src'),
     'Kdyby\\Facebook\\' => array($vendorDir . '/kdyby/facebook/src'),
     'Kdyby\\Curl' => array($vendorDir . '/kdyby/curl/src'),
