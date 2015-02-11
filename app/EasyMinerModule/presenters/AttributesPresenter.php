@@ -187,7 +187,11 @@ class AttributesPresenter extends BasePresenter{
     $form=new Form();
     $form->setTranslator($this->translator);
     $form->addText('preprocessingName','Preprocessing name:')
-      ->setRequired('Input preprocessing name!');
+      ->setRequired('Input preprocessing name!')
+      ->addRule(function(TextInput $input){
+        $values=$input->getForm(true)->getValues(true);
+        return (count($values['valuesBins'])>0);
+      },'You have to input at least one bin!');
     $form->addText('attributeName','Create attribute with name:')
       ->setRequired('Input attribute name!')
       ->addRule(function(TextInput $input){
@@ -203,11 +207,7 @@ class AttributesPresenter extends BasePresenter{
           }
         }
         return true;
-      },'Attribute with this name already exists!')
-      ->addRule(function(TextInput $input){
-        $values=$input->getForm(true)->getValues(true);
-        return (count($values['valuesBins'])>0);
-      },'You have to input at least one bin!');
+      },'Attribute with this name already exists!');
     $form->addHidden('column');
     $form->addHidden('miner');
     /** @var Container $valuesBins */
@@ -304,13 +304,15 @@ class AttributesPresenter extends BasePresenter{
         $intervalsForm->setValues(['leftValue'=>'','rightValue'=>'']);
       };
       $valuesBin->addSubmit('remove','Remove bin')
+        ->setAttribute('class','removeBin')
         ->setValidationScope([])
         ->onClick[]=function(SubmitButton $submitButton){
         $submitButton->getParent()->getParent()->remove($submitButton->getParent(),true);
       };
     }, 0);
 
-    $valuesBins->addSubmit('submit','Add intervals bin')
+    $valuesBins->addSubmit('addBin','Add intervals bin')
+      ->setValidationScope([])
       ->onClick[]=function(SubmitButton $submitButton){
       $submitButton->getParent()->createOne();
     };
@@ -363,7 +365,7 @@ class AttributesPresenter extends BasePresenter{
     $form->addSubmit('storno','storno')
       ->setValidationScope([])
       ->onClick[]=function(SubmitButton $submitButton)use($presenter){
-      $values=$submitButton->getForm()->getValues(true);
+      $values=$submitButton->getForm()->getValues();
       $presenter->redirect('addAttribute',array('column'=>$values->column,'miner'=>$values->miner));
     };
     return $form;

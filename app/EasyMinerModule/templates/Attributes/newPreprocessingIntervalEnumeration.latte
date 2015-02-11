@@ -2,10 +2,78 @@
 
   <div class="{if $template=='default'}block centerContent{else}main{/if}">
 
-    <h1>{_'New preprocessing - Intervals enumeration'}</h1>
+    <h1>{_'New attribute from: '}{$datasourceColumn->name}</h1>
+    <h2>{_'New preprocessing - Intervals enumeration'}</h2>
     <p class="preprocessingInfo">{_'Define groups of intervals, which should be created in attribute.'}</p>
 
-    {control newIntervalEnumerationForm}
+    {form newIntervalEnumerationForm}
+      {foreach $form->controls as $name => $field}
+        {if ($field instanceof \Nette\Forms\Controls\HiddenField)}
+          {input $field}
+        {/if}
+      {/foreach}
+      <table>
+        <tr>
+          <th>{label attributeName /}</th>
+          <td>{input attributeName class => normalWidth}<span n:ifcontent class="error">{inputError attributeName}</span></td>
+        </tr>
+        <tr>
+          <th>{label preprocessingName /}</th>
+          <td>{input preprocessingName class => normalWidth}<span n:ifcontent class="error">{inputError preprocessingName}</span></td>
+        </tr>
+      </table>
+      {foreach $form['valuesBins']->containers as $id => $valuesBin}
+        <div class="valuesBin">
+          {input valuesBins-$id-remove}
+          {label valuesBins-$id-name /} {input valuesBins-$id-name}<span n:ifcontent class="error">{inputError valuesBins-$id-name}</span>
+          <div class="intervals" n:ifcontent>
+            {foreach $valuesBin['intervals']->containers as $intervalId=>$interval}
+              <span class="interval">
+                {input valuesBins-$id-intervals-$intervalId-text}
+                <strong>{$interval['text']->control->value}</strong>
+                {input valuesBins-$id-intervals-$intervalId-leftValue}
+                {input valuesBins-$id-intervals-$intervalId-rightValue}
+                {input valuesBins-$id-intervals-$intervalId-leftBound}
+                {input valuesBins-$id-intervals-$intervalId-rightBound}
+                {input valuesBins-$id-intervals-$intervalId-remove}
+              </span>
+            {/foreach}
+          </div>
+          <div class="addInterval">
+            <table>
+              <tr>
+                <td><label>{_'Add interval:'}</label></td>
+                <td>
+                  {input valuesBins-$id-leftBound}
+                  {input valuesBins-$id-leftValue}
+                  <span>;</span>
+                  {input valuesBins-$id-rightValue}
+                  {input valuesBins-$id-rightBound}
+                </td>
+                <td>
+                  {input valuesBins-$id-addInterval}
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="2">
+                  <span n:ifcontent class="error">{inputError valuesBins-$id-leftBound}</span>
+                  <span n:ifcontent class="error">{inputError valuesBins-$id-leftValue}</span>
+                  <span n:ifcontent class="error">{inputError valuesBins-$id-rightValue}</span>
+                  <span n:ifcontent class="error">{inputError valuesBins-$id-rightBound}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      {/foreach}
+      <div style="margin:20px;">
+        {input valuesBins-addBin}
+        {input submitAll}
+        {input storno}
+      </div>
+    {/form}
+
 
   </div>
 
