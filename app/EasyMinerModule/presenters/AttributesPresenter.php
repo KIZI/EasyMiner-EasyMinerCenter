@@ -15,15 +15,14 @@ use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MetasourcesFacade;
 use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\PreprocessingsFacade;
+use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
-use Nette\Neon\Exception;
 use Nette\Utils\Strings;
-use Nette\Utils\Validators;
 
 class AttributesPresenter extends BasePresenter{
 
@@ -35,6 +34,8 @@ class AttributesPresenter extends BasePresenter{
   private $metaAttributesFacade;
   /** @var  PreprocessingsFacade $preprocessingsFacade */
   private $preprocessingsFacade;
+  /** @var  UsersFacade $usersFacade */
+  private $usersFacade;
 
   /**
    * @var string $mode
@@ -359,6 +360,7 @@ class AttributesPresenter extends BasePresenter{
       $preprocessing=new Preprocessing();
       $preprocessing->name=$values['preprocessingName'];
       $preprocessing->format=$format;
+      $preprocessing->user=$this->usersFacade->findUser($this->user->id);
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
       foreach($values['valuesBins'] as $valuesBinValues){
         $valuesBin=new ValuesBin();
@@ -540,6 +542,7 @@ class AttributesPresenter extends BasePresenter{
       $preprocessing=new Preprocessing();
       $preprocessing->name=$values['preprocessingName'];
       $preprocessing->format=$format;
+      $preprocessing->user=$this->usersFacade->findUser($this->user->id);
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
       foreach($values['valuesBins'] as $valuesBinValues){
         $valuesBin=new ValuesBin();
@@ -670,6 +673,12 @@ class AttributesPresenter extends BasePresenter{
    */
   public function injectPreprocessingsFacade(PreprocessingsFacade $preprocessingsFacade){
     $this->preprocessingsFacade=$preprocessingsFacade;
+  }
+  /**
+   * @param UsersFacade $usersFacade
+   */
+  public function injectUsersFacade(UsersFacade $usersFacade){
+    $this->usersFacade=$usersFacade;
   }
   #endregion injections
 } 

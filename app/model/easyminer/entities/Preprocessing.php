@@ -11,6 +11,7 @@ use LeanMapper\Entity;
  * @property Format $format m:hasOne
  * @property string $name
  * @property string $specialType = ''
+ * @property User|null $user m:hasOne
  * @property bool $shared = false
  * @property ValuesBin[] $valuesBins m:hasMany
  * @property Attribute[] $generatedAttributes m:belongsToMany
