@@ -70,7 +70,7 @@
         </table>
 
         <div class="actionsDiv">
-          <a href="{link selectMetaAttributeDialog:selectMetaAttribute! datasource=>$datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">{_'Select meta-attribute...'}</a>
+          <a href="{link selectMetaAttributeDialog:selectMetaAttribute! datasource=>$datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">{if !empty($datasourceColumn->format)}{_'Change meta-attribute...'}{else}{_'Select meta-attribute...'}{/if}</a>
           &nbsp;
           <a href="{link getDatasourceColumnRenameDialog!}">{_'Rename data field'}</a>
           <a href="{link confirmationDialog:confirmDeleteDatasourceColumn! datasource=>$datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">{_'Delete'}</a>
