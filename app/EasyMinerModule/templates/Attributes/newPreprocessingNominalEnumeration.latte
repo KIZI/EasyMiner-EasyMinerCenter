@@ -1,0 +1,71 @@
+{block content}
+
+  <div class="{if $template=='default'}block centerContent{else}main{/if}">
+
+    <h1>{_'New attribute from: '}{$datasourceColumn->name}</h1>
+    <h2>{_'New preprocessing - Nominal enumeration'}</h2>
+    <p class="preprocessingInfo">{_'Define groups of values, which should be created in attribute.'}</p>
+
+    {form newNominalEnumerationForm}
+      {foreach $form->controls as $name => $field}
+        {if ($field instanceof \Nette\Forms\Controls\HiddenField)}
+          {input $field}
+        {/if}
+      {/foreach}
+      <table>
+        <tr>
+          <th>{label attributeName /}</th>
+          <td>{input attributeName class => 'normalWidth'}<span n:ifcontent class="error">{inputError attributeName}</span></td>
+        </tr>
+        <tr>
+          <th>{label preprocessingName /}</th>
+          <td>{input preprocessingName class => 'normalWidth'}<span n:ifcontent class="error">{inputError preprocessingName}</span></td>
+        </tr>
+      </table>
+      {foreach $form['valuesBins']->containers as $id => $valuesBin}
+        <div class="valuesBin">
+          {input valuesBins-$id-remove}
+          {label valuesBins-$id-name /} {input valuesBins-$id-name}<span n:ifcontent class="error">{inputError valuesBins-$id-name}</span>
+          <div class="values" n:ifcontent>
+            {foreach $valuesBin['values']->containers as $valueId=>$value}
+              <span class="value">
+                {input valuesBins-$id-values-$intervalId-value}
+                <strong>{$value['value']->control->value}</strong>
+                {input valuesBins-$id-intervals-$intervalId-remove}
+              </span>
+            {/foreach}
+          </div>
+          <div class="addValue">
+            <table>
+              <tr>
+                <td><label>{_'Add value:'}</label></td>
+                <td>
+                  {input valuesBins-$id-value class=>'normalWidth'}
+                </td>
+                <td>
+                  {input valuesBins-$id-addValue}
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="2">
+                  <span n:ifcontent class="error">{inputError valuesBins-$id-value}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      {/foreach}
+      <div style="margin:20px;">
+        {input valuesBins-addBin}
+        {input submitAll}
+        {input storno}
+      </div>
+    {/form}
+
+
+  </div>
+
+{/block}
+
+

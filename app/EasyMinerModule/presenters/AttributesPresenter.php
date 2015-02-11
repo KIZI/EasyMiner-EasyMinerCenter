@@ -7,6 +7,7 @@ use App\Libs\StringsHelper;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
+use App\Model\EasyMiner\Entities\Format;
 use App\Model\EasyMiner\Entities\Interval;
 use App\Model\EasyMiner\Entities\Preprocessing;
 use App\Model\EasyMiner\Entities\ValuesBin;
@@ -99,6 +100,32 @@ class AttributesPresenter extends BasePresenter{
     $form->setDefaults(array(
       'miner'=>$miner->minerId,
       'column'=>$column,
+      'attributeName'=>$datasourceColumn->name
+    ));
+  }
+
+  /**
+   * Funkce pro pouřití preprocessingu each value - one category
+   * @param int $miner
+   * @param int $column
+   * @throws BadRequestException
+   */
+  public function renderNewPreprocessingNominalEnumeration($miner, $column){
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+    $this->template->datasourceColumn=$datasourceColumn;
+    $format=$datasourceColumn->format;
+    //kontrola, jestli už existuje preprocessing tohoto typu
+    $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
+    $this->template->preprocessing=$preprocessing;
+    /** @var Form $form */
+    $form=$this->getComponent('newNominalEnumerationForm');
+    $form->setDefaults(array(
+      'miner'=>$miner->minerId,
+      'column'=>$column,
+      'formatType'=>$format->dataType,
+      'formatId'=>$format->formatId,
       'attributeName'=>$datasourceColumn->name
     ));
   }
@@ -370,6 +397,185 @@ class AttributesPresenter extends BasePresenter{
     };
     return $form;
   }
+
+  /**
+   * Formulář pro zadání preprocessingu pomocí nominal enumeration
+   * @return Form
+   */
+  protected function createComponentNewNominalEnumerationForm(){
+    $form=new Form();
+    $form->setTranslator($this->translator);
+    $form->addText('preprocessingName','Preprocessing name:')
+      ->setRequired('Input preprocessing name!')
+      ->addRule(function(TextInput $input){
+        $values=$input->getForm(true)->getValues(true);
+        return (count($values['valuesBins'])>0);
+      },'You have to input at least one bin!');
+    $form->addText('attributeName','Create attribute with name:')
+      ->setRequired('Input attribute name!')
+      ->addRule(function(TextInput $input){
+        //kontrola, jestli již existuje atribtu se zadaným názvem
+        $values=$input->getForm(true)->getValues();
+        $miner=$this->findMinerWithCheckAccess($values->miner);
+        $attributes=$miner->metasource->attributes;
+        if (!empty($attributes)){
+          foreach ($attributes as $attribute){
+            if ($attribute->name==$input->value){
+              return false;
+            }
+          }
+        }
+        return true;
+      },'Attribute with this name already exists!');
+    $form->addHidden('column');
+    $form->addHidden('miner');
+    $form->addHidden('formatType');
+    $form->addHidden('formatId');
+    /** @var Container $valuesBins */
+    $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin){
+      $valuesBin->addText('name','Bin name:')->setRequired(true)
+        ->setRequired('Input bin name!')
+        ->addRule(function(TextInput $input){
+          $values=$input->parent->getValues(true);
+          return (count($values['values'])>0);
+        },'Add at least one value!')
+        ->addRule(function(TextInput $input){
+          //kontrola, jestli má každý BIN jiný název
+          $values=$input->getParent()->getParent()->getValues(true);
+          $inputValue=$input->getValue();
+          $usesCount=0;
+          if (!empty($values)){
+            foreach ($values as $value){
+              if ($value['name']==$inputValue){
+                $usesCount++;
+              }
+            }
+          }
+          return $usesCount<=1;
+        },'This name is used for other bin!');
+      /** @var Container $intervals */
+      $intervals=$valuesBin->addDynamic('values',function(Container $interval){
+        $interval->addText('value')->setAttribute('readonly');
+        $interval->addSubmit('remove','x')
+          ->setValidationScope([])
+          ->onClick[]=function(SubmitButton $submitButton){
+          $intervals = $submitButton->parent->parent;
+          $intervals->remove($submitButton->parent, TRUE);
+        };
+      });
+      $addValueSubmit=$valuesBin->addSubmit('addValue','Add value');
+      $value=$valuesBin->addText('value',null,'');//TODO dodělat select...
+      $value
+        ->setRequired('Input value!')
+        ->addConditionOn($valuesBin->getForm(true)->getComponent('formatType'),Form::EQUAL,Format::DATATYPE_VALUES)
+          ->addRule(function(TextInput $input){
+            $inputValue=$input->getValue();
+            $values=$input->getForm(true)->getValues(true);
+            $format=$this->metaAttributesFacade->findFormat($values['formatId']);
+            $values=$format->values;
+            if (!empty($values)){
+              foreach ($values as $value){
+                if ($value->value==$inputValue){
+                  return true;
+                }
+              }
+            }
+            return false;
+          },'You have to input existing value!')
+        ->elseCondition()
+          ->addRule(Form::FLOAT,'You have to input number!')
+          //TODO kontrola, jestli je hodnota ze zadaného intervalu...
+        ->endCondition();
+      $value->addRule(function(TextInput $input){
+        $values=$input->getForm(true)->getValues(true);
+        $usedValuesArr=[];
+        if (!empty($values['valuesBins'])){
+          foreach($values['valuesBins'] as $valuesBin){
+            if (!empty($valuesBin['values'])){
+              foreach($valuesBin['values'] as $value){
+                $usedValuesArr[]=$value['value']->value;
+              }
+            }
+          }
+        }
+        return (!in_array($input->value,$usedValuesArr));
+      },'This value is already used!');
+      $addValueSubmit
+        ->setValidationScope([$value])
+        ->onClick[]=function(SubmitButton $submitButton)use($intervals){
+        $values=$submitButton->getParent()->getValues(true);
+        $valueItem=$values->createOne();
+        $valueItem->setValues([
+          'value'=>$values['value']
+        ]);
+        $submitButton->getParent()->setValues(['value'=>'']);
+      };
+      $valuesBin->addSubmit('remove','Remove bin')
+        ->setAttribute('class','removeBin')
+        ->setValidationScope([])
+        ->onClick[]=function(SubmitButton $submitButton){
+        $submitButton->getParent()->getParent()->remove($submitButton->getParent(),true);
+      };
+    }, 0);
+
+    $valuesBins->addSubmit('addBin','Add values bin')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $submitButton){
+      $submitButton->getParent()->createOne();
+    };
+    $form->addSubmit('submitAll','Save preprocessing & create attribute')
+      ->onClick[]=function(SubmitButton $submitButton){
+      #region vytvoření preprocessingu
+      $values=$submitButton->getForm(true)->getValues(true);
+      $miner=$this->findMinerWithCheckAccess($values['miner']);
+      $this->minersFacade->checkMinerMetasource($miner);
+
+      //vytvoření preprocessingu
+      $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$values['column']);
+      $format=$datasourceColumn->format;
+
+      $preprocessing=new Preprocessing();
+      $preprocessing->name=$values['preprocessingName'];
+      $preprocessing->format=$format;
+      $this->preprocessingsFacade->savePreprocessing($preprocessing);
+      foreach($values['valuesBins'] as $valuesBinValues){
+        $valuesBin=new ValuesBin();
+        $valuesBin->format=$format;
+        $valuesBin->name=$valuesBinValues['name'];
+        $this->metaAttributesFacade->saveValuesBin($valuesBin);
+        foreach ($valuesBinValues['values'] as $valuesValues){
+          $value=$this->metaAttributesFacade->findValue($format,$valuesValues['value']);
+          $valuesBin->addToValues($value);
+        }
+        $this->metaAttributesFacade->saveValuesBin($valuesBin);
+        $preprocessing->addToValuesBins($valuesBin);
+      }
+      $this->preprocessingsFacade->savePreprocessing($preprocessing);
+
+      //vytvoření atributu
+      $attribute=new Attribute();
+      $attribute->metasource=$miner->metasource;
+      $attribute->datasourceColumn=$datasourceColumn;
+      $attribute->name=$values['attributeName'];
+      $attribute->type=$attribute->datasourceColumn->type;
+      $attribute->preprocessing=$preprocessing;
+      $this->minersFacade->prepareAttribute($miner,$attribute);
+      $this->metasourcesFacade->saveAttribute($attribute);
+      $this->minersFacade->checkMinerState($miner);
+
+      $this->redirect('reloadUI');
+      #endregion vytvoření preprocessingu
+    };
+    $presenter=$this;
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $submitButton)use($presenter){
+      $values=$submitButton->getForm()->getValues();
+      $presenter->redirect('addAttribute',array('column'=>$values->column,'miner'=>$values->miner));
+    };
+    return $form;
+  }
+
 
   /**
    * Funkce vracející formulář pro vytvoření atributu na základě vybraného sloupce a preprocessingu
