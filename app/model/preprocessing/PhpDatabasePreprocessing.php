@@ -5,6 +5,7 @@ use App\Model\Data\Entities\DbColumn;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
+use App\Model\EasyMiner\Entities\Interval;
 use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Preprocessing;
 use App\Model\EasyMiner\Facades\PreprocessingsFacade;
@@ -90,10 +91,10 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
    * @return callable
    */
   private function generateAttributeValuesBinsFunction(Preprocessing $preprocessing, &$attributeStrLen){
-    //TODO připravení hodnot nového sloupce na základě příslušnosti jednotlivých hodnot do valuesBins
     $valuesBins=$preprocessing->valuesBins;
     //připravení pole pro jednoduché přiřazování hodnot
     $finalValuesArr=array();
+    /** @var Interval[] $finalIntervalsArr */
     $finalIntervalsArr=array();
     foreach ($valuesBins as $valuesBin){
       $name=$valuesBin->name;
