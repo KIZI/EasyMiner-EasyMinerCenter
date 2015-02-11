@@ -9,9 +9,10 @@ use LeanMapper\Entity;
  *
  * @property int $formatId
  * @property string $name
- * @property string $dataType
+ * @property string $dataType m:Enum(self::TYPE_*)
  * @property MetaAttribute $metaAttribute m:hasOne
  * @property bool $shared = false
+ * @property User|null $user m:hasOne
  *
  * @property Interval[] $intervals m:belongsToMany
  * @property Value[] $values m:belongsToMany

@@ -2,6 +2,7 @@
 
 namespace App\Model\EasyMiner\Facades;
 
+use App\Model\Data\Entities\DbColumnValuesStatistic;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Entities\Format;
 use App\Model\EasyMiner\Entities\Interval;
@@ -83,25 +84,53 @@ class MetaAttributesFacade {
   }
 
   /**
-   * @param DatasourceColumn $datasourceColumn
-   * @param string $formatType = values - values|interval (info o tom, jakým způsobem mají být zachyceny číselné hodnoty)
-   * @return Format
-   */
-  public function createFormatFromDatasourceColumn(DatasourceColumn $datasourceColumn,$formatType='values'){
-    $format=new Format();
-    $format->dataType=$formatType;
-    //TODO vytvoření formátu metaatributu
-
-    return $format;
-  }
-
-  /**
    * Funkce pro aktualizaci formátu na základě hodnot z daného DatasourceColumn
    * @param Format $format
    * @param DatasourceColumn $datasourceColumn
+   * @param DbColumnValuesStatistic $columnValuesStatistic
    */
-  public function updateFormatFromDatasourceColumn(Format $format, DatasourceColumn $datasourceColumn){
-    //TODO rozšíření rozsahu formátu z datasourceColumn
+  public function updateFormatFromDatasourceColumn(Format $format, DatasourceColumn $datasourceColumn, DbColumnValuesStatistic $columnValuesStatistic){
+    if ($format->dataType==Format::DATATYPE_INTERVAL){
+      $newInterval=Interval::create(Interval::CLOSURE_CLOSED,$columnValuesStatistic->minValue,$columnValuesStatistic->maxValue,Interval::CLOSURE_CLOSED);
+      $newInterval->format=$format;
+      $intervals=$format->intervals;
+      if (!empty($intervals)){
+        if (count($intervals)==1){
+          $originalInterval=$intervals[0];
+          if ($originalInterval->leftMargin>$newInterval->leftMargin || ($originalInterval->leftMargin==$newInterval->leftMargin && $originalInterval->leftClosure=Interval::CLOSURE_OPEN)){
+            $originalInterval->leftMargin=$newInterval->leftMargin;
+            $originalInterval->leftClosure=$newInterval->leftClosure;
+          }
+          if ($originalInterval->rightMargin<$newInterval->rightMargin || ($originalInterval->rightMargin==$newInterval->rightMargin && $originalInterval->rightClosure=Interval::CLOSURE_OPEN)){
+            $originalInterval->rightMargin=$newInterval->rightMargin;
+            $originalInterval->rightClosure=$newInterval->rightClosure;
+          }
+          $this->saveInterval($originalInterval);
+        }else{
+          //FIXME možné rozšíření množiny intervalů
+        }
+      }else{
+        $this->saveInterval($newInterval);
+      }
+    }else{
+      $existingValues=[];
+      $values=$format->values;
+      if (!empty($values)){
+        foreach($values as $value){
+          $existingValues[]=$value->value;
+        }
+      }
+      if (!empty($columnValuesStatistic->valuesArr)){
+        foreach($columnValuesStatistic->valuesArr as $value=>$count){
+          if (!in_array($value,$existingValues)){
+            $valueObject=new Value();
+            $valueObject->format=$format;
+            $valueObject->value=$value;
+            $this->saveValue($valueObject);
+          }
+        }
+      }
+    }
   }
 
 
@@ -292,6 +321,12 @@ class MetaAttributesFacade {
    */
   public function saveInterval(Interval &$interval){
     $this->intervalsRepository->persist($interval);
+  }
+  /**
+   * @param Value $value
+   */
+  public function saveValue(Value &$value){
+    $this->valuesRepository->persist($value);
   }
 
   /**
