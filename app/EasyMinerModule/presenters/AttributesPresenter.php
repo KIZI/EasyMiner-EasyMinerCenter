@@ -47,11 +47,31 @@ class AttributesPresenter extends BasePresenter{
    * @param int $miner
    * @param int $column
    * @param string $preprocessing
+   * @throws BadRequestException
    */
   public function renderShowPreprocessing($miner, $column, $preprocessing){
-    //TODO
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+    $this->template->datasourceColumn=$datasourceColumn;
+    $preprocessing=$this->metaAttributesFacade->findPreprocessing($preprocessing);
+    if ($datasourceColumn->format->formatId!=$preprocessing->format->formatId){
+      throw new BadRequestException($this->translate('Selected preprocessing is not usable in the context of selected column.'));
+    }
+    if (!$preprocessing->shared && ($this->user->id!=$preprocessing->user->userId)){
+      throw new ForbiddenRequestException($this->translate('You are not authorized to use the selected preprocessing.'));
+    }
+    $this->template->preprocessing=$preprocessing;
+    $this->template->miner=$miner;
+    $this->template->column=$column;
   }
 
+  /**
+   * Akce pro přesměrování na správnou akci pro definici nového preprocessingu
+   * @param int $miner
+   * @param int $column
+   * @param string $type
+   */
   public function actionNewPreprocessing($miner,$column,$type){
     $this->redirect('newPreprocessing'.Strings::firstUpper($type),['miner'=>$miner,'column'=>$column]);
   }

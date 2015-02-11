@@ -485,7 +485,7 @@ div.modal, section.modal {
 /*region valuesBins*/
 div.valuesBin{
   border: 1px solid #2d83be;
-  margin: 20px;
+  margin: 20px 0;
   padding: 20px;
   position: relative;
 }
@@ -573,5 +573,13 @@ div.valuesBin .values .value input:hover{
   background: maroon;
   color: white;
 }
-
+div.valuesBin.show{
+  padding: 0 20px;
+}
+div.valuesBin.show .value,
+div.valuesBin.show .interval{
+  display: inline-block;
+  padding: 5px 10px;
+  font-weight: bold;
+}
 /*endregion*/
