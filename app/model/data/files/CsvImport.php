@@ -156,11 +156,12 @@ class CsvImport {
     //výchozí inicializace počítacích polí
     $columnsCount=count($columnNamesArr);
     for($i=0;$i<$columnsCount;$i++){
-      $numericalArr[$i]=true;
+      $numericalArr[$i]=1;
       $strlenArr[$i]=0;
     }
 
     $file=fopen($filename,'r');
+    fgets($file);
     //kontrola všech řádků v souboru
     $rowsCount=0;
     while (($data=fgetcsv($file,0,$delimitier,$enclosure,$escapeCharacter))&&($rowsCount<10000)){
@@ -208,8 +209,11 @@ class CsvImport {
    * @return int - 0=string, 1=int, 2=float
    */
   private static function checkIsNumeric($value){
+    if ($value==''){
+      return 1;
+    }
     if (is_numeric($value)||(is_numeric(str_replace(',','.',$value)))){
-      if (((string)intval(str_replace(',','.',$value)))==$value){
+      if (((string)intval(str_replace(',','.',$value)))==str_replace(',','.',$value)){
         return 1;
       }else{
         return 2;
