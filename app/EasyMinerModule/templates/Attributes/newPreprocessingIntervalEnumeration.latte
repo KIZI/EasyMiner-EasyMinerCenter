@@ -6,6 +6,13 @@
     <h2>{_'New preprocessing - Intervals enumeration'}</h2>
     <p class="preprocessingInfo">{_'Define groups of intervals, which should be created in attribute.'}</p>
 
+    <div class="formatValues">
+      <strong>{_'Format values:'}</strong>
+      {foreach $format->intervals as $interval}
+        <span>{$interval}</span>
+      {/foreach}
+    </div>
+
     {form newIntervalEnumerationForm}
       {foreach $form->controls as $name => $field}
         {if ($field instanceof \Nette\Forms\Controls\HiddenField)}

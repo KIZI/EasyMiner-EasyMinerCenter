@@ -12,6 +12,16 @@
       {/if}
     </p>
 
+    <div class="formatValues">
+      <strong>{_'Format values:'}</strong>
+      {foreach $format->values as $value}
+        <span>{$value}</span>
+      {/foreach}
+      {foreach $format->intervals as $interval}
+        <span>{$interval}</span>
+      {/foreach}
+    </div>
+
     <h2>{_'New preprocessing'}</h2>
     <div class="actionsDiv bigButtons">
       {if $format->dataType==\App\Model\EasyMiner\Entities\Format::DATATYPE_INTERVAL}

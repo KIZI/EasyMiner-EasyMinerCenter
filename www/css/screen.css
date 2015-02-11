@@ -507,13 +507,16 @@ div.valuesBin .removeBin:hover{
   background: maroon;
   color: white;
 }
-div.valuesBin .addInterval{
+div.valuesBin .addInterval,
+div.valuesBin .addValue{
   margin-top: 20px;
 }
-div.valuesBin .addInterval table{
+div.valuesBin .addInterval table,
+div.valuesBin .addValue table{
   border-spacing: 0;
 }
-div.valuesBin .addInterval table label{
+div.valuesBin .addInterval table label,
+div.valuesBin .addValue table label{
   padding-top: 10px;
 }
 div.valuesBin .addInterval table select{
@@ -522,27 +525,51 @@ div.valuesBin .addInterval table select{
 div.valuesBin .addInterval table input[type='text']{
   width: 67px;
 }
-div.valuesBin .intervals{
+
+.formatValues{
+  margin: 10px 0;
+  padding: 10px;
+  color: gray;
+  border: 1px solid #ededed;
+}
+.formatValues span{
+  display: inline-block;
+  margin: 2px;
+  padding: 0 5px;
+  text-align: center;
+  border-right: 1px solid #ededed;
+}
+.formatValues span:last-child{
+  border-right: none;
+}
+
+div.valuesBin .intervals,
+div.valuesBin .values{
   margin: 20px 0;
 }
-div.valuesBin .intervals .interval{
+div.valuesBin .intervals .interval,
+div.valuesBin .values .value{
   border: 1px solid #075783;
   display: inline-block;
 }
-div.valuesBin .intervals .interval input[type='text']{
+div.valuesBin .intervals .interval input[type='text'],
+div.valuesBin .values .value input[type='text']{
   display: none;
 }
-div.valuesBin .intervals .interval strong{
+div.valuesBin .intervals .interval strong,
+div.valuesBin .values .value strong{
   display: inline-block;
   margin-left: 20px;
   margin-right: 5px;
 }
-div.valuesBin .intervals .interval input{
+div.valuesBin .intervals .interval input,
+div.valuesBin .values .value input{
   background: #ffffff;
   border: none;
   color: maroon;
 }
-div.valuesBin .intervals .interval input:hover{
+div.valuesBin .intervals .interval input:hover,
+div.valuesBin .values .value input:hover{
   background: maroon;
   color: white;
 }

@@ -92,6 +92,7 @@ class AttributesPresenter extends BasePresenter{
     $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
     $this->template->datasourceColumn=$datasourceColumn;
     $format=$datasourceColumn->format;
+    $this->template->format=$format;
     //kontrola, jestli už existuje preprocessing tohoto typu
     $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
     $this->template->preprocessing=$preprocessing;
@@ -119,6 +120,7 @@ class AttributesPresenter extends BasePresenter{
     //kontrola, jestli už existuje preprocessing tohoto typu
     $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
     $this->template->preprocessing=$preprocessing;
+    $this->template->format=$format;
     /** @var Form $form */
     $form=$this->getComponent('newNominalEnumerationForm');
     $form->setDefaults(array(
@@ -466,26 +468,27 @@ class AttributesPresenter extends BasePresenter{
       $addValueSubmit=$valuesBin->addSubmit('addValue','Add value');
       $value=$valuesBin->addText('value',null,'');//TODO dodělat select...
       $value
-        ->setRequired('Input value!')
-        ->addConditionOn($valuesBin->getForm(true)->getComponent('formatType'),Form::EQUAL,Format::DATATYPE_VALUES)
-          ->addRule(function(TextInput $input){
-            $inputValue=$input->getValue();
-            $values=$input->getForm(true)->getValues(true);
-            $format=$this->metaAttributesFacade->findFormat($values['formatId']);
-            $values=$format->values;
-            if (!empty($values)){
-              foreach ($values as $value){
-                if ($value->value==$inputValue){
-                  return true;
+        ->addConditionOn($addValueSubmit,Form::SUBMITTED)
+          ->setRequired('Input value!')
+          ->addConditionOn($valuesBin->getForm(true)->getComponent('formatType'),Form::EQUAL,Format::DATATYPE_VALUES)
+            ->addRule(function(TextInput $input){
+              $inputValue=$input->getValue();
+              $values=$input->getForm(true)->getValues(true);
+              $format=$this->metaAttributesFacade->findFormat($values['formatId']);
+              $values=$format->values;
+              if (!empty($values)){
+                foreach ($values as $value){
+                  if ($value->value==$inputValue){
+                    return true;
+                  }
                 }
               }
-            }
-            return false;
-          },'You have to input existing value!')
-        ->elseCondition()
-          ->addRule(Form::FLOAT,'You have to input number!')
-          //TODO kontrola, jestli je hodnota ze zadaného intervalu...
-        ->endCondition();
+              return false;
+            },'You have to input existing value!')
+          ->elseCondition()
+            ->addRule(Form::FLOAT,'You have to input number!')
+            //TODO kontrola, jestli je hodnota ze zadaného intervalu...
+          ->endCondition();
       $value->addRule(function(TextInput $input){
         $values=$input->getForm(true)->getValues(true);
         $usedValuesArr=[];
@@ -493,7 +496,7 @@ class AttributesPresenter extends BasePresenter{
           foreach($values['valuesBins'] as $valuesBin){
             if (!empty($valuesBin['values'])){
               foreach($valuesBin['values'] as $value){
-                $usedValuesArr[]=$value['value']->value;
+                $usedValuesArr[]=$value['value'];
               }
             }
           }
@@ -504,7 +507,7 @@ class AttributesPresenter extends BasePresenter{
         ->setValidationScope([$value])
         ->onClick[]=function(SubmitButton $submitButton)use($intervals){
         $values=$submitButton->getParent()->getValues(true);
-        $valueItem=$values->createOne();
+        $valueItem=$submitButton->getParent()['values']->createOne();
         $valueItem->setValues([
           'value'=>$values['value']
         ]);

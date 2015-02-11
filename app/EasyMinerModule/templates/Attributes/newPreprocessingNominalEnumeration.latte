@@ -6,6 +6,16 @@
     <h2>{_'New preprocessing - Nominal enumeration'}</h2>
     <p class="preprocessingInfo">{_'Define groups of values, which should be created in attribute.'}</p>
 
+    <div class="formatValues">
+      <strong>{_'Format values:'}</strong>
+      {foreach $format->values as $value}
+        <span>{$value}</span>
+      {/foreach}
+      {foreach $format->intervals as $interval}
+        <span>{$interval}</span>
+      {/foreach}
+    </div>
+
     {form newNominalEnumerationForm}
       {foreach $form->controls as $name => $field}
         {if ($field instanceof \Nette\Forms\Controls\HiddenField)}
@@ -29,9 +39,9 @@
           <div class="values" n:ifcontent>
             {foreach $valuesBin['values']->containers as $valueId=>$value}
               <span class="value">
-                {input valuesBins-$id-values-$intervalId-value}
+                {input valuesBins-$id-values-$valueId-value}
                 <strong>{$value['value']->control->value}</strong>
-                {input valuesBins-$id-intervals-$intervalId-remove}
+                {input valuesBins-$id-values-$valueId-remove}
               </span>
             {/foreach}
           </div>
