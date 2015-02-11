@@ -1,0 +1,22 @@
+{block content}
+
+  <div class="{if $template=='default'}block centerContent{else}main{/if}">
+
+    <h1>{_'New attribute from: '}{$datasourceColumn->name}</h1>
+    <h2>{_'New preprocessing - Equidistant intervals'}</h2>
+    <p class="preprocessingInfo">{_'This preprocessing splits numerical values into intervals with equidistant length.'}</p>
+
+    <div class="formatValues">
+      <strong>{_'Format values:'}</strong>
+      {foreach $format->intervals as $interval}
+        <span>{$interval}</span>
+      {/foreach}
+    </div>
+
+    {control newEquidistantIntervalsForm}
+
+  </div>
+
+{/block}
+
+

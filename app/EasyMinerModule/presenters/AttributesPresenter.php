@@ -102,7 +102,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro pouřití preprocessingu each value - one category
+   * Akce pro použití preprocessingu interval enumeration
    * @param int $miner
    * @param int $column
    * @throws BadRequestException
@@ -114,15 +114,69 @@ class AttributesPresenter extends BasePresenter{
     $this->template->datasourceColumn=$datasourceColumn;
     $format=$datasourceColumn->format;
     $this->template->format=$format;
-    //kontrola, jestli už existuje preprocessing tohoto typu
-    $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
-    $this->template->preprocessing=$preprocessing;
     /** @var Form $form */
     $form=$this->getComponent('newIntervalEnumerationForm');
     $form->setDefaults(array(
       'miner'=>$miner->minerId,
       'column'=>$column,
       'attributeName'=>$datasourceColumn->name
+    ));
+  }
+
+  /**
+   * Akce pro použití preprocessingu
+   * @param int $miner
+   * @param int $column
+   * @throws BadRequestException
+   */
+  public function renderNewPreprocessingEquidistantIntervals($miner, $column){
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+    $this->template->datasourceColumn=$datasourceColumn;
+    $format=$datasourceColumn->format;
+    $this->template->format=$format;
+
+    $minLeftMargin=null;
+    $minLeftClosure=null;
+    $maxRightMargin=null;
+    $maxRightClosure=null;
+    $intervals=$format->intervals;
+    if (!empty($intervals)){
+      foreach($intervals as $interval){
+        if ($minLeftMargin==null){
+          //jde o první interval
+          $minLeftMargin=$interval->leftMargin;
+          $minLeftClosure=$interval->leftClosure;
+          $maxRightMargin=$interval->rightMargin;
+          $maxRightClosure=$interval->rightClosure;
+        }else{
+          //budeme kontrolovat hranice a případně je zvětšovat
+          if ($minLeftMargin>$interval->leftMargin || ($minLeftMargin==$interval->leftMargin && $minLeftClosure==Interval::CLOSURE_OPEN && $interval->leftClosure==Interval::CLOSURE_CLOSED)){
+            $minLeftClosure=$interval->leftClosure;
+            $minLeftMargin=$interval->leftMargin;
+          }
+          if ($maxRightMargin<$interval->rightMargin || ($maxRightMargin==$interval->rightMargin && $maxRightClosure==Interval::CLOSURE_OPEN && $interval->rightClosure==Interval::CLOSURE_CLOSED)){
+            $maxRightClosure=$interval->rightClosure;
+            $maxRightMargin=$interval->rightMargin;
+          }
+        }
+      }
+    }
+
+    /** @var Form $form */
+    $form=$this->getComponent('newEquidistantIntervalsForm');
+    $form->setDefaults(array(
+      'miner'=>$miner->minerId,
+      'column'=>$column,
+      'attributeName'=>$datasourceColumn->name,
+      'minLeftMargin'=>$minLeftMargin,
+      'minLeftClosure'=>$minLeftClosure,
+      'maxRightMargin'=>$maxRightMargin,
+      'maxRightClosure'=>$maxRightClosure,
+      'equidistantLeftMargin'=>$minLeftMargin,
+      'equidistantRightMargin'=>$maxRightMargin,
+      'equidistantIntervalsCount'=>5
     ));
   }
 
@@ -138,9 +192,6 @@ class AttributesPresenter extends BasePresenter{
     $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
     $this->template->datasourceColumn=$datasourceColumn;
     $format=$datasourceColumn->format;
-    //kontrola, jestli už existuje preprocessing tohoto typu
-    $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
-    $this->template->preprocessing=$preprocessing;
     $this->template->format=$format;
     /** @var Form $form */
     $form=$this->getComponent('newNominalEnumerationForm');
@@ -423,6 +474,160 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
+   * Formulář pro zadání preprocessingu pomocí interval enumeration
+   * @return Form
+   */
+  protected function createComponentNewEquidistantIntervalsForm(){
+    $form=new Form();
+    $form->setTranslator($this->translator);
+    $form->addHidden('column');
+    $form->addHidden('miner');
+    $form->addHidden('minLeftMargin');
+    $form->addHidden('minLeftClosure');
+    $form->addHidden('maxRightMargin');
+    $form->addHidden('maxRightClosure');
+
+    $form->addText('preprocessingName','Preprocessing name:')//TODO dodělat kontrolu unikátnosti názvu preprocessingu
+      ->setRequired('Input preprocessing name!')
+      ->setAttribute('class','normalWidth');
+    $form->addText('attributeName','Create attribute with name:')
+      ->setAttribute('class','normalWidth')
+      ->setRequired('Input attribute name!')
+      ->addRule(function(TextInput $input){
+        //kontrola, jestli již existuje atribtu se zadaným názvem
+        $values=$input->getForm(true)->getValues();
+        $miner=$this->findMinerWithCheckAccess($values->miner);
+        $attributes=$miner->metasource->attributes;
+        if (!empty($attributes)){
+          foreach ($attributes as $attribute){
+            if ($attribute->name==$input->value){
+              return false;
+            }
+          }
+        }
+        return true;
+      },'Attribute with this name already exists!');
+
+    $form->addText('equidistantLeftMargin','Equidistant intervals from:')
+      ->setRequired('You have to input number!')
+      ->addRule(Form::FLOAT,'You have to input number!')
+      ->addRule(function(TextInput $textInput){
+        $values=$textInput->getForm(true)->getValues(true);
+        if ($values['equidistantLeftMargin']<$values['minLeftMargin'] || $values['equidistantLeftMargin']>=$values['maxRightMargin']){
+          return false;
+        }
+        return true;
+      },'Start value cannot be out of the data range!');
+
+    $form->addText('equidistantRightMargin','Equidistant intervals to:')
+      ->setRequired('You have to input number!')
+      ->addRule(Form::FLOAT,'You have to input number!')
+      ->addRule(function(TextInput $textInput){
+        $values=$textInput->getForm(true)->getValues(true);
+        if ($values['equidistantRightMargin']>$values['maxRightMargin'] || $values['equidistantRightMargin']<=$values['minLeftMargin']){
+          return false;
+        }
+        return true;
+      },'End value cannot be out of the data range!')
+      ->addRule(function(TextInput $textInput){
+        $values=$textInput->getForm(true)->getValues(true);
+        if ($values['equidistantLeftMargin']>=$values['equidistantRightMargin']){
+          return false;
+        }
+        return true;
+      },'Start value has to be lower than end value!');
+
+    $form->addText('equidistantIntervalsCount','Intervals count:')
+      ->setRequired('You have to input an integer value bigger than 2!')
+      ->addRule(Form::INTEGER,'You have to input an integer value bigger than 2!')
+      ->addRule(Form::MIN,'You have to input an integer value bigger than 2!',2);
+
+    $form->addSubmit('submit','Save preprocessing & create attribute')
+      ->onClick[]=function(SubmitButton $submitButton){
+      #region vytvoření preprocessingu
+      $values=$submitButton->getForm(true)->getValues(true);
+      $miner=$this->findMinerWithCheckAccess($values['miner']);
+      $this->minersFacade->checkMinerMetasource($miner);
+
+      //vytvoření preprocessingu
+      $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$values['column']);
+      $format=$datasourceColumn->format;
+
+      $preprocessing=new Preprocessing();
+      $preprocessing->name=$values['preprocessingName'];
+      $preprocessing->format=$format;
+      $preprocessing->user=$this->usersFacade->findUser($this->user->id);
+      $this->preprocessingsFacade->savePreprocessing($preprocessing);
+
+      //vytvoření jednotlivých intervalů v podobě samostatných binů
+      $intervalsCount=$values['equidistantIntervalsCount'];
+      $step=$values['equidistantRightMargin']-$values['equidistantLeftMargin'];
+      $step=($step/$intervalsCount);
+      if (round($step,3)>0){
+        $step=round($step,3);
+      }
+      $firstStart=$values['equidistantLeftMargin'];
+      $endMax=$values['equidistantRightMargin'];
+      $remainingIntervals=$intervalsCount;
+      $lastEnd=$values['equidistantLeftMargin'];
+      while($remainingIntervals>0 && $lastEnd<$endMax){
+        $interval=new Interval();
+        $interval->leftMargin=$lastEnd;
+        if ($lastEnd==$firstStart){
+          $interval->leftClosure=$values['minLeftClosure'];
+        }else{
+          $interval->leftClosure=Interval::CLOSURE_CLOSED;
+        }
+        $lastEnd=min($endMax,$lastEnd+$step);
+        if ($remainingIntervals==1){
+          //dogenerování intervalu až do konce
+          $lastEnd=$endMax;
+        }
+        $interval->rightMargin=$lastEnd;
+        if ($lastEnd==$endMax){
+          $interval->rightClosure=$values['maxRightClosure'];
+        }else{
+          $interval->rightClosure=Interval::CLOSURE_OPEN;
+        }
+        $valuesBin=new ValuesBin();
+        $valuesBin->format=$format;
+        $valuesBin->name=$interval->__toString();
+        $this->metaAttributesFacade->saveValuesBin($valuesBin);
+        $this->metaAttributesFacade->saveInterval($interval);
+        $valuesBin->addToIntervals($interval);
+        $this->metaAttributesFacade->saveValuesBin($valuesBin);
+        $preprocessing->addToValuesBins($valuesBin);
+
+        $remainingIntervals--;
+      }
+
+      $this->preprocessingsFacade->savePreprocessing($preprocessing);
+
+      //vytvoření atributu
+      $attribute=new Attribute();
+      $attribute->metasource=$miner->metasource;
+      $attribute->datasourceColumn=$datasourceColumn;
+      $attribute->name=$values['attributeName'];
+      $attribute->type=$attribute->datasourceColumn->type;
+      $attribute->preprocessing=$preprocessing;
+      $this->minersFacade->prepareAttribute($miner,$attribute);
+      $this->metasourcesFacade->saveAttribute($attribute);
+      $this->minersFacade->checkMinerState($miner);
+
+      $this->redirect('reloadUI');
+      #endregion vytvoření preprocessingu
+    };
+    $presenter=$this;
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $submitButton)use($presenter){
+      $values=$submitButton->getForm()->getValues();
+      $presenter->redirect('addAttribute',array('column'=>$values->column,'miner'=>$values->miner));
+    };
+    return $form;
+  }
+
+  /**
    * Formulář pro zadání preprocessingu pomocí nominal enumeration
    * @return Form
    */
@@ -655,7 +860,6 @@ class AttributesPresenter extends BasePresenter{
     };
     return $form;
   }
-
 
   /**
    * Funkce pro přiřazení výchozího layoutu podle parametru v adrese (normální nebo iframe view)
