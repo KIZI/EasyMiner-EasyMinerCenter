@@ -60,6 +60,7 @@ services:
 	- App\Model\EasyMiner\Repositories\RuleSetsRepository
 	- App\Model\EasyMiner\Repositories\IntervalsRepository
 	- App\Model\EasyMiner\Repositories\ValuesRepository
+	- App\Model\EasyMiner\Repositories\ValuesBinsRepository
 	- App\Model\EasyMiner\Repositories\KnowledgeBasesRepository
 	- App\Model\EasyMiner\Repositories\PreprocessingsRepository
 

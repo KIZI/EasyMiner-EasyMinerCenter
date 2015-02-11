@@ -10,7 +10,7 @@ use LeanMapper\Entity;
  * @property int $preprocessingId
  * @property Format $format m:hasOne
  * @property string $name
- * @property string $specialType
+ * @property string $specialType = ''
  * @property bool $shared = false
  * @property ValuesBin[] $valuesBins m:hasMany
  * @property Attribute[] $generatedAttributes m:belongsToMany

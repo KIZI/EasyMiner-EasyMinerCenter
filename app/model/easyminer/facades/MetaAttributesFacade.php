@@ -4,12 +4,18 @@ namespace App\Model\EasyMiner\Facades;
 
 use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Entities\Format;
+use App\Model\EasyMiner\Entities\Interval;
 use App\Model\EasyMiner\Entities\MetaAttribute;
 use App\Model\EasyMiner\Entities\Preprocessing;
 use App\Model\EasyMiner\Entities\User;
+use App\Model\EasyMiner\Entities\Value;
+use App\Model\EasyMiner\Entities\ValuesBin;
+use App\Model\EasyMiner\Repositories\IntervalsRepository;
 use App\Model\EasyMiner\Repositories\MetaAttributesRepository;
 use App\Model\EasyMiner\Repositories\FormatsRepository;
 use App\Model\EasyMiner\Repositories\PreprocessingsRepository;
+use App\Model\EasyMiner\Repositories\ValuesBinsRepository;
+use App\Model\EasyMiner\Repositories\ValuesRepository;
 
 class MetaAttributesFacade {
   /** @var MetaAttributesRepository $metaAttributesRepository */
@@ -18,16 +24,33 @@ class MetaAttributesFacade {
   private $formatsRepository;
   /** @var PreprocessingsRepository $preprocessingsRepository */
   private $preprocessingsRepository;
-
+  /** @var ValuesBinsRepository $valuesBinsRepository */
+  private $valuesBinsRepository;
+  /** @var ValuesRepository $valuesRepository */
+  private $valuesRepository;
+  /** @var IntervalsRepository $intervalsRepository */
+  private $intervalsRepository;
 
   /**
    * @param MetaAttributesRepository $metaAttributesRepository
    * @param FormatsRepository $formatsRepository
+   * @param PreprocessingsRepository $preprocessingsRepository
+   * @param ValuesBinsRepository $valuesBinsRepository
+   * @param ValuesRepository $valuesRepository
+   * @param IntervalsRepository $intervalsRepository
    */
-  public function __construct(MetaAttributesRepository $metaAttributesRepository, FormatsRepository $formatsRepository, PreprocessingsRepository $preprocessingsRepository){
+  public function __construct(MetaAttributesRepository $metaAttributesRepository,
+                              FormatsRepository $formatsRepository,
+                              PreprocessingsRepository $preprocessingsRepository,
+                              ValuesBinsRepository $valuesBinsRepository,
+                              ValuesRepository $valuesRepository,
+                              IntervalsRepository $intervalsRepository){
     $this->metaAttributesRepository=$metaAttributesRepository;
     $this->formatsRepository=$formatsRepository;
     $this->preprocessingsRepository=$preprocessingsRepository;
+    $this->valuesBinsRepository=$valuesBinsRepository;
+    $this->valuesRepository=$valuesRepository;
+    $this->intervalsRepository=$intervalsRepository;
   }
 
   /**
@@ -256,6 +279,35 @@ class MetaAttributesFacade {
     $preprocessing->format=$format;
     $this->preprocessingsRepository->persist($preprocessing);
     return $preprocessing;
+  }
+
+  /**
+   * @param ValuesBin $valuesBin
+   */
+  public function saveValuesBin(ValuesBin &$valuesBin){
+    $this->valuesBinsRepository->persist($valuesBin);
+  }
+  /**
+   * @param Interval $interval
+   */
+  public function saveInterval(Interval &$interval){
+    $this->intervalsRepository->persist($interval);
+  }
+
+  /**
+   * @param Format|int $format
+   * @param string $value
+   * @return Value
+   * @throws \Exception
+   */
+  public function findValue($format,$value){//TODO má to být tady?
+    if (!($format instanceof Format)){
+      $format=$this->formatsRepository->find($format);
+    }
+    return $this->valuesRepository->findBy([
+      'format_id'=>$format->formatId,
+      'value'=>$value
+    ]);
   }
 
 }
