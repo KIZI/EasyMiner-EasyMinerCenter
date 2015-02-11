@@ -295,6 +295,7 @@ class AttributesPresenter extends BasePresenter{
       },'You have to input at least one bin!');
     $form->addText('attributeName','Create attribute with name:')
       ->setRequired('Input attribute name!')
+      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
         //kontrola, jestli již existuje atribtu se zadaným názvem
         $values=$input->getForm(true)->getValues();
@@ -492,6 +493,7 @@ class AttributesPresenter extends BasePresenter{
       ->setAttribute('class','normalWidth');
     $form->addText('attributeName','Create attribute with name:')
       ->setAttribute('class','normalWidth')
+      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->setRequired('Input attribute name!')
       ->addRule(function(TextInput $input){
         //kontrola, jestli již existuje atribtu se zadaným názvem
@@ -642,6 +644,7 @@ class AttributesPresenter extends BasePresenter{
       },'You have to input at least one bin!');
     $form->addText('attributeName','Create attribute with name:')
       ->setRequired('Input attribute name!')
+      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
         //kontrola, jestli již existuje atribtu se zadaným názvem
         $values=$input->getForm(true)->getValues();
@@ -821,6 +824,7 @@ class AttributesPresenter extends BasePresenter{
     $form->addHidden('preprocessing');
     $form->addText('attributeName','Attribute name:')
       ->setRequired('Input attribute name!')
+      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
         //kontrola, jestli již existuje atribtu se zadaným názvem
         $values=$input->getForm(true)->getValues();
