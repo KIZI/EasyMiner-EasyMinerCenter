@@ -205,20 +205,15 @@ class MySQLDatabase implements IDatabase{
    * @throws \Exception
    */
   public function getColumn($name) {
-    if (!($select=$this->db->query('SELECT `'.$name.'` FROM `'.$this->tableName.'`;'))){
-      throw new \Exception('Requested column not found! ('.$name.')');
+    $columns=$this->getColumns();
+    if (!empty($columns)){
+      foreach($columns as $column){
+        if ($column->name==$name){
+          return $column;
+        }
+      }
     }
-    try{
-      $pdoColumnMeta=$select->getColumnMeta(0);
-      $dbColumn=new DbColumn();
-      $dbColumn->name=$pdoColumnMeta['name'];
-      //TODO typy
-      //$dbColumn->dataType='';
-      //$dbColumn->strLen='';
-      return $dbColumn;
-    }catch (\Exception $e){
-      throw new \Exception('Requested column not found! ('.$name.')');
-    }
+    throw new \Exception('Requested column not found! ('.$name.')');
   }
 
   /**
@@ -228,7 +223,7 @@ class MySQLDatabase implements IDatabase{
    */
   public function getColumnValuesStatistic($name,$includeValues=true){
     $result=new DbColumnValuesStatistic($this->getColumn($name));
-    if ($result->dataType=DbColumn::TYPE_STRING){
+    if ($result->dataType==DbColumn::TYPE_STRING){
       //u řetězce vracíme jen info o počtu řádků
       $select=$this->db->prepare('SELECT count('.$name.') as rowsCount from `'.$this->tableName.'`);');
       $select->execute();
@@ -236,7 +231,7 @@ class MySQLDatabase implements IDatabase{
       $result->rowsCount=$selectResult['rowsCount'];
     }else{
       //u čísel vracíme info o min, max a avg
-      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`);');
+      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`;');
       $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
       $result->rowsCount=$selectResult['rowsCount'];
