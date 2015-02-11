@@ -246,7 +246,7 @@ class MySQLDatabase implements IDatabase{
 
     if ($includeValues){
       //načtení hodnot s četnostmi
-      $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` GROUP BY `'.$name.'` ORDER BY `'.$name.'` LIMIT 10000;');//TODO check this limit...
+      $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` WHERE `'.$name.'` IS NOT NULL GROUP BY `'.$name.'` ORDER BY `'.$name.'` LIMIT 10000;');//TODO check this limit...
       $query->execute();
       $valuesArr=array();
       while ($row=$query->fetchObject()){

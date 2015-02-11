@@ -25,7 +25,7 @@ class IziUiPresenter extends BasePresenter{
    * @param int $miner
    * @throws ForbiddenRequestException
    */
-  public function actionGetData($id_dm,$miner){//TODO ošetření případné chyby!!!
+  public function actionGetData($id_dm,$miner){
     if (empty($miner)){
       $miner=$id_dm;
     }
