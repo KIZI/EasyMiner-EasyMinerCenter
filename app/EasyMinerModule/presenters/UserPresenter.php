@@ -155,7 +155,7 @@ class UserPresenter  extends BasePresenter{
         $presenter->getUser()->login($presenter->usersFacade->authenticateUserFromGoogle($googleUser, $googleProfile));
 
         $presenter->flashMessageLoginSuccess('Google');
-        $presenter->redirect('Data:NewTask');
+        $presenter->finalRedirect();
       } catch (\Google_Exception $e) {
         $presenter->flashMessageLoginFailed('Google');
       }
