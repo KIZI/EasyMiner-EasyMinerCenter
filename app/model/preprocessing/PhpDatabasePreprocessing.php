@@ -94,29 +94,48 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
     $valuesBins=$preprocessing->valuesBins;
     //připravení pole pro jednoduché přiřazování hodnot
     $finalValuesArr=array();
+    $finalIntervalsArr=array();
     foreach ($valuesBins as $valuesBin){
       $name=$valuesBin->name;
       $attributeStrLen=max($attributeStrLen,Strings::length($name));
       $values=$valuesBin->values;
       if (!empty($values)){
+
         foreach ($values as $value){
           $finalValuesArr[$value->value]=$valuesBin->name;
         }
       }
+      $intervals=$valuesBin->intervals;
+      if (!empty($intervals)){
+        foreach($intervals as $interval){
+          $finalIntervalsArr[$valuesBin->name]=$interval;
+        }
+      }
     }
     if (!empty($finalValuesArr)){
-      return function($value)use($finalValuesArr){
+      $result=function($value)use($finalValuesArr){
         if (isset($finalValuesArr[$value])){
           return $finalValuesArr[$value];
         }else{
           return null;
         }
       };
+      return $result;
     }
-    //TODO funkce pro přiřazování intervalů!!!
-    return function($value){
-      return null;
-    };
+
+    if (!empty($finalIntervalsArr)){
+      $result=function($value)use($finalIntervalsArr){
+        foreach($finalIntervalsArr as $key=>$interval){
+          if ($interval->containsValue($value)){
+            return $key;
+          }
+        }
+        return null;
+      };
+      return $result;
+    }
+
+    return function(){return null;};
   }
 
 }

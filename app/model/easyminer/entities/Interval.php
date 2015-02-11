@@ -58,6 +58,30 @@ class Interval extends Entity{
   }
 
   /**
+   * Funkce pro kontrolu, zda zadaná hodnota patří do tohoto intervalu
+   * @param float|Value $value
+   * @return bool
+   */
+  public function containsValue($value){
+    if ($value instanceof Value){
+      $value=floatval($value->value);
+    }
+    if ($value<$this->leftMargin || ($this->leftMargin==$value && $this->leftClosure==self::CLOSURE_OPEN)){return false;}
+    if ($value>$this->rightMargin || ($this->rightMargin==$value && $this->rightClosure==self::CLOSURE_OPEN)){return false;}
+    return true;
+  }
+
+  /**
+   * Funkce pro kontrolu, zda je daný interval podmnožinou tohoto intervalu
+   * @param Interval $interval
+   * @return bool
+   */
+  public function containsInterval(Interval $interval){
+    if (!(($this->leftMargin<$interval->leftMargin)||($this->leftMargin==$interval->leftMargin && ($this->leftClosure==self::CLOSURE_CLOSED || $interval->leftClosure==self::CLOSURE_OPEN)))){return false;}
+    return (($this->rightMargin>$interval->rightMargin)||($this->rightMargin==$interval->rightMargin && ($this->rightClosure==self::CLOSURE_CLOSED || $interval->rightClosure==self::CLOSURE_OPEN)));
+  }
+
+  /**
    * @return string
    */
   public function __toString(){
