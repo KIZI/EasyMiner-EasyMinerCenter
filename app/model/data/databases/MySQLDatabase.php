@@ -50,11 +50,11 @@ class MySQLDatabase implements IDatabase{
     if (count($columns)){
       foreach ($columns as $column){
         if ($column->dataType==DbColumn::TYPE_STRING){
-          $sql.=', `'.$column->name.'` varchar('.$column->strLength.') NOT NULL';
+          $sql.=', `'.$column->name.'` varchar('.$column->strLength.') NULL';
         }elseif($column->dataType==DbColumn::TYPE_INTEGER){
-          $sql.=', `'.$column->name.'` int(11) NOT NULL';
+          $sql.=', `'.$column->name.'` int(11) NULL';
         }elseif($column->dataType==DbColumn::TYPE_FLOAT){
-          $sql.=', `'.$column->name.'` float NOT NULL';
+          $sql.=', `'.$column->name.'` float NULL';
         }
       }
     }
@@ -296,10 +296,25 @@ class MySQLDatabase implements IDatabase{
       $queryStrLen=$this->db->prepare('SELECT MAX(CHAR_LENGTH(`'.$column->Field.'`)) AS strLen FROM `'.$this->tableName.'`;');
       $queryStrLen->execute();
       $dbColumn->strLength=$queryStrLen->fetchColumn(0);
-      //TODO datový typ!!!
+      $dbColumn->dataType=self::encodeDbDataType($column->Type);
       $result[]=$dbColumn;
     }
     return $result;
+  }
+
+  /**
+   * @param string $dataType
+   * @return string
+   */
+  public static function encodeDbDataType($dataType){
+    $dataType=Strings::lower($dataType);
+    if (Strings::contains($dataType,'int(')){
+      return DbColumn::TYPE_INTEGER;
+    }elseif(Strings::contains($dataType,'float')||Strings::contains($dataType,'double')||Strings::contains($dataType,'real')){
+      return DbColumn::TYPE_FLOAT;
+    }else{
+      return DbColumn::TYPE_STRING;
+    }
   }
 
   /**

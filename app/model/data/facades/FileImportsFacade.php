@@ -147,9 +147,9 @@ class FileImportsFacade {
       $insertArr=array();
       for ($i=0;$i<$colsCount;$i++){
         if (isset($row[$i])){
-          $insertArr[$colsNames[$i]]=$row[$i];
+          $insertArr[$colsNames[$i]]=($row[$i]!=''?$row[$i]:null);
         }else{
-          $insertArr[$colsNames[$i]]='';
+          $insertArr[$colsNames[$i]]=null;
         }
 
       }
