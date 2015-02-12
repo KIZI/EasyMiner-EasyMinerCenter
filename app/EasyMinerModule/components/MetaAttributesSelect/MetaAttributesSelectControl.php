@@ -195,14 +195,17 @@ class MetaAttributesSelectControl extends Control{
    */
   public function handleSetDatasourceColumnFormat($datasource,$column,$format){
 
-    //TODO propojení a kontrola, jestli datový rozsah formátu odpovídá datovému rozsahu (jestli hodnoty z DatasourceColumn spadají do rozsahu formátu)
+    //TODO kontrola, jestli datový rozsah formátu odpovídá datovému rozsahu (jestli hodnoty z DatasourceColumn spadají do rozsahu formátu)
     //TODO kontrola oprávnění!!!
     $datasource=$this->datasourcesFacade->findDatasource($datasource);
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
     $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
 
-    $this->metaAttributesFacade->updateFormatFromDatasourceColumn($this->metaAttributesFacade->findFormat($format),$datasourceColumn,$datasourceColumnValuesStatistic);
+    $format=$this->metaAttributesFacade->findFormat($format);
+    $this->metaAttributesFacade->updateFormatFromDatasourceColumn($format,$datasourceColumn,$datasourceColumnValuesStatistic);
+    $datasourceColumn->format=$format;
+    $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
   }
 
 
