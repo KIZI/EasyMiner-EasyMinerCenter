@@ -6,6 +6,7 @@ use App\EasyMinerModule\Components\MetaAttributesSelectControl;
 use App\Libs\StringsHelper;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
+use App\Model\Data\Files\CsvImport;
 use App\Model\EasyMiner\Entities\Datasource;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
@@ -82,7 +83,9 @@ class DataPresenter extends BasePresenter{
     $this->layout='blank';
     $this->fileImportsFacade->changeFileEncoding($file,$encoding);
     $this->template->colsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator,$enclosure,$escape);
-    $this->template->rows=$this->fileImportsFacade->getRowsFromCSV($file,20,$separator,$enclosure,$escape);
+    $rows=$this->fileImportsFacade->getRowsFromCSV($file,20,$separator,$enclosure,$escape,0);
+    $rows[0]=CsvImport::sanitizeColumnNames($rows[0]);
+    $this->template->rows=$rows;
   }
 
   /**
@@ -506,7 +509,7 @@ class DataPresenter extends BasePresenter{
     $nameInput=$form->addText('name','Data field name:')->setAttribute('class','normalWidth');
     $nameInput->addRule(Form::MAX_LENGTH,'Max length of the data field name is %s characters!',15)
       ->addRule(Form::MIN_LENGTH,'You have to input data field name!',1)
-      ->addRule(Form::PATTERN,'Data field name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z0-9_]+')
+      ->addRule(Form::PATTERN,'Data field name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z_][a-zA-Z0-9_]+')
       ->addRule(function(TextInput $control)use($presenter){
         //kontrola, jestli existuje data field se stejným jménem
         /** @var HiddenField $datasourceInput */

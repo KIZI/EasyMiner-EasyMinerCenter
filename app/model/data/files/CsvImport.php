@@ -139,6 +139,32 @@ class CsvImport {
     return ',';
   }
 
+  /**
+   * @param string[] $columnNamesArr
+   * @return string[]
+   */
+  public static function sanitizeColumnNames($columnNamesArr){
+    $finalColumnNamesArr=[];
+    $finalColumnNamesFilterArr=['id'];
+    foreach($columnNamesArr as $name){
+      //ošetření samotného jména
+      $name=Strings::webalize($name,null,false);
+      $name=str_replace('-','_',$name);
+      $name=Strings::substring($name,0,25);
+      if (!preg_match('/[a-z_]+\w*/i',$name)){
+        $name='_'.$name;
+      }
+      //vyřešení možné duplicity
+      $counter=0;
+      do{
+        $finalColumnName=$name.($counter>0?$counter:'');
+        $counter++;
+      }while(in_array(Strings::lower($finalColumnName),$finalColumnNamesFilterArr));
+      $finalColumnNamesArr[]=$finalColumnName;
+      $finalColumnNamesFilterArr[]=Strings::lower($finalColumnName);
+    }
+    return $finalColumnNamesArr;
+  }
 
   /**
    * Funkce vracející informace o datových sloupcích obsažených v CSV souboru
@@ -150,6 +176,8 @@ class CsvImport {
    */
   public static function analyzeCSVColumns($filename, $delimitier=',',$enclosure='"',$escapeCharacter='\\'){
     $columnNamesArr=self::getColsNamesInCsv($filename,$delimitier,$enclosure,$escapeCharacter);
+
+    $columnNamesArr=self::sanitizeColumnNames($columnNamesArr);
 
     $numericalArr=array();
     $strlenArr=array();
