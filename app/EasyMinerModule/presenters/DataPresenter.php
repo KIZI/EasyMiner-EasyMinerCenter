@@ -140,10 +140,10 @@ class DataPresenter extends BasePresenter{
               $existingFormatNames[]=$format->name;
             }
           }
-          $basicFormatName=Strings::webalize($datasource->dbTable);
+          $basicFormatName=str_replace('-','_',Strings::webalize($datasource->dbTable));
           $i=1;
           do{
-            $formatName=$basicFormatName.($i>1?$i:'');
+            $formatName=$basicFormatName.($i>1?'_'.$i:'');
             $i++;
           }while(in_array($formatName,$existingFormatNames));
           $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);

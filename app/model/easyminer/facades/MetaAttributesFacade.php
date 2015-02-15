@@ -261,6 +261,7 @@ class MetaAttributesFacade {
       }
       unset($params['metaAttribute']);
     }
+    $params=array_merge($paramsArr,$params);
     return $this->formatsRepository->findAllBy($params,$offset,$limit);
   }
 
