@@ -7,7 +7,7 @@ use LeanMapper\Entity;
  * Class Value
  * @package App\Model\EasyMiner\Entities
  * @property string $valueId
- * @property Format $format m:hasOne
+ * @property Format|null $format m:hasOne
  * @property string $value
  */
 class Value extends Entity{

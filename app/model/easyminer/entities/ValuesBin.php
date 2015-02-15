@@ -9,8 +9,8 @@ use LeanMapper\Entity;
  * @property int $valuesBinId
  * @property string $name
  * @property Format $format m:hasOne
- * @property Interval[] $intervals m:hasMany //XXX
- * @property Value[] $values m:hasMany //XXX
+ * @property Interval[] $intervals m:hasMany
+ * @property Value[] $values m:hasMany
  */
 class ValuesBin extends Entity{
 
