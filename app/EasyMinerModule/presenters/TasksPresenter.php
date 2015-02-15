@@ -137,6 +137,7 @@ class TasksPresenter  extends BasePresenter{
    * @param $task
    */
   public function renderTaskDetails($miner,$task){
+    exit('This function will be available in a few days...');
     //TODO akce pro vykreslení detailů úlohy v podobě PMML
 
   }
