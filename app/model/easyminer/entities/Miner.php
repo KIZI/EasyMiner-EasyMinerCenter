@@ -25,7 +25,7 @@ use Nette\Utils\Json;
 class Miner extends Entity{
   const TYPE_LM='lm';
   const TYPE_R='r';
-  const DEFAULT_TYPE='lm';
+  const DEFAULT_TYPE='r';
 
   /**
    * Funkce vracející přehled jednotlivých podporovaných typů minerů

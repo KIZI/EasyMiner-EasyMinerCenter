@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arf:GUHAFeatureList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://keg.vse.cz/ns/arfeatures_08 http://sewebar.vse.cz/schemas/GUHAARfeature.xsd"
+	xmlns:arf="http://keg.vse.cz/ns/arfeatures_08" mode="AssociationRules" procedure="4ft">
+	<UserInterface priority="2">
+		<AllowMultipleRules>false</AllowMultipleRules>
+		<Name>Exploration</Name>
+		<LocalizedName lang="en">Exploration full</LocalizedName>
+		<Explanation lang="en">All features are enabled.</Explanation>
+		<AutoSuggest>
+			<Option default="false">
+				<Name>heuristic</Name>
+				<LocalizedName lang="en">Heuristic</LocalizedName>
+				<Explanation lang="en">The system will sort features according to their ability to predict the value of the target attribute. The prediction is fast, but only approximative. </Explanation>
+			</Option>
+		</AutoSuggest>
+	</UserInterface>
+
+	<RulePattern>
+		<Antecedent minNumberOfBBAs="0" />
+		<Consequent minNumberOfBBAs="1" />
+		<Condition minNumberOfBBAs="0" maxNumberOfBBAs="0" />
+		<GeneralConstraint minNumberOfBBAs="1" />
+	</RulePattern>
+
+	<BuildingBlocks>
+		<InterestMeasures threshold="required">
+			<Types>
+				<Type>
+					<Name>FUI</Name>
+          <Default>true</Default>
+					<LocalizedName lang="en">Confidence</LocalizedName>
+					<LocalizedName lang="cs">Spolehlivost</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">At lest specified percentage of instances matching the left side of the rule must match also the right side of the rule.</Explanation>
+					<Calculation>a/(a+b)</Calculation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.7</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>SUPP</Name>
+                    <Default>true</Default>
+					<LocalizedName lang="en">Support</LocalizedName>
+					<LocalizedName lang="cs">Podpora</LocalizedName>
+					<ThresholdType>% of all</ThresholdType>
+					<CompareType>Greater than or equal</CompareType>
+					<Explanation lang="en">Percentage of objects the rule must match.</Explanation>
+					<Explanation lang="cs">Relativní podpora pravidla</Explanation>
+					<Calculation>a/(a+b+c+d)</Calculation>
+					<Field>
+						<Name>threshold</Name>
+						<DefaultValue>0.05</DefaultValue>
+						<LocalizedName lang="en">min value</LocalizedName>
+						<LocalizedName lang="cs">prahová hodnota</LocalizedName>
+						<Validation>
+							<MinValue inclusive="no">0.01</MinValue>
+							<MaxValue inclusive="yes">1</MaxValue>
+							<Datatype>double</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+        <Type>
+          <Name>LIFT</Name><!-- TODO dodělat popis... -->
+          <Default>false</Default>
+          <LocalizedName lang="en">Lift</LocalizedName>
+          <LocalizedName lang="cs">Lift</LocalizedName>
+          <ThresholdType>% of all</ThresholdType>
+          <CompareType>Greater than or equal</CompareType>
+          <Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
+            The value is decreased by one compared to the formula typically used in the literature.
+          </Explanation>
+          <Field>
+            <Name>threshold</Name>
+            <DefaultValue>1.10</DefaultValue>
+            <LocalizedName lang="en">min value</LocalizedName>
+            <LocalizedName lang="cs">prahová hodnota</LocalizedName>
+            <Validation>
+              <MinValue inclusive="no">0</MinValue>
+              <MaxValue inclusive="no">5</MaxValue>
+              <Datatype>double</Datatype>
+            </Validation>
+          </Field>
+        </Type>
+			</Types>
+			<SupportedInterestMeasureCombinations />
+		</InterestMeasures>
+
+		<BasicBooleanAttribute coefficient="required">
+			<Coefficient scope="all">
+				<Type>
+					<Name>Subset</Name>
+					<LocalizedName lang="en">Subset of values</LocalizedName>
+					<Explanation lang="en">The system will try to use all individual attribute values. If maximum number of values parameter is set to a value greater than 1, dynamic binning will be activated. </Explanation>
+					<MaxOccurrences>1</MaxOccurrences>
+					<Field hidden="true">
+						<Name>minLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Minimum number of values</LocalizedName>
+						<LocalizedName lang="cs">Minimální délka</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+						</Validation>
+					</Field>
+
+					<Field hidden="true">
+						<Name>maxLength</Name>
+						<DefaultValue>1</DefaultValue>
+						<LocalizedName lang="en">Maximum number of values</LocalizedName>
+						<LocalizedName lang="cs">Maximální délka</LocalizedName>
+						<Explanation lang="en">If set to a value greater than 2, the system will go through all combinations of up to a specified number of values.</Explanation>
+						<Validation>
+							<Required value="yes" />
+							<MinValue>1</MinValue>
+							<MaxValue>1</MaxValue>
+							<Datatype>integer</Datatype>
+							<Previous>isSmallerOrEqual</Previous>
+						</Validation>
+					</Field>
+				</Type>
+				<Type>
+					<Name>One category</Name>
+					<LocalizedName lang="en">Fixed value</LocalizedName>
+                    <Explanation lang="en">Only the specified value will be considered for the value of the field. </Explanation>
+					<Field>
+						<Name>category</Name>
+						<LocalizedName lang="en">Value</LocalizedName>
+						<LocalizedName lang="cs">Kategorie</LocalizedName>
+						<Validation>
+							<Required value="yes" />
+							<Datatype>string</Datatype>
+						</Validation>
+					</Field>
+				</Type>
+			</Coefficient>
+
+		</BasicBooleanAttribute>
+
+		<DerivedBooleanAttribute>
+			<NestingConstraints scope="all">
+				<MaxLevels>1</MaxLevels>
+				<NestingConstraint level="1">
+					<Connectives>
+						<Conjunction allowed="yes" />
+						<Disjunction allowed="no" />
+						<Any allowed="no" />
+						<Negation allowed="no" />
+					</Connectives>
+				</NestingConstraint>
+			</NestingConstraints>
+
+		</DerivedBooleanAttribute>
+	</BuildingBlocks>
+</arf:GUHAFeatureList>

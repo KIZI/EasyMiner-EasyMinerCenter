@@ -6,7 +6,8 @@
 parameters:
     izi-ui:
         DDPath: '/libs/IZI-Data/datadescription_0.2.xml'
-        FLPath: '/config/izi/featureList_exploration.xml'
+        FLPath_R: '/config/izi/featureList_exploration_R.xml'
+        FLPath_LM: '/config/izi/featureList_exploration_LM.xml'
         FGCPath: '/libs/IZI-Data/fieldGroupConfig.xml'
         ERPath: null
         ETreePath: null

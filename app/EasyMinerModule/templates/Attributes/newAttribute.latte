@@ -1,0 +1,13 @@
+{block content}
+
+  <div class="{if $template=='default'}block centerContent{else}main{/if}">
+
+    <h1>{_'New attribute from: '}{$datasourceColumn->name}</h1>
+    <h2>{$preprocessing->name}</h2>
+    {control newAttributeForm}
+
+  </div>
+
+{/block}
+
+

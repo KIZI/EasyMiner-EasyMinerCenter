@@ -1,0 +1,47 @@
+{block content}
+
+  <div class="{if $template=='default'}block centerContent{else}main{/if}">
+
+    <h1>{_'Preprocessing:'} {$preprocessing->name}</h1>
+
+    <div class="formatValues">
+      <strong>{_'Format values:'}</strong>
+      {foreach $preprocessing->format->intervals as $interval}
+        <span>{$interval}</span>
+      {/foreach}
+      {foreach $preprocessing->format->values as $value}
+        <span>{$value}</span>
+      {/foreach}
+    </div>
+    {var $valuesBins=$preprocessing->valuesBins;}
+    {if (count($valuesBins)>0)}
+      <div>{_'Bins defined in this preprocessing:'}</div>
+      {foreach $valuesBins as $valuesBin}
+        <div class="valuesBin show">
+          <h3>{$valuesBin->name}</h3>
+          <div class="values">
+            {foreach $valuesBin->values as $value}
+              <span class="value">{$value}</span>
+            {/foreach}
+            {foreach $valuesBin->intervals as $interval}
+              <span class="interval">{$interval}</span>
+            {/foreach}
+          </div>
+        </div>
+      {/foreach}
+    {else}
+      <p>
+        <span class="error">{_'No bins found.'}</span>
+      </p>
+    {/if}
+
+    <div class="actionsDiv">
+      <a href="{link newAttribute column=>$column, miner=>$miner->minerId, preprocessing=>$preprocessing->preprocessingId}">{_'Create attribute...'}</a>
+      <a href="{link addAttribute column=>$column, miner=>$miner->minerId}">{_'storno'}</a>
+    </div>
+
+  </div>
+
+{/block}
+
+

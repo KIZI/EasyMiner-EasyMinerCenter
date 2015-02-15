@@ -9,6 +9,7 @@ use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Repositories\CedentsRepository;
 use App\Model\EasyMiner\Repositories\RuleAttributesRepository;
 use App\Model\EasyMiner\Repositories\RulesRepository;
+use Nette\Utils\Strings;
 
 
 /**
@@ -31,6 +32,28 @@ class RulesFacade {
     return $this->rulesRepository->find($ruleId);
   }
 
+  private function getRulesOrderFormula($order){
+    $formulasArr=[
+      'fui'=>'confidence DESC',
+      'confidence'=>'confidence DESC',
+      'supp'=>'support DESC',
+      'support'=>'support DESC',
+      'add'=>'lift DESC',
+      'lift'=>'lift DESC',
+      'a'=>'a DESC',
+      'b'=>'b DESC',
+      'c'=>'c DESC',
+      'd'=>'d DESC'
+      //TODO definice dalších měr zajímavosti
+    ];
+    $order=Strings::lower($order);
+    if (isset($formulasArr[$order])){
+      return $formulasArr[$order];
+    }else{
+      return 'rule_id';
+    }
+  }
+
   /**
    * @param Task|int $task
    * @param string $order
@@ -45,7 +68,7 @@ class RulesFacade {
     }
     $params=array('task_id'=>$task);
     if (!empty($order)){
-      $params['order']=$order;
+      $params['order']=$this->getRulesOrderFormula($order);
     }
     if ($onlyInClipboard){
       $params['in_rule_clipboard']=true;

@@ -12,24 +12,48 @@
       {/if}
     </p>
 
+    <div class="formatValues">
+      <strong>{_'Format values:'}</strong>
+      {foreach $format->values as $value}
+        <span>{$value}</span>
+      {/foreach}
+      {foreach $format->intervals as $interval}
+        <span>{$interval}</span>
+      {/foreach}
+    </div>
+
     <h2>{_'New preprocessing'}</h2>
     <div class="actionsDiv bigButtons">
-      {if $format->dataType==\App\Model\Rdf\Entities\Format::DATATYPE_INTERVAL}
+      {if $format->dataType==\App\Model\EasyMiner\Entities\Format::DATATYPE_INTERVAL}
         <a href="{link newPreprocessingIntervalEnumeration miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Interval enumeration'}</a>
         <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equidistant intervals'}</a>
       {/if}
       <a href="{link newPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,type=>'nominalEnumeration'}">{_'Nominal enumeration'}</a>
-    </div>
-
-    <h2>{_'Existing preprocessing definitions'}</h2>
-    <div class="actionsDiv bigButtons">
-      {if !empty($format->preprocessings)}
-        {foreach $format->preprocessings as $preprocessing}
-          <a href="{link showPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->uri}">{$preprocessing->name}</a>
+      {if !empty($preprocessings)}
+        {foreach $preprocessings as $preprocessing}
+          {if $preprocessing->specialType==\App\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
+            {var $preprocessingEachOne = true;}
+            {breakIf true}
+          {/if}
         {/foreach}
       {/if}
-      <a href="{link newPreprocessingEachOne miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Each value - one category'}</a>
+      {if !isset($preprocessingEachOne) || !$preprocessingEachOne}
+        <a href="{link newPreprocessingEachOne miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Each value - one category'}</a>
+      {/if}
     </div>
+
+    {if !empty($preprocessings)}
+      <h2>{_'Existing preprocessing definitions'}</h2>
+      <div class="actionsDiv bigButtons">
+        {foreach $preprocessings as $preprocessing}
+          {if $preprocessing->specialType==\App\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
+            <a href="{link newAttribute miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->preprocessingId}">{$preprocessing->name}</a>
+          {else}
+            <a href="{link showPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->preprocessingId}">{$preprocessing->name}</a>
+          {/if}
+        {/foreach}
+      </div>
+    {/if}
 
 
   </div>

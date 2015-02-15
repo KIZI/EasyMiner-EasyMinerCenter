@@ -2,6 +2,7 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Facades\RulesFacade;
+use App\Model\EasyMiner\Facades\TasksFacade;
 use Nette\Utils\Json;
 
 /**
@@ -11,6 +12,8 @@ use Nette\Utils\Json;
 class TasksPresenter  extends BasePresenter{
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
+  /** @var  TasksFacade $tasksFacade */
+  private $tasksFacade;
 
   /**
    * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
@@ -25,7 +28,7 @@ class TasksPresenter  extends BasePresenter{
     $miner=$this->minersFacade->findMiner($miner);
     $this->checkMinerAccess($miner);
     //nalezení či připravení úlohy...
-    $task=$this->minersFacade->prepareTaskWithUuid($miner,$taskUuid);
+    $task=$this->tasksFacade->prepareTaskWithUuid($miner,$taskUuid);
     if ($task->state=='new'){
       #region nově importovaná úloha
       //zjištění názvu úlohy z jsonu s nastaveními
@@ -37,7 +40,7 @@ class TasksPresenter  extends BasePresenter{
         $task->name=$taskUuid;
       }
       $task->taskSettingsJson=$data;
-      $this->minersFacade->saveTask($task);
+      $this->tasksFacade->saveTask($task);
       $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
       $taskState=$miningDriver->startMining();
       #endregion
@@ -47,7 +50,7 @@ class TasksPresenter  extends BasePresenter{
       $taskState=$miningDriver->checkTaskState();
       #endregion
     }
-    $this->minersFacade->updateTaskState($task,$taskState);
+    $this->tasksFacade->updateTaskState($task,$taskState);
     $this->sendJsonResponse($task->getTaskState()->asArray());
   }
 
@@ -58,14 +61,15 @@ class TasksPresenter  extends BasePresenter{
    */
   public function actionStopMining($miner,$task){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
+
 
     $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
     $taskState=$miningDriver->stopMining();
 
-    $this->minersFacade->updateTaskState($task,$taskState);
+    $this->tasksFacade->updateTaskState($task,$taskState);
 
     $this->sendJsonResponse($taskState->asArray());
   }
@@ -83,7 +87,7 @@ class TasksPresenter  extends BasePresenter{
       $order='rule_id';
     }
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
@@ -107,11 +111,11 @@ class TasksPresenter  extends BasePresenter{
    * @throws \Exception
    */
   public function actionRenameTask($miner,$task,$name){
-    $task=$this->minersFacade->findTaskByUuid($miner,$task);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
     $task->name=$name;
-    if (!$this->minersFacade->saveTask($task)){
+    if (!$this->tasksFacade->saveTask($task)){
       throw new \Exception($this->translator->translate('Task rename failed!'));
     }
     $this->sendJsonResponse(array('state'=>'ok'));
@@ -127,6 +131,16 @@ class TasksPresenter  extends BasePresenter{
 
   }
 
+  /**
+   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * @param $miner
+   * @param $task
+   */
+  public function renderTaskDetails($miner,$task){
+    //TODO akce pro vykreslení detailů úlohy v podobě PMML
+
+  }
+
 
 
 
@@ -134,8 +148,12 @@ class TasksPresenter  extends BasePresenter{
   /**
    * @param RulesFacade $rulesFacade
    */
-  public function injectRulesFacade(RulesFacade $rulesFacade){
-    $this->rulesFacade=$rulesFacade;
+  public function injectRulesFacade(RulesFacade $rulesFacade) {
+    $this->rulesFacade = $rulesFacade;
+  }
+
+  public function injectTasksFacade(TasksFacade $tasksFacade){
+    $this->tasksFacade=$tasksFacade;
   }
   #endregion
 } 

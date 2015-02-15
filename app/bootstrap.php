@@ -23,7 +23,7 @@ $configurator->addConfig(__DIR__ . '/config/izi-ui.config.neon');
 
 $container = $configurator->createContainer();
 
-//TODO dočasné nastavení z důvodu deprecated u mysql rozhraní v ARC2_Store
-error_reporting(E_ALL ^ E_DEPRECATED);
+Kdyby\Replicator\Container::register();
+//error_reporting(E_ALL ^ E_DEPRECATED);//deprecated rozhraní kvůli MySQL v rámci ARC2_Store
 
 return $container;

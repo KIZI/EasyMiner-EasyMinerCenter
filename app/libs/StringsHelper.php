@@ -3,6 +3,7 @@
 namespace App\Libs;
 
 
+use App\Model\EasyMiner\Entities\Interval;
 use Nette\Utils\Strings;
 
 class StringsHelper {
@@ -104,5 +105,29 @@ class StringsHelper {
       MCRYPT_MODE_ECB, $iv));
   }
 
+
+  /**
+   * Funkce pro naformátování textové reprezentace intervalu
+   * @param string $leftBound
+   * @param float $leftValue
+   * @param float $rightValue
+   * @param string $rightBound
+   * @return string
+   */
+  public static function formatIntervalString($leftBound,$leftValue,$rightValue,$rightBound){
+    $output='';
+    if (Strings::lower($leftBound)=='open'){
+      $output.='(';
+    }else{
+      $output.='[';
+    }
+    $output.=$leftValue.';'.$rightValue;
+    if (Strings::lower($rightBound)=='open'){
+      $output.=')';
+    }else{
+      $output.=']';
+    }
+    return $output;
+  }
 
 } 

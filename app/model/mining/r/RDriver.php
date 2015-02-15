@@ -66,7 +66,7 @@ class RDriver implements IMiningDriver{
    * @throws \Exception
    * @return TaskState
    */
-  public function checkTaskState(){
+  public function checkTaskState(){              
     if ($this->task->taskState->state==Task::STATE_IN_PROGRESS){
       if($this->task->resultsUrl!=''){
         $numRequests=1;
@@ -370,7 +370,11 @@ class RDriver implements IMiningDriver{
         case '202':
           //jde o informaci o tom, že je nutné na odpověď dál čekat
           $this->task->state=Task::STATE_IN_PROGRESS;
-          return new TaskState(Task::STATE_IN_PROGRESS,null,(string)$body->miner->{'result-url'});
+          $resultUrl=(string)$body->miner->{'result-url'};
+          if ($resultUrl=='' && $this->task->resultUrl!=''){
+            $resultUrl=$this->task->resultUrl;
+          }
+          return new TaskState(Task::STATE_IN_PROGRESS,null,$resultUrl);
         case '500':
           //jde o chybu mineru
           return new TaskState(Task::STATE_FAILED);

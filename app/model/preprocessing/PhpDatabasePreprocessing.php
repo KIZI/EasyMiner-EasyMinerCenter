@@ -5,19 +5,20 @@ use App\Model\Data\Entities\DbColumn;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
+use App\Model\EasyMiner\Entities\Interval;
 use App\Model\EasyMiner\Entities\Metasource;
-use App\Model\Rdf\Entities\Preprocessing;
-use App\Model\Rdf\Repositories\PreprocessingsRepository;
+use App\Model\EasyMiner\Entities\Preprocessing;
+use App\Model\EasyMiner\Facades\PreprocessingsFacade;
 use Nette\Utils\Strings;
 
 class PhpDatabasePreprocessing implements IPreprocessingDriver{
-  /** @var  PreprocessingsRepository $preprocessingsRepository */
-  private $preprocessingsRepository;
+  /** @var  PreprocessingsFacade $preprocessingsFacade */
+  private $preprocessingsFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
 
-  public function __construct(PreprocessingsRepository $preprocessingsRepository, DatabasesFacade $databasesFacade){
-    $this->preprocessingsRepository=$preprocessingsRepository;
+  public function __construct(PreprocessingsFacade $preprocessingsFacade, DatabasesFacade $databasesFacade){
+    $this->preprocessingsFacade=$preprocessingsFacade;
     $this->databasesFacade=$databasesFacade;
   }
 
@@ -28,7 +29,7 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
   public function generateAttribute(Attribute $attribute) {
     $datasourceColumn=$attribute->datasourceColumn;
     $metasource=$attribute->metasource;
-    $preprocessing=$this->preprocessingsRepository->findPreprocessing($attribute->preprocessingId);
+    $preprocessing=$attribute->preprocessing;
     if ($preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
       $function=$this->generateAttributeEachOneFunction();
       if ($datasourceColumn->strLen){
@@ -90,33 +91,52 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
    * @return callable
    */
   private function generateAttributeValuesBinsFunction(Preprocessing $preprocessing, &$attributeStrLen){
-    //TODO připravení hodnot nového sloupce na základě příslušnosti jednotlivých hodnot do valuesBins
     $valuesBins=$preprocessing->valuesBins;
     //připravení pole pro jednoduché přiřazování hodnot
     $finalValuesArr=array();
+    /** @var Interval[] $finalIntervalsArr */
+    $finalIntervalsArr=array();
     foreach ($valuesBins as $valuesBin){
       $name=$valuesBin->name;
       $attributeStrLen=max($attributeStrLen,Strings::length($name));
       $values=$valuesBin->values;
       if (!empty($values)){
+
         foreach ($values as $value){
           $finalValuesArr[$value->value]=$valuesBin->name;
         }
       }
+      $intervals=$valuesBin->intervals;
+      if (!empty($intervals)){
+        foreach($intervals as $interval){
+          $finalIntervalsArr[$valuesBin->name]=$interval;
+        }
+      }
     }
     if (!empty($finalValuesArr)){
-      return function($value)use($finalValuesArr){
+      $result=function($value)use($finalValuesArr){
         if (isset($finalValuesArr[$value])){
           return $finalValuesArr[$value];
         }else{
           return null;
         }
       };
+      return $result;
     }
-    //TODO funkce pro přiřazování intervalů!!!
-    return function($value){
-      return null;
-    };
+
+    if (!empty($finalIntervalsArr)){
+      $result=function($value)use($finalIntervalsArr){
+        foreach($finalIntervalsArr as $key=>$interval){
+          if ($interval->containsValue($value)){
+            return $key;
+          }
+        }
+        return null;
+      };
+      return $result;
+    }
+
+    return function(){return null;};
   }
 
 }

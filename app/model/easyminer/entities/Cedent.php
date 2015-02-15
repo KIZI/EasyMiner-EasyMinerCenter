@@ -6,7 +6,7 @@ use LeanMapper\Entity;
 
 /**
  * Class Cedent
- * @package app\model\easyminer\entities
+ * @package App\Model\EasyMiner\Entities
  * @property int $cedentId
  * @property string $connective = 'conjunction' m:Enum(self::CONNECTIVE_*)
  * @property Cedent[] $cedents m:hasMany(parent_cedent_id:cedents_relations:child_cedent_id:cedents)

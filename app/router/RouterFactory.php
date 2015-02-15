@@ -26,7 +26,30 @@ class RouterFactory
     $knowledgeBaseRouter[] = new Route('/kb/<presenter>/<action>[/<id>]');
 
     $router[] = $dataMiningRouter = new RouteList('EasyMiner');
+    $dataMiningRouter[] = new Route('em/user/oauth-[!<type=google>]', [
+        'presenter' => 'User',
+        'action' => 'oauthGoogle',
+        NULL => array(
+            Route::FILTER_IN => function (array $params) {
+                $params['do'] = $params['type'] . 'Login-response';
+                unset($params['type']);
+    
+                return $params;
+            },
+            Route::FILTER_OUT => function (array $params) {       //TODO check...
+                if (empty($params['do']) || !preg_match('~^login\\-([^-]+)\\-response$~', $params['do'], $m)) {
+                    return NULL;
+                }
+    
+                $params['type'] = \Nette\Utils\Strings::lower($m[1]);
+                unset($params['do']);
+    
+                return $params;
+            },
+        ),
+    ]);
     $dataMiningRouter[] = new Route('em/<presenter>/<action>[/<id>]');
+    
 
     //$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
 

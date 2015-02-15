@@ -2,11 +2,14 @@
 
 namespace App\EasyMinerModule\Components;
 
+use App\Model\Data\Entities\DbColumnValuesStatistic;
+use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\EasyMiner\Entities\DatasourceColumn;
+use App\Model\EasyMiner\Entities\Format;
+use App\Model\EasyMiner\Entities\MetaAttribute;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\Rdf\Entities\Format;
-use App\Model\Rdf\Entities\MetaAttribute;
-use App\Model\Rdf\Facades\MetaAttributesFacade;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
+use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SelectBox;
@@ -29,6 +32,10 @@ class MetaAttributesSelectControl extends Control{
   private $datasourcesFacade;
   /** @var  ITranslator $translator */
   private $translator;
+  /** @var UsersFacade $usersFacade */
+  private $usersFacade;
+  /** @var DatabasesFacade $databasesFacade */
+  private $databasesFacade;
 
   /** @var callable[] $onComponentShow*/
   public  $onComponentShow=array();
@@ -38,11 +45,16 @@ class MetaAttributesSelectControl extends Control{
   /**
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param DatasourcesFacade $datasourcesFacade
+   * @param ITranslator $translator
+   * @param UsersFacade $usersFacade
+   * @param DatabasesFacade $databasesFacade
    */
-  public function __construct(MetaAttributesFacade $metaAttributesFacade, DatasourcesFacade $datasourcesFacade, ITranslator $translator){
+  public function __construct(MetaAttributesFacade $metaAttributesFacade, DatasourcesFacade $datasourcesFacade, ITranslator $translator, UsersFacade $usersFacade, DatabasesFacade $databasesFacade){
     $this->metaAttributesFacade=$metaAttributesFacade;
     $this->datasourcesFacade=$datasourcesFacade;
     $this->translator=$translator;
+    $this->usersFacade=$usersFacade;
+    $this->databasesFacade=$databasesFacade;
   }
 
   /**
@@ -70,11 +82,7 @@ class MetaAttributesSelectControl extends Control{
     }
   }
 
-  public function createTemplate(){
-    $template=parent::createTemplate();
-    $template->setTranslator($this->translator);
-    return $template;
-  }
+
 
   /**
    * Signál pro výběr formátu z existujícího metaatributu
@@ -162,7 +170,7 @@ class MetaAttributesSelectControl extends Control{
       'datasource'=>$datasource,
       'column'=>$column,
       'metaAttributeName'=>$metaAttribute->name,
-      'metaAttribute'=>$metaAttribute->uri,
+      'metaAttribute'=>$metaAttribute->metaAttributeId,
     );
     if ($datasourceColumn->type=='string'){
       /** @var SelectBox $formatType */
@@ -186,8 +194,18 @@ class MetaAttributesSelectControl extends Control{
    * @param string $format
    */
   public function handleSetDatasourceColumnFormat($datasource,$column,$format){
-    //TODO propojení a kontrola, jestli datový rozsah formátu odpovídá datovému rozsahu (jestli hodnoty z DatasourceColumn spadají do rozsahu formátu)
 
+    //TODO kontrola, jestli datový rozsah formátu odpovídá datovému rozsahu (jestli hodnoty z DatasourceColumn spadají do rozsahu formátu)
+    //TODO kontrola oprávnění!!!
+    $datasource=$this->datasourcesFacade->findDatasource($datasource);
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
+    $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
+
+    $format=$this->metaAttributesFacade->findFormat($format);
+    $this->metaAttributesFacade->updateFormatFromDatasourceColumn($format,$datasourceColumn,$datasourceColumnValuesStatistic);
+    $datasourceColumn->format=$format;
+    $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
   }
 
 
@@ -214,6 +232,7 @@ class MetaAttributesSelectControl extends Control{
     $formatName->setAttribute('class','normalWidth');
     $form->addHidden('datasource');
     $form->addHidden('column');
+    $form->addCheckbox('formatShared','Create shared (standard) format');
     $form->addSelect('formatType','Values range:',array('interval'=>'Continuous values (interval)','values'=>'Distinct values (enumeration)'))
     ->setAttribute('class','normalWidth');
     $submit=$form->addSubmit('create','Create meta-attribute');
@@ -224,9 +243,12 @@ class MetaAttributesSelectControl extends Control{
     $submit->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       try{
-        $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
-        $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn,@$values->formatType);
-        $datasourceColumn->formatId=$format->uri;
+        $datasource=$this->datasourcesFacade->findDatasource($values->datasource);
+        $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$values->column);
+        $this->databasesFacade->openDatabase($datasource->getDbConnection());
+        $datasourceColumnValuesStatistics=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
+        $format=$this->createMetaAttributeFromDatasourceColumn($values->metaAttributeName,$values->formatName,$datasourceColumn,$datasourceColumnValuesStatistics,@$values->formatType,@$values->formatShared);
+        $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
         $this->flashMessage($this->translator->translate('MetaAttribute creation failed.'));
@@ -268,7 +290,7 @@ class MetaAttributesSelectControl extends Control{
       }catch (\Exception $e){/*chybu ignorujeme (nenalezený metaatribut je OK)*/}
       return true;
     },'Format with this name already exists!');
-
+    $form->addCheckbox('formatShared','Create shared (standard) format');
     $form->addSelect('formatType','Values range:',array('interval'=>'Continuous values (interval)','values'=>'Distinct values (enumeration)'))->setAttribute('class','normalWidth')->setDefaultValue('values');
     $submit=$form->addSubmit('create','Create format');
     $submit->setValidationScope(array($formatName));
@@ -277,8 +299,13 @@ class MetaAttributesSelectControl extends Control{
       try{
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($values->datasource,$values->column);
         $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($values->metaAttribute);
-        $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,@$values->formatType);
-        $datasourceColumn->formatId=$format->uri;
+
+        $datasource=$this->datasourcesFacade->findDatasource($values->datasource);
+        $this->databasesFacade->openDatabase($datasource->getDbConnection());
+        $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
+        $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,$datasourceColumnValuesStatistic,@$values->formatType,@$values->formatShared);
+
+        $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
       }catch (\Exception $e){
         $this->flashMessage($this->translator->translate('Format creation failed.'));
@@ -303,14 +330,16 @@ class MetaAttributesSelectControl extends Control{
    * @param string $metaAttributeName
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
+   * @param DbColumnValuesStatistic $columnValuesStatistic
    * @param string $formatType
+   * @param bool $formatShared
    * @return Format
    */
-  private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn,$formatType){
+  private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn, DbColumnValuesStatistic $columnValuesStatistic,$formatType,$formatShared=false){
     $metaAttribute=new MetaAttribute();
     $metaAttribute->name=$metaAttributeName;
     $this->metaAttributesFacade->saveMetaAttribute($metaAttribute);
-    return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$formatType);
+    return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$columnValuesStatistic,$formatType,$formatShared);
   }
 
   /**
@@ -318,19 +347,33 @@ class MetaAttributesSelectControl extends Control{
    * @param MetaAttribute $metaAttribute
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
+   * @param DbColumnValuesStatistic $columnValuesStatistic
    * @param string $formatType=values - 'interval'|'values'
+   * @param bool $formatShared=false
    * @return Format
    */
-  private function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,$formatType='values'){
-    $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($datasourceColumn,(Strings::lower($formatType)=='interval'?'interval':'values'));
+  private function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,DbColumnValuesStatistic $columnValuesStatistic,$formatType='values', $formatShared=false){
+    $format=new Format();
+    $format->dataType=(Strings::lower($formatType)=='interval'?Format::DATATYPE_INTERVAL:Format::DATATYPE_VALUES);
     $format->name=$formatName;
     $format->metaAttribute=$metaAttribute;
+    $format->user=$this->usersFacade->findUser($this->presenter->getUser()->getId());
+    if ($formatShared){
+      $format->shared=true;
+    }else{
+      $format->shared=false;
+    }
     $this->metaAttributesFacade->saveFormat($format);
+    $this->metaAttributesFacade->updateFormatFromDatasourceColumn($format,$datasourceColumn,$columnValuesStatistic);
     return $format;
   }
 
 
-
+  public function createTemplate(){
+    $template=parent::createTemplate();
+    $template->setTranslator($this->translator);
+    return $template;
+  }
 
 
 } 

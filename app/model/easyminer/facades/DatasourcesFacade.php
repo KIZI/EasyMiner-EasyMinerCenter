@@ -101,7 +101,7 @@ class DatasourcesFacade {
 
     $datasourceColumns=$datasource->datasourceColumns;
     foreach ($datasourceColumns as &$datasourceColumn){
-      if (empty($datasourceColumn->formatId)){
+      if (empty($datasourceColumn->format)){
         //TODO kontrola, jestli existuje daný formát
         return false;
       }

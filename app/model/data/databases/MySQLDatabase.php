@@ -50,11 +50,11 @@ class MySQLDatabase implements IDatabase{
     if (count($columns)){
       foreach ($columns as $column){
         if ($column->dataType==DbColumn::TYPE_STRING){
-          $sql.=', `'.$column->name.'` varchar('.$column->strLength.') NOT NULL';
+          $sql.=', `'.$column->name.'` varchar('.$column->strLength.') NULL';
         }elseif($column->dataType==DbColumn::TYPE_INTEGER){
-          $sql.=', `'.$column->name.'` int(11) NOT NULL';
+          $sql.=', `'.$column->name.'` int(11) NULL';
         }elseif($column->dataType==DbColumn::TYPE_FLOAT){
-          $sql.=', `'.$column->name.'` float NOT NULL';
+          $sql.=', `'.$column->name.'` float NULL';
         }
       }
     }
@@ -152,7 +152,7 @@ class MySQLDatabase implements IDatabase{
     }
     $sql=Strings::substring($sql,1);
     $query=$this->db->prepare('UPDATE `'.$this->tableName.'` SET '.$sql.' WHERE id=:id LIMIT 1;');
-    $result=$query->execute($paramsArr);
+    $result=$query->execute($paramsArr) && ($query->rowCount()>0);
     if(!$result && $insertNotExisting){
       $data['id']=$id;
       $this->insertRow($data,true);
@@ -205,20 +205,15 @@ class MySQLDatabase implements IDatabase{
    * @throws \Exception
    */
   public function getColumn($name) {
-    if (!($select=$this->db->query('SELECT `'.$name.'` FROM `'.$this->tableName.'`;'))){
-      throw new \Exception('Requested column not found! ('.$name.')');
+    $columns=$this->getColumns();
+    if (!empty($columns)){
+      foreach($columns as $column){
+        if ($column->name==$name){
+          return $column;
+        }
+      }
     }
-    try{
-      $pdoColumnMeta=$select->getColumnMeta(0);
-      $dbColumn=new DbColumn();
-      $dbColumn->name=$pdoColumnMeta['name'];
-      //TODO typy
-      //$dbColumn->dataType='';
-      //$dbColumn->strLen='';
-      return $dbColumn;
-    }catch (\Exception $e){
-      throw new \Exception('Requested column not found! ('.$name.')');
-    }
+    throw new \Exception('Requested column not found! ('.$name.')');
   }
 
   /**
@@ -228,7 +223,7 @@ class MySQLDatabase implements IDatabase{
    */
   public function getColumnValuesStatistic($name,$includeValues=true){
     $result=new DbColumnValuesStatistic($this->getColumn($name));
-    if ($result->dataType=DbColumn::TYPE_STRING){
+    if ($result->dataType==DbColumn::TYPE_STRING){
       //u řetězce vracíme jen info o počtu řádků
       $select=$this->db->prepare('SELECT count('.$name.') as rowsCount from `'.$this->tableName.'`);');
       $select->execute();
@@ -236,7 +231,7 @@ class MySQLDatabase implements IDatabase{
       $result->rowsCount=$selectResult['rowsCount'];
     }else{
       //u čísel vracíme info o min, max a avg
-      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`);');
+      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`;');
       $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
       $result->rowsCount=$selectResult['rowsCount'];
@@ -251,7 +246,7 @@ class MySQLDatabase implements IDatabase{
 
     if ($includeValues){
       //načtení hodnot s četnostmi
-      $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` GROUP BY `'.$name.'` ORDER BY `'.$name.'` LIMIT 10000;');
+      $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` WHERE `'.$name.'` IS NOT NULL GROUP BY `'.$name.'` ORDER BY `'.$name.'` LIMIT 10000;');//TODO check this limit...
       $query->execute();
       $valuesArr=array();
       while ($row=$query->fetchObject()){
@@ -296,10 +291,25 @@ class MySQLDatabase implements IDatabase{
       $queryStrLen=$this->db->prepare('SELECT MAX(CHAR_LENGTH(`'.$column->Field.'`)) AS strLen FROM `'.$this->tableName.'`;');
       $queryStrLen->execute();
       $dbColumn->strLength=$queryStrLen->fetchColumn(0);
-      //TODO datový typ!!!
+      $dbColumn->dataType=self::encodeDbDataType($column->Type);
       $result[]=$dbColumn;
     }
     return $result;
+  }
+
+  /**
+   * @param string $dataType
+   * @return string
+   */
+  public static function encodeDbDataType($dataType){
+    $dataType=Strings::lower($dataType);
+    if (Strings::contains($dataType,'int(')){
+      return DbColumn::TYPE_INTEGER;
+    }elseif(Strings::contains($dataType,'float')||Strings::contains($dataType,'double')||Strings::contains($dataType,'real')){
+      return DbColumn::TYPE_FLOAT;
+    }else{
+      return DbColumn::TYPE_STRING;
+    }
   }
 
   /**
