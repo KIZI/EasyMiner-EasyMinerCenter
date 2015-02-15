@@ -10,6 +10,10 @@ use Kdyby\Facebook\Dialog\LoginDialog as FacebookLoginDialog;
 use Kdyby\Facebook\FacebookApiException;
 use Kdyby\Google\Google;
 use Kdyby\Google\Dialog\LoginDialog as GoogleLoginDialog;
+use Nette\Application\UI\Form;
+use Nette\Forms\Controls\SubmitButton;
+use Nette\Forms\Controls\TextInput;
+use Nette\Security\Passwords;
 
 class UserPresenter  extends BasePresenter{
   /** @var Facebook $facebook*/
@@ -33,6 +37,50 @@ class UserPresenter  extends BasePresenter{
       ));
     }else{
       $this->sendJsonResponse(array('name'=>null,'email'=>null,'id'=>0));
+    }
+  }
+
+  /**
+   * Akce pro zobrazení detailů uživatelského účtu
+   * @param int|null $user
+   * @throws Nette\Application\BadRequestException
+   */
+  public function renderDetails($user=null){
+    if (!empty($user)){
+      if (!$this->user->isInRole('admin')){
+        throw new Nette\Application\BadRequestException('You are not authorized to access details of another users!');
+      }
+      $user=$this->usersFacade->findUser($user);
+    }else{
+      $user=$this->usersFacade->findUser($this->user->getId());
+    }
+    $this->template->selectedUser=$user;
+  }
+
+  /**
+   * Akce pro změnu lokálního hesla
+   * @param int|null $user
+   * @throws Nette\Application\BadRequestException
+   */
+  public function renderChangePassword($user=null){
+    if (!empty($user)){
+      if (!$this->user->isInRole('admin')){
+        throw new Nette\Application\BadRequestException('You are not authorized to access details of another users!');
+      }
+      $user=$this->usersFacade->findUser($user);
+    }else{
+      $user=$this->usersFacade->findUser($this->user->getId());
+    }
+    $this->template->selectedUser=$user;
+    /** @var Form $form */
+    $form=$this->getComponent('changePasswordForm');
+    $form->setDefaults(['oldPassword'=>'','newPassword'=>'','newPassword2'=>'','user'=>$user->userId]);
+    if ($user->password==''){
+      /** @var TextInput $oldPasswordInput */
+      $oldPasswordInput=$form->getComponent('oldPassword',true);
+      $oldPasswordInput
+        ->setAttribute('readonly','readonly')
+        ->setDisabled(true);
     }
   }
 
@@ -225,6 +273,58 @@ class UserPresenter  extends BasePresenter{
   }
 
 
+  /**
+   * @return Form
+   */
+  protected function createComponentChangePasswordForm() {
+    $form=new Form();
+    $form->setTranslator($this->getTranslator());
+    $userInput=$form->addHidden('user');
+    $form->addPassword('oldPassword','Old password:')
+      ->addRule(function(TextInput $oldPasswordInput)use($userInput){
+        $user=$this->usersFacade->findUser($userInput->value);
+        return (($user->password=='')||Passwords::verify($oldPasswordInput->value,$user->password));
+      },'Invalid old password!');
+    $newPassword=$form->addPassword('newPassword','New password:');
+    $newPassword
+      ->addRule(Form::MIN_LENGTH,'minimum password length is %d characters',5)
+      ->setRequired('Input new password!');
+    $form->addPassword('newPassword2','New password:')
+      ->setRequired('Input new password!')
+      ->addRule(Form::EQUAL,'New passwords do not match!',$newPassword);
+    $form->addSubmit('save','Save new password')->onClick[]=function(SubmitButton $button){
+      //změna hesla
+      $values=$button->getForm(true)->getValues();
+      $user=$this->usersFacade->findUser($values->user);
+      $user->password=Passwords::hash($values->newPassword);
+      if ($this->usersFacade->saveUser($user)){
+        $this->flashMessage('New password saved...');
+      }
+      //finální přesměrování
+      $values=$button->getForm(true)->getValues();
+      $redirectParams=[];
+      if ($this->user->id!=$values->user){
+        $redirectParams['user']=$values->user;
+        $this->redirect('details',$redirectParams);
+      }else{
+        $this->redirect('logout');
+      }
+    };
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $button){
+      $values=$button->getForm(true)->getValues();
+      $redirectParams=[];
+      if ($this->user->id!=$values->user){
+        $redirectParams['user']=$values->user;
+      }
+      $this->redirect('details',$redirectParams);
+    };
+    return $form;
+  }
+  
+  
+  #region injections
   public function injectFacebook(Facebook $facebook){
     $this->facebook=$facebook;
   }
@@ -234,4 +334,5 @@ class UserPresenter  extends BasePresenter{
   public function injectUsersFacade(UsersFacade $usersFacade){
     $this->usersFacade=$usersFacade;
   }
+  #endregion injections
 } 

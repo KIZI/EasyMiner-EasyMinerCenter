@@ -1,0 +1,24 @@
+{* Stránka pro přihlášení uživatele*}
+
+{block content}
+
+  <div class="centerContent smallBlock">
+    <h1 n:block=title>{if !empty($selectedUser->name)}{$selectedUser->name}{else}{$selectedUser->email}{/if}</h1>
+    <p>E-mail: <strong>{$selectedUser->email}</strong></p>
+    <h2>{_'Methods for logging'}</h2>
+    <ul>
+      {if !empty($selectedUser->password)}<li>{_'Local account (e-mail + password)'}</li>{/if}
+      {if !empty($selectedUser->facebookId)}<li>{_'Facebook login'}</li>{/if}
+      {if !empty($selectedUser->googleId)}<li>{_'Google login'}</li>{/if}
+    </ul>
+
+    {if $user->id==$selectedUser->userId}
+      <a href="{link changePassword}" class="button">{if !empty($selectedUser->password)}{_'Change password'}{else}{_'Define password'}{/if}</a>
+      <a href="{link Data:newMiner}" class="button">{_'Show tasks list'}</a>
+      <a href="{link logout}" class="button">{_'Logout...'}</a>
+    {/if}
+  </div>
+
+{/block}
+
+
