@@ -82,26 +82,29 @@ class UsersFacade implements IAuthenticator{
     try{
       //zkusíme najít existujícího uživatele
       $user=$this->findUserByGoogleId($googleUserId);
-      if ($user){
-        //pokud máme uživatele dle facebookId, musíme zkontrolovat, jestli tu není kolize v mailech... (jestli nemáme uživatele registrovaného samostatně, který by měl zadaný stejný mail)
-        if ($user->email!=$googleProfile->email){
-          try{
-            $userByMail=$this->findUserByEmail($googleProfile->email);
-          }catch (\Exception $e){/*chyba nás nezajímá*/}
-          if (isset($userByMail) && ($userByMail instanceof User)){
-            //sloučení uživatelských účtů
-            $user=$this->mergeUsers($userByMail,$user);
-          }else{
-            if ($user->email!=$googleProfile->email){
-              $user->email=$googleProfile->email;
-            }
+    }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    if ($user){
+      //pokud máme uživatele dle googleId, musíme zkontrolovat, jestli tu není kolize v mailech... (jestli nemáme uživatele registrovaného samostatně, který by měl zadaný stejný mail)
+      if ($user->email!=$googleProfile->email){
+        try{
+          $userByMail=$this->findUserByEmail($googleProfile->email);
+        }catch (\Exception $e){/*chyba nás nezajímá*/}
+        if (isset($userByMail) && ($userByMail instanceof User)){
+          //sloučení uživatelských účtů
+          $user=$this->mergeUsers($userByMail,$user);
+        }else{
+          if ($user->email!=$googleProfile->email){
+            $user->email=$googleProfile->email;
           }
         }
-      }else{
-        //pokud ho zatím nemáme připárovaného, zkusíme uživatele najít podle mailu
-        $user=$this->findUserByEmail($googleProfile->email);
       }
-    }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    }else{
+      //pokud ho zatím nemáme připárovaného, zkusíme uživatele najít podle mailu
+      try{
+        $user=$this->findUserByEmail($googleProfile->email);
+        $user->googleId=$googleUserId;
+      }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    }
 
     if (!$user){
       //registrace nového uživatele
@@ -141,26 +144,30 @@ class UsersFacade implements IAuthenticator{
     try{
       //zkusíme najít existujícího uživatele
       $user=$this->findUserByFacebookId($facebookUserId);
-      if ($user){
-        //pokud máme uživatele dle facebookId, musíme zkontrolovat, jestli tu není kolize v mailech... (jestli nemáme uživatele registrovaného samostatně, který by měl zadaný stejný mail)
-        if ($user->email!=$facebookMe->email){
-          try{
-            $userByMail=$this->findUserByEmail($facebookMe->email);
-          }catch (\Exception $e){/*chyba nás nezajímá*/}
-          if (isset($userByMail) && ($userByMail instanceof User)){
-            //sloučení uživatelských účtů
-            $user=$this->mergeUsers($userByMail,$user);
-          }else{
-            if ($user->email!=$facebookMe->email){
-              $user->email=$facebookMe->email;
-            }
+    }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    if ($user){
+      //pokud máme uživatele dle facebookId, musíme zkontrolovat, jestli tu není kolize v mailech... (jestli nemáme uživatele registrovaného samostatně, který by měl zadaný stejný mail)
+      if ($user->email!=$facebookMe->email){
+        try{
+          $userByMail=$this->findUserByEmail($facebookMe->email);
+        }catch (\Exception $e){/*chyba nás nezajímá*/}
+        if (isset($userByMail) && ($userByMail instanceof User)){
+          //sloučení uživatelských účtů
+          $user=$this->mergeUsers($userByMail,$user);
+        }else{
+          if ($user->email!=$facebookMe->email){
+            $user->email=$facebookMe->email;
           }
         }
-      }else{
-        //pokud ho zatím nemáme připárovaného, zkusíme uživatele najít podle mailu
-        $user=$this->findUserByEmail($facebookMe->email);
       }
-    }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    }else{
+      //pokud ho zatím nemáme připárovaného, zkusíme uživatele najít podle mailu
+      try{
+        $user=$this->findUserByEmail($facebookMe->email);
+        $user->facebookId=$facebookUserId;
+      }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    }
+
 
     if (!$user){
       //registrace nového uživatele
