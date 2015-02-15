@@ -11,6 +11,10 @@ use LeanMapper\Entity;
  * @property Format $format m:hasOne
  * @property Interval[] $intervals m:hasMany
  * @property Value[] $values m:hasMany
+ * @method addToValues
+ * @method removeFromValues
+ * @method addToIntervals
+ * @method removeFromIntervals
  */
 class ValuesBin extends Entity{
 

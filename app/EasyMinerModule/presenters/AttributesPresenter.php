@@ -10,6 +10,7 @@ use App\Model\EasyMiner\Entities\DatasourceColumn;
 use App\Model\EasyMiner\Entities\Format;
 use App\Model\EasyMiner\Entities\Interval;
 use App\Model\EasyMiner\Entities\Preprocessing;
+use App\Model\EasyMiner\Entities\Value;
 use App\Model\EasyMiner\Entities\ValuesBin;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MetasourcesFacade;
@@ -778,7 +779,13 @@ class AttributesPresenter extends BasePresenter{
         $valuesBin->name=$valuesBinValues['name'];
         $this->metaAttributesFacade->saveValuesBin($valuesBin);
         foreach ($valuesBinValues['values'] as $valuesValues){
-          $value=$this->metaAttributesFacade->findValue($format,$valuesValues['value']);
+          try{
+            $value=$this->metaAttributesFacade->findValue($format,$valuesValues['value']);
+          }catch (\Exception $e){
+            $value=new Value();
+            $value->value=$valuesValues['value'];
+            $this->metaAttributesFacade->saveValue($value);
+          }
           $valuesBin->addToValues($value);
         }
         $this->metaAttributesFacade->saveValuesBin($valuesBin);
