@@ -317,6 +317,7 @@ class AttributesPresenter extends BasePresenter{
     $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin){
       $valuesBin->addText('name','Bin name:')->setRequired(true)
         ->setRequired('Input bin name!')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
         ->addRule(function(TextInput $input){
           $values=$input->parent->getValues(true);
           return (count($values['intervals'])>0);
@@ -668,6 +669,7 @@ class AttributesPresenter extends BasePresenter{
     $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin){
       $valuesBin->addText('name','Bin name:')->setRequired(true)
         ->setRequired('Input bin name!')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
         ->addRule(function(TextInput $input){
           $values=$input->parent->getValues(true);
           return (count($values['values'])>0);
