@@ -24,6 +24,11 @@
         {_'Mapping and editation finished...'} &nbsp;&nbsp;&nbsp;
         <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}" class="button">{_'Create new EasyMiner'}</a>
       </div>
+    {else}
+      <div class="block">
+        {_'Mappins is not complete, but it is possible to skip it...'} &nbsp;&nbsp;&nbsp;
+        <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}" class="button">{_'Create new EasyMiner'}</a>
+      </div>
     {/if}
 
     <div class="block">

@@ -17,6 +17,7 @@ use App\Model\EasyMiner\Repositories\FormatsRepository;
 use App\Model\EasyMiner\Repositories\PreprocessingsRepository;
 use App\Model\EasyMiner\Repositories\ValuesBinsRepository;
 use App\Model\EasyMiner\Repositories\ValuesRepository;
+use Nette\Utils\Strings;
 
 class MetaAttributesFacade {
   /** @var MetaAttributesRepository $metaAttributesRepository */
@@ -31,6 +32,9 @@ class MetaAttributesFacade {
   private $valuesRepository;
   /** @var IntervalsRepository $intervalsRepository */
   private $intervalsRepository;
+  /** @var UsersFacade $usersFacade */
+  private $usersFacade;
+
 
   /**
    * @param MetaAttributesRepository $metaAttributesRepository
@@ -39,19 +43,22 @@ class MetaAttributesFacade {
    * @param ValuesBinsRepository $valuesBinsRepository
    * @param ValuesRepository $valuesRepository
    * @param IntervalsRepository $intervalsRepository
+   * @param UsersFacade $usersFacade
    */
   public function __construct(MetaAttributesRepository $metaAttributesRepository,
                               FormatsRepository $formatsRepository,
                               PreprocessingsRepository $preprocessingsRepository,
                               ValuesBinsRepository $valuesBinsRepository,
                               ValuesRepository $valuesRepository,
-                              IntervalsRepository $intervalsRepository){
+                              IntervalsRepository $intervalsRepository,
+                              UsersFacade $usersFacade){
     $this->metaAttributesRepository=$metaAttributesRepository;
     $this->formatsRepository=$formatsRepository;
     $this->preprocessingsRepository=$preprocessingsRepository;
     $this->valuesBinsRepository=$valuesBinsRepository;
     $this->valuesRepository=$valuesRepository;
     $this->intervalsRepository=$intervalsRepository;
+    $this->usersFacade=$usersFacade;
   }
 
   /**
@@ -73,6 +80,22 @@ class MetaAttributesFacade {
 
 
   /**
+   * @param string $metaAttributeName
+   * @return MetaAttribute
+   */
+  public function findOrCreateMetaAttributeWithName($metaAttributeName){
+    try{
+      $metaAttribute=$this->findMetaAttributeByName($metaAttributeName);
+    }catch (\Exception $e){}
+    if (empty($metaAttribute)||(!($metaAttribute instanceof MetaAttribute))){
+      $metaAttribute=new MetaAttribute();
+      $metaAttribute->name=$metaAttributeName;
+      $this->saveMetaAttribute($metaAttribute);
+    }
+    return $metaAttribute;
+  }
+
+  /**
    * @param MetaAttribute|int $metaAttribute
    * @return int
    */
@@ -81,6 +104,36 @@ class MetaAttributesFacade {
       $metaAttribute=$this->findMetaAttribute($metaAttribute);
     }
     return $this->metaAttributesRepository->delete($metaAttribute);
+  }
+
+  /**
+   * Funkce pro vytvoření formátu na základě hodnot datového sloupce
+   * @param MetaAttribute $metaAttribute
+   * @param string $formatName
+   * @param DatasourceColumn $datasourceColumn
+   * @param DbColumnValuesStatistic $columnValuesStatistic
+   * @param string $formatType=values - 'interval'|'values'
+   * @param bool $formatShared=false
+   * @param User|int $user
+   * @return Format
+   */
+  public function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,DbColumnValuesStatistic $columnValuesStatistic,$formatType='values', $formatShared=false, $user){
+    $format=new Format();
+    $format->dataType=(Strings::lower($formatType)=='interval'?Format::DATATYPE_INTERVAL:Format::DATATYPE_VALUES);
+    $format->name=$formatName;
+    $format->metaAttribute=$metaAttribute;
+    if (!($user instanceof User)){
+      $user=$this->usersFacade->findUser($user);
+    }
+    $format->user=$user;
+    if ($formatShared){
+      $format->shared=true;
+    }else{
+      $format->shared=false;
+    }
+    $this->saveFormat($format);
+    $this->updateFormatFromDatasourceColumn($format,$datasourceColumn,$columnValuesStatistic);
+    return $format;
   }
 
   /**

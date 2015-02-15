@@ -12,11 +12,11 @@ use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
+use Nette\Application\UI\ITemplate;
 use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Localization\ITranslator;
-use Nette\Utils\Strings;
 
 /**
  * Class MetaAttributesSelectControl
@@ -74,7 +74,9 @@ class MetaAttributesSelectControl extends Control{
     $this->onComponentShow();
     $this->template->setFile(__DIR__ . '/selectMetaAttribute.latte');
     try{
+      /** @noinspection PhpUndefinedFieldInspection */
       $this->template->datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
+      /** @noinspection PhpUndefinedFieldInspection */
       $this->template->metaAttributes=$this->metaAttributesFacade->findMetaAttributes();
     }catch (\Exception $e){
       $this->flashMessage($this->translator->translate('Ooops, some error...'),'error');
@@ -94,6 +96,7 @@ class MetaAttributesSelectControl extends Control{
     $this->onComponentShow();
     $this->template->setFile(__DIR__ . '/selectFormat.latte');
     try{
+      /** @noinspection PhpUndefinedFieldInspection */
       $this->template->datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
     }catch (\Exception $e){
       $this->flashMessage($this->translator->translate('Ooops, some error...'),'error');
@@ -101,7 +104,9 @@ class MetaAttributesSelectControl extends Control{
     }
     try{
       $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($metaAttribute);
+      /** @noinspection PhpUndefinedFieldInspection */
       $this->template->metaAttribute=$metaAttribute;
+      /** @noinspection PhpUndefinedFieldInspection */
       $this->template->formats=$metaAttribute->formats;
     }catch (\Exception $e){
       $this->redirect('SelectMetaAttribute',array('datasource'=>$datasource,'column'=>$column));//při chybě při načítání metaatributu přesměrujeme uživatele zpátky na vytvoření metaatributu
@@ -124,6 +129,7 @@ class MetaAttributesSelectControl extends Control{
     $this->onComponentShow();
     $this->template->setFile(__DIR__ . '/newMetaAttribute.latte');
     $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->template->datasourceColumn=$datasourceColumn;
     /** @var Form $form */
     $form=$this->getComponent('newMetaAttributeForm');
@@ -132,7 +138,7 @@ class MetaAttributesSelectControl extends Control{
       'column'=>$column,
       'metaAttributeName'=>$datasourceColumn->name
     );
-    if ($datasourceColumn->type=='string'){
+    if ($datasourceColumn->type==DatasourceColumn::TYPE_STRING){
       /** @var SelectBox $formatType */
       $formatType=$form->getComponent('formatType');
       //$formatType->setValue('values');
@@ -158,10 +164,11 @@ class MetaAttributesSelectControl extends Control{
     $this->onComponentShow();
     $this->template->setFile(__DIR__ . '/newFormat.latte');
     $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->template->datasourceColumn=$datasourceColumn;
 
     $metaAttribute=$this->metaAttributesFacade->findMetaAttribute($metaAttribute);
-
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->template->metaAttribute=$metaAttribute;
 
     /** @var Form $form */
@@ -194,8 +201,6 @@ class MetaAttributesSelectControl extends Control{
    * @param string $format
    */
   public function handleSetDatasourceColumnFormat($datasource,$column,$format){
-
-    //TODO kontrola, jestli datový rozsah formátu odpovídá datovému rozsahu (jestli hodnoty z DatasourceColumn spadají do rozsahu formátu)
     //TODO kontrola oprávnění!!!
     $datasource=$this->datasourcesFacade->findDatasource($datasource);
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
@@ -303,7 +308,7 @@ class MetaAttributesSelectControl extends Control{
         $datasource=$this->datasourcesFacade->findDatasource($values->datasource);
         $this->databasesFacade->openDatabase($datasource->getDbConnection());
         $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
-        $format=$this->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,$datasourceColumnValuesStatistic,@$values->formatType,@$values->formatShared);
+        $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($metaAttribute,$values->formatName,$datasourceColumn,$datasourceColumnValuesStatistic,@$values->formatType,@$values->formatShared);
 
         $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
@@ -336,41 +341,17 @@ class MetaAttributesSelectControl extends Control{
    * @return Format
    */
   private function createMetaAttributeFromDatasourceColumn($metaAttributeName,$formatName,DatasourceColumn $datasourceColumn, DbColumnValuesStatistic $columnValuesStatistic,$formatType,$formatShared=false){
-    $metaAttribute=new MetaAttribute();
-    $metaAttribute->name=$metaAttributeName;
-    $this->metaAttributesFacade->saveMetaAttribute($metaAttribute);
-    return $this->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$columnValuesStatistic,$formatType,$formatShared);
+    $metaAttribute=$this->metaAttributesFacade->findOrCreateMetaAttributeWithName($metaAttributeName);
+    return $this->metaAttributesFacade->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$columnValuesStatistic,$formatType,$formatShared,$this->presenter->getUser()->getId());
   }
+
 
   /**
-   * Funkce pro vytvoření formátu na základě hodnot datového sloupce
-   * @param MetaAttribute $metaAttribute
-   * @param string $formatName
-   * @param DatasourceColumn $datasourceColumn
-   * @param DbColumnValuesStatistic $columnValuesStatistic
-   * @param string $formatType=values - 'interval'|'values'
-   * @param bool $formatShared=false
-   * @return Format
+   * @return ITemplate
    */
-  private function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,DbColumnValuesStatistic $columnValuesStatistic,$formatType='values', $formatShared=false){
-    $format=new Format();
-    $format->dataType=(Strings::lower($formatType)=='interval'?Format::DATATYPE_INTERVAL:Format::DATATYPE_VALUES);
-    $format->name=$formatName;
-    $format->metaAttribute=$metaAttribute;
-    $format->user=$this->usersFacade->findUser($this->presenter->getUser()->getId());
-    if ($formatShared){
-      $format->shared=true;
-    }else{
-      $format->shared=false;
-    }
-    $this->metaAttributesFacade->saveFormat($format);
-    $this->metaAttributesFacade->updateFormatFromDatasourceColumn($format,$datasourceColumn,$columnValuesStatistic);
-    return $format;
-  }
-
-
   public function createTemplate(){
     $template=parent::createTemplate();
+    /** @noinspection PhpUndefinedMethodInspection */
     $template->setTranslator($this->translator);
     return $template;
   }

@@ -8,6 +8,8 @@ use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
 use App\Model\Data\Files\CsvImport;
 use App\Model\EasyMiner\Entities\Datasource;
+use App\Model\EasyMiner\Entities\DatasourceColumn;
+use App\Model\EasyMiner\Entities\Format;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
 use App\Model\EasyMiner\Facades\MetaAttributesFacade;
@@ -21,6 +23,7 @@ use Nette\Forms\Controls\TextInput;
 use Nette\Http\FileUpload;
 use Nette\Utils\DateTime;
 use Nette\Utils\Html;
+use Nette\Utils\Strings;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
@@ -126,10 +129,30 @@ class DataPresenter extends BasePresenter{
 
     //kontrola, jestli je daný datový zdroj namapován na knowledge base
     if (!$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true)){
-      //přesměrování na mapování
-      $this->flashMessage($this->translate('Select datasource has not been corrently mapped yet. You have to setup mappings...'));
-      $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
-      return;
+      foreach ($datasource->datasourceColumns as $datasourceColumn){
+        if (empty($datasourceColumn->format)){
+          //automatické vytvoření formátu
+          $metaAttribute=$this->metaAttributesFacade->findOrCreateMetaAttributeWithName(Strings::lower($datasourceColumn->name));
+          $existingFormats=$this->metaAttributesFacade->findFormatsForUser($metaAttribute,$this->user->getId());
+          $existingFormatNames=[];
+          if (!empty($existingFormats)){
+            foreach ($existingFormats as $format){
+              $existingFormatNames[]=$format->name;
+            }
+          }
+          $basicFormatName=Strings::webalize($datasource->dbTable);
+          $i=1;
+          do{
+            $formatName=$basicFormatName.($i>1?$i:'');
+            $i++;
+          }while(in_array($formatName,$existingFormatNames));
+          $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
+          $formatType=($datasourceColumn->type==DatasourceColumn::TYPE_STRING?Format::DATATYPE_VALUES:Format::DATATYPE_INTERVAL);
+          $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$datasourceColumnValuesStatistic,$formatType,false,$this->user->getId());
+          $datasourceColumn->format=$format;
+          $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
+        }
+      }
     }
 
     $this->template->datasource=$datasource;

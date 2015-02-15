@@ -89,7 +89,7 @@ class DatasourcesFacade {
    */
   public function checkDatasourceColumnsFormatsMappings($datasource, $reloadColumns = false){
     if ($datasource->isDetached()){
-      exit('xxx');
+      exit('xxx');//FIXME
     }
     if (!($datasource instanceof Datasource)){
       $datasource=$this->findDatasource($datasource);
@@ -102,7 +102,6 @@ class DatasourcesFacade {
     $datasourceColumns=$datasource->datasourceColumns;
     foreach ($datasourceColumns as &$datasourceColumn){
       if (empty($datasourceColumn->format)){
-        //TODO kontrola, jestli existuje daný formát
         return false;
       }
     }
