@@ -158,7 +158,7 @@ class PmmlSerializer {
     $this->pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
   }
 
-  public function appendDataDictionary(){
+  public function appendDataDictionary($includeFrequencies=true){
     $datasource=$this->miner->datasource;
     if (empty($datasource->datasourceColumns)){
       return;
@@ -180,7 +180,29 @@ class PmmlSerializer {
       }else{
         $dataFieldXml->addAttribute('optype','continuous');
       }
-      //TODO serializace hodnot...
+
+      if ($includeFrequencies){
+        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
+        if ($datasourceColumn->type=DatasourceColumn::TYPE_STRING && !empty($valuesStatistics->valuesArr)){
+          //výčet hodnot
+          foreach($valuesStatistics->valuesArr as $value=>$count){
+            $valueXml=$dataFieldXml->addChild('Value');
+            $valueXml->addAttribute('value',$value);
+            $this->addExtensionElement($valueXml,'Frequency',$count,$value);
+          }
+        }elseif(isset($valuesStatistics->minValue) && isset($valuesStatistics->maxValue)){
+          //interval
+          if ($valuesStatistics->minValue<=$valuesStatistics->maxValue){
+            $this->addExtensionElement($dataFieldXml,'Avg',$valuesStatistics->avgValue,'Avg');
+            $intervalXml=$dataFieldXml->addChild('Interval');
+            $intervalXml->addAttribute('closure','closedClosed');
+            $intervalXml->addAttribute('leftMargin',$valuesStatistics->minValue);
+            $intervalXml->addAttribute('rightMargin',$valuesStatistics->maxValue);
+          }
+        }
+      }
+
+      //XXX TODO serializace hodnot...
     }
   }
 

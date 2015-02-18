@@ -158,6 +158,7 @@ class TasksPresenter  extends BasePresenter{
     $this->checkMinerAccess($task->miner);
     //vygenerování PMML
     $pmml=$this->prepareTaskPmml($task);
+    $this->template->task=$task;
     $this->template->content=$this->xmlTransformator->transformToHtml($pmml);
   }
 
