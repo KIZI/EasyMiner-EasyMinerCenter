@@ -7,7 +7,7 @@ use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\TasksFacade;
 use App\Model\EasyMiner\Serializers\PmmlSerializer;
-use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
+use App\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Utils\Json;
 
 /**
@@ -15,12 +15,14 @@ use Nette\Utils\Json;
  * @package App\EasyMinerModule\Presenters
  */
 class TasksPresenter  extends BasePresenter{
-  /** @var  RulesFacade $rulesFacade */
+  /** @var RulesFacade $rulesFacade */
   private $rulesFacade;
-  /** @var  TasksFacade $tasksFacade */
+  /** @var TasksFacade $tasksFacade */
   private $tasksFacade;
-  /** @var  DatabasesFacade $databasesFacade */
+  /** @var DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var XmlTransformator $xmlTransformator */
+  private $xmlTransformator;
 
   /**
    * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
@@ -139,12 +141,9 @@ class TasksPresenter  extends BasePresenter{
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
-
-    if (!$this->tasksFacade->saveTask($task)){
-      throw new \Exception($this->translator->translate('Task rename failed!'));
-    }
-
-    //TODO serializace PMML
+    //vygenerování a odeslání PMML
+    $pmml=$this->prepareTaskPmml($task);
+    $this->sendXmlResponse($pmml);
   }
 
   /**
@@ -157,12 +156,9 @@ class TasksPresenter  extends BasePresenter{
   public function renderTaskDetails($miner,$task){
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $this->checkMinerAccess($task->miner);
-
-
-$this->sendXmlResponse($this->prepareTaskPmml($task));
-
-    //TODO serialize PMML
-    //TODO transformace PMML do HTML
+    //vygenerování PMML
+    $pmml=$this->prepareTaskPmml($task);
+    $this->template->content=$this->xmlTransformator->transformToHtml($pmml);
   }
 
   /**
@@ -199,6 +195,12 @@ $this->sendXmlResponse($this->prepareTaskPmml($task));
    */
   public function injectDatabasesFacade(DatabasesFacade $databasesFacade){
     $this->databasesFacade=$databasesFacade;
+  }
+  /**
+   * @param XmlTransformator $xmlTransformator
+   */
+  public function injectXmlTransformator(XmlTransformator $xmlTransformator){
+    $this->xmlTransformator=$xmlTransformator;
   }
   #endregion
 } 

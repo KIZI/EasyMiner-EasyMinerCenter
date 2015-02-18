@@ -19,6 +19,11 @@ extensions:
     facebook: Kdyby\Facebook\DI\FacebookExtension
     google: Kdyby\Google\DI\GoogleExtension
 
+parameters:
+    xmlTransformations:
+        directory: "libs/EasyMiner-XML/transformations"
+        guhaPMML: "guhaPMML2HTML/4FTPMML2HTML.xsl"
+
 services:
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
@@ -32,6 +37,8 @@ services:
 	- LeanMapper\DefaultEntityFactory
 	- App\Model\EasyMiner\Mappers\StandardMapper
 	- App\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
+
+	- App\Model\EasyMiner\Transformators\XmlTransformator(%xmlTransformations%)
 
 	- App\Model\EasyMiner\Facades\HelperFacade
 	- App\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
