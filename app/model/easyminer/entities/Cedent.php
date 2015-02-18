@@ -17,4 +17,10 @@ class Cedent extends Entity{
   const CONNECTIVE_DISJUNCTION='disjunction';
   const CONNECTIVE_NEGATION='negation';
 
+  /**
+   * @return string[]
+   */
+  public static function getConnectives(){
+    return [self::CONNECTIVE_CONJUNCTION,self::CONNECTIVE_DISJUNCTION,self::CONNECTIVE_NEGATION];
+  }
 } 

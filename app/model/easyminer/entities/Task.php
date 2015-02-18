@@ -18,6 +18,7 @@ use Nette\Utils\Json;
  * @property string $taskSettingsJson = ''
  * @property string|null $resultsUrl = ''
  * @property-read TaskState $taskState
+ * @property-read Rule[] $rules m:belongsToMany
  */
 class Task extends Entity{
   const STATE_NEW='new';
