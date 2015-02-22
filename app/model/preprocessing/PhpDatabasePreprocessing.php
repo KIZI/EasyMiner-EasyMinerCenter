@@ -75,7 +75,7 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
   }
 
   /**
-   * Metoda vracející určovací funkci pro preprocessing each value - one category;
+   * Metoda vracející určovací funkci pro preprocessing each value - one bin
    * @return callable
    */
   private function generateAttributeEachOneFunction(){

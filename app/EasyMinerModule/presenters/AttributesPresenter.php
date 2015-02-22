@@ -77,7 +77,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro pouřití preprocessingu each value - one category
+   * Funkce pro pouřití preprocessingu each value - one bin
    * @param int $miner
    * @param int $column
    * @throws BadRequestException
@@ -181,7 +181,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro pouřití preprocessingu each value - one category
+   * Funkce pro pouřití preprocessingu each value - one bin
    * @param int $miner
    * @param int $column
    * @throws BadRequestException
@@ -439,7 +439,7 @@ class AttributesPresenter extends BasePresenter{
       };
     }, 0);
 
-    $valuesBins->addSubmit('addBin','Add intervals bin')
+    $valuesBins->addSubmit('addBin','Add bin')
       ->setValidationScope([])
       ->onClick[]=function(SubmitButton $submitButton){
       $submitButton->getParent()->createOne();
@@ -825,7 +825,7 @@ class AttributesPresenter extends BasePresenter{
       };
     }, 0);
 
-    $valuesBins->addSubmit('addBin','Add values bin')
+    $valuesBins->addSubmit('addBin','Add bin')
       ->setValidationScope([])
       ->onClick[]=function(SubmitButton $submitButton){
       $submitButton->getParent()->createOne();
