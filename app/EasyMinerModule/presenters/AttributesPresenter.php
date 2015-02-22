@@ -2,7 +2,6 @@
 
 namespace App\EasyMinerModule\Presenters;
 
-
 use App\Libs\StringsHelper;
 use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Datasource;
@@ -289,7 +288,30 @@ class AttributesPresenter extends BasePresenter{
     $form=new Form();
     $form->setTranslator($this->translator);
     $form->addText('preprocessingName','Preprocessing name:')
-      ->setRequired('Input preprocessing name!')
+      ->setRequired(false)
+      ->setAttribute('placeholder',$this->translate('Interval bins'))
+      ->addRule(function(TextInput $textInput){
+        $form=$textInput->getForm(true);
+        $formValues=$form->getValues(true);
+        $textInputValue=$textInput->value;
+        //nalezení aktuálního formátu
+        $miner=$this->findMinerWithCheckAccess($formValues['miner']);
+        $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$formValues['column']);
+        $format=$datasourceColumn->format;
+        $textInput->setAttribute('placeholder',$this->prepareIntervalEnumerationPreprocessingName($format,$formValues));
+        if ($textInputValue!=''){
+          //check preprocessings
+          $existingPreprocessings=$format->preprocessings;
+          if (!empty($existingPreprocessings)){
+            foreach ($existingPreprocessings as $existingPreprocessing){
+              if ($existingPreprocessing->name==$textInput){
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      },'This preprocessing name already exists. Please select a new one...')
       ->addRule(function(TextInput $input){
         $values=$input->getForm(true)->getValues(true);
         return (count($values['valuesBins'])>0);
@@ -314,12 +336,14 @@ class AttributesPresenter extends BasePresenter{
     $form->addHidden('column');
     $form->addHidden('miner');
     /** @var Container $valuesBins */
+    /** @noinspection PhpUndefinedMethodInspection */
     $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin){
       $valuesBin->addText('name','Bin name:')->setRequired(true)
         ->setRequired('Input bin name!')
-        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
         ->addRule(function(TextInput $input){
-          $values=$input->parent->getValues(true);
+          /** @var Container $container */
+          $container=$input->parent;
+          $values=$container->getValues(true);
           return (count($values['intervals'])>0);
         },'Add at least one interval!')
         ->addRule(function(TextInput $input){
@@ -346,7 +370,7 @@ class AttributesPresenter extends BasePresenter{
         $interval->addSubmit('remove','x')
           ->setValidationScope([])
           ->onClick[]=function(SubmitButton $submitButton){
-          $intervals = $submitButton->parent->parent;
+          $intervals = $submitButton->getParent()->getParent();
           $intervals->remove($submitButton->parent, TRUE);
         };
       });
@@ -432,7 +456,7 @@ class AttributesPresenter extends BasePresenter{
       $format=$datasourceColumn->format;
 
       $preprocessing=new Preprocessing();
-      $preprocessing->name=$values['preprocessingName'];
+      $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareIntervalEnumerationPreprocessingName($format,$values));
       $preprocessing->format=$format;
       $preprocessing->user=$this->usersFacade->findUser($this->user->id);
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
@@ -490,8 +514,32 @@ class AttributesPresenter extends BasePresenter{
     $form->addHidden('maxRightMargin');
     $form->addHidden('maxRightClosure');
 
-    $form->addText('preprocessingName','Preprocessing name:')//TODO dodělat kontrolu unikátnosti názvu preprocessingu
-      ->setRequired('Input preprocessing name!')
+    $form->addText('preprocessingName','Preprocessing name:')
+      ->setRequired(false)
+      ->setAttribute('placeholder',$this->translate('Equidistant intervals'))
+      ->setAttribute('title',$this->translate('You can left this field blank, it will be filled in automatically.'))
+      ->addRule(function(TextInput $textInput){
+        $form=$textInput->getForm(true);
+        $formValues=$form->getValues(true);
+        $textInputValue=$textInput->value;
+        //nalezení aktuálního formátu
+        $miner=$this->findMinerWithCheckAccess($formValues['miner']);
+        $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$formValues['column']);
+        $format=$datasourceColumn->format;
+        $textInput->setAttribute('placeholder',$this->prepareEquidistantPreprocessingName($format,$formValues));
+        if ($textInputValue!=''){
+          //check preprocessings
+          $existingPreprocessings=$format->preprocessings;
+          if (!empty($existingPreprocessings)){
+            foreach ($existingPreprocessings as $existingPreprocessing){
+              if ($existingPreprocessing->name==$textInput){
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      },'This preprocessing name already exists. Please select a new one...')
       ->setAttribute('class','normalWidth');
     $form->addText('attributeName','Create attribute with name:')
       ->setAttribute('class','normalWidth')
@@ -550,15 +598,15 @@ class AttributesPresenter extends BasePresenter{
       ->onClick[]=function(SubmitButton $submitButton){
       #region vytvoření preprocessingu
       $values=$submitButton->getForm(true)->getValues(true);
+      //nalezení příslušného formátu
       $miner=$this->findMinerWithCheckAccess($values['miner']);
       $this->minersFacade->checkMinerMetasource($miner);
-
-      //vytvoření preprocessingu
       $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$values['column']);
       $format=$datasourceColumn->format;
 
+      //vytvoření preprocessingu
       $preprocessing=new Preprocessing();
-      $preprocessing->name=$values['preprocessingName'];
+      $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareEquidistantPreprocessingName($format,$values));
       $preprocessing->format=$format;
       $preprocessing->user=$this->usersFacade->findUser($this->user->id);
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
@@ -639,7 +687,30 @@ class AttributesPresenter extends BasePresenter{
     $form=new Form();
     $form->setTranslator($this->translator);
     $form->addText('preprocessingName','Preprocessing name:')
-      ->setRequired('Input preprocessing name!')
+      ->setRequired(false)
+      ->setAttribute('placeholder',$this->translate('Nominal bins'))
+      ->addRule(function(TextInput $textInput){
+        $form=$textInput->getForm(true);
+        $formValues=$form->getValues(true);
+        $textInputValue=$textInput->value;
+        //nalezení aktuálního formátu
+        $miner=$this->findMinerWithCheckAccess($formValues['miner']);
+        $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$formValues['column']);
+        $format=$datasourceColumn->format;
+        $textInput->setAttribute('placeholder',$this->prepareNominalEnumerationPreprocessingName($format,$formValues));
+        if ($textInputValue!=''){
+          //check preprocessings
+          $existingPreprocessings=$format->preprocessings;
+          if (!empty($existingPreprocessings)){
+            foreach ($existingPreprocessings as $existingPreprocessing){
+              if ($existingPreprocessing->name==$textInput){
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      },'This preprocessing name already exists. Please select a new one...')
       ->addRule(function(TextInput $input){
         $values=$input->getForm(true)->getValues(true);
         return (count($values['valuesBins'])>0);
@@ -669,7 +740,7 @@ class AttributesPresenter extends BasePresenter{
     $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin){
       $valuesBin->addText('name','Bin name:')->setRequired(true)
         ->setRequired('Input bin name!')
-        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        //->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
         ->addRule(function(TextInput $input){
           $values=$input->parent->getValues(true);
           return (count($values['values'])>0);
@@ -771,7 +842,7 @@ class AttributesPresenter extends BasePresenter{
       $format=$datasourceColumn->format;
 
       $preprocessing=new Preprocessing();
-      $preprocessing->name=$values['preprocessingName'];
+      $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareNominalEnumerationPreprocessingName($format,$values));
       $preprocessing->format=$format;
       $preprocessing->user=$this->usersFacade->findUser($this->user->id);
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
@@ -883,6 +954,112 @@ class AttributesPresenter extends BasePresenter{
       $this->template->layout='iframe';
     }
     parent::beforeRender();
+  }
+
+  /**
+   * Funkce pro vygenerování výchozího názvu preprocessingu
+   * @param Format $format
+   * @param array $formValues
+   * @return string
+   */
+  private function prepareEquidistantPreprocessingName(Format $format,$formValues) {
+    $preprocessingNameBase=$this->translate('Equidistant intervals ({:count}) from {:from} to {:to}');
+    $preprocessingNameBase=str_replace(['{:count}','{:from}','{:to}'],[$formValues['equidistantIntervalsCount'],$formValues['equidistantLeftMargin'],$formValues['equidistantRightMargin']],$preprocessingNameBase);
+
+    #region vyřešení unikátnosti jména
+    $existingPreprocessingsNames=[];
+    $existingPreprocessings=$format->preprocessings;
+    if (!empty($existingPreprocessings)){
+      foreach($existingPreprocessings as $existingPreprocessing){
+        $existingPreprocessingsNames[]=$existingPreprocessing->name;
+      }
+    }
+    $counter=1;
+    do{
+      /** @var string $preprocessingName */
+      $preprocessingName=$preprocessingNameBase;
+      if ($counter>1){
+        $preprocessingName.=' ('.$counter.')';
+      }
+    }while(in_array($preprocessingName,$existingPreprocessingsNames));
+    #endregion
+    return $preprocessingName;
+  }
+
+  /**
+   * Funkce pro vygenerování výchozího názvu preprocessingu
+   * @param Format $format
+   * @param array $formValues
+   * @return string
+   */
+  private function prepareNominalEnumerationPreprocessingName($format, $formValues) {
+    $preprocessingNameBase=$this->translate('Interval bins');
+    $namesArr=[];
+    if (!empty($formValues['valuesBins'])){
+      $preprocessingNameBase.=': ';
+      foreach($formValues['valuesBins'] as $valuesBin){
+        $namesArr[]=$valuesBin['name'];
+      }
+      $preprocessingNameBase.=implode(', ',$namesArr);
+    }
+    unset($namesArr);
+
+    #region vyřešení unikátnosti jména
+    $existingPreprocessingsNames=[];
+    $existingPreprocessings=$format->preprocessings;
+    if (!empty($existingPreprocessings)){
+      foreach($existingPreprocessings as $existingPreprocessing){
+        $existingPreprocessingsNames[]=$existingPreprocessing->name;
+      }
+    }
+    $counter=1;
+    do{
+      /** @var string $preprocessingName */
+      $preprocessingName=$preprocessingNameBase;
+      if ($counter>1){
+        $preprocessingName.=' ('.$counter.')';
+      }
+    }while(in_array($preprocessingName,$existingPreprocessingsNames));
+    #endregion
+    return $preprocessingName;
+  }
+
+  /**
+   * Funkce pro vygenerování výchozího názvu preprocessingu
+   * @param Format $format
+   * @param array $formValues
+   * @return string
+   */
+  private function prepareIntervalEnumerationPreprocessingName($format, $formValues) {
+    $preprocessingNameBase=$this->translate('Nominal bins');
+    $namesArr=[];
+    if (!empty($formValues['valuesBins'])){
+      $preprocessingNameBase.=': ';
+      foreach($formValues['valuesBins'] as $valuesBin){
+        $namesArr[]=$valuesBin['name'];
+      }
+      $preprocessingNameBase.=implode(', ',$namesArr);
+    }
+    unset($namesArr);
+
+    #region vyřešení unikátnosti jména
+    $existingPreprocessingsNames=[];
+    $existingPreprocessings=$format->preprocessings;
+    if (!empty($existingPreprocessings)){
+      foreach($existingPreprocessings as $existingPreprocessing){
+        $existingPreprocessingsNames[]=$existingPreprocessing->name;
+      }
+    }
+    $counter=1;
+    do{
+      /** @var string $preprocessingName */
+      $preprocessingName=$preprocessingNameBase;
+      if ($counter>1){
+        $preprocessingName.=' ('.$counter.')';
+      }
+    }while(in_array($preprocessingName,$existingPreprocessingsNames));
+    #endregion
+    return $preprocessingName;
   }
 
   #region injections
