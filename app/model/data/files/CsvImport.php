@@ -80,7 +80,7 @@ class CsvImport {
     $columnNames=self::getRowsFromCSV($filename,1,$delimitier,$enclosure,$escapeCharacter)[0];
 
     for ($i=count($columnNames)-1;$i>=0;$i--){
-      if (Strings::trim($columnNames[$i])==''){
+      if (Strings::trim(Strings::fixEncoding($columnNames[$i]))==''){
         unset($columnNames[$i]);
       }
     }

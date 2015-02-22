@@ -1,8 +1,13 @@
 <?php
 
 namespace App\EasyMinerModule\Presenters;
+use App\Model\Data\Facades\DatabasesFacade;
+use App\Model\EasyMiner\Entities\Metasource;
+use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\TasksFacade;
+use App\Model\EasyMiner\Serializers\PmmlSerializer;
+use App\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Utils\Json;
 
 /**
@@ -10,10 +15,14 @@ use Nette\Utils\Json;
  * @package App\EasyMinerModule\Presenters
  */
 class TasksPresenter  extends BasePresenter{
-  /** @var  RulesFacade $rulesFacade */
+  /** @var RulesFacade $rulesFacade */
   private $rulesFacade;
-  /** @var  TasksFacade $tasksFacade */
+  /** @var TasksFacade $tasksFacade */
   private $tasksFacade;
+  /** @var DatabasesFacade $databasesFacade */
+  private $databasesFacade;
+  /** @var XmlTransformator $xmlTransformator */
+  private $xmlTransformator;
 
   /**
    * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
@@ -125,25 +134,49 @@ class TasksPresenter  extends BasePresenter{
    * Akce pro vykreslení detailů úlohy ve formátu PMML
    * @param $miner
    * @param $task
+   * @throws \Exception
+   * @throws \Nette\Application\ForbiddenRequestException
    */
   public function renderTaskPMML($miner,$task){
-    //TODO akce pro vykreslení detailů úlohy v podobě PMML
-
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+    //vygenerování a odeslání PMML
+    $pmml=$this->prepareTaskPmml($task);
+    $this->sendXmlResponse($pmml);
   }
 
   /**
    * Akce pro vykreslení detailů úlohy ve formátu PMML
    * @param $miner
    * @param $task
+   * @throws \Exception
+   * @throws \Nette\Application\ForbiddenRequestException
    */
   public function renderTaskDetails($miner,$task){
-    exit('This function will be available in a few days...');
-    //TODO akce pro vykreslení detailů úlohy v podobě PMML
-
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $this->checkMinerAccess($task->miner);
+    //vygenerování PMML
+    $pmml=$this->prepareTaskPmml($task);
+    $this->template->task=$task;
+    $this->template->content=$this->xmlTransformator->transformToHtml($pmml);
   }
 
-
-
+  /**
+   * @param $task
+   * @return \SimpleXMLElement
+   */
+  private function prepareTaskPmml(Task $task){
+    /** @var Metasource $metasource */
+    $metasource=$task->miner->metasource;
+    $this->databasesFacade->openDatabase($metasource->getDbConnection());
+    $pmmlSerializer=new PmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer->appendTaskSettings();
+    $pmmlSerializer->appendDataDictionary();
+    $pmmlSerializer->appendTransformationDictionary();
+    $pmmlSerializer->appendRules();
+    return $pmmlSerializer->getPmml();
+  }
 
   #region injections
   /**
@@ -152,9 +185,23 @@ class TasksPresenter  extends BasePresenter{
   public function injectRulesFacade(RulesFacade $rulesFacade) {
     $this->rulesFacade = $rulesFacade;
   }
-
+  /**
+   * @param TasksFacade $tasksFacade
+   */
   public function injectTasksFacade(TasksFacade $tasksFacade){
     $this->tasksFacade=$tasksFacade;
+  }
+  /**
+   * @param DatabasesFacade $databasesFacade
+   */
+  public function injectDatabasesFacade(DatabasesFacade $databasesFacade){
+    $this->databasesFacade=$databasesFacade;
+  }
+  /**
+   * @param XmlTransformator $xmlTransformator
+   */
+  public function injectXmlTransformator(XmlTransformator $xmlTransformator){
+    $this->xmlTransformator=$xmlTransformator;
   }
   #endregion
 } 

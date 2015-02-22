@@ -79,6 +79,7 @@
           <Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
             The value is decreased by one compared to the formula typically used in the literature.
           </Explanation>
+          <Calculation>((a*(a+b+c+d))/((a+b)*(a+c)))</Calculation>
           <Field>
             <Name>threshold</Name>
             <DefaultValue>1.10</DefaultValue>

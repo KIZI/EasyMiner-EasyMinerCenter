@@ -42,7 +42,8 @@ class RDriver implements IMiningDriver{
     $pmmlSerializer=new PmmlSerializer($this->task);
     $pmmlSerializer->appendMetabaseInfo();
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
-    $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
+    $taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
+    $pmml=$taskSettingsSerializer->getPmml();
     //import úlohy a spuštění dolování...
     $numRequests=1;
     sendStartRequest:
@@ -428,7 +429,7 @@ class RDriver implements IMiningDriver{
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch,CURLOPT_MAXREDIRS,0);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    $headersArr=array('Content-Type: application/xml');
+    $headersArr=array('Content-Type: application/xml; charset=utf-8');
     if ($postData!=''){
       curl_setopt($ch,CURLOPT_POST,true);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");

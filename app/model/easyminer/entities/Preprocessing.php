@@ -19,6 +19,6 @@ use LeanMapper\Entity;
 class Preprocessing extends Entity{
 
   const SPECIALTYPE_EACHONE='eachOne';
-  const NEW_PREPROCESSING_EACHONE_NAME="Each value - one category";
+  const NEW_PREPROCESSING_EACHONE_NAME="Each value - one bin";
 
 } 
