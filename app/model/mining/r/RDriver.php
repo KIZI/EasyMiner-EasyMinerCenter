@@ -42,7 +42,8 @@ class RDriver implements IMiningDriver{
     $pmmlSerializer=new PmmlSerializer($this->task);
     $pmmlSerializer->appendMetabaseInfo();
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
-    $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);//TODO update to serializer
+    $taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
+    $pmml=$taskSettingsSerializer->getPmml();
     //import úlohy a spuštění dolování...
     $numRequests=1;
     sendStartRequest:
