@@ -2,11 +2,15 @@
 
 namespace App\Model\EasyMiner\Serializers;
 
+use App\Model\EasyMiner\Entities\Miner;
+use App\Model\EasyMiner\Entities\Task;
 use Nette\Utils\Json;
 
 class TaskSettingsSerializer {
   /** @var  \SimpleXMLElement $pmml */
   protected $pmml;
+  /** @var string $minerType */
+  protected  $minerType;
 
   protected $id = 0;
   /** @var  \SimpleXMLElement $arQuery */
@@ -33,10 +37,11 @@ class TaskSettingsSerializer {
   /**
    * @param \SimpleXMLElement|string|null $pmml
    */
-  public function __construct($pmml = null) {
+  public function __construct($pmml = null, $minerType=Miner::DEFAULT_TYPE) {
     if (!empty($pmml)){
       $this->setPmml($pmml);
     }
+    $this->minerType=$minerType;
   }
 
   /**
@@ -152,7 +157,7 @@ class TaskSettingsSerializer {
     $interestMeasureThreshold = $this->interestMeasureSetting->addChild("InterestMeasureThreshold");
     $interestMeasureThreshold->addAttribute("id", $this->generateId());
 
-    if ($IM->name=='LIFT'){
+    if ($IM->name=='LIFT' && $this->minerType==Miner::TYPE_LM){
       $IM->name='AAD';
       foreach ($IM->fields as &$f) {
         if ($f->name === 'threshold') {

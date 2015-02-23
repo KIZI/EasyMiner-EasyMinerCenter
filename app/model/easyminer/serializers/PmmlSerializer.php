@@ -154,7 +154,7 @@ class PmmlSerializer {
    * Funkce pro připojení informací o nastavení úlohy
    */
   public function appendTaskSettings(){
-    $taskSettingsSerializer=new TaskSettingsSerializer($this->pmml);
+    $taskSettingsSerializer=new TaskSettingsSerializer($this->pmml,$this->miner->type);
     $this->pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
   }
 
