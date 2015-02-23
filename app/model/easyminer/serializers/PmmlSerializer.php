@@ -330,6 +330,9 @@ class PmmlSerializer {
       //přidání konkrétního pravidla do XML
       $associationRuleXml=$this->associationRulesWorkXml->addChild('AssociationRule',null,'');
       $associationRuleXml->addAttribute('id',$rule->ruleId);
+      if ($rule->inRuleClipboard){
+        $this->addExtensionElement($associationRuleXml,'mark','interesting');
+      }
       $antecedent=$rule->antecedent;
       $consequent=$rule->consequent;
       $associationRuleXml->addAttribute('antecedent','cdnt_'.$antecedent->cedentId);
