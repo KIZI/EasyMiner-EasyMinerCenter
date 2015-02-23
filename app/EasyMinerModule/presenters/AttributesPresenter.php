@@ -981,6 +981,7 @@ class AttributesPresenter extends BasePresenter{
       if ($counter>1){
         $preprocessingName.=' ('.$counter.')';
       }
+      $counter++;
     }while(in_array($preprocessingName,$existingPreprocessingsNames));
     #endregion
     return $preprocessingName;
@@ -1019,6 +1020,7 @@ class AttributesPresenter extends BasePresenter{
       if ($counter>1){
         $preprocessingName.=' ('.$counter.')';
       }
+      $counter++;
     }while(in_array($preprocessingName,$existingPreprocessingsNames));
     #endregion
     return $preprocessingName;
@@ -1057,6 +1059,7 @@ class AttributesPresenter extends BasePresenter{
       if ($counter>1){
         $preprocessingName.=' ('.$counter.')';
       }
+      $counter++;
     }while(in_array($preprocessingName,$existingPreprocessingsNames));
     #endregion
     return $preprocessingName;
