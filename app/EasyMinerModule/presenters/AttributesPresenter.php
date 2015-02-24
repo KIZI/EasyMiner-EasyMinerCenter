@@ -193,6 +193,15 @@ class AttributesPresenter extends BasePresenter{
     $this->template->datasourceColumn=$datasourceColumn;
     $format=$datasourceColumn->format;
     $this->template->format=$format;
+    //připravení kompletní sady hodnot
+    $valuesArr=[];
+    if (!empty($format->values)){
+      foreach ($format->values as $value){
+        $valuesArr[]=$value->value;
+      }
+    }
+    $this->template->values=$valuesArr;
+
     /** @var Form $form */
     $form=$this->getComponent('newNominalEnumerationForm');
     $form->setDefaults(array(
@@ -290,6 +299,7 @@ class AttributesPresenter extends BasePresenter{
     $form->addText('preprocessingName','Preprocessing name:')
       ->setRequired(false)
       ->setAttribute('placeholder',$this->translate('Interval bins'))
+      ->setAttribute('title',$this->translate('You can left this field blank, it will be filled in automatically.'))
       ->addRule(function(TextInput $textInput){
         $form=$textInput->getForm(true);
         $formValues=$form->getValues(true);
@@ -689,6 +699,7 @@ class AttributesPresenter extends BasePresenter{
     $form->addText('preprocessingName','Preprocessing name:')
       ->setRequired(false)
       ->setAttribute('placeholder',$this->translate('Nominal bins'))
+      ->setAttribute('title',$this->translate('You can left this field blank, it will be filled in automatically.'))
       ->addRule(function(TextInput $textInput){
         $form=$textInput->getForm(true);
         $formValues=$form->getValues(true);
@@ -763,6 +774,7 @@ class AttributesPresenter extends BasePresenter{
       $intervals=$valuesBin->addDynamic('values',function(Container $interval){
         $interval->addText('value')->setAttribute('readonly');
         $interval->addSubmit('remove','x')
+          ->setAttribute('class','removeValue')
           ->setValidationScope([])
           ->onClick[]=function(SubmitButton $submitButton){
           $intervals = $submitButton->parent->parent;

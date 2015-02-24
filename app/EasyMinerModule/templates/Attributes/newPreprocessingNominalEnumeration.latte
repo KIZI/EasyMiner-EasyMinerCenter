@@ -1,5 +1,15 @@
 {block content}
 
+  <script type="text/javascript">
+    var localization = [];
+    localization['add_bin']={_'Add bin'};
+    localization['add_value']={_'Add value'};
+    localization['storno']={_'storno'};
+    localization['no_valued']={_'No unused values found.'};
+    var usableValues={$values};
+  </script>
+  <script type="text/javascript" src="{$basePath}/js/newPreprocessingNominalEnumeration.js"></script>
+
   <div class="{if $template=='default'}block centerContent{else}main{/if}">
 
     <h1>{_'New attribute from: '}{$datasourceColumn->name}</h1>
@@ -36,7 +46,7 @@
         <div class="valuesBin">
           {input valuesBins-$id-remove}
           {label valuesBins-$id-name /} {input valuesBins-$id-name}<span n:ifcontent class="error">{inputError valuesBins-$id-name}</span>
-          <div class="values" n:ifcontent>
+          <div class="values">
             {foreach $valuesBin['values']->containers as $valueId=>$value}
               <span class="value">
                 {input valuesBins-$id-values-$valueId-value}
