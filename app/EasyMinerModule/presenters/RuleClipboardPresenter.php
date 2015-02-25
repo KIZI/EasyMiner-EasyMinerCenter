@@ -110,17 +110,17 @@ class RuleClipboardPresenter  extends BasePresenter{
           $rule=$this->rulesFacade->findRule($ruleId);
           //TODO optimalizovat kontroly...
           $ruleTask=$rule->task;
-          if ($ruleTask->taskUuid!=$task){
+          if ($ruleTask->taskUuid!=$task->taskUuid){
             throw new InvalidArgumentException;
           }
           if ($ruleTask->miner->minerId!=$miner){
             throw new InvalidArgumentException;
           }
-          $result[]=$rule;
-        }catch (\Exception $e){continue;}
+          $result[$rule->ruleId]=$rule->getBasicDataArr();
+        }catch (\Exception $e){
+          continue;}
       }
     }
-
     $this->sendJsonResponse(array('rules'=>$result));
   }
 
