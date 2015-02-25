@@ -1006,7 +1006,7 @@ class AttributesPresenter extends BasePresenter{
    * @return string
    */
   private function prepareNominalEnumerationPreprocessingName($format, $formValues) {
-    $preprocessingNameBase=$this->translate('Interval bins');
+    $preprocessingNameBase=$this->translate('Nominal bins');
     $namesArr=[];
     if (!empty($formValues['valuesBins'])){
       $preprocessingNameBase.=': ';
@@ -1045,7 +1045,7 @@ class AttributesPresenter extends BasePresenter{
    * @return string
    */
   private function prepareIntervalEnumerationPreprocessingName($format, $formValues) {
-    $preprocessingNameBase=$this->translate('Nominal bins');
+    $preprocessingNameBase=$this->translate('Interval bins');
     $namesArr=[];
     if (!empty($formValues['valuesBins'])){
       $preprocessingNameBase.=': ';

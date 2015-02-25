@@ -70,7 +70,7 @@ var submitSelectSubform = function(event){
   var button = $('<input type="submit" value="x" name="'+newElementNameBase+'[remove]" class="removeValue" formnovalidate="" />');
   button.click(removeValueAction);
   newElementHtml.append(button);
-  parentElement.find('.values').append(newElementHtml);
+  parentElement.find('.values').append(newElementHtml," ");
 
   hideSelectSubform(event,$(this));
 };
@@ -98,7 +98,6 @@ var prepareSelectSubform = function(parentElement){
 
   //přidání položek do selectu...
   var selectTd = parentElement.find('td.selectTd');
-  console.log(selectTd);
   if (selectItemsValues.length>0){
     var select = $('<select></select>');
     $.each(selectItemsValues,function(i,value){
@@ -112,6 +111,7 @@ var prepareSelectSubform = function(parentElement){
     selectTd.append('<span class="stateErr">'+localization['no_values']+'</span>');
   }
 
+  select.focus();
 };
 
 $(document).ready(function (){
