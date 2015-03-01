@@ -17,7 +17,7 @@ class Coefficient
         $this->fields = array();
     }
 
-    public function addField($name, $localizedName, $minValue, $minValueInclusive, $maxValue, $maxValueInclusive, $dataType, $previous)
+    public function addField($name, $localizedName, $minValue, $minValueInclusive, $maxValue, $maxValueInclusive, $dataType, $previous, $hidden)
     {
         $field = array($name => array(
                'localizedName' => $localizedName,
@@ -26,7 +26,9 @@ class Coefficient
                'maxValue' => $maxValue,
                'maxValueInclusive' => $maxValueInclusive,
                'dataType' => $dataType,
-               'previous' => $previous));
+               'previous' => $previous,
+               'hidden' => $hidden
+        ));
         $this->fields = array_merge_recursive($this->fields, $field);
     }
 

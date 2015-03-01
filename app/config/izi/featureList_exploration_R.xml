@@ -29,6 +29,7 @@
 				<Type>
 					<Name>FUI</Name>
           <Default>true</Default>
+          <Required>true</Required>
 					<LocalizedName lang="en">Confidence</LocalizedName>
 					<LocalizedName lang="cs">Spolehlivost</LocalizedName>
 					<ThresholdType>% of all</ThresholdType>
@@ -49,7 +50,8 @@
 				</Type>
 				<Type>
 					<Name>SUPP</Name>
-                    <Default>true</Default>
+          <Default>true</Default>
+          <Required>true</Required>
 					<LocalizedName lang="en">Support</LocalizedName>
 					<LocalizedName lang="cs">Podpora</LocalizedName>
 					<ThresholdType>% of all</ThresholdType>
@@ -93,14 +95,24 @@
           </Field>
         </Type>
 			</Types>
-			<SupportedInterestMeasureCombinations />
+      <SupportedInterestMeasureCombinations >
+        <SupportedIMCombination>
+          <InterestMeasure>FUI</InterestMeasure>
+          <InterestMeasure>SUPP</InterestMeasure>
+          <InterestMeasure>LIFT</InterestMeasure>
+        </SupportedIMCombination>
+        <SupportedIMCombination>
+          <InterestMeasure>FUI</InterestMeasure>
+          <InterestMeasure>SUPP</InterestMeasure>
+        </SupportedIMCombination>
+      </SupportedInterestMeasureCombinations>
 		</InterestMeasures>
 
 		<BasicBooleanAttribute coefficient="required">
 			<Coefficient scope="all">
 				<Type>
 					<Name>Subset</Name>
-					<LocalizedName lang="en">Subset of values</LocalizedName>
+					<LocalizedName lang="en">Any value</LocalizedName>
 					<Explanation lang="en">The system will try to use all individual attribute values. If maximum number of values parameter is set to a value greater than 1, dynamic binning will be activated. </Explanation>
 					<MaxOccurrences>1</MaxOccurrences>
 					<Field hidden="true">

@@ -102,6 +102,10 @@ class FeatureListParser
             $compareType = $this->XPath->evaluate('CompareType', $t)->item(0)->nodeValue;
             $explanation = '';
             $default = ($this->XPath->evaluate('Default', $t)->item(0)->nodeValue === 'true');
+            $required=false;
+            if ($node=$this->XPath->evaluate('Required', $t)->item(0)){
+              $required = ($node->nodeValue === 'true');
+            }
             $xmlCalculation=$this->XPath->evaluate('Calculation', $t)->item(0);
             if (!empty($xmlCalculation)){
                 $calculation = $this->XPath->evaluate('Calculation', $t)->item(0)->nodeValue;
@@ -111,7 +115,7 @@ class FeatureListParser
             if ($EX = $this->XPath->evaluate('Explanation[@lang="'.$this->lang.'"]', $t)->item(0)) {
                 $explanation = $EX->nodeValue;
             }
-            $IM = new InterestMeasure($name, $localizedName, $thresholdType, $compareType, $explanation, $calculation, $default);
+            $IM = new InterestMeasure($name, $localizedName, $thresholdType, $compareType, $explanation, $calculation, $default, $required);
 
             foreach ($this->XPath->evaluate('Field', $t) as $f) {
                 $name = $this->XPath->evaluate('Name', $f)->item(0)->nodeValue;
@@ -219,7 +223,12 @@ class FeatureListParser
                     $previous = $PR->nodeValue;
                 }
 
-                $C->addField($name, $localizedName, $minValue, self::$IM_INCLUSIVE_MIN, $maxValue, self::$IM_INCLUSIVE_MAX, $dataType, $previous);
+                $hidden = false;
+                if ($HIDDENattr = $this->XPath->evaluate('@hidden', $f)->item(0)) {
+                    $hidden=($HIDDENattr->nodeValue===true || $HIDDENattr->nodeValue==='true');
+                }
+
+                $C->addField($name, $localizedName, $minValue, self::$IM_INCLUSIVE_MIN, $maxValue, self::$IM_INCLUSIVE_MAX, $dataType, $previous, $hidden);
             }
 
             $array['coefficients'] = array_merge_recursive($array['coefficients'], $C->toArray());
