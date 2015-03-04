@@ -25,6 +25,7 @@ parameters:
         database:
         encoding: utf8
     imports_directory: "absolutePath"
+    mail_from: "stanislav.vojir@vse.cz"
     urls:
         open_miner: "/easyminer/web?id_dm={:minerId}"
     databases:

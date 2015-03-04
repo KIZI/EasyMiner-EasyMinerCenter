@@ -2,6 +2,8 @@
 
 namespace App\EasyMinerModule\Presenters;
 
+use App\EasyMinerModule\Components\MailerControlFactory;
+use App\EasyMinerModule\Components\MailerControl;
 use LeanMapper\Exception\Exception;
 use Nette;
 use App\Model\EasyMiner\Facades\UsersFacade;
@@ -18,12 +20,12 @@ use Nette\Security\Passwords;
 class UserPresenter  extends BasePresenter{
   /** @var Facebook $facebook*/
   private $facebook;
-
   /** @var  Google $google */
   private $google;
-
   /** @var UsersFacade $usersFacade */
   public $usersFacade;
+  /** @var  MailerControlFactory $mailerControlFactory */
+  private $mailerControlFactory;
 
   /** @persistent */
   public $url;
@@ -81,6 +83,42 @@ class UserPresenter  extends BasePresenter{
       $oldPasswordInput
         ->setAttribute('readonly','readonly')
         ->setDisabled(true);
+    }
+  }
+
+  /**
+   * @param int|null $id
+   * @param string|null $user=null
+   * @param string|null $code=null
+   */
+  public function renderForgottenPassword($id=null, $user=null, $code=null){
+    if (!empty($id) && !empty($user) && !empty($code)){
+
+      try{
+        $user=$this->usersFacade->findUser($user);
+        $userForgottenPassword=$this->usersFacade->findUserForgottenPassword($id);
+        if ($userForgottenPassword->user->userId!=$user->userId || $userForgottenPassword->code!=$code){
+          throw new \Exception('Hacking attempt!');
+        }
+      }catch (\Exception $e){
+        $this->flashMessage('Requested password renewal not found! Maybe, the renewal code was too old. Please go to "Forgotten password".','error');
+        $this->redirect('login');
+        return;
+      }
+
+      /** @var Form $form */
+      $form=$this->getComponent('changeForgottenPasswordForm');
+      $form->setDefaults([
+        'id'=>$id,
+        'code'=>$code,
+        'email'=>$user->email,
+        'user'=>$user->userId
+      ]);
+      $this->template->form=$form;
+      $this->template->title=$this->translate('Forgotten password change');
+    }else{
+      $this->template->title=$this->translate('Forgotten password');
+      $this->template->form=$this->getComponent('forgottenPasswordForm');
     }
   }
 
@@ -220,7 +258,8 @@ class UserPresenter  extends BasePresenter{
     $form = new Nette\Application\UI\Form();
     $form->setMethod('POST');
     $form->addText('email', 'E-mail:')
-      ->setRequired('You have to input e-mail!')
+      ->setRequired('You have to input your e-mail!')
+      ->setAttribute('type','email')
       ->setAttribute('placeholder','E-mail')
       ->setAttribute('class','text');
     $form->addPassword('password', 'Password:')
@@ -233,17 +272,18 @@ class UserPresenter  extends BasePresenter{
 
     // call method signInFormSucceeded() on success
     $presenter=$this;
-    $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values) use ($presenter){
+    $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values){
       if ($values->remember) {
-        $presenter->getUser()->setExpiration('14 days', false, true);
+        $this->getUser()->setExpiration('14 days', false, true);
       } else {
-        $presenter->getUser()->setExpiration('20 minutes', true, true);
+        $this->getUser()->setExpiration('20 minutes', true, true);
       }
 
       try{
-        $presenter->getUser()->login($values->email, $values->password);
-        $presenter->flashMessageLoginSuccess();
-        $presenter->finalRedirect();
+        $this->getUser()->login($values->email, $values->password);
+        $this->usersFacade->cleanForgottenPasswords($this->getUser()->id);
+        $this->flashMessageLoginSuccess();
+        $this->finalRedirect();
 
       } catch (Nette\Security\AuthenticationException $e) {
         $form->addError($e->getMessage());
@@ -274,6 +314,7 @@ class UserPresenter  extends BasePresenter{
 
 
   /**
+   * Formulář pro změnu hesla
    * @return Form
    */
   protected function createComponentChangePasswordForm() {
@@ -312,6 +353,55 @@ class UserPresenter  extends BasePresenter{
     };
     $form->addSubmit('storno','storno')
       ->setValidationScope([])
+      ->onClick[]=function(){
+      $this->redirect('login');
+    };
+    return $form;
+  }
+
+  /**
+   * Formulář pro změnu zapomenutého hesla
+   * @return Form
+   */
+  protected function createComponentChangeForgottenPasswordForm() {
+    $form=new Form();
+    $form->setTranslator($this->getTranslator());
+    $form->addHidden('user');
+    $form->addHidden('code');
+    $form->addHidden('id');
+    $form->addText('email','E-mail:')->setAttribute('readonly')->setDisabled(true);
+    $newPassword=$form->addPassword('newPassword','New password:');
+    $newPassword
+      ->addRule(Form::MIN_LENGTH,'minimum password length is %d characters',5)
+      ->setRequired('Input new password!');
+    $form->addPassword('newPassword2','New password:')
+      ->setRequired('Input new password!')
+      ->addRule(Form::EQUAL,'New passwords do not match!',$newPassword);
+    $form->addSubmit('save','Change password')->onClick[]=function(SubmitButton $button){
+      //změna hesla
+      $values=$button->getForm(true)->getValues();
+
+      try{
+        $user=$this->usersFacade->findUser($values->user);
+        $userForgottenPassword=$this->usersFacade->findUserForgottenPassword($values->id);
+        if ($userForgottenPassword->user->userId!=$user->userId || $userForgottenPassword->code!=$values->code){
+          throw new \Exception('Hacking attempt!');
+        }
+      }catch (\Exception $e){
+        $this->flashMessage('Requested password renewal not found! Maybe, the renewal code was too old. Please go to "Forgotten password".','error');
+        $this->redirect('login');
+        return;
+      }
+
+      $user->password=Passwords::hash($values->newPassword);
+      if ($this->usersFacade->saveUser($user)){
+        $this->flashMessage('New password saved...');
+      }
+      //finální přesměrování
+      $this->redirect('login');
+    };
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
       ->onClick[]=function(SubmitButton $button){
       $values=$button->getForm(true)->getValues();
       $redirectParams=[];
@@ -322,8 +412,56 @@ class UserPresenter  extends BasePresenter{
     };
     return $form;
   }
-  
-  
+
+  /**
+   * Formulář pro obnovu zapomenutého hesla
+   * @return Form
+   */
+  protected function createComponentForgottenPasswordForm(){
+    $form = new Form();
+    $form->setTranslator($this->translator);
+    $form->addProtection('Please submit the form again');
+    $form->addText('email','E-mail:')
+      ->setRequired('You have to input your e-mail!')
+      ->addRule(Form::EMAIL,'You have to input valid e-mail!');
+
+    $form->addSubmit('submit','Submit...')
+      ->onClick[]=function(SubmitButton $button){
+      $values=$button->getForm(true)->getValues(true);
+      try{
+        $user=$this->usersFacade->findUserByEmail($values['email']);
+        $userForgottenPassword=$this->usersFacade->generateUserForgottenPassword($user);
+        /** @var MailerControl $mailerControl */
+        $mailerControl=$this->getComponent('mailerControl',true);
+        $result=$mailerControl->sendMailForgottenPassword($userForgottenPassword);
+        if ($result){
+          $this->flashMessage('Information to reset your password has been sent to your e-mail.');
+        }else{
+          $this->flashMessage('It was not possible to sent you information for password reset. Please try it later, or contact the administrator.');
+        }
+      }catch (\Exception $e){
+        //nebyl nalezen příslušný přihlašovací účet...
+        $this->flashMessage('Selected user account does not exist. Please register a new one...');
+        $this->redirect('register');
+        return;
+      }
+      $this->redirect('login');
+    };
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
+      ->onClick[]=function(){
+      $this->redirect('login');
+    };
+    return $form;
+  }
+
+  /**
+   * @return \App\EasyMinerModule\Components\MailerControl
+   */
+  public function createComponentMailerControl(){
+    return $this->mailerControlFactory->create();
+  }
+
   #region injections
   public function injectFacebook(Facebook $facebook){
     $this->facebook=$facebook;
@@ -333,6 +471,10 @@ class UserPresenter  extends BasePresenter{
   }
   public function injectUsersFacade(UsersFacade $usersFacade){
     $this->usersFacade=$usersFacade;
+  }
+
+  public function injectMailerControlFactory(MailerControlFactory $mailerControlFactory){
+    $this->mailerControlFactory = $mailerControlFactory;
   }
   #endregion injections
 } 

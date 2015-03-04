@@ -70,9 +70,11 @@ services:
 	- App\Model\EasyMiner\Repositories\ValuesBinsRepository
 	- App\Model\EasyMiner\Repositories\KnowledgeBasesRepository
 	- App\Model\EasyMiner\Repositories\PreprocessingsRepository
+	- App\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository
 
 	- App\Model\Preprocessing\PhpDatabasePreprocessing
 
 	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%)
 
 	- App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
+	- App\EasyMinerModule\Components\MailerControlFactory(%mail_from%)

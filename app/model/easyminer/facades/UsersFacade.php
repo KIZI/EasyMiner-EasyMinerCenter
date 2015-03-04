@@ -5,6 +5,8 @@ namespace App\Model\EasyMiner\Facades;
 
 use App\Libs\StringsHelper;
 use App\Model\EasyMiner\Entities\User;
+use App\Model\EasyMiner\Entities\UserForgottenPassword;
+use App\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository;
 use App\Model\EasyMiner\Repositories\UsersRepository;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IAuthenticator;
@@ -17,9 +19,16 @@ use Nette\Utils\Strings;
 class UsersFacade implements IAuthenticator{
   /** @var UsersRepository $usersRepository */
   private $usersRepository;
+  /** @var  UserForgottenPasswordsRepository $userForgottenPasswordsRepository */
+  private $userForgottenPasswordsRepository;
 
-  public function __construct(UsersRepository $usersRepository){
+  /**
+   * @param UsersRepository $usersRepository
+   * @param UserForgottenPasswordsRepository $userForgottenPasswordsRepository
+   */
+  public function __construct(UsersRepository $usersRepository, UserForgottenPasswordsRepository $userForgottenPasswordsRepository){
     $this->usersRepository=$usersRepository;
+    $this->userForgottenPasswordsRepository=$userForgottenPasswordsRepository;
   }
 
   /**
@@ -281,5 +290,67 @@ class UsersFacade implements IAuthenticator{
     }
     */
     return new Identity($user->userId,$rolesArr,array('name'=>$user->name,'email'=>$user->email));
+  }
+
+  /**
+   * Funkce pro vytvoření kódu pro změnu hesla a jeho odeslání na mail
+   * @param User|int $user
+   * @throws \Exception
+   * @return UserForgottenPassword
+   */
+  public function generateUserForgottenPassword($user){
+    if (!($user instanceof User)){
+      $user=$this->findUser($user);
+    }
+    try{
+      /** @var UserForgottenPassword $userForgottenPassword */
+      $userForgottenPassword=$this->userForgottenPasswordsRepository->findBy(['user_id'=>$user->userId]);
+      if (strtotime('-2DAY')>$userForgottenPassword->generated->getTimestamp()){
+        $userForgottenPassword=new UserForgottenPassword();
+        $userForgottenPassword->user=$user;
+      }
+    }catch (\Exception $e){/*chybu očekáváme...*/
+      $userForgottenPassword=new UserForgottenPassword();
+      $userForgottenPassword->user=$user;
+    }
+    $userForgottenPassword->generated=new DateTime();
+    if (!($code=$userForgottenPassword->getCode())){
+      $userForgottenPassword->setCode(StringsHelper::randString(10));
+    }
+    $this->userForgottenPasswordsRepository->persist($userForgottenPassword);
+    return $userForgottenPassword;
+  }
+
+  /**
+   * @param int $id
+   * @return UserForgottenPassword
+   * @throws \Exception
+   */
+  public function findUserForgottenPassword($id){
+    return $this->userForgottenPasswordsRepository->find($id);
+  }
+  
+  /**
+   * Funkce pro vyčištění záznamů o zapomenutých heslech
+   * @param User|int $user
+   */
+  public function cleanForgottenPasswords($user){
+    if ($user instanceof User){
+      $user=$user->userId;
+    }
+    //vyčištění kódů pro změnu hesla u daného uživatele
+    $userForgottenPasswords=$this->userForgottenPasswordsRepository->findAllBy(['user_id'=>$user]);
+    if (!empty($userForgottenPasswords)){
+      foreach($userForgottenPasswords as $userForgottenPassword){
+        $this->userForgottenPasswordsRepository->delete($userForgottenPassword);
+      }
+    }
+    //vyčištění starých kódů pro změnu hesla
+    $userForgottenPasswords=$this->userForgottenPasswordsRepository->findAllBy([['[generated] < %s',date('Y-m-d H:i:s',strtotime('-2DAY'))]]);
+    if (!empty($userForgottenPasswords)){
+      foreach($userForgottenPasswords as $userForgottenPassword){
+        $this->userForgottenPasswordsRepository->delete($userForgottenPassword);
+      }
+    }
   }
 }
