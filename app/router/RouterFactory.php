@@ -23,7 +23,7 @@ class RouterFactory
 
 
     $router[] = $knowledgeBaseRouter = new RouteList('KnowledgeBase');
-    $knowledgeBaseRouter[] = new Route('/kb/<presenter>/<action>[/<id>]');
+    $knowledgeBaseRouter[] = new Route('kb/<presenter>/<action>[/<id>]');
 
     $router[] = $dataMiningRouter = new RouteList('EasyMiner');
     $dataMiningRouter[] = new Route('em/user/oauth-[!<type=google>]', [

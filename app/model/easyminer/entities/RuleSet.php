@@ -7,12 +7,24 @@ use LeanMapper\Entity;
  * Class RuleSet
  *
  * @package App\Model\EasyMiner\Entities
- * @property string $uri
+ * @property int $ruleSetId
  * @property string $name
- * @property Rule[] $rules
- * @property KnowledgeBase $knowledgeBase
+ * @property int $rulesCount = 0
+ * @property User $user m:hasOne
+ * @property-read Rule[] $rules m:belongsToMany
  */
 class RuleSet extends Entity{
 
+  /**
+   * Funkce vracející základní data v podobě pole
+   * @return array
+   */
+  public function getDataArr(){
+    return [
+      'rule_set_id'=>$this->ruleSetId,
+      'name'=>$this->name,
+      'rules'=>$this->rulesCount
+    ];
+  }
 
 } 
