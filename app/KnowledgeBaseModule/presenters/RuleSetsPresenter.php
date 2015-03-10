@@ -3,6 +3,7 @@
 namespace App\KnowledgeBaseModule\Presenters;
 
 use App\Model\EasyMiner\Entities\RuleSet;
+use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\RuleSetsFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
@@ -34,6 +35,8 @@ class RuleSetsPresenter extends BaseRestPresenter{
     }
     $this->sendJsonResponse($result);
   }
+
+  #region akce pro manipulaci s rulesetem
 
   /**
    * Akce pro vytvoření nového rulesetu (se zadaným jménem)
@@ -78,9 +81,102 @@ class RuleSetsPresenter extends BaseRestPresenter{
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     //smazání
     if ($this->ruleSetsFacade->deleteRuleSet($ruleSet)){
-      $this->sendJsonResponse(['state'=>'deleted']);
+      $this->sendJsonResponse(['state'=>'ok']);
     }
   }
+
+  #endregion akce pro manipulaci s rulesetem
+
+  #region akce pro manipulaci s pravidly v rulesetech
+
+  /**
+   * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
+   * @param int $id
+   * @param int $offset
+   * @param int $limit
+   * @param string $order = 'id'
+   */
+  public function actionGetRules($id,$offset=0,$limit=25,$order='id'){
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //připravení výstupu
+    $result=[
+      'ruleset'=>$ruleSet->getDataArr(),
+      'rules'=>[]
+    ];
+    if ($ruleSet->rulesCount>0){//FIXME
+      $rules=$this->rulesFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
+      if (!empty($rules)){
+        foreach($rules as $rule){
+          $result['rules'][$rule->ruleId]=['text'=>$rule->text];
+        }
+      }
+    }
+    $this->sendJsonResponse($result);
+  }
+
+  /**
+   * Akce pro přidání pravidel do rulesetu
+   * @param int $id
+   * @param string|int $rules - ID pravidel oddělená čárkami či středníky
+   * @param string $relation = 'positive'
+   */
+  public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    /** @var int[] $ruleIdsArr */
+    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
+    if (!empty($ruleIdsArr)){
+      foreach($ruleIdsArr as $ruleId){
+        if (!$ruleId){continue;}
+        try{
+          $rule=$this->rulesFacade->findRule($ruleId);
+          $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
+        }catch (\Exception $e){continue;}
+      }
+    }
+    $this->sendJsonResponse(['state'=>'ok']);
+  }
+
+  /**
+   * Akce pro odebrání pravidel z rulesetu
+   * @param int $id
+   * @param string|int $rules
+   */
+  public function actionRemoveRules($id,$rules){
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    /** @var int[] $ruleIdsArr */
+    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
+    if (!empty($ruleIdsArr)){
+      foreach($ruleIdsArr as $ruleId){
+        if (!$ruleId){continue;}
+        try{
+          $rule=$this->rulesFacade->findRule($ruleId);
+          $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
+        }catch (\Exception $e){continue;}
+      }
+    }
+    $this->sendJsonResponse(['state'=>'ok']);
+  }
+
+  /**
+   * Akce pro odebrání všech pravidel z rulesetu
+   * @param int $id
+   */
+  public function actionRemoveAllRules($id){
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //smazání
+    $this->ruleSetsFacade->removeAllRulesFromRuleSet($ruleSet);
+    $this->sendJsonResponse(['state'=>'ok']);
+  }
+
+  #endregion akce pro manipulaci s pravidly v rulesetech
 
   #region injections
   /**

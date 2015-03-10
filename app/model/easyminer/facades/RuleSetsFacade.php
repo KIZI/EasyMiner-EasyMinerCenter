@@ -2,8 +2,11 @@
 
 namespace App\Model\EasyMiner\Facades;
 
+use App\Model\EasyMiner\Entities\Rule;
 use App\Model\EasyMiner\Entities\RuleSet;
+use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use App\Model\EasyMiner\Entities\User;
+use App\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository;
 use App\Model\EasyMiner\Repositories\RuleSetsRepository;
 use Nette\Application\BadRequestException;
 use Nette\InvalidArgumentException;
@@ -15,6 +18,69 @@ use Nette\InvalidArgumentException;
 class RuleSetsFacade {
   /** @var  RuleSetsRepository $rulesRepository */
   private $ruleSetsRepository;
+  /** @var  RuleSetRuleRelationsRepository $ruleSetRuleRelationsRepository */
+  private $ruleSetRuleRelationsRepository;
+  /** @var  RulesFacade $rulesFacade */
+  private $rulesFacade;
+
+  /**
+   * Funkce pro přidání/změnu relace Rule k RuleSet
+   * @param Rule|int $rule
+   * @param RuleSet|int $ruleSet
+   * @param string $relation
+   * @return bool
+   * @throws \Exception
+   */
+  public function addRuleToRuleSet($rule,$ruleSet,$relation){
+    if (!($rule instanceof Rule)){
+      $rule=$this->rulesFacade->findRule($rule);
+    }
+    if (!($ruleSet instanceof RuleSet)){
+      $ruleSet=$this->ruleSetsRepository->find($ruleSet);
+    }
+    try{
+      $ruleSetRuleRelation=$this->ruleSetRuleRelationsRepository->findBy(['rule_id'=>$rule->ruleId,'rule_set_id'=>$ruleSet->ruleSetId]);
+    }catch (\Exception $e){
+      $ruleSetRuleRelation=new RuleSetRuleRelation();
+      $ruleSetRuleRelation->rule=$rule;
+      $ruleSetRuleRelation->ruleSet=$ruleSet;
+    }
+    $ruleSetRuleRelation->relation=$relation;
+    return $this->ruleSetRuleRelationsRepository->persist($ruleSetRuleRelation);
+  }
+
+  /**
+   * Funkce pro odebrání pravidla z rulesetu
+   * @param Rule|int $rule
+   * @param RuleSet|int $ruleSet
+   * @return bool
+   * @throws \Exception
+   * @throws \LeanMapper\Exception\InvalidStateException
+   */
+  public function removeRuleFromRuleSet($rule,$ruleSet){
+    if ($rule instanceof Rule){
+      $rule=$rule->ruleId;
+    }
+    if ($ruleSet instanceof RuleSet){
+      $ruleSet=$ruleSet->ruleSetId;
+    }
+    $ruleSetRuleRelation=$this->ruleSetRuleRelationsRepository->findBy(['rule_id'=>$rule,'rule_set_id'=>$ruleSet]);
+    return $this->ruleSetRuleRelationsRepository->delete($ruleSetRuleRelation);
+  }
+
+  /**
+   * Funkce pro smazání všech pravidel z daného datasetu (volitelně v závislosti na definované relaci)
+   * @param RuleSet|int $ruleSet
+   * @param string|null $relation = null
+   * @return bool
+   * @throws \Exception
+   */
+  public function removeAllRulesFromRuleSet($ruleSet,$relation=null){
+    if (!($ruleSet instanceof RuleSet)){
+      $ruleSet=$this->findRuleSet($ruleSet);
+    }
+    return $this->ruleSetRuleRelationsRepository->deleteAllByRuleSet($ruleSet,$relation);
+  }
 
   /**
    * @param int $ruleSetId
@@ -60,7 +126,15 @@ class RuleSetsFacade {
    * @throws BadRequestException
    */
   public function checkRuleSetAccess($ruleSet, $user){
-    //TODO implement!!!
+    if (!($ruleSet instanceof RuleSet)){
+      $ruleSet=$this->findRuleSet($ruleSet);
+    }
+    if ($user instanceof User){
+      $user=$user->userId;
+    }
+    if ($ruleSet->user->userId!=$user){
+      throw new BadRequestException('You are not authorized to access selected ruleset!');
+    }
   }
 
   /**
@@ -90,8 +164,12 @@ class RuleSetsFacade {
 
   /**
    * @param RuleSetsRepository $ruleSetsRepository
+   * @param RuleSetRuleRelationsRepository $ruleSetRuleRelationsRepository
+   * @param RulesFacade $rulesFacade
    */
-  public function __construct(RuleSetsRepository $ruleSetsRepository){
+  public function __construct(RuleSetsRepository $ruleSetsRepository, RuleSetRuleRelationsRepository $ruleSetRuleRelationsRepository, RulesFacade $rulesFacade){
     $this->ruleSetsRepository=$ruleSetsRepository;
+    $this->ruleSetRuleRelationsRepository=$ruleSetRuleRelationsRepository;
+    $this->rulesFacade=$rulesFacade;
   }
 } 

@@ -50,6 +50,7 @@ services:
 	- App\Model\EasyMiner\Facades\TasksFacade
 	- App\Model\EasyMiner\Facades\MetaAttributesFacade
 	- App\Model\EasyMiner\Facades\PreprocessingsFacade
+	- App\Model\EasyMiner\Facades\RuleSetsFacade
 
 	- App\Model\EasyMiner\Repositories\DatasourcesRepository
 	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
@@ -65,6 +66,7 @@ services:
 	- App\Model\EasyMiner\Repositories\MetaAttributesRepository
 	- App\Model\EasyMiner\Repositories\FormatsRepository
 	- App\Model\EasyMiner\Repositories\RuleSetsRepository
+	- App\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository
 	- App\Model\EasyMiner\Repositories\IntervalsRepository
 	- App\Model\EasyMiner\Repositories\ValuesRepository
 	- App\Model\EasyMiner\Repositories\ValuesBinsRepository

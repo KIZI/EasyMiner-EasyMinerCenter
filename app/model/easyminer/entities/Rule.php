@@ -10,6 +10,7 @@ use LeanMapper\Entity;
  * @package App\Model\EasyMiner\Entities
  * @property int $ruleId
  * @property Task $task m:hasOne
+ * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
  * @property string $text
  * @property Cedent|null $antecedent m:hasOne(antecedent)
  * @property Cedent $consequent m:hasOne(consequent)

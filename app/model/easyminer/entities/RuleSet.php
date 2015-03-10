@@ -11,7 +11,7 @@ use LeanMapper\Entity;
  * @property string $name
  * @property int $rulesCount = 0
  * @property User $user m:hasOne
- * @property-read Rule[] $rules m:belongsToMany
+ * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
  */
 class RuleSet extends Entity{
 
