@@ -46,7 +46,9 @@ class RuleSetsFacade {
       $ruleSetRuleRelation->ruleSet=$ruleSet;
     }
     $ruleSetRuleRelation->relation=$relation;
-    return $this->ruleSetRuleRelationsRepository->persist($ruleSetRuleRelation);
+    $result=$this->ruleSetRuleRelationsRepository->persist($ruleSetRuleRelation);
+    $this->updateRuleSetRulesCount($ruleSet);
+    return $result;
   }
 
   /**
@@ -65,7 +67,9 @@ class RuleSetsFacade {
       $ruleSet=$ruleSet->ruleSetId;
     }
     $ruleSetRuleRelation=$this->ruleSetRuleRelationsRepository->findBy(['rule_id'=>$rule,'rule_set_id'=>$ruleSet]);
-    return $this->ruleSetRuleRelationsRepository->delete($ruleSetRuleRelation);
+    $result=$this->ruleSetRuleRelationsRepository->delete($ruleSetRuleRelation);
+    $this->updateRuleSetRulesCount($ruleSet);
+    return $result;
   }
 
   /**
@@ -79,9 +83,22 @@ class RuleSetsFacade {
     if (!($ruleSet instanceof RuleSet)){
       $ruleSet=$this->findRuleSet($ruleSet);
     }
-    return $this->ruleSetRuleRelationsRepository->deleteAllByRuleSet($ruleSet,$relation);
+    $result=$this->ruleSetRuleRelationsRepository->deleteAllByRuleSet($ruleSet,$relation);
+    $this->updateRuleSetRulesCount($ruleSet);
+    return $result;
   }
 
+  /**
+   * @param RuleSet|int $ruleSet
+   * @param string $order
+   * @param null|int $offset
+   * @param null|int $limit
+   * @return Rule[]
+   */
+  public function findRulesByRuleSet($ruleSet,$order,$offset=null,$limit=null){
+    return $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet,$order,$offset,$limit);
+  }
+  
   /**
    * @param int $ruleSetId
    * @return RuleSet
@@ -160,6 +177,15 @@ class RuleSetsFacade {
         }
       }
     }
+  }
+
+  /**
+   * Funkce pro přepočítání počtu pravidel v rulesetu
+   * @param RuleSet $ruleSet
+   */
+  private function updateRuleSetRulesCount(RuleSet $ruleSet){
+    $ruleSet->rulesCount=$this->ruleSetRuleRelationsRepository->findCountRulesByRuleSet($ruleSet);
+    $this->saveRuleSet($ruleSet);
   }
 
   /**

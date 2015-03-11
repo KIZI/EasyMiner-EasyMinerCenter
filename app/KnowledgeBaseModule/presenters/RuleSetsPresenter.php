@@ -94,9 +94,9 @@ class RuleSetsPresenter extends BaseRestPresenter{
    * @param int $id
    * @param int $offset
    * @param int $limit
-   * @param string $order = 'id'
+   * @param string|null $order = null
    */
-  public function actionGetRules($id,$offset=0,$limit=25,$order='id'){
+  public function actionGetRules($id,$offset=0,$limit=25,$order=null){
     //najití RuleSetu a kontroly
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
@@ -105,8 +105,8 @@ class RuleSetsPresenter extends BaseRestPresenter{
       'ruleset'=>$ruleSet->getDataArr(),
       'rules'=>[]
     ];
-    if ($ruleSet->rulesCount>0){//FIXME
-      $rules=$this->rulesFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
+    if ($ruleSet->rulesCount>0 || true){
+      $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
       if (!empty($rules)){
         foreach($rules as $rule){
           $result['rules'][$rule->ruleId]=['text'=>$rule->text];
