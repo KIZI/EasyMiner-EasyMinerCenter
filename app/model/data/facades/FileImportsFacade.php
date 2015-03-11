@@ -3,6 +3,8 @@ namespace App\Model\Data\Facades;
 use App\Model\Data\Entities\DbConnection;
 use App\Model\Data\Files\CsvImport;
 use Nette\Application\ApplicationException;
+use Nette\Utils\FileSystem;
+use Nette\Utils\Finder;
 
 /**
  * Class FileImportsFacade - model pro práci s importy souborů
@@ -33,11 +35,30 @@ class FileImportsFacade {
    * @param string $filename
    */
   public function deleteFile($filename){
-    @unlink($this->getFilePath($filename));
-    @unlink($this->getFilePath($filename.'.utf8'));
-    @unlink($this->getFilePath($filename.'.cp1250'));
-    @unlink($this->getFilePath($filename.'.iso-8859-1'));
+    try{
+      FileSystem::delete($this->getFilePath($filename));
+    }catch (\Exception $e){}
+    try{
+      FileSystem::delete($this->getFilePath($filename.'.utf8'));
+    }catch (\Exception $e){}
+    try{
+      FileSystem::delete($this->getFilePath($filename.'.cp1250'));
+    }catch (\Exception $e){}
+    try{
+      FileSystem::delete($this->getFilePath($filename.'.iso-8859-1'));
+    }catch (\Exception $e){}
   }
+
+  /**
+   * Funkce pro smazání starých souborů importů (starších, než daný počet dnů)
+   * @param int $minusDays
+   */
+  public function deleteOldFiles($minusDays){
+    foreach (Finder::findFiles('*.php')->date('<', '- '.$minusDays.' days')->from($this->dataDirectory) as $file){
+      FileSystem::delete($file);
+    }
+  }
+
 
   /**
    * Funkce vracející data z CSV souboru
