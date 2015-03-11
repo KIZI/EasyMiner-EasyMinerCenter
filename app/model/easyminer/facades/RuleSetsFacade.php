@@ -5,6 +5,7 @@ namespace App\Model\EasyMiner\Facades;
 use App\Model\EasyMiner\Entities\Rule;
 use App\Model\EasyMiner\Entities\RuleSet;
 use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository;
 use App\Model\EasyMiner\Repositories\RuleSetsRepository;
@@ -86,6 +87,43 @@ class RuleSetsFacade {
     $result=$this->ruleSetRuleRelationsRepository->deleteAllByRuleSet($ruleSet,$relation);
     $this->updateRuleSetRulesCount($ruleSet);
     return $result;
+  }
+
+  /**
+   * Funkce pro přidání všech pravidel z RuleClipboard konkrétní úlohy do RuleSetu
+   * @param Task|int $task
+   * @param RuleSet|int $ruleSet
+   * @param string $relation
+   */
+  public function addAllRuleClipboardRulesToRuleSet($task,$ruleSet,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
+    if (!($ruleSet instanceof RuleSet)){
+      $ruleSet=$this->findRuleSet($ruleSet);
+    }
+    $rules=$this->rulesFacade->findRulesByTask($task,null,null,null,true);
+    if (!empty($rules)){
+      foreach($rules as $rule){
+        $this->addRuleToRuleSet($rule,$ruleSet,$relation);
+      }
+    }
+    $this->updateRuleSetRulesCount($ruleSet);
+  }
+
+  /**
+   * Funkce pro odebrání všech pravidel z RuleClipboard konkrétní úlohy z RuleSetu
+   * @param $task
+   * @param $ruleSet
+   */
+  public function removeAllRuleClipboardRulesFromRuleSet($task,$ruleSet){
+    if (!($ruleSet instanceof RuleSet)){
+      $ruleSet=$this->findRuleSet($ruleSet);
+    }
+    $rules=$this->rulesFacade->findRulesByTask($task,null,null,null,true);
+    if (!empty($rules)){
+      foreach($rules as $rule){
+        $this->removeRuleFromRuleSet($rule,$ruleSet);
+      }
+    }
+    $this->updateRuleSetRulesCount($ruleSet);
   }
 
   /**

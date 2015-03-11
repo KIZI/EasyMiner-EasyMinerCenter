@@ -2,6 +2,8 @@
 
 namespace App\EasyMinerModule\Presenters;
 use App\Model\EasyMiner\Entities\Rule;
+use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use App\Model\EasyMiner\Facades\RuleSetsFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\TasksFacade;
 use Nette\InvalidArgumentException;
@@ -16,6 +18,8 @@ class RuleClipboardPresenter  extends BasePresenter{
   private $rulesFacade;
   /** @var  TasksFacade $tasksFacade */
   private $tasksFacade;
+  /** @var  RuleSetsFacade $ruleSetsFacade */
+  private $ruleSetsFacade;
 
   /**
    * Funkce vracející přehled úloh, které mají pravidla v RuleClipboard
@@ -178,6 +182,91 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
 
+  /**
+   * Akce pro přidání celého obsahu rule clipboard do zvoleného rulesetu
+   * @param int $miner
+   * @param string $task
+   * @param int $ruleset
+   * @param string $relation
+   * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
+   * @throws ForbiddenRequestException
+   * @throws \Nette\Application\BadRequestException
+   */
+  public function actionAddRulesToRuleSet($miner,$task,$ruleset,$relation=RuleSetRuleRelation::RELATION_POSITIVE,$returnRules=''){
+    //načtení dané úlohy a zkontrolování přístupu k mineru
+    $this->checkMinerAccess($miner);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleset);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //přidání pravidel
+    $this->ruleSetsFacade->addAllRuleClipboardRulesToRuleSet($task,$ruleSet,$relation);
+
+    $result=array();
+    if (count($ruleIdsArr)>0){
+      foreach ($ruleIdsArr as $ruleId){
+        try{
+          $rule=$this->rulesFacade->findRule($ruleId);
+          //TODO optimalizovat kontroly...
+          $ruleTask=$rule->task;
+          if ($ruleTask->taskUuid!=$task->taskUuid){
+            throw new InvalidArgumentException;
+          }
+          if ($ruleTask->miner->minerId!=$miner){
+            throw new InvalidArgumentException;
+          }
+          $result[$rule->ruleId]=$rule->getBasicDataArr();
+        }catch (\Exception $e){
+          continue;}
+      }
+    }
+    $this->sendJsonResponse(array('rules'=>$result));
+  }
+
+  /**
+   * Akce pro odebrání celého obsahu rule clipboard z konkrétního rulesetu
+   * @param int $miner
+   * @param string $task
+   * @param int $ruleset
+   * @param string $relation
+   * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
+   * @throws ForbiddenRequestException
+   * @throws \Nette\Application\BadRequestException
+   */
+  public function actionRemoveRulesFromRuleSet($miner,$task,$ruleset,$returnRules=''){
+    //načtení dané úlohy a zkontrolování přístupu k mineru
+    $this->checkMinerAccess($miner);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleset);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //přidání pravidel
+    $this->ruleSetsFacade->removeAllRuleClipboardRulesFromRuleSet($task,$ruleSet);
+
+    $result=array();
+    if (count($ruleIdsArr)>0){
+      foreach ($ruleIdsArr as $ruleId){
+        try{
+          $rule=$this->rulesFacade->findRule($ruleId);
+          //TODO optimalizovat kontroly...
+          $ruleTask=$rule->task;
+          if ($ruleTask->taskUuid!=$task->taskUuid){
+            throw new InvalidArgumentException;
+          }
+          if ($ruleTask->miner->minerId!=$miner){
+            throw new InvalidArgumentException;
+          }
+          $result[$rule->ruleId]=$rule->getBasicDataArr();
+        }catch (\Exception $e){
+          continue;}
+      }
+    }
+    $this->sendJsonResponse(array('rules'=>$result));
+  }
+
+
   #region injections
   /**
    * @param RulesFacade $rulesFacade
@@ -190,6 +279,12 @@ class RuleClipboardPresenter  extends BasePresenter{
    */
   public function injectTasksFacade(TasksFacade $tasksFacade){
     $this->tasksFacade=$tasksFacade;
+  }
+  /**
+   * @param RuleSetsFacade $ruleSetsFacade
+   */
+  public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
+    $this->ruleSetsFacade=$ruleSetsFacade;
   }
   #endregion injections
 } 

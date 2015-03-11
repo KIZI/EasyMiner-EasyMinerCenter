@@ -56,13 +56,13 @@ class RulesFacade {
 
   /**
    * @param Task|int $task
-   * @param string $order
+   * @param string|null $order
    * @param int $offset = null
    * @param int $limit = null
    * @param bool $onlyInClipboard = false
    * @return Rule[]
    */
-  public function findRulesByTask($task,$order,$offset=null,$limit=null,$onlyInClipboard=false){
+  public function findRulesByTask($task,$order=null,$offset=null,$limit=null,$onlyInClipboard=false){
     if ($task instanceof Task){
       $task=$task->taskId;
     }
