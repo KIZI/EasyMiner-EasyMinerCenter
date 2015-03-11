@@ -335,9 +335,14 @@ class PmmlSerializer {
       }
       $antecedent=$rule->antecedent;
       $consequent=$rule->consequent;
-      $associationRuleXml->addAttribute('antecedent','cdnt_'.$antecedent->cedentId);
-      $associationRuleXml->addAttribute('consequent','cdnt_'.$consequent->cedentId);
-      $associationRuleXml->addChild('Text',$rule->text);
+      if (!empty($antecedent)){
+        $associationRuleXml->addAttribute('antecedent','cdnt_'.$antecedent->cedentId);
+      }
+      if (!empty($consequent)){
+        $associationRuleXml->addAttribute('consequent','cdnt_'.$consequent->cedentId);
+      }
+      $associationRuleXml->addChild('Text');
+      $associationRuleXml->Text=$rule->text;
       //IMValues
       $IMValueConfidence=$associationRuleXml->addChild('IMValue',$rule->support);
       $IMValueConfidence->addAttribute('name','BASE');
@@ -353,8 +358,12 @@ class PmmlSerializer {
       $fourFtTableXml->addAttribute('c',$rule->c);
       $fourFtTableXml->addAttribute('d',$rule->d);
       //serializace dílčích cedentů
-      $this->serializeCedent($rule->antecedent);
-      $this->serializeCedent($rule->consequent);
+      if (!empty($rule->antecedent)){
+        $this->serializeCedent($rule->antecedent);
+      }
+      if (!empty($rule->consequent)){
+        $this->serializeCedent($rule->consequent);
+      }
     }
     //sloučení XML dokumentů
     //TODO přesun do samostatné funkce?
@@ -419,8 +428,10 @@ class PmmlSerializer {
     $BBAXML=$this->BBAsWorkXml->addChild('BBA');
     $BBAXML->addAttribute('id','bba_'.$ruleAttribute->ruleAttributeId);
     $BBAXML->addAttribute('literal','false');
-    $BBAXML->addChild('FieldRef',$ruleAttribute->field);
-    $BBAXML->addChild('CatRef',$ruleAttribute->value);//TODO atributy s více hodnotami!
+    $BBAXML->addChild('FieldRef');
+    $BBAXML->FieldRef=$ruleAttribute->field;
+    $BBAXML->addChild('CatRef');
+    $BBAXML->CatRef=$ruleAttribute->value;//TODO atributy s více hodnotami!
     //
     $DBAXML=$this->DBAsWorkXml->addChild('DBA');
     $DBAXML->addAttribute('id','dba_'.$ruleAttribute->ruleAttributeId);
