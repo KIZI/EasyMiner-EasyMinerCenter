@@ -101,7 +101,7 @@ class PmmlSerializer {
   private function prepareBlankPmml(){//TODO doplnění informací o modulu a subsystému a o aktuální verzi systému
     $this->pmml = simplexml_load_string('<'.'?xml version="1.0" encoding="UTF-8"?>
       <'.'?oxygen SCHSchema="http://sewebar.vse.cz/schemas/GUHARestr0_1.sch"?>
-      <PMML xmlns="'.self::PMML_XMLNS.'" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://sewebar.vse.cz/schemas/PMML4.0+GUHA0.1.xsd">
+      <PMML xmlns="'.self::PMML_XMLNS.'" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://easyminer.eu/schemas/PMML4.0+GUHA0.1.xsd">
         <Header copyright="Copyright (c) KIZI UEP">
 
           <Extension name="author" value="'.(!empty($this->miner->user)?$this->miner->user->name:'').'"/>
@@ -438,5 +438,7 @@ class PmmlSerializer {
     $DBAXML->addAttribute('connective',$this->connectivesArr[Cedent::CONNECTIVE_CONJUNCTION]);
     $DBAXML->addAttribute('literal','true');
     $DBAXML->addChild('BARef','bba_'.$ruleAttribute->ruleAttributeId);
+    //
+    $this->serializedRuleAttributesArr[]=$ruleAttribute->ruleAttributeId;
   }
 }
