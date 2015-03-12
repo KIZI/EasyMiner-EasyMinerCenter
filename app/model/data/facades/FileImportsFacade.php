@@ -54,7 +54,7 @@ class FileImportsFacade {
    * @param int $minusDays
    */
   public function deleteOldFiles($minusDays){
-    foreach (Finder::findFiles('*.php')->date('<', '- '.$minusDays.' days')->from($this->dataDirectory) as $file){
+    foreach (Finder::findFiles('*')->date('<', '- '.$minusDays.' days')->from($this->dataDirectory) as $file){
       FileSystem::delete($file);
     }
   }

@@ -41,6 +41,7 @@ class CronPresenter extends BasePresenter{
    */
   public function actionDeleteImportFiles(){
     $this->fileImportsFacade->deleteOldFiles(self::FILE_IMPORT_VALID_DAYS);
+    $this->sendTextResponse('DONE');
   }
 
 
