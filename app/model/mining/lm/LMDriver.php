@@ -206,8 +206,8 @@ class LMDriver implements IMiningDriver{
   private function prepareImportPmml($attributesArr){
     $metasource=$this->miner->metasource;
     $pmml=simplexml_load_string('<?xml version="1.0"?>
-<?oxygen SCHSchema="http://sewebar.vse.cz/schemas/GUHARestr0_1.sch"?>
-<PMML version="4.0" xmlns="http://www.dmg.org/PMML-4_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://sewebar.vse.cz/schemas/PMML4.0+GUHA0.1.xsd">
+<?oxygen SCHSchema="http://easyminer.eu/schemas/GUHARestr0_1.sch"?>
+<PMML version="4.0" xmlns="http://www.dmg.org/PMML-4_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://easyminer.eu/schemas/PMML4.0+GUHA0.1.xsd">
   <Header>
     <Extension name="dataset" value="'.$metasource->attributesTable.'"/>
   </Header>

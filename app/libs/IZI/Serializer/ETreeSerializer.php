@@ -78,7 +78,7 @@ class ETreeSerializer
         $this->output = new \DOMDocument("1.0", "UTF-8");
 
         // add schematron validation
-        $pi = $this->output->createProcessingInstruction('oxygen', 'SCHSchema="http://sewebar.vse.cz/schemas/GUHARestr0_1.sch"');
+        $pi = $this->output->createProcessingInstruction('oxygen', 'SCHSchema="http://easyminer.eu/schemas/GUHARestr0_1.sch"');
         $this->output->appendChild($pi);
 
         // create PMML
@@ -87,7 +87,7 @@ class ETreeSerializer
         $pmml->setAttribute('xmlns', 'http://www.dmg.org/PMML-4_0');
         $pmml->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
         $pmml->setAttribute('xmlns:pmml', 'http://www.dmg.org/PMML-4_0');
-        $pmml->setAttribute('xsi:schemaLocation', 'http://www.dmg.org/PMML-4_0 http://sewebar.vse.cz/schemas/PMML4.0+GUHA0.1.xsd');
+        $pmml->setAttribute('xsi:schemaLocation', 'http://www.dmg.org/PMML-4_0 http://easyminer.eu/schemas/PMML4.0+GUHA0.1.xsd');
         $root = $this->output->appendChild($pmml);
 
         // add Header
@@ -132,7 +132,7 @@ class ETreeSerializer
         // create AssociationModel
         $associationModel = $this->output->createElement('guha:ETreeModel');
         $associationModel->setAttribute('xmlns', '');
-        $associationModel->setAttribute('xsi:schemaLocation', 'http://keg.vse.cz/ns/GUHA0.1rev1 http://sewebar.vse.cz/schemas/GUHA0.1rev1.xsd');
+        $associationModel->setAttribute('xsi:schemaLocation', 'http://keg.vse.cz/ns/GUHA0.1rev1 http://easyminer.eu/schemas/GUHA0.1rev1.xsd');
         $associationModel->setAttribute('xmlns:guha', 'http://keg.vse.cz/ns/GUHA0.1rev1');
         $this->modelName = $this->output->createAttribute('modelName');
         $associationModel->setAttributeNode($this->modelName);

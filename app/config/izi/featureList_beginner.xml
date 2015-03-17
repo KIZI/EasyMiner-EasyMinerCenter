@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <arf:GUHAFeatureList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://keg.vse.cz/ns/arfeatures_08 http://sewebar.vse.cz/schemas/GUHAARfeature.xsd"
+	xsi:schemaLocation="http://keg.vse.cz/ns/arfeatures_08 http://easyminer.eu/schemas/GUHAARfeature.xsd"
 	xmlns:arf="http://keg.vse.cz/ns/arfeatures_08" mode="AssociationRules" procedure="4ft">
 	<UserInterface priority="1">
 		<AllowMultipleRules>false</AllowMultipleRules>

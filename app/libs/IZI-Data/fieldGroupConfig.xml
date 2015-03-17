@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fg:FieldGroupConfigs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://keg.vse.cz/ns/fieldgroupconfig0_1 http://sewebar.vse.cz/schemas/FieldGroupConfig0_1.xsd"
+ xsi:schemaLocation="http://keg.vse.cz/ns/fieldgroupconfig0_1 http://easyminer.eu/schemas/FieldGroupConfig0_1.xsd"
  xmlns:fg="http://keg.vse.cz/ns/fieldgroupconfig0_1" rootConfigID="1">
     
     <FieldGroupConfig id="1">        

@@ -82,7 +82,7 @@ class AnnotatedAssociationRulesSerializer
         $document->setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         $document->setAttribute("xmlns:dd", "http://keg.vse.cz/ns/datadescription0_2");
         $document->setAttribute("xmlns:guha", "http://keg.vse.cz/ns/GUHA0.1rev1");
-        $document->setAttribute("xsi:schemaLocation", "http://keg.vse.cz/ns/arbuilder0_2 http://sewebar.vse.cz/schemas/ARBuilder0_2.xsd");
+        $document->setAttribute("xsi:schemaLocation", "http://keg.vse.cz/ns/arbuilder0_2 http://easyminer.eu/schemas/ARBuilder0_2.xsd");
         $root = $this->output->appendChild($document);
 
         // create DataDescription

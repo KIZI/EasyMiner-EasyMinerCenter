@@ -1,5 +1,5 @@
 <data:DataDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                      xsi:schemaLocation="http://keg.vse.cz/ns/datadescription0_2 http://sewebar.vse.cz/schemas/DataDescription0_2.xsd"
+                      xsi:schemaLocation="http://keg.vse.cz/ns/datadescription0_2 http://easyminer.eu/schemas/DataDescription0_2.xsd"
                       xmlns:data="http://keg.vse.cz/ns/datadescription0_2">
     <!-- LMDataSource.Matrix.ARD.PMML.Template, version of 2012-07-31 -->
 
