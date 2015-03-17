@@ -16,9 +16,9 @@
 	],
 	"require": {
 		"php": ">= 5.3.7",
-		"nette/nette": "~2.2.0",
-		"tharos/leanmapper": "v2.2.0",
-		"kdyby/facebook": "v1.2.0",
+		"nette/nette": "~2.2.0@stable",
+		"tharos/leanmapper": "v2.2.0@stable",
+		"kdyby/facebook": "v1.2.0@stable",
 		"kdyby/google": "dev-master",
 		"srigi/nette-confirmationdialog": "1.0.1",
 		"kdyby/curl": "v2.2.0",
@@ -27,5 +27,5 @@
 	"require-dev": {
 		"nette/tester": "~1.0"
 	},
-	"minimum-stability": "stable"
+	"minimum-stability": "dev"
 }

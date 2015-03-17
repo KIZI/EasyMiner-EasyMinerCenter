@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "18d44922bf847f1c5f97bd190a83ba9c",
+    "hash": "1d0d35216438e57cc97b2dbb42fd1f70",
     "packages": [
         {
             "name": "dg/dibi",
@@ -1752,8 +1752,11 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
+        "nette/nette": 0,
+        "tharos/leanmapper": 0,
+        "kdyby/facebook": 0,
         "kdyby/google": 20,
         "kdyby/forms-replicator": 20
     },
