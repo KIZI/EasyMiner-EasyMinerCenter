@@ -131,10 +131,10 @@ class RuleSetsPresenter extends BaseRestPresenter{
     if (!empty($ruleIdsArr)){
       foreach($ruleIdsArr as $ruleId){
         if (!$ruleId){continue;}
-        try{
+        //try{
           $rule=$this->rulesFacade->findRule($ruleId);
           $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
-        }catch (\Exception $e){continue;}
+        //}catch (\Exception $e){continue;}
       }
     }
     $this->sendJsonResponse(['state'=>'ok']);
@@ -154,12 +154,13 @@ class RuleSetsPresenter extends BaseRestPresenter{
     if (!empty($ruleIdsArr)){
       foreach($ruleIdsArr as $ruleId){
         if (!$ruleId){continue;}
-        try{
+        //try{
           $rule=$this->rulesFacade->findRule($ruleId);
           $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
-        }catch (\Exception $e){continue;}
+        //}catch (\Exception $e){continue;}
       }
     }
+    $this->ruleSetsFacade->updateRuleSetRulesCount($rule,$ruleSet);
     $this->sendJsonResponse(['state'=>'ok']);
   }
 

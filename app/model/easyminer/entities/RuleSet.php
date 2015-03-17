@@ -23,7 +23,7 @@ class RuleSet extends Entity{
     return [
       'rule_set_id'=>$this->ruleSetId,
       'name'=>$this->name,
-      'rules'=>$this->rulesCount
+      'rulesCount'=>$this->rulesCount
     ];
   }
 

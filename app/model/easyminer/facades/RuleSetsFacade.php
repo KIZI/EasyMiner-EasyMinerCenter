@@ -29,10 +29,11 @@ class RuleSetsFacade {
    * @param Rule|int $rule
    * @param RuleSet|int $ruleSet
    * @param string $relation
+   * @param bool $updateRulesCount = true
    * @return bool
    * @throws \Exception
    */
-  public function addRuleToRuleSet($rule,$ruleSet,$relation){
+  public function addRuleToRuleSet($rule,$ruleSet,$relation, $updateRulesCount=true){
     if (!($rule instanceof Rule)){
       $rule=$this->rulesFacade->findRule($rule);
     }
@@ -48,7 +49,7 @@ class RuleSetsFacade {
     }
     $ruleSetRuleRelation->relation=$relation;
     $result=$this->ruleSetRuleRelationsRepository->persist($ruleSetRuleRelation);
-    $this->updateRuleSetRulesCount($ruleSet);
+    if ($updateRulesCount) $this->updateRuleSetRulesCount($ruleSet);
     return $result;
   }
 
@@ -56,11 +57,12 @@ class RuleSetsFacade {
    * Funkce pro odebrání pravidla z rulesetu
    * @param Rule|int $rule
    * @param RuleSet|int $ruleSet
+   * @param bool $updateRulesCount = true
    * @return bool
    * @throws \Exception
    * @throws \LeanMapper\Exception\InvalidStateException
    */
-  public function removeRuleFromRuleSet($rule,$ruleSet){
+  public function removeRuleFromRuleSet($rule,$ruleSet,$updateRulesCount=true){
     if ($rule instanceof Rule){
       $rule=$rule->ruleId;
     }
@@ -69,7 +71,7 @@ class RuleSetsFacade {
     }
     $ruleSetRuleRelation=$this->ruleSetRuleRelationsRepository->findBy(['rule_id'=>$rule,'rule_set_id'=>$ruleSet]);
     $result=$this->ruleSetRuleRelationsRepository->delete($ruleSetRuleRelation);
-    $this->updateRuleSetRulesCount($ruleSet);
+    if ($updateRulesCount) $this->updateRuleSetRulesCount($ruleSet);
     return $result;
   }
 
@@ -219,9 +221,12 @@ class RuleSetsFacade {
 
   /**
    * Funkce pro přepočítání počtu pravidel v rulesetu
-   * @param RuleSet $ruleSet
+   * @param RuleSet|int $ruleSet
    */
-  private function updateRuleSetRulesCount(RuleSet $ruleSet){
+  public function updateRuleSetRulesCount($ruleSet){
+    if (!($ruleSet instanceof RuleSet)){
+      $ruleSet=$this->findRuleSet($ruleSet);
+    }
     $ruleSet->rulesCount=$this->ruleSetRuleRelationsRepository->findCountRulesByRuleSet($ruleSet);
     $this->saveRuleSet($ruleSet);
   }

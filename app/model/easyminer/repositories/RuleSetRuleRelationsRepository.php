@@ -36,7 +36,15 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
     if ($order){
       $query=$query->orderBy($order);
     }
-    $this->createEntities($query->fetchAll($offset, $limit),$this->mapper->getEntityClass('rules'));
+    $entityClass=$this->mapper->getEntityClass('rules');
+    $table='rules';
+
+    $ruleRows=$query->fetchAll($offset, $limit);
+    $result=[];
+    foreach ($ruleRows as $ruleRow){
+      $result[]=$this->createEntity($ruleRow,$entityClass,$table);
+    }
+    return $this->entityFactory->createCollection($result);
   }
 
   /**
@@ -46,11 +54,12 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
    */
   public function findCountRulesByRuleSet(RuleSet $ruleSet){
     /** @var Fluent $query */
-    $query=$this->connection->select('count(rules.*) as pocet')
+    $query=$this->connection->select('count(*) as pocet')
       ->from('rules')
-      ->leftJoin('rule_set_rule_relations')->on('rules.rule_id=%n.rule_id',$this->getTable())
+      ->join('rule_set_rule_relations')->on('rules.rule_id=%n.rule_id','rule_set_rule_relations')
       ->where('rule_set_id = ?',$ruleSet->ruleSetId);
-    return $query->fetchSingle();
+    $result=$query->fetchSingle();
+    return $result;
   }
 
 
