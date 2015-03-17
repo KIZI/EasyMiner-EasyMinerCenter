@@ -49,7 +49,7 @@ class Template extends Nette\Object implements Nette\Application\UI\ITemplate
 	 */
 	public function render($file = NULL, array $params = array())
 	{
-		$this->latte->render($file ?: $this->file, $params ?: $this->params);
+		$this->latte->render($file ?: $this->file, $params + $this->params);
 	}
 
 
@@ -195,6 +195,15 @@ class Template extends Nette\Object implements Nette\Application\UI\ITemplate
 	public function getParameters()
 	{
 		return $this->params;
+	}
+
+
+	/**
+	 * @deprecated
+	 */
+	public function __call($name, $args)
+	{
+		return $this->latte->invokeFilter($name, $args);
 	}
 
 

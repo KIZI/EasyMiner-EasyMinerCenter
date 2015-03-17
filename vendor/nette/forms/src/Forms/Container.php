@@ -24,7 +24,7 @@ use Nette;
  */
 class Container extends Nette\ComponentModel\Container implements \ArrayAccess
 {
-	/** @var array of function(Container $sender); Occurs when the form is validated */
+	/** @var callable[]  function(Container $sender); Occurs when the form is validated */
 	public $onValidate;
 
 	/** @var ControlGroup */
@@ -183,7 +183,7 @@ class Container extends Nette\ComponentModel\Container implements \ArrayAccess
 
 	/**
 	 * Adds the specified component to the IContainer.
-	 * @param  IComponent
+	 * @param  Nette\ComponentModel\IComponent
 	 * @param  string
 	 * @param  string
 	 * @return self
@@ -281,6 +281,18 @@ class Container extends Nette\ComponentModel\Container implements \ArrayAccess
 	public function addUpload($name, $label = NULL, $multiple = FALSE)
 	{
 		return $this[$name] = new Controls\UploadControl($label, $multiple);
+	}
+
+
+	/**
+	 * Adds control that allows the user to upload multiple files.
+	 * @param  string  control name
+	 * @param  string  label
+	 * @return Nette\Forms\Controls\UploadControl
+	 */
+	public function addMultiUpload($name, $label = NULL)
+	{
+		return $this[$name] = new Controls\UploadControl($label, TRUE);
 	}
 
 

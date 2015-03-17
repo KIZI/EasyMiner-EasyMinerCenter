@@ -1,7 +1,7 @@
 {
 	"name": "KIZI/EasyMiner-EasyMinerCenter",
-	"description": "The sandbox is a pre-packaged Nette Framework project, basic configured structure for your application.",
-	"homepage": "http://nette.org",
+	"description": "EasyMinerCenter is a data mining project developed on University of Economics, Prague",
+	"homepage": "http://easyminer.eu",
 	"type": "project",
 	"license": ["BSD-3-Clause"],
 	"authors": [
@@ -17,8 +17,6 @@
 	"require": {
 		"php": ">= 5.3.7",
 		"nette/nette": "~2.2.0",
-		"dg/adminer-custom": "~1.0",
-		"semsol/arc2": "v2.2.4",
 		"tharos/leanmapper": "v2.2.0",
 		"kdyby/facebook": "v1.2.0",
 		"kdyby/google": "dev-master",
@@ -29,5 +27,5 @@
 	"require-dev": {
 		"nette/tester": "~1.0"
 	},
-	"minimum-stability": "dev"
+	"minimum-stability": "stable"
 }

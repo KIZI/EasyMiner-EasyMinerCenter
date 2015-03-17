@@ -74,7 +74,7 @@ class SqlBuilder extends Nette\Object
 		$this->tableName = $tableName;
 		$this->databaseReflection = $reflection;
 		$this->driver = $connection->getSupplementalDriver();
-		$this->delimitedTable = $this->tryDelimite($tableName);
+		$this->delimitedTable = implode('.', array_map(array($this->driver, 'delimite'), explode('.', $tableName)));
 	}
 
 
@@ -89,7 +89,7 @@ class SqlBuilder extends Nette\Object
 		if ($this->limit !== NULL || $this->offset) {
 			throw new Nette\NotSupportedException('LIMIT clause is not supported in UPDATE query.');
 		}
-		return $this->tryDelimite("UPDATE {$this->tableName} SET ?" . $this->buildConditions());
+		return "UPDATE {$this->delimitedTable} SET ?" . $this->tryDelimite($this->buildConditions());
 	}
 
 
@@ -98,7 +98,7 @@ class SqlBuilder extends Nette\Object
 		if ($this->limit !== NULL || $this->offset) {
 			throw new Nette\NotSupportedException('LIMIT clause is not supported in DELETE query.');
 		}
-		return $this->tryDelimite("DELETE FROM {$this->tableName}" . $this->buildConditions());
+		return "DELETE FROM {$this->delimitedTable}" . $this->tryDelimite($this->buildConditions());
 	}
 
 
@@ -139,7 +139,7 @@ class SqlBuilder extends Nette\Object
 		}
 
 		$queryJoins = $this->buildQueryJoins($joins);
-		$query = "{$querySelect} FROM {$this->tableName}{$queryJoins}{$queryCondition}{$queryEnd}";
+		$query = "{$querySelect} FROM {$this->delimitedTable}{$queryJoins}{$queryCondition}{$queryEnd}";
 
 		if ($this->limit !== NULL || $this->offset) {
 			$this->driver->applyLimit($query, $this->limit, $this->offset);
@@ -385,7 +385,7 @@ class SqlBuilder extends Nette\Object
 		$builder = $this;
 		$query = preg_replace_callback('~
 			(?(DEFINE)
-				(?P<word> [a-z][\w_]* )
+				(?P<word> [\w_]*[a-z][\w_]* )
 				(?P<del> [.:] )
 				(?P<node> (?&del)? (?&word) (\((?&word)\))? )
 			)
@@ -410,7 +410,7 @@ class SqlBuilder extends Nette\Object
 
 		preg_match_all('~
 			(?(DEFINE)
-				(?P<word> [a-z][\w_]* )
+				(?P<word> [\w_]*[a-z][\w_]* )
 			)
 			(?P<del> [.:])?(?P<key> (?&word))(\((?P<throughColumn> (?&word))\))?
 		~xi', $chain, $keyMatches, PREG_SET_ORDER);

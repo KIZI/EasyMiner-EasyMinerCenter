@@ -48,7 +48,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	/** @var int */
 	public $invalidLinkMode;
 
-	/** @var array of function(Presenter $sender, IResponse $response = NULL); Occurs when the presenter is shutting down */
+	/** @var callable[]  function(Presenter $sender, IResponse $response = NULL); Occurs when the presenter is shutting down */
 	public $onShutdown;
 
 	/** @var Nette\Application\Request */
@@ -777,7 +777,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	/**
 	 * Request/URL factory.
 	 * @param  PresenterComponent  base
-	 * @param  string   destination in format "[[module:]presenter:]action" or "signal!" or "this"
+	 * @param  string   destination in format "[//] [[[module:]presenter:]action | signal! | this] [#fragment]"
 	 * @param  array    array of arguments
 	 * @param  string   forward|redirect|link
 	 * @return string   URL
@@ -1142,7 +1142,7 @@ abstract class Presenter extends Control implements Application\IPresenter
 	 * Saves state information for all subcomponents to $this->globalState.
 	 * @return array
 	 */
-	private function getGlobalState($forClass = NULL)
+	protected function getGlobalState($forClass = NULL)
 	{
 		$sinces = & $this->globalStateSinces;
 

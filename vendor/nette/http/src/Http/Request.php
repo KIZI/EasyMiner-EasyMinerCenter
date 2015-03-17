@@ -16,8 +16,8 @@ use Nette;
  * @author     David Grudl
  *
  * @property-read UrlScript $url
- * @property-read mixed $query
- * @property-read bool $post
+ * @property-read array $query
+ * @property-read array $post
  * @property-read array $files
  * @property-read array $cookies
  * @property-read string $method
@@ -25,8 +25,8 @@ use Nette;
  * @property-read Url|NULL $referer
  * @property-read bool $secured
  * @property-read bool $ajax
- * @property-read string $remoteAddress
- * @property-read string $remoteHost
+ * @property-read string|NULL $remoteAddress
+ * @property-read string|NULL $remoteHost
  * @property-read string $rawBody
  */
 class Request extends Nette\Object implements IRequest
@@ -52,10 +52,10 @@ class Request extends Nette\Object implements IRequest
 	/** @var array */
 	private $headers;
 
-	/** @var string */
+	/** @var string|NULL */
 	private $remoteAddress;
 
-	/** @var string */
+	/** @var string|NULL */
 	private $remoteHost;
 
 	/** @var string */
@@ -67,14 +67,14 @@ class Request extends Nette\Object implements IRequest
 	{
 		$this->url = $url;
 		if ($query === NULL) {
-			parse_str($url->query, $this->query);
+			parse_str($url->getQuery(), $this->query);
 		} else {
 			$this->query = (array) $query;
 		}
 		$this->post = (array) $post;
 		$this->files = (array) $files;
 		$this->cookies = (array) $cookies;
-		$this->headers = (array) $headers;
+		$this->headers = array_change_key_case((array) $headers, CASE_LOWER);
 		$this->method = $method;
 		$this->remoteAddress = $remoteAddress;
 		$this->remoteHost = $remoteHost;
@@ -139,7 +139,7 @@ class Request extends Nette\Object implements IRequest
 	/**
 	 * Returns uploaded file.
 	 * @param  string key (or more keys)
-	 * @return FileUpload
+	 * @return FileUpload|NULL
 	 */
 	public function getFile($key)
 	{
@@ -223,11 +223,7 @@ class Request extends Nette\Object implements IRequest
 	public function getHeader($header, $default = NULL)
 	{
 		$header = strtolower($header);
-		if (isset($this->headers[$header])) {
-			return $this->headers[$header];
-		} else {
-			return $default;
-		}
+		return isset($this->headers[$header]) ? $this->headers[$header] : $default;
 	}
 
 
@@ -257,7 +253,7 @@ class Request extends Nette\Object implements IRequest
 	 */
 	public function isSecured()
 	{
-		return $this->url->scheme === 'https';
+		return $this->url->getScheme() === 'https';
 	}
 
 
@@ -273,7 +269,7 @@ class Request extends Nette\Object implements IRequest
 
 	/**
 	 * Returns the IP address of the remote client.
-	 * @return string
+	 * @return string|NULL
 	 */
 	public function getRemoteAddress()
 	{
@@ -283,7 +279,7 @@ class Request extends Nette\Object implements IRequest
 
 	/**
 	 * Returns the host of the remote client.
-	 * @return string
+	 * @return string|NULL
 	 */
 	public function getRemoteHost()
 	{
@@ -312,9 +308,9 @@ class Request extends Nette\Object implements IRequest
 
 
 	/**
-	 * Parse Accept-Language header and returns prefered language.
-	 * @param  array   Supported languages
-	 * @return string|null
+	 * Parse Accept-Language header and returns preferred language.
+	 * @param  string[] supported languages
+	 * @return string|NULL
 	 */
 	public function detectLanguage(array $langs)
 	{

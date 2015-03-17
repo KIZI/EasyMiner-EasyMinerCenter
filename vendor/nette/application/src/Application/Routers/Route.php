@@ -56,7 +56,6 @@ class Route extends Nette\Object implements Application\IRouter
 	public static $styles = array(
 		'#' => array( // default style for path parameters
 			self::PATTERN => '[^/]+',
-			self::FILTER_IN => 'rawurldecode',
 			self::FILTER_OUT => array(__CLASS__, 'param2path'),
 		),
 		'?#' => array( // default style for query parameters
@@ -108,6 +107,12 @@ class Route extends Nette\Object implements Application\IRouter
 	/** @var int */
 	private $flags;
 
+	/** @var Nette\Http\Url */
+	private $lastRefUrl;
+
+	/** @var string */
+	private $lastBaseUrl;
+
 
 	/**
 	 * @param  string  URL mask, e.g. '<presenter>/<action>/<id \d{1,3}>'
@@ -150,12 +155,13 @@ class Route extends Nette\Object implements Application\IRouter
 		$re = $this->re;
 
 		if ($this->type === self::HOST) {
-			$path = '//' . $url->getHost() . $url->getPath();
-			$host = array_reverse(explode('.', $url->getHost()));
+			$host = $url->getHost();
+			$path = '//' . $host . $url->getPath();
+			$host = ip2long($host) ? array($host) : array_reverse(explode('.', $host));
 			$re = strtr($re, array(
 				'/%basePath%/' => preg_quote($url->getBasePath(), '#'),
-				'%tld%' => $host[0],
-				'%domain%' => isset($host[1]) ? "$host[1]\\.$host[0]" : $host[0],
+				'%tld%' => preg_quote($host[0], '#'),
+				'%domain%' => preg_quote(isset($host[1]) ? "$host[1].$host[0]" : $host[0], '#'),
 			));
 
 		} elseif ($this->type === self::RELATIVE) {
@@ -170,7 +176,7 @@ class Route extends Nette\Object implements Application\IRouter
 		}
 
 		if ($path !== '') {
-			$path = rtrim($path, '/') . '/';
+			$path = rtrim(rawurldecode($path), '/') . '/';
 		}
 
 		if (!$matches = Strings::match($path, $re)) {
@@ -387,27 +393,29 @@ class Route extends Nette\Object implements Application\IRouter
 		} while (TRUE);
 
 
-		// absolutize path
-		if ($this->type === self::RELATIVE) {
-			$url = '//' . $refUrl->getAuthority() . $refUrl->getBasePath() . $url;
-
-		} elseif ($this->type === self::PATH) {
-			$url = '//' . $refUrl->getAuthority() . $url;
+		if ($this->type !== self::HOST) {
+			if ($this->lastRefUrl !== $refUrl) {
+				$scheme = ($this->flags & self::SECURED ? 'https://' : 'http://');
+				$basePath = ($this->type === self::RELATIVE ? $refUrl->getBasePath() : '');
+				$this->lastBaseUrl = $scheme . $refUrl->getAuthority() . $basePath;
+				$this->lastRefUrl = $refUrl;
+			}
+			$url = $this->lastBaseUrl . $url;
 
 		} else {
-			$host = array_reverse(explode('.', $refUrl->getHost()));
+			$host = $refUrl->getHost();
+			$host = ip2long($host) ? array($host) : array_reverse(explode('.', $host));
 			$url = strtr($url, array(
 				'/%basePath%/' => $refUrl->getBasePath(),
 				'%tld%' => $host[0],
 				'%domain%' => isset($host[1]) ? "$host[1].$host[0]" : $host[0],
 			));
+			$url = ($this->flags & self::SECURED ? 'https:' : 'http:') . $url;
 		}
 
-		if (strpos($url, '//', 2) !== FALSE) {
+		if (strpos($url, '//', 7) !== FALSE) {
 			return NULL;
 		}
-
-		$url = ($this->flags & self::SECURED ? 'https:' : 'http:') . $url;
 
 		// build query string
 		if ($this->xlat) {
@@ -452,6 +460,13 @@ class Route extends Nette\Object implements Application\IRouter
 			} elseif (array_key_exists(self::VALUE, $meta)) {
 				$metadata[$name]['fixity'] = self::CONSTANT;
 			}
+		}
+
+		if (strpbrk($mask, '?<[') === FALSE) {
+			$this->re = '#' . preg_quote($mask, '#') . '/?\z#A';
+			$this->sequence = array($mask);
+			$this->metadata = $metadata;
+			return;
 		}
 
 		// PARSE MASK
@@ -538,11 +553,6 @@ class Route extends Nette\Object implements Application\IRouter
 				$re = $pattern ? '(?:' . preg_quote($name, '#') . "|$pattern)$re" : preg_quote($name, '#') . $re;
 				$sequence[1] = $name . $sequence[1];
 				continue;
-			}
-
-			// check name (limitation by regexp)
-			if (preg_match('#[^a-z0-9_-]#i', $name)) {
-				throw new Nette\InvalidArgumentException("Parameter name must be alphanumeric string due to limitations of PCRE, '$name' given.");
 			}
 
 			// pattern, condition & metadata

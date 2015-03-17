@@ -381,12 +381,12 @@ class FileJournal extends Nette\Object implements IJournal
 			do {
 				$link = $data[$i];
 
-				if (!isset($node[$link])) {
+				if (isset($this->deletedLinks[$link])) {
+					continue;
+				} elseif (!isset($node[$link])) {
 					if (self::$debug) {
 						throw new Nette\InvalidStateException("Link with ID $searchLink is not in node $nodeId.");
 					}
-					continue;
-				} elseif (isset($this->deletedLinks[$link])) {
 					continue;
 				}
 
@@ -804,7 +804,7 @@ class FileJournal extends Nette\Object implements IJournal
 				$nodeId = $node[$search];
 			} else {
 				foreach ($node as $key => $childNode) {
-					if ($key > $search and $key !== self::INFO) {
+					if ($key > $search && $key !== self::INFO) {
 						$nodeId = $childNode;
 						continue 2;
 					}

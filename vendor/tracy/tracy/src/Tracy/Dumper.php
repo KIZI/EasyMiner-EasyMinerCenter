@@ -152,9 +152,9 @@ class Dumper
 
 	private static function dumpString(& $var, $options)
 	{
-		return '<span class="tracy-dump-string">'
-			. self::encodeString($options[self::TRUNCATE] && strlen($var) > $options[self::TRUNCATE] ? substr($var, 0, $options[self::TRUNCATE]) . ' ... ' : $var)
-			. '</span>' . (strlen($var) > 1 ? ' (' . strlen($var) . ')' : '') . "\n";
+		return '<span class="tracy-dump-string">"'
+			. htmlspecialchars(self::encodeString($var, $options[self::TRUNCATE]), ENT_NOQUOTES, 'UTF-8')
+			. '"</span>' . (strlen($var) > 1 ? ' (' . strlen($var) . ')' : '') . "\n";
 	}
 
 
@@ -175,12 +175,14 @@ class Dumper
 
 		} elseif (!$options[self::DEPTH] || $level < $options[self::DEPTH]) {
 			$collapsed = $level ? count($var) >= $options[self::COLLAPSE_COUNT] : $options[self::COLLAPSE];
-			$out = '<span class="tracy-toggle' . ($collapsed ? ' tracy-collapsed' : '') . '">' . $out . count($var) . ")</span>\n<div" . ($collapsed ? ' class="tracy-collapsed"' : '') . '>';
+			$out = '<span class="tracy-toggle' . ($collapsed ? ' tracy-collapsed' : '') . '">'
+				. $out . count($var) . ")</span>\n<div" . ($collapsed ? ' class="tracy-collapsed"' : '') . '>';
 			$var[$marker] = TRUE;
 			foreach ($var as $k => & $v) {
 				if ($k !== $marker) {
+					$k = preg_match('#^\w{1,50}\z#', $k) ? $k : '"' . htmlspecialchars(self::encodeString($k, $options[self::TRUNCATE]), ENT_NOQUOTES, 'UTF-8') . '"';
 					$out .= '<span class="tracy-dump-indent">   ' . str_repeat('|  ', $level) . '</span>'
-						. '<span class="tracy-dump-key">' . (preg_match('#^\w+\z#', $k) ? $k : self::encodeString($k)) . '</span> => '
+						. '<span class="tracy-dump-key">' . $k . '</span> => '
 						. self::dumpVar($v, $options, $level + 1);
 				}
 			}
@@ -230,7 +232,8 @@ class Dumper
 
 		} elseif (!$options[self::DEPTH] || $level < $options[self::DEPTH] || $var instanceof \Closure) {
 			$collapsed = $level ? count($fields) >= $options[self::COLLAPSE_COUNT] : $options[self::COLLAPSE];
-			$out = '<span class="tracy-toggle' . ($collapsed ? ' tracy-collapsed' : '') . '">' . $out . "</span>\n<div" . ($collapsed ? ' class="tracy-collapsed"' : '') . '>';
+			$out = '<span class="tracy-toggle' . ($collapsed ? ' tracy-collapsed' : '') . '">'
+				. $out . "</span>\n<div" . ($collapsed ? ' class="tracy-collapsed"' : '') . '>';
 			$list[] = $var;
 			foreach ($fields as $k => & $v) {
 				$vis = '';
@@ -238,8 +241,9 @@ class Dumper
 					$vis = ' <span class="tracy-dump-visibility">' . ($k[1] === '*' ? 'protected' : 'private') . '</span>';
 					$k = substr($k, strrpos($k, "\x00") + 1);
 				}
+				$k = preg_match('#^\w{1,50}\z#', $k) ? $k : '"' . htmlspecialchars(self::encodeString($k, $options[self::TRUNCATE]), ENT_NOQUOTES, 'UTF-8') . '"';
 				$out .= '<span class="tracy-dump-indent">   ' . str_repeat('|  ', $level) . '</span>'
-					. '<span class="tracy-dump-key">' . (preg_match('#^\w+\z#', $k) ? $k : self::encodeString($k)) . "</span>$vis => "
+					. '<span class="tracy-dump-key">' . $k . "</span>$vis => "
 					. self::dumpVar($v, $options, $level + 1);
 			}
 			array_pop($list);
@@ -254,12 +258,13 @@ class Dumper
 	private static function dumpResource(& $var, $options, $level)
 	{
 		$type = get_resource_type($var);
-		$out = '<span class="tracy-dump-resource">' . htmlSpecialChars($type) . ' resource</span>';
+		$out = '<span class="tracy-dump-resource">' . htmlSpecialChars($type, ENT_IGNORE, 'UTF-8') . ' resource</span> '
+			. '<span class="tracy-dump-hash">#' . intval($var) . '</span>';
 		if (isset(self::$resources[$type])) {
 			$out = "<span class=\"tracy-toggle tracy-collapsed\">$out</span>\n<div class=\"tracy-collapsed\">";
 			foreach (call_user_func(self::$resources[$type], $var) as $k => $v) {
 				$out .= '<span class="tracy-dump-indent">   ' . str_repeat('|  ', $level) . '</span>'
-					. '<span class="tracy-dump-key">' . htmlSpecialChars($k) . "</span> => " . self::dumpVar($v, $options, $level + 1);
+					. '<span class="tracy-dump-key">' . htmlSpecialChars($k, ENT_IGNORE, 'UTF-8') . "</span> => " . self::dumpVar($v, $options, $level + 1);
 			}
 			return $out . '</div>';
 		}
@@ -267,7 +272,11 @@ class Dumper
 	}
 
 
-	private static function encodeString($s)
+	/**
+	 * @internal
+	 * @return string UTF-8
+	 */
+	public static function encodeString($s, $maxLength = NULL)
 	{
 		static $table;
 		if ($table === NULL) {
@@ -281,9 +290,15 @@ class Dumper
 		}
 
 		if (preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $s) || preg_last_error()) {
+			if ($maxLength && strlen($s) > $maxLength) {
+				$s = substr($s, 0, $maxLength) . ' ... ';
+			}
 			$s = strtr($s, $table);
+		} elseif ($maxLength && strlen(utf8_decode($s)) > $maxLength) {
+			$s = iconv_substr($s, 0, $maxLength, 'UTF-8') . ' ... ';
 		}
-		return '"' . htmlSpecialChars($s, ENT_NOQUOTES) . '"';
+
+		return $s;
 	}
 
 
@@ -302,7 +317,7 @@ class Dumper
 					$reflection = isset($item['class'])
 						? new \ReflectionMethod($item['class'], $item['function'])
 						: new \ReflectionFunction($item['function']);
-					if (preg_match('#\s@tracySkipLocation\s#', $reflection->getDocComment())) {
+					if ($reflection->isInternal() || preg_match('#\s@tracySkipLocation\s#', $reflection->getDocComment())) {
 						$location = $item;
 						continue;
 					}

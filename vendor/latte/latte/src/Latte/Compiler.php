@@ -49,14 +49,14 @@ class Compiler extends Object
 	private $templateId;
 
 	/** Context-aware escaping content types */
-	const CONTENT_HTML = 'html',
-		CONTENT_XHTML = 'xhtml',
-		CONTENT_XML = 'xml',
-		CONTENT_JS = 'js',
-		CONTENT_CSS = 'css',
-		CONTENT_URL = 'url',
-		CONTENT_ICAL = 'ical',
-		CONTENT_TEXT = 'text';
+	const CONTENT_HTML = Engine::CONTENT_HTML,
+		CONTENT_XHTML = Engine::CONTENT_XHTML,
+		CONTENT_XML = Engine::CONTENT_XML,
+		CONTENT_JS = Engine::CONTENT_JS,
+		CONTENT_CSS = Engine::CONTENT_CSS,
+		CONTENT_URL = Engine::CONTENT_URL,
+		CONTENT_ICAL = Engine::CONTENT_ICAL,
+		CONTENT_TEXT = Engine::CONTENT_TEXT;
 
 	/** @internal Context-aware escaping HTML contexts */
 	const CONTEXT_COMMENT = 'comment',
@@ -277,9 +277,12 @@ class Compiler extends Object
 		$end = '';
 
 		if ($isEmpty && in_array($this->contentType, array(self::CONTENT_HTML, self::CONTENT_XHTML), TRUE)) { // auto-correct
-			$token->text = preg_replace('#^.*>#', $htmlNode->isEmpty && $this->contentType === self::CONTENT_XHTML ? ' />' : '>', $token->text);
-			if (!$htmlNode->isEmpty) {
-				$end = "</$htmlNode->name>";
+			$space = substr(strstr($token->text, '>'), 1);
+			$token->text = $htmlNode->isEmpty && $this->contentType === self::CONTENT_XHTML ? ' />' : '>';
+			if ($htmlNode->isEmpty) {
+				$token->text .= $space;
+			} else {
+				$end = "</$htmlNode->name>" . $space;
 			}
 		}
 

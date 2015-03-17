@@ -33,13 +33,14 @@ class FileMock
 		if (!self::$files) {
 			stream_wrapper_register(self::PROTOCOL, __CLASS__);
 		}
-		$name = self::PROTOCOL . '://' . uniqid() . '.' . $extension;
+		static $id;
+		$name = self::PROTOCOL . '://' . (++$id) . '.' . $extension;
 		self::$files[$name] = $content;
 		return $name;
 	}
 
 
-	public function stream_open($path, $mode, $options, &$opened_path)
+	public function stream_open($path, $mode)
 	{
 		$this->content = & self::$files[$path];
 		$this->pos = strpos($mode, 'a') === FALSE ? 0 : strlen($this->content);
@@ -104,14 +105,14 @@ class FileMock
 
 	public function stream_stat()
 	{
-		return array('mode' => 0100000, 'size' => strlen($this->content));
+		return array('mode' => 0100666, 'size' => strlen($this->content));
 	}
 
 
 	public function url_stat($path, $flags)
 	{
 		return isset(self::$files[$path])
-			? array('mode' => 0100000, 'size' => strlen(self::$files[$path]))
+			? array('mode' => 0100666, 'size' => strlen(self::$files[$path]))
 			: FALSE;
 	}
 

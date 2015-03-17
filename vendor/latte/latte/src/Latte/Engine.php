@@ -15,16 +15,19 @@ namespace Latte;
  */
 class Engine extends Object
 {
-	/** Content types */
-	const CONTENT_HTML = Compiler::CONTENT_HTML,
-		CONTENT_XHTML = Compiler::CONTENT_XHTML,
-		CONTENT_XML = Compiler::CONTENT_XML,
-		CONTENT_JS = Compiler::CONTENT_JS,
-		CONTENT_CSS = Compiler::CONTENT_CSS,
-		CONTENT_ICAL = Compiler::CONTENT_ICAL,
-		CONTENT_TEXT = Compiler::CONTENT_TEXT;
+	const VERSION = '2.2.5';
 
-	/** @var array */
+	/** Content types */
+	const CONTENT_HTML = 'html',
+		CONTENT_XHTML = 'xhtml',
+		CONTENT_XML = 'xml',
+		CONTENT_JS = 'js',
+		CONTENT_CSS = 'css',
+		CONTENT_URL = 'url',
+		CONTENT_ICAL = 'ical',
+		CONTENT_TEXT = 'text';
+
+	/** @var callable[] */
 	public $onCompile = array();
 
 	/** @var Parser */
@@ -87,7 +90,7 @@ class Engine extends Object
 	 */
 	public function render($name, array $params = array())
 	{
-		$template = new $this->baseTemplateClass($params, $this->filters, $this, $name);
+		$template = new $this->baseTemplateClass($params, $this, $name);
 		$this->loadCacheFile($name, $template->getParameters());
 	}
 
@@ -127,7 +130,7 @@ class Engine extends Object
 			$code = $this->getCompiler()->setContentType($this->contentType)
 				->compile($tokens);
 
-			if (preg_match('#^\S{5,100}\z#', $name)) {
+			if (!preg_match('#\n|\?#', $name)) {
 				$code = "<?php\n// source: $name\n?>" . $code;
 			}
 
@@ -194,7 +197,10 @@ class Engine extends Object
 		if (!$this->tempDirectory) {
 			throw new \RuntimeException('Set path to temporary directory using setTempDirectory().');
 		} elseif (!is_dir($this->tempDirectory)) {
-			mkdir($this->tempDirectory);
+			@mkdir($this->tempDirectory); // High concurrency
+			if (!is_dir($this->tempDirectory)) {
+				throw new \RuntimeException("Temporary directory cannot be created. Check access rights");
+			}
 		}
 		$file = md5($name);
 		if (preg_match('#\b\w.{10,50}$#', $name, $m)) {

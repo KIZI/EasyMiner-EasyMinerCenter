@@ -119,43 +119,41 @@ class Connection extends Nette\Object
 	}
 
 
-	/** @deprecated */
+	/** @return void */
 	function beginTransaction()
 	{
-		$this->queryArgs('::beginTransaction', array());
+		$this->query('::beginTransaction');
 	}
 
 
-	/** @deprecated */
+	/** @return void */
 	function commit()
 	{
-		$this->queryArgs('::commit', array());
+		$this->query('::commit');
 	}
 
 
-	/** @deprecated */
+	/** @return void */
 	public function rollBack()
 	{
-		$this->queryArgs('::rollBack', array());
+		$this->query('::rollBack');
 	}
 
 
-	/** @deprecated */
+	/**
+	 * Generates and executes SQL query.
+	 * @param  string  statement
+	 * @param  mixed   [parameters, ...]
+	 * @return ResultSet
+	 */
 	public function query($statement)
 	{
-		$args = func_get_args();
-		return $this->queryArgs(array_shift($args), $args);
-	}
-
-
-	/** @deprecated */
-	function queryArgs($statement, array $params)
-	{
 		$this->connect();
-		if ($params) {
-			array_unshift($params, $statement);
-			list($statement, $params) = $this->preprocessor->process($params);
-		}
+
+		$args = is_array($statement) ? $statement : func_get_args(); // accepts arrays only internally
+		list($statement, $params) = count($args) > 1
+			? $this->preprocessor->process($args)
+			: array($args[0], array());
 
 		try {
 			$result = new ResultSet($this, $statement, $params);
@@ -169,43 +167,73 @@ class Connection extends Nette\Object
 	}
 
 
+	/**
+	 * @param  string  statement
+	 * @param  array
+	 * @return ResultSet
+	 */
+	public function queryArgs($statement, array $params)
+	{
+		array_unshift($params, $statement);
+		return $this->query($params);
+	}
+
+
 	/********************* shortcuts ****************d*g**/
 
 
-	/** @deprecated */
-	function fetch($args)
+	/**
+	 * Shortcut for query()->fetch()
+	 * @param  string  statement
+	 * @param  mixed   [parameters, ...]
+	 * @return Row
+	 */
+	public function fetch($args)
 	{
-		$args = func_get_args();
-		return $this->queryArgs(array_shift($args), $args)->fetch();
+		return $this->query(func_get_args())->fetch();
 	}
 
 
-	/** @deprecated */
-	function fetchField($args)
+	/**
+	 * Shortcut for query()->fetchField()
+	 * @param  string  statement
+	 * @param  mixed   [parameters, ...]
+	 * @return mixed
+	 */
+	public function fetchField($args)
 	{
-		$args = func_get_args();
-		return $this->queryArgs(array_shift($args), $args)->fetchField();
+		return $this->query(func_get_args())->fetchField();
 	}
 
 
-	/** @deprecated */
-	function fetchPairs($args)
+	/**
+	 * Shortcut for query()->fetchPairs()
+	 * @param  string  statement
+	 * @param  mixed   [parameters, ...]
+	 * @return array
+	 */
+	public function fetchPairs($args)
 	{
-		$args = func_get_args();
-		return $this->queryArgs(array_shift($args), $args)->fetchPairs();
+		return $this->query(func_get_args())->fetchPairs();
 	}
 
 
-	/** @deprecated */
-	function fetchAll($args)
+	/**
+	 * Shortcut for query()->fetchAll()
+	 * @param  string  statement
+	 * @param  mixed   [parameters, ...]
+	 * @return array
+	 */
+	public function fetchAll($args)
 	{
-		$args = func_get_args();
-		return $this->queryArgs(array_shift($args), $args)->fetchAll();
+		return $this->query(func_get_args())->fetchAll();
 	}
 
 
-	/** @deprecated */
-	static function literal($value)
+	/**
+	 * @return SqlLiteral
+	 */
+	public static function literal($value)
 	{
 		$args = func_get_args();
 		return new SqlLiteral(array_shift($args), $args);

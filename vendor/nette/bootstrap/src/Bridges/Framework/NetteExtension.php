@@ -195,8 +195,10 @@ class NetteExtension extends Nette\DI\CompilerExtension
 		if ($config['users']) {
 			$usersList = $usersRoles = array();
 			foreach ($config['users'] as $username => $data) {
-				$usersList[$username] = is_array($data) ? $data['password'] : $data;
-				$usersRoles[$username] = is_array($data) && isset($data['roles']) ? $data['roles'] : NULL;
+				$data = is_array($data) ? $data : array('password' => $data);
+				$this->validate($data, array('password' => NULL, 'roles' => NULL), $this->prefix("security.users.$username"));
+				$usersList[$username] = $data['password'];
+				$usersRoles[$username] = isset($data['roles']) ? $data['roles'] : NULL;
 			}
 
 			$container->addDefinition($this->prefix('authenticator'))
@@ -330,8 +332,6 @@ class NetteExtension extends Nette\DI\CompilerExtension
 		$config = $this->getConfig($this->defaults);
 
 		// debugger
-		$initialize->addBody('Nette\Bridges\Framework\TracyBridge::initialize();');
-
 		foreach (array('email', 'editor', 'browser', 'strictMode', 'maxLen', 'maxDepth', 'showLocation', 'scream') as $key) {
 			if (isset($config['debugger'][$key])) {
 				$initialize->addBody('Tracy\Debugger::$? = ?;', array($key, $config['debugger'][$key]));
@@ -358,32 +358,40 @@ class NetteExtension extends Nette\DI\CompilerExtension
 			));
 		}
 
-		if (!empty($container->parameters['tempDir'])) {
-			$initialize->addBody('Nette\Caching\Storages\FileStorage::$useDirectories = ?;', array($this->checkTempDir($container->expand('%tempDir%/cache'))));
+		if (!empty($container->parameters['tempDir']) && !$this->checkTempDir($container->expand('%tempDir%/cache'))) {
+			$initialize->addBody('Nette\Caching\Storages\FileStorage::$useDirectories = FALSE;');
 		}
 
 		foreach ((array) $config['forms']['messages'] as $name => $text) {
 			$initialize->addBody('Nette\Forms\Rules::$defaultMessages[Nette\Forms\Form::?] = ?;', array($name, $text));
 		}
 
-		if ($config['session']['autoStart'] === 'smart') {
-			$initialize->addBody('$this->getByType("Nette\Http\Session")->exists() && $this->getByType("Nette\Http\Session")->start();');
-		} elseif ($config['session']['autoStart']) {
-			$initialize->addBody('$this->getByType("Nette\Http\Session")->start();');
-		}
-
 		if ($config['latte']['xhtml']) {
 			$initialize->addBody('Nette\Utils\Html::$xhtml = ?;', array(TRUE));
 		}
 
-		if (isset($config['security']['frames']) && $config['security']['frames'] !== TRUE) {
-			$frames = $config['security']['frames'];
-			if ($frames === FALSE) {
-				$frames = 'DENY';
-			} elseif (preg_match('#^https?:#', $frames)) {
-				$frames = "ALLOW-FROM $frames";
+		if (PHP_SAPI !== 'cli') {
+			if ($config['session']['autoStart'] === 'smart') {
+				$initialize->addBody('$this->getByType("Nette\Http\Session")->exists() && $this->getByType("Nette\Http\Session")->start();');
+			} elseif ($config['session']['autoStart']) {
+				$initialize->addBody('$this->getByType("Nette\Http\Session")->start();');
 			}
-			$initialize->addBody('header(?);', array("X-Frame-Options: $frames"));
+
+			if (isset($config['security']['frames']) && $config['security']['frames'] !== TRUE) {
+				$frames = $config['security']['frames'];
+				if ($frames === FALSE) {
+					$frames = 'DENY';
+				} elseif (preg_match('#^https?:#', $frames)) {
+					$frames = "ALLOW-FROM $frames";
+				}
+				$initialize->addBody('header(?);', array("X-Frame-Options: $frames"));
+			}
+
+			foreach ($config['http']['headers'] as $key => $value) {
+				if ($value != NULL) { // intentionally ==
+					$initialize->addBody('header(?);', array("$key: $value"));
+				}
+			}
 		}
 
 		foreach ($container->findByTag('run') as $name => $on) {
@@ -400,12 +408,6 @@ class NetteExtension extends Nette\DI\CompilerExtension
 					$type = $def->implement ?: $def->class;
 					$class->addDocument("@property $type \$$name");
 				}
-			}
-		}
-
-		foreach ($config['http']['headers'] as $key => $value) {
-			if ($value != NULL) { // intentionally ==
-				$initialize->addBody('header(?);', array("$key: $value"));
 			}
 		}
 

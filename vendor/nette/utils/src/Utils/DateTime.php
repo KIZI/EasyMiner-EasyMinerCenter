@@ -59,12 +59,19 @@ class DateTime extends \DateTime
 	}
 
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->format('Y-m-d H:i:s');
 	}
 
 
+	/**
+	 * @param  string
+	 * @return self
+	 */
 	public function modifyClone($modify = '')
 	{
 		$dolly = clone $this;
@@ -72,6 +79,10 @@ class DateTime extends \DateTime
 	}
 
 
+	/**
+	 * @param  int
+	 * @return self
+	 */
 	public function setTimestamp($timestamp)
 	{
 		$zone = $this->getTimezone();
@@ -80,6 +91,9 @@ class DateTime extends \DateTime
 	}
 
 
+	/**
+	 * @return int|string
+	 */
 	public function getTimestamp()
 	{
 		$ts = $this->format('U');
@@ -92,7 +106,7 @@ class DateTime extends \DateTime
 	 * @param string The format the $time parameter should be in
 	 * @param string String representing the time
 	 * @param string|\DateTimeZone desired timezone (default timezone is used if NULL is passed)
-	 * @return DateTime
+	 * @return DateTime|FALSE
 	 */
 	public static function createFromFormat($format, $time, $timezone = NULL)
 	{
@@ -106,7 +120,8 @@ class DateTime extends \DateTime
 			throw new Nette\InvalidArgumentException('Invalid timezone given');
 		}
 
-		return static::from(parent::createFromFormat($format, $time, $timezone));
+		$date = parent::createFromFormat($format, $time, $timezone);
+		return $date ? static::from($date) : FALSE;
 	}
 
 }

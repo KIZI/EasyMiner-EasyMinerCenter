@@ -43,6 +43,25 @@ class CsrfProtection extends HiddenField
 
 
 	/**
+	 * @return self
+	 */
+	public function setValue($value)
+	{
+		return $this;
+	}
+
+
+	/**
+	 * Loads HTTP data.
+	 * @return void
+	 */
+	public function loadHttpData()
+	{
+		$this->value = $this->getHttpData(Nette\Forms\Form::DATA_TEXT);
+	}
+
+
+	/**
 	 * @return string
 	 */
 	public function getToken()
@@ -51,7 +70,7 @@ class CsrfProtection extends HiddenField
 		if (!isset($session->token)) {
 			$session->token = Nette\Utils\Random::generate();
 		}
-		return $session->token;
+		return $session->token ^ $this->getSession()->getId();
 	}
 
 

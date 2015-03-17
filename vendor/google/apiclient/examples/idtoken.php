@@ -17,8 +17,7 @@
 include_once "templates/base.php";
 session_start();
 
-set_include_path("../src/" . PATH_SEPARATOR . get_include_path());
-require_once 'Google/Client.php';
+require_once realpath(dirname(__FILE__) . '/../autoload.php');
 
 /************************************************
   ATTENTION: Fill in these values! Make sure
@@ -89,18 +88,22 @@ if (
 ?>
 <div class="box">
   <div class="request">
-    <?php if (isset($authUrl)): ?>
-      <a class='login' href='<?php echo $authUrl; ?>'>Connect Me!</a>
-    <?php else: ?>
-      <a class='logout' href='?logout'>Logout</a>
-    <?php endif ?>
+<?php
+if (isset($authUrl)) {
+  echo "<a class='login' href='" . $authUrl . "'>Connect Me!</a>";
+} else {
+  echo "<a class='logout' href='?logout'>Logout</a>";
+}
+?>
   </div>
 
-  <?php if (isset($token_data)): ?>
-    <div class="data">
-      <?php var_dump($token_data); ?>
-    </div>
-  <?php endif ?>
+  <div class="data">
+<?php 
+if (isset($token_data)) {
+  var_dump($token_data);
+}
+?>
+  </div>
 </div>
 <?php
 echo pageFooter(__FILE__);

@@ -1,8 +1,5 @@
 /**
- * Debugger Bar
- *
  * This file is part of the Tracy (http://tracy.nette.org)
- * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
  */
 
 /* common styles */
@@ -143,11 +140,16 @@ body #tracy-debug {
 	width: 45px;
 }
 
-#tracy-debug-bar img {
+#tracy-debug-bar img, #tracy-debug-bar svg {
 	vertical-align: middle;
 	position: relative;
 	top: -1px;
 	margin-right: 3px;
+}
+
+#tracy-debug-bar svg {
+	width: 16px;
+	height: 16px;
 }
 
 #tracy-debug-bar li a {
@@ -187,6 +189,7 @@ body #tracy-debug {
 	background: white;
 	color: #333;
 	text-align: left;
+	z-index: 20001;
 }
 
 #tracy-debug h1 {

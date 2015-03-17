@@ -98,7 +98,9 @@ class Cache extends Nette\Object implements \ArrayAccess
 	{
 		$data = $this->storage->read($this->generateKey($key));
 		if ($data === NULL && $fallback) {
-			return $this->save($key, Callback::closure($fallback));
+			return $this->save($key, function(& $dependencies) use ($fallback) {
+				return call_user_func_array($fallback, array(& $dependencies));
+			});
 		}
 		return $data;
 	}
@@ -149,7 +151,6 @@ class Cache extends Nette\Object implements \ArrayAccess
 
 		// convert FILES into CALLBACKS
 		if (isset($dp[self::FILES])) {
-			//clearstatcache();
 			foreach (array_unique((array) $dp[self::FILES]) as $item) {
 				$dp[self::CALLBACKS][] = array(array(__CLASS__, 'checkFile'), $item, @filemtime($item)); // @ - stat may fail
 			}
@@ -210,7 +211,9 @@ class Cache extends Nette\Object implements \ArrayAccess
 	public function call($function)
 	{
 		$key = func_get_args();
-		$key[0] = Callback::toReflection($function);
+		if (is_array($function) && is_object($function[0])) {
+			$key[0][0] = get_class($function[0]);
+		}
 		return $this->load($key, function() use ($function, $key) {
 			return Callback::invokeArgs($function, array_slice($key, 1));
 		});
@@ -221,13 +224,16 @@ class Cache extends Nette\Object implements \ArrayAccess
 	 * Caches results of function/method calls.
 	 * @param  mixed
 	 * @param  array  dependencies
-	 * @return Closure
+	 * @return \Closure
 	 */
 	public function wrap($function, array $dependencies = NULL)
 	{
 		$cache = $this;
 		return function() use ($cache, $function, $dependencies) {
-			$key = array(Callback::toReflection($function), func_get_args());
+			$key = array($function, func_get_args());
+			if (is_array($function) && is_object($function[0])) {
+				$key[0][0] = get_class($function[0]);
+			}
 			$data = $cache->load($key);
 			if ($data === NULL) {
 				$data = $cache->save($key, Callback::invokeArgs($function, $key[1]), $dependencies);
@@ -268,11 +274,7 @@ class Cache extends Nette\Object implements \ArrayAccess
 
 
 	/**
-	 * Inserts (replaces) item into the cache (\ArrayAccess implementation).
-	 * @param  mixed key
-	 * @param  mixed
-	 * @return void
-	 * @throws Nette\InvalidArgumentException
+	 * @deprecated
 	 */
 	public function offsetSet($key, $data)
 	{
@@ -281,10 +283,7 @@ class Cache extends Nette\Object implements \ArrayAccess
 
 
 	/**
-	 * Retrieves the specified item from the cache or NULL if the key is not found (\ArrayAccess implementation).
-	 * @param  mixed key
-	 * @return mixed|NULL
-	 * @throws Nette\InvalidArgumentException
+	 * @deprecated
 	 */
 	public function offsetGet($key)
 	{
@@ -298,10 +297,7 @@ class Cache extends Nette\Object implements \ArrayAccess
 
 
 	/**
-	 * Exists item in cache? (\ArrayAccess implementation).
-	 * @param  mixed key
-	 * @return bool
-	 * @throws Nette\InvalidArgumentException
+	 * @deprecated
 	 */
 	public function offsetExists($key)
 	{
@@ -311,10 +307,7 @@ class Cache extends Nette\Object implements \ArrayAccess
 
 
 	/**
-	 * Removes the specified item from the cache.
-	 * @param  mixed key
-	 * @return void
-	 * @throws Nette\InvalidArgumentException
+	 * @deprecated
 	 */
 	public function offsetUnset($key)
 	{
@@ -323,8 +316,7 @@ class Cache extends Nette\Object implements \ArrayAccess
 
 
 	/**
-	 * Discards the internal cache used by ArrayAccess.
-	 * @return void
+	 * @deprecated
 	 */
 	public function release()
 	{

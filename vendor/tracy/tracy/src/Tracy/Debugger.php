@@ -22,8 +22,10 @@ use Tracy,
  */
 class Debugger
 {
-	/** @var string */
-	public static $version = '2.2.3';
+	const VERSION = '2.2.7';
+
+	/** @deprecated */
+	public static $version = self::VERSION;
 
 	/** @var bool in production mode is suppressed any debugging output */
 	public static $productionMode = self::DETECT;
@@ -72,6 +74,9 @@ class Debugger
 
 	/** @var bool {@link Debugger::enable()} */
 	private static $enabled = FALSE;
+
+	/** @var bool prevent double rendering */
+	private static $done;
 
 	/** @internal */
 	public static $errorTypes = array(
@@ -147,7 +152,6 @@ class Debugger
 	 */
 	public static function enable($mode = NULL, $logDirectory = NULL, $email = NULL)
 	{
-		self::$enabled = TRUE;
 		self::$time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(TRUE);
 		if (isset($_SERVER['REQUEST_URI'])) {
 			self::$source = (!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
@@ -183,9 +187,6 @@ class Debugger
 		} elseif ($logDirectory === FALSE) {
 			self::$logDirectory = NULL;
 		}
-		if (self::$logDirectory) {
-			ini_set('error_log', self::$logDirectory . '/php_error.log');
-		}
 
 		// php configuration
 		if (function_exists('ini_set')) {
@@ -193,17 +194,23 @@ class Debugger
 			ini_set('html_errors', FALSE);
 			ini_set('log_errors', FALSE);
 
-		} elseif (ini_get('display_errors') != !self::$productionMode && ini_get('display_errors') !== (self::$productionMode ? 'stderr' : 'stdout')) { // intentionally ==
+		} elseif (ini_get('display_errors') != !self::$productionMode // intentionally ==
+			&& ini_get('display_errors') !== (self::$productionMode ? 'stderr' : 'stdout')
+		) {
 			self::_exceptionHandler(new \RuntimeException("Unable to set 'display_errors' because function ini_set() is disabled."));
 		}
 
-		register_shutdown_function(array(__CLASS__, '_shutdownHandler'));
-		set_exception_handler(array(__CLASS__, '_exceptionHandler'));
-		set_error_handler(array(__CLASS__, '_errorHandler'));
+		if (!self::$enabled) {
+			register_shutdown_function(array(__CLASS__, '_shutdownHandler'));
+			set_exception_handler(array(__CLASS__, '_exceptionHandler'));
+			set_error_handler(array(__CLASS__, '_errorHandler'));
 
-		foreach (array('Tracy\Bar', 'Tracy\BlueScreen', 'Tracy\DefaultBarPanel', 'Tracy\Dumper',
-			'Tracy\FireLogger', 'Tracy\Helpers', 'Tracy\Logger', ) as $class) {
-			class_exists($class);
+			foreach (array('Tracy\Bar', 'Tracy\BlueScreen', 'Tracy\DefaultBarPanel', 'Tracy\Dumper',
+				'Tracy\FireLogger', 'Tracy\Helpers', 'Tracy\Logger', ) as $class) {
+				class_exists($class);
+			}
+
+			self::$enabled = TRUE;
 		}
 	}
 
@@ -218,7 +225,7 @@ class Debugger
 			self::$blueScreen->info = array(
 				'PHP ' . PHP_VERSION,
 				isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : NULL,
-				'Tracy ' . self::$version,
+				'Tracy ' . self::VERSION,
 			);
 		}
 		return self::$blueScreen;
@@ -239,7 +246,7 @@ class Debugger
 			self::$bar->info = array(
 				'PHP ' . PHP_VERSION,
 				isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : NULL,
-				'Tracy ' . self::$version,
+				'Tracy ' . self::VERSION,
 			);
 		}
 		return self::$bar;
@@ -361,7 +368,7 @@ class Debugger
 	 */
 	public static function _shutdownHandler()
 	{
-		if (!self::$enabled) {
+		if (self::$done) {
 			return;
 		}
 
@@ -383,10 +390,10 @@ class Debugger
 	 */
 	public static function _exceptionHandler(\Exception $exception, $exit = TRUE)
 	{
-		if (!self::$enabled) {
+		if (self::$done) {
 			return;
 		}
-		self::$enabled = FALSE; // prevent double rendering
+		self::$done = TRUE;
 
 		if (!headers_sent()) {
 			$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
@@ -397,18 +404,18 @@ class Debugger
 			}
 		}
 
-		$logMsg = 'Unable to log error. Check if directory is writable and path is absolute.';
 		if (self::$productionMode) {
 			try {
 				self::log($exception, self::EXCEPTION);
 			} catch (\Exception $e) {
 			}
 
-			$error = isset($e) ? $logMsg : NULL;
 			if (self::isHtmlMode()) {
+				$logged = empty($e);
 				require __DIR__ . '/templates/error.phtml';
-			} else {
-				echo "ERROR: application encountered an error and can not continue.\n$error\n";
+			} elseif (PHP_SAPI === 'cli') {
+				fwrite(STDERR, 'ERROR: application encountered an error and can not continue. '
+					. (isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
 			}
 
 		} elseif (!connection_aborted() && self::isHtmlMode()) {
@@ -426,7 +433,7 @@ class Debugger
 					exec(self::$browser . ' ' . escapeshellarg($file));
 				}
 			} catch (\Exception $e) {
-				echo "$exception\n$logMsg {$e->getMessage()}\n";
+				echo "$exception\nUnable to log error: {$e->getMessage()}\n";
 			}
 		}
 
@@ -478,7 +485,7 @@ class Debugger
 		} elseif (($severity & error_reporting()) !== $severity) {
 			return FALSE; // calls normal error handler to fill-in error_get_last()
 
-		} elseif (($severity & self::$logSeverity) === $severity) {
+		} elseif (self::$productionMode && ($severity & self::$logSeverity) === $severity) {
 			$e = new ErrorException($message, 0, $severity, $file, $line);
 			$e->context = $context;
 			self::log($e, self::ERROR);

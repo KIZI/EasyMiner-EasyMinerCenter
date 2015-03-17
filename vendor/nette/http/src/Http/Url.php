@@ -83,8 +83,8 @@ class Url extends Nette\Object
 
 
 	/**
-	 * @param  string  URL
-	 * @throws Nette\InvalidArgumentException
+	 * @param  string|self
+	 * @throws Nette\InvalidArgumentException if URL is malformed
 	 */
 	public function __construct($url = NULL)
 	{
@@ -261,7 +261,7 @@ class Url extends Nette\Object
 	/**
 	 * Appends the query part of URI.
 	 * @param  string|array
-	 * @return Url
+	 * @return self
 	 */
 	public function appendQuery($value)
 	{
@@ -406,48 +406,38 @@ class Url extends Nette\Object
 
 
 	/**
-	 * URI comparsion (this object must be in canonical form).
-	 * @param  string
+	 * URL comparison.
+	 * @param  string|self
 	 * @return bool
 	 */
 	public function isEqual($url)
 	{
-		// compare host + path
-		$part = self::unescape(strtok($url, '?#'), '%/');
-		if (strncmp($part, '//', 2) === 0) { // absolute URI without scheme
-			if ($part !== '//' . $this->getAuthority() . $this->path) {
-				return FALSE;
-			}
-
-		} elseif (strncmp($part, '/', 1) === 0) { // absolute path
-			if ($part !== $this->path) {
-				return FALSE;
-			}
-
-		} else {
-			if ($part !== $this->getHostUrl() . $this->path) {
-				return FALSE;
-			}
-		}
-
-		// compare query strings
-		$part = preg_split('#[&;]#', self::unescape(strtr((string) strtok('?#'), '+', ' '), '%&;=+'));
-		sort($part);
-		$query = preg_split('#[&;]#', $this->query);
+		$url = new self($url);
+		parse_str($url->query, $query);
 		sort($query);
-		return $part === $query;
+		parse_str($this->query, $query2);
+		sort($query2);
+		$http = in_array($this->scheme, array('http', 'https'), TRUE);
+		return $url->scheme === $this->scheme
+			&& !strcasecmp(rawurldecode($url->host), rawurldecode($this->host))
+			&& $url->port === $this->port
+			&& ($http || rawurldecode($url->user) === rawurldecode($this->user))
+			&& ($http || rawurldecode($url->pass) === rawurldecode($this->pass))
+			&& self::unescape($url->path, '%/') === self::unescape($this->path, '%/')
+			&& $query === $query2
+			&& rawurldecode($url->fragment) === rawurldecode($this->fragment);
 	}
 
 
 	/**
-	 * Transform to canonical form.
-	 * @return Url
+	 * Transforms URL to canonical form.
+	 * @return self
 	 */
 	public function canonicalize()
 	{
-		$this->path = $this->path === '' ? '/' : self::unescape($this->path, '%/');
+		$this->path = $this->path === '' ? '/' : self::unescape($this->path, '%/#?');
 		$this->host = strtolower(rawurldecode($this->host));
-		$this->query = self::unescape(strtr($this->query, '+', ' '), '%&;=+');
+		$this->query = self::unescape(strtr($this->query, '+', ' '), '%&;=+#');
 		return $this;
 	}
 
@@ -462,7 +452,7 @@ class Url extends Nette\Object
 
 
 	/**
-	 * Similar to rawurldecode, but preserve reserved chars encoded.
+	 * Similar to rawurldecode, but preserves reserved chars encoded.
 	 * @param  string to decode
 	 * @param  string reserved characters
 	 * @return string
@@ -472,14 +462,14 @@ class Url extends Nette\Object
 		// reserved (@see RFC 2396) = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | ","
 		// within a path segment, the characters "/", ";", "=", "?" are reserved
 		// within a query component, the characters ";", "/", "?", ":", "@", "&", "=", "+", ",", "$" are reserved.
-		preg_match_all('#(?<=%)[a-f0-9][a-f0-9]#i', $s, $matches, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
-		foreach (array_reverse($matches) as $match) {
-			$ch = chr(hexdec($match[0][0]));
-			if (strpos($reserved, $ch) === FALSE) {
-				$s = substr_replace($s, $ch, $match[0][1] - 1, 3);
-			}
+		if ($reserved !== '') {
+			$s = preg_replace_callback(
+				'#%(' . substr(chunk_split(bin2hex($reserved), 2, '|'), 0, -1) . ')#i',
+				function($m) { return '%25' . strtoupper($m[1]); },
+				$s
+			);
 		}
-		return $s;
+		return rawurldecode($s);
 	}
 
 }

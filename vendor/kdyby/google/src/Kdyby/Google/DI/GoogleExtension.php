@@ -27,7 +27,9 @@ class GoogleExtension extends CompilerExtension
 
 	/** @var array */
 	public $defaults = array(
-		'clientId' => NULL,
+		'appId' => NULL, // kdyby-style naming
+		'appSecret' => NULL,
+		'clientId' => NULL, // google-style naming
 		'clientSecret' => NULL,
 		'apiKey' => NULL,
 		'clearAllWithLogout' => TRUE,
@@ -42,10 +44,22 @@ class GoogleExtension extends CompilerExtension
 	public function loadConfiguration()
 	{
 		$builder = $this->getContainerBuilder();
-
 		$config = $this->getConfig($this->defaults);
-		Validators::assert($config['clientId'], 'string', 'Client ID');
-		Validators::assert($config['clientSecret'], 'string:24', 'Client secret');
+
+		$rawConfig = $this->getConfig();
+		if (isset($rawConfig['appId']) || isset($rawConfig['appSecret'])) {
+			if (isset($rawConfig['clientId']) || isset($rawConfig['clientSecret'])) {
+				throw new Nette\Utils\AssertionException("Use only one syntax, either appId and appSecret or clientId and clientSecret, do not combine them");
+			}
+
+		} else {
+			$config['appId'] = $rawConfig['clientId'];
+			$config['appSecret'] = $rawConfig['clientSecret'];
+			unset($config['clientId'], $config['clientSecret']);
+		}
+
+		Validators::assert($config['appId'], 'string', 'App ID');
+		Validators::assert($config['appSecret'], 'string:24', 'App secret');
 		Validators::assert($config['apiKey'], 'string:39|null', 'API Key');
 		Validators::assert($config['scopes'], 'list', 'Permission scopes');
 		if (!in_array($config['accessType'], $allowed = array('online', 'offline'))) {
@@ -58,8 +72,8 @@ class GoogleExtension extends CompilerExtension
 		$configuration = $builder->addDefinition($this->prefix('config'))
 			->setClass('Kdyby\Google\Configuration')
 			->setArguments(array(
-				$config['clientId'],
-				$config['clientSecret'],
+				$config['appId'],
+				$config['appSecret'],
 				$config['apiKey'],
 				$config['scopes'],
 			));
@@ -72,6 +86,15 @@ class GoogleExtension extends CompilerExtension
 			}
 
 			$configuration->addSetup('setReturnDestination', array($destination, $config['returnUri']->attributes));
+
+		} elseif ($config['returnUri'] instanceof Statement) { // was an neon entity, must be valid presenter name with parameters
+			$destination = $config['returnUri']->entity;
+
+			if (!self::isPresenterName($destination)) { // presenter name
+				throw new Nette\Utils\AssertionException("Please fix your configuration, expression '$destination' does not look like a valid presenter name.");
+			}
+
+			$configuration->addSetup('setReturnDestination', array($destination, $config['returnUri']->arguments));
 
 		} elseif ($config['returnUri'] !== NULL) { // must be a valid uri or presenter name
 			$destination = NULL;

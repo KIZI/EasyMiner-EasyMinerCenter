@@ -19,7 +19,7 @@ use Nette,
 class RequestFactory extends Nette\Object
 {
 	/** @internal */
-	const NONCHARS = '#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u';
+	const CHARS = '\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}';
 
 	/** @var array */
 	public $urlFilters = array(
@@ -64,19 +64,19 @@ class RequestFactory extends Nette\Object
 	{
 		// DETECTS URI, base path and script path of the request.
 		$url = new UrlScript;
-		$url->scheme = !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https' : 'http';
-		$url->user = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
-		$url->password = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '';
+		$url->setScheme(!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https' : 'http');
+		$url->setUser(isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '');
+		$url->setPassword(isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '');
 
 		// host & port
 		if ((isset($_SERVER[$tmp = 'HTTP_HOST']) || isset($_SERVER[$tmp = 'SERVER_NAME']))
 			&& preg_match('#^([a-z0-9_.-]+|\[[a-f0-9:]+\])(:\d+)?\z#i', $_SERVER[$tmp], $pair)
 		) {
-			$url->host = strtolower($pair[1]);
+			$url->setHost(strtolower($pair[1]));
 			if (isset($pair[2])) {
-				$url->port = (int) substr($pair[2], 1);
+				$url->setPort(substr($pair[2], 1));
 			} elseif (isset($_SERVER['SERVER_PORT'])) {
-				$url->port = (int) $_SERVER['SERVER_PORT'];
+				$url->setPort($_SERVER['SERVER_PORT']);
 			}
 		}
 
@@ -95,12 +95,12 @@ class RequestFactory extends Nette\Object
 
 		$requestUrl = Strings::replace($requestUrl, $this->urlFilters['url']);
 		$tmp = explode('?', $requestUrl, 2);
-		$url->path = Strings::replace($tmp[0], $this->urlFilters['path']);
-		$url->query = isset($tmp[1]) ? $tmp[1] : '';
+		$url->setPath(Strings::replace($tmp[0], $this->urlFilters['path']));
+		$url->setQuery(isset($tmp[1]) ? $tmp[1] : '');
 
 		// normalized url
 		$url->canonicalize();
-		$url->path = Strings::fixEncoding($url->path);
+		$url->setPath(Strings::fixEncoding($url->getPath()));
 
 		// detect script path
 		if (isset($_SERVER['SCRIPT_NAME'])) {
@@ -113,21 +113,21 @@ class RequestFactory extends Nette\Object
 			$script = '/';
 		}
 
-		$path = strtolower($url->path) . '/';
+		$path = strtolower($url->getPath()) . '/';
 		$script = strtolower($script) . '/';
 		$max = min(strlen($path), strlen($script));
 		for ($i = 0; $i < $max; $i++) {
 			if ($path[$i] !== $script[$i]) {
 				break;
 			} elseif ($path[$i] === '/') {
-				$url->scriptPath = substr($url->path, 0, $i + 1);
+				$url->setScriptPath(substr($url->getPath(), 0, $i + 1));
 			}
 		}
 
 		// GET, POST, COOKIE
 		$useFilter = (!in_array(ini_get('filter.default'), array('', 'unsafe_raw')) || ini_get('filter.default_flags'));
 
-		parse_str($url->query, $query);
+		parse_str($url->getQuery(), $query);
 		if (!$query) {
 			$query = $useFilter ? filter_input_array(INPUT_GET, FILTER_UNSAFE_RAW) : (empty($_GET) ? array() : $_GET);
 		}
@@ -137,6 +137,7 @@ class RequestFactory extends Nette\Object
 		$gpc = (bool) get_magic_quotes_gpc();
 
 		// remove fucking quotes, control characters and check encoding
+		$reChars = '#^[' . self::CHARS . ']*+\z#u';
 		if ($gpc || !$this->binary) {
 			$list = array(& $query, & $post, & $cookies);
 			while (list($key, $val) = each($list)) {
@@ -147,7 +148,7 @@ class RequestFactory extends Nette\Object
 						$k = stripslashes($k);
 					}
 
-					if (!$this->binary && is_string($k) && (preg_match(self::NONCHARS, $k) || preg_last_error())) {
+					if (!$this->binary && is_string($k) && (!preg_match($reChars, $k) || preg_last_error())) {
 						// invalid key -> ignore
 
 					} elseif (is_array($v)) {
@@ -158,8 +159,8 @@ class RequestFactory extends Nette\Object
 						if ($gpc && !$useFilter) {
 							$v = stripSlashes($v);
 						}
-						if (!$this->binary && (preg_match(self::NONCHARS, $v) || preg_last_error())) {
-							$v = '';
+						if (!$this->binary) {
+							$v = (string) preg_replace('#[^' . self::CHARS . ']+#u', '', $v);
 						}
 						$list[$key][$k] = $v;
 					}
@@ -174,7 +175,7 @@ class RequestFactory extends Nette\Object
 		$list = array();
 		if (!empty($_FILES)) {
 			foreach ($_FILES as $k => $v) {
-				if (!$this->binary && is_string($k) && (preg_match(self::NONCHARS, $k) || preg_last_error())) {
+				if (!$this->binary && is_string($k) && (!preg_match($reChars, $k) || preg_last_error())) {
 					continue;
 				}
 				$v['@'] = & $files[$k];
@@ -190,7 +191,7 @@ class RequestFactory extends Nette\Object
 				if ($gpc) {
 					$v['name'] = stripSlashes($v['name']);
 				}
-				if (!$this->binary && (preg_match(self::NONCHARS, $v['name']) || preg_last_error())) {
+				if (!$this->binary && (!preg_match($reChars, $v['name']) || preg_last_error())) {
 					$v['name'] = '';
 				}
 				if ($v['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -200,7 +201,7 @@ class RequestFactory extends Nette\Object
 			}
 
 			foreach ($v['name'] as $k => $foo) {
-				if (!$this->binary && is_string($k) && (preg_match(self::NONCHARS, $k) || preg_last_error())) {
+				if (!$this->binary && is_string($k) && (!preg_match($reChars, $k) || preg_last_error())) {
 					continue;
 				}
 				$list[] = array(
@@ -217,7 +218,7 @@ class RequestFactory extends Nette\Object
 
 		// HEADERS
 		if (function_exists('apache_request_headers')) {
-			$headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+			$headers = apache_request_headers();
 		} else {
 			$headers = array();
 			foreach ($_SERVER as $k => $v) {
@@ -226,7 +227,7 @@ class RequestFactory extends Nette\Object
 				} elseif (strncmp($k, 'CONTENT_', 8)) {
 					continue;
 				}
-				$headers[ strtr(strtolower($k), '_', '-') ] = $v;
+				$headers[ strtr($k, '_', '-') ] = $v;
 			}
 		}
 

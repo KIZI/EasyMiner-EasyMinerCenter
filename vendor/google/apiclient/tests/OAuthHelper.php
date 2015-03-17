@@ -14,24 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-include_once 'bootstrap.php';
-require_once 'Google/Client.php';
+require_once dirname(__FILE__) . '/../autoload.php';
 
 $client = new Google_Client();
-$client->setScopes(array(
-  "https://www.googleapis.com/auth/plus.me",
-  "https://www.googleapis.com/auth/urlshortener",
-  "https://www.googleapis.com/auth/tasks",
-  "https://www.googleapis.com/auth/adsense",
-  "https://www.googleapis.com/auth/youtube"
-));
+$client->setScopes(
+    array(
+      "https://www.googleapis.com/auth/plus.me",
+      "https://www.googleapis.com/auth/urlshortener",
+      "https://www.googleapis.com/auth/tasks",
+      "https://www.googleapis.com/auth/adsense",
+      "https://www.googleapis.com/auth/youtube"
+    )
+);
 $client->setRedirectUri("urn:ietf:wg:oauth:2.0:oob");
 // Visit https://code.google.com/apis/console to
 // generate your oauth2_client_id, oauth2_client_secret, and to
 // register your oauth2_redirect_uri.
 $client->setClientId("");
 $client->setClientSecret("");
-
 
 $authUrl = $client->createAuthUrl();
 

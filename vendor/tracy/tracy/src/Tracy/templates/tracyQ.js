@@ -133,15 +133,16 @@ var Tracy = Tracy || {};
 
 	// tests whether element has given class
 	Query.prototype.hasClass = function(className) {
-		return this[0] && this[0].className && this[0].className.replace(/^|\s+|$/g, ' ').indexOf(' '+className+' ') > -1;
+		return this[0] && (typeof this[0].className === 'string') && this[0].className.replace(/^|\s+|$/g, ' ').indexOf(' '+className+' ') > -1;
 	};
 
 	Query.prototype.show = function() {
 		Query.displays = Query.displays || {};
 		return this.each(function() {
-			var tag = this.tagName;
+			var tag = this.tagName, el;
 			if (!Query.displays[tag]) {
-				Query.displays[tag] = (new Query(document.body.appendChild(document.createElement(tag)))).css('display');
+				Query.displays[tag] = (new Query(document.body.appendChild(el = document.createElement(tag)))).css('display');
+				document.body.removeChild(el);
 			}
 			this.style.display = Query.displays[tag];
 		});

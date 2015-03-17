@@ -1,8 +1,5 @@
 /**
- * Debugger Bluescreen
- *
  * This file is part of the Tracy (http://tracy.nette.org)
- * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
  */
 
 html {
@@ -211,6 +208,10 @@ html {
 	font-style: normal;
 }
 
+#tracyBluescreen pre:hover span[title] {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
 #tracyBluescreen a[href^=editor\:] {
 	color: inherit;
 	border-bottom: 1px dotted rgba(0, 0, 0, .2);
@@ -222,11 +223,11 @@ html {
 
 
 /* toggle */
-html.js #tracyBluescreen .tracy-collapsed {
+html.tracy-js #tracyBluescreen .tracy-collapsed {
 	display: none;
 }
 
-html.js #tracyBluescreen .tracy-toggle.tracy-collapsed {
+html.tracy-js #tracyBluescreen .tracy-toggle.tracy-collapsed {
 	display: inline;
 }
 

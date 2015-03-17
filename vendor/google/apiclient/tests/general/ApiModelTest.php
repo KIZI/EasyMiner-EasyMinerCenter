@@ -18,10 +18,6 @@
  * under the License.
  */
 
-require_once 'BaseTest.php';
-require_once 'Google/Service/AdExchangeBuyer.php';
-require_once 'Google/Service/Calendar.php';
-
 class ApiModelTest extends BaseTest
 {
   public function testModelMutation()
@@ -79,6 +75,17 @@ class ApiModelTest extends BaseTest
 
     $event2 = new Google_Service_Calendar_Event();
     $this->assertNull($event2->getStart());
+  }
+
+  public function testVariantTypes()
+  {
+    $feature = new Google_Service_MapsEngine_Feature();
+    $geometry = new Google_Service_MapsEngine_GeoJsonPoint();
+    $geometry->setCoordinates(array(1, 0));
+    $feature->setGeometry($geometry);
+    $data = json_decode(json_encode($feature->toSimpleObject()), true);
+    $this->assertEquals('Point', $data['geometry']['type']);
+    $this->assertEquals(1, $data['geometry']['coordinates'][0]);
   }
 
   public function testOddMappingNames()
@@ -155,7 +162,9 @@ class ApiModelTest extends BaseTest
               {"id": 3},
               {"id": 4}
            ]
-         }', true);
+         }',
+        true
+    );
     $collection = new Google_Service_Calendar_Events($data);
     $this->assertEquals(4, count($collection));
     $count = 0;

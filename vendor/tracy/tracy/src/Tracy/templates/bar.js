@@ -1,8 +1,5 @@
 /**
- * Debugger Bar
- *
  * This file is part of the Tracy (http://tracy.nette.org)
- * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
  */
 
 (function(){
@@ -106,7 +103,8 @@
 		offset.left += typeof window.screenLeft === 'number' ? window.screenLeft : (window.screenX + 10);
 		offset.top += typeof window.screenTop === 'number' ? window.screenTop : (window.screenY + 50);
 
-		var win = window.open('', this.id.replace(/-/g, '_'), 'left='+offset.left+',top='+offset.top+',width='+offset.width+',height='+(offset.height+15)+',resizable=yes,scrollbars=yes');
+		var win = window.open('', this.id.replace(/-/g, '_'), 'left=' + offset.left + ',top=' + offset.top
+			+ ',width=' + this.elem[0].offsetWidth + ',height=' + (this.elem[0].offsetHeight + 15) + ',resizable=yes,scrollbars=yes');
 		if (!win) {
 			return;
 		}
@@ -116,16 +114,17 @@
 		doc.body.innerHTML = '<div class="tracy-panel tracy-mode-window" id="' + this.id + '">' + this.elem.dom().innerHTML + '<\/div>';
 		var winPanel = win.Tracy.Debug.getPanel(this.id);
 		win.Tracy.Dumper.init();
-		winPanel.reposition();
-		doc.title = this.elem.find('h1').dom().innerHTML;
+		if (this.elem.find('h1').length) {
+			doc.title = this.elem.find('h1')[0].innerHTML;
+		}
 
-		var _this = this;
-		$([win]).bind('unload', function() {
+		var _this = this, _$ = win.Tracy.Query.factory;
+		_$([win]).bind('beforeunload', function() {
 			_this.toPeek();
 			win.close(); // forces closing, can be invoked by F5
 		});
 
-		$(doc).bind('keyup', function(e) {
+		_$(doc).bind('keyup', function(e) {
 			if (e.keyCode === 27 && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
 				win.close();
 			}
@@ -140,10 +139,7 @@
 	};
 
 	Panel.prototype.reposition = function() {
-		if (this.is(Panel.WINDOW)) {
-			var dE = document.documentElement;
-			window.resizeBy(dE.scrollWidth - dE.clientWidth, dE.scrollHeight - dE.clientHeight);
-		} else {
+		if (!this.is(Panel.WINDOW)) {
 			var pos = this.elem.position();
 			if (pos.width) { // is visible?
 				this.elem.position({right: pos.right, bottom: pos.bottom});
@@ -161,11 +157,11 @@
 
 	Panel.prototype.restorePosition = function() {
 		var m = document.cookie.match(new RegExp(this.id + '=(window|(-?[0-9]+):(-?[0-9]+))'));
-		if (m && m[2]) {
+		if (m && !m[2]) {
+			this.toWindow();
+		} else if (m && this.elem.dom().getElementsByTagName('*').length) {
 			this.elem.position({right: m[2], bottom: m[3]});
 			this.toFloat();
-		} else if (m) {
-			this.toWindow();
 		} else {
 			this.elem.addClass(Panel.PEEK);
 		}
