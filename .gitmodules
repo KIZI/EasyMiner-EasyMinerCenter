@@ -5,6 +5,8 @@
 [submodule "vendor/kdyby/forms-replicator"]
 	path = vendor/kdyby/forms-replicator
 	url = https://github.com/Kdyby/Replicator
+
 [submodule "submodules/EasyMiner-MiningUI"]
 	path = submodules/EasyMiner-MiningUI
 	url = https://github.com/KIZI/EasyMiner-MiningUI.git
+	branch = master
