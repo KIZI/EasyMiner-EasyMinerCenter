@@ -9,10 +9,10 @@ use Nette\Application\ForbiddenRequestException;
 use Nette\Utils\Strings;
 
 /**
- * Class IziUiPresenter - prezenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
+ * Class MiningUiPresenter - presenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
  * @package App\EasyMinerModule\Presenters
  */
-class IziUiPresenter extends BasePresenter{
+class MiningUiPresenter extends BasePresenter{
   private $lang='en';//TODO předávání jazyka rozhraní
   /** @var  IZIConfig $config */
   private $config;
@@ -70,18 +70,32 @@ class IziUiPresenter extends BasePresenter{
     $this->sendJsonResponse($responseContent);
   }
 
+
+  /**
+   * Akce pro zobrazení EasyMiner-MiningUI
+   */
+  public function renderDefault($id_dm) {
+    //TODO doplnit kontroly na přihlášeného uživatele, oprávnění k mineru atd.
+    require __DIR__.'/../../../submodules/EasyMiner-MiningUI/web/Integration.php';
+    /** @noinspection PhpUndefinedNamespaceInspection */
+    $this->template->javascriptFiles=\EasyMiner\MiningUI\Integration::$javascriptFiles;
+    /** @noinspection PhpUndefinedNamespaceInspection */
+    $this->template->cssFiles=\EasyMiner\MiningUI\Integration::$cssFiles;
+  }
+  
+
+  #region injections
   /**
    * @param IZIConfig $iziConfig
    */
   public function injectIZIConfig(IZIConfig $iziConfig){
     $this->config=$iziConfig;
   }
-
   /**
    * @param DatasourcesFacade $datasourcesFacade
    */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
     $this->datasourcesFacade=$datasourcesFacade;
   }
-
+  #endregion
 } 

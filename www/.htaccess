@@ -15,6 +15,10 @@ Header set X-UA-Compatible "IE=Edge,chrome=1"
 	# prevents files starting with dot to be viewed by browser
 	RewriteRule /\.|^\. - [F]
 
+  #EasyMiner-MiningUI
+  RewriteRule ^_miningUI/(.*) ../submodules/EasyMiner-MiningUI/web/$1 [L,QSA]
+  RewriteRule ^_XML/(.*) ../submodules/EasyMiner-XML/$1 [L,QSA]
+
 	# front controller
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d

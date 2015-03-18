@@ -109,8 +109,7 @@ class DataPresenter extends BasePresenter{
     $miner->lastOpened=new DateTime();
     $this->minersFacade->saveMiner($miner);
 
-    $url=$this->context->parameters['urls']['open_miner'];
-    $this->redirectUrl(StringsHelper::replaceParams($url,array(':minerId'=>$id)));
+    $this->redirect('MiningUi:default',['id_dm'=>$miner->minerId]);
   }
 
   /**

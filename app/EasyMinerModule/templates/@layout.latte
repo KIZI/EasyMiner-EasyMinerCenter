@@ -37,10 +37,14 @@
     </div>
 
   </header>
-  <main>
-    <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
-    {include content}
-  </main>
+
+  {block main}
+    <main>
+      <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
+      {include content}
+    </main>
+  {/block}
+
   <footer>
 
   </footer>

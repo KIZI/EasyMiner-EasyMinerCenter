@@ -1,0 +1,17 @@
+{block scripts}
+  {foreach $javascriptFiles as $file}
+    <script type="text/javascript" src="{$basePath}/_miningUI/{$file}" ></script>
+  {/foreach}
+{/block}
+
+{block head}
+  {foreach $cssFiles as $file}
+    <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_miningUI/{$file}" />
+  {/foreach}
+
+  <meta http-equiv="Cache-Control" content="no-cache" />
+{/block}
+
+{block main}
+  <main id="IZIMiner" class="clearfix"></main>
+{/block}
