@@ -1,3 +1,7 @@
 [submodule "app/libs/EasyMiner-XML"]
 	path = app/libs/EasyMiner-XML
 	url = https://github.com/KIZI/EasyMiner-XML.git
+
+[submodule "vendor/kdyby/forms-replicator"]
+	path = vendor/kdyby/forms-replicator
+	url = https://github.com/Kdyby/Replicator
