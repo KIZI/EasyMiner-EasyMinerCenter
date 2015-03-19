@@ -10,7 +10,7 @@
 
 	<title>{ifset #title}{include title|striptags} :: {/ifset}EasyMiner</title>
 
-	<link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/screen.css">
+	<link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/index.css">
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
 
 	{block scripts}
@@ -22,7 +22,7 @@
   <script> document.documentElement.className+=' js' </script>
 </head>
 <body>
-  <header>
+  <header id="mainHeader">
     <h1>
       EasyMiner<sup>2.0 - dev</sup>
       <span>easy association rule mining</span>
