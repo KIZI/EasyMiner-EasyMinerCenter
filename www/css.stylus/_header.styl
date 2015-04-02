@@ -1,3 +1,71 @@
+/** Styles for main page HEADER */
+body > header
+  background url("../images/bg-header.png") repeat-x scroll bottom #075783
+  height 100px
+  width 100%
+  div.content
+    centerMainContent()
+    //region logo
+    h1
+      color #fff
+      font-family "Times New Roman", Times, serif
+      font-size 48px
+      font-weight normal
+      letter-spacing: 2px;
+      margin 0
+      padding 0
+      position absolute
+      left 20px
+      top 8px
+      span
+        display block
+        font-size 17px
+        letter-spacing 1px
+        position relative
+        top -15px
+      sup
+        color: #9de045;
+        font-size: 0.6em;
+        letter-spacing: normal;
+        margin-left: 10px;
+        position: relative;
+
+
+
+    div.headerLinks
+      position: absolute;
+      top 20px
+      right 20px
+      font-weight: bold;
+      color: rgb(206,231,247);
+
+      a
+        color white
+        text-decoration none
+        &.user
+          display block
+          float right
+          text-align center
+          .img
+            display block
+            background url('../images/icons/user-48.png') center center no-repeat
+            width 48px
+            height 48px
+            margin 0 auto
+          .name
+            margin-top 5px
+            font-size 10px
+
+
+/*
+  a
+    color: rgb(206,231,247);
+    text-decoration: none;
+    &:hover
+      color: white;
+      text-decoration: underline;
+*/
+/*
 headerLinkItem()
   color #CEE7F7
   font-size buttonFontSize
@@ -12,10 +80,6 @@ headerLinkItemHover()
   text-decoration underline
 
 header#mainHeader
-  background: #ededed url("../images/bg-header.png") repeat-x top;
-  height 146px;
-  width 100%
-
   #headerContent
     width:1320px;
     position: relative;
@@ -90,3 +154,5 @@ header#mainHeader
         font-size 19px
         letter-spacing normal
         position relative; top -8px
+
+*/

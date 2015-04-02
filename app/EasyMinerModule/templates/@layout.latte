@@ -22,20 +22,24 @@
   <script> document.documentElement.className+=' js' </script>
 </head>
 <body>
-  <header id="mainHeader">
-    <h1>
-      EasyMiner<sup>2.0 - dev</sup>
-      <span>easy association rule mining</span>
-    </h1>
+  <header>
+    <div class="content">
+      <h1 class="typeR">
+        EasyMiner<sup>{@$version}</sup>
+        <span>easy association rule mining</span>
+      </h1>
 
-    <div class="links">
-    {if ($user->loggedIn)}
-      <a href="{link User:details}" title="{_'My account details...'}">{$user->identity->name}</a> - <a href="{link User:logout}">{_'logout'}</a>
-    {else}
-      <a href="{link User:login}">{_'login'}</a>
-    {/if}
+      <div class="headerLinks">
+        {block headerLinks}
+          {if ($user->loggedIn)}
+            <a href="" class="user"><span class="img"></span><span class="name">{$user->identity->name}</span></a>
+            <!--<a href="{link User:details}" title="{_'My account details...'}">{$user->identity->name}</a> - <a href="{link User:logout}">{_'logout'}</a>-->
+          {else}
+            <a href="{link User:login}">{_'login'}</a>
+          {/if}
+        {/block}
+      </div>
     </div>
-
   </header>
 
   {block main}

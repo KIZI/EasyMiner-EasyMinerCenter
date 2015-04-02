@@ -1,6 +1,3 @@
-@import url("http://fonts.googleapis.com/css?family=Droid+Sans:400,700");
-@import url("http://fonts.googleapis.com/css?family=Average&subset=latin-ext");
-
 body {
 	font-size: 15px;
 	line-height: 1.6;
@@ -69,54 +66,6 @@ html.js .jshidden {
 
 /*region Základní styly layoutu*/
 
-body > header{
-  background: url("../images/bg-header.png") repeat-x scroll 50% 0 #ededed;
-  height: 146px;
-  width: 100%;
-}
-body > header h1{
-  clear: both;
-  color: #fff;
-  font-family: "Average", serif;
-  font-size: 48px ;
-  letter-spacing: 2px;
-  /*margin: 0 0 0 80px;
-  padding-top: 16px;*/
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  left:80px;
-  top:42px;
-}
-body > header h1 sup {
-  color: #9de045;
-  font-size: 0.6em;
-  letter-spacing: normal;
-  margin-left: 10px;
-  position: relative;
-}
-body > header h1 span{
-  display: block;
-  font-size: 19px;
-  letter-spacing: normal;
-  position: relative;
-  top: -21px;
-}
-body > header div.links{
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  font-weight: bold;
-  color: rgb(206,231,247);
-}
-body > header a{
-  color: rgb(206,231,247);
-  text-decoration: none;
-}
-body > header a:hover{
-  color: white;
-  text-decoration: underline;
-}
 
 body.iframe{
   background: white;

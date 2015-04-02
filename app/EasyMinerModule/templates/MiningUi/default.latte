@@ -12,6 +12,11 @@
   <meta http-equiv="Cache-Control" content="no-cache" />
 {/block}
 
+{block headerLinks}
+  {include parent}
+  <a href="{plink Data:newMiner}" title="{_'New miner...'}"></a>
+{/block}
+
 {block main}
   <main id="IZIMiner" class="clearfix"></main>
 {/block}
