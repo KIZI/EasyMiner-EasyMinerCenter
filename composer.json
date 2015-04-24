@@ -22,7 +22,8 @@
 		"kdyby/google": "dev-master",
 		"srigi/nette-confirmationdialog": "1.0.1",
 		"kdyby/curl": "v2.2.0",
-		"kdyby/forms-replicator": "@dev"
+		"kdyby/forms-replicator": "@dev",
+		"drahak/restful": "dev-master"
 	},
 	"require-dev": {
 		"nette/tester": "~1.0"
