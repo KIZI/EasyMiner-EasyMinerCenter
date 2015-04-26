@@ -411,6 +411,16 @@ body > header div.content div.headerLinks a.user .name {
   margin-top: 5px;
   font-size: 10px;
 }
+body > header div.content div.headerLinks a.help {
+  display: block;
+  float: right;
+  text-align: center;
+  background: url("../images/icons/help-48.png") top center no-repeat;
+  width: 48px;
+  padding-top: 54px;
+  margin: 0 15px;
+  font-size: 10px;
+}
 footer {
   background: #ededed;
   color: #434343;
