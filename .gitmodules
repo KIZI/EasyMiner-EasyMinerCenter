@@ -10,3 +10,6 @@
 	path = submodules/EasyMiner-MiningUI
 	url = https://github.com/KIZI/EasyMiner-MiningUI.git
 	branch = master
+[submodule "submodules/EasyMiner-Help"]
+	path = submodules/EasyMiner-Help
+	url = https://github.com/KIZI/EasyMiner-Help.git
