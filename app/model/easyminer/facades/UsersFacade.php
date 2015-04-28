@@ -31,6 +31,10 @@ class UsersFacade implements IAuthenticator{
     $this->userForgottenPasswordsRepository=$userForgottenPasswordsRepository;
   }
 
+  public function findUserByApiKey($key){
+    return $this->usersRepository->findBy(array('key'=>$key));
+  }
+
   /**
    * @param int $id
    * @return User
@@ -75,6 +79,10 @@ class UsersFacade implements IAuthenticator{
     if ($user->isDetached() && $user->getDbPassword()==''){
       //při ukládání nového uživatele mu přiřadíme heslo...
       $user->setDbPassword(StringsHelper::randString(8));
+    }
+    if ($user->apiKey==''){
+      //při ukládání uživatele bez apiKey mu vygenerujeme náhodný
+      $user->apiKey=StringsHelper::randString(20).round(rand(3911,89301)).StringsHelper::randString(20);
     }
     return $this->usersRepository->persist($user);
   }

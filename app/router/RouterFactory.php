@@ -54,6 +54,7 @@ class RouterFactory
     #region router pro RestModule
 
     $router[] = $restRouter = new RouteList('Rest');
+    $restRouter[] = new Route(self::REST_MODULE_BASE_URL.'auth[/<action=default>]',['presenter'=>'auth']);
     $restRouter[] = new CrudRoute(self::REST_MODULE_BASE_URL.'<presenter>[/<id>]', [], IResourceRouter::GET | IResourceRouter::POST | IResourceRouter::PUT | IResourceRouter::DELETE);
 
 

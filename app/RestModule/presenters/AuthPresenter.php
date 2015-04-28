@@ -1,23 +1,29 @@
 <?php
 namespace App\RestModule\Presenters;
-use Drahak\Restful\Application\UI\ResourcePresenter;
-use Drahak\Restful\IResource;
-use Drahak\Restful\Resource;
-use Drahak\Restful\ResourceFactory;
-use Drahak\Restful\Validation\IValidator;
+
+use App\Libs\StringsHelper;
+use App\Model\EasyMiner\Entities\User;
+use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\UI\Presenter;
+
 
 class AuthPresenter extends Presenter {
 
+  /** @var  UsersFacade $usersFacade */
+  private $usersFacade;
+
   /**
-   * @param int $id
+   * @param string $key
    */
-  public function actionRead($id=null){
-    echo 'OK';
+  public function actionDefault($key){
+
     $this->terminate();
     //$this->resource=['state'=>'ok'];
     //$this->sendResource();
   }
 
+  public function injectUsersFacade(UsersFacade $usersFacade){
+    $this->usersFacade=$usersFacade;
+  }
 
 }
