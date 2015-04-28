@@ -7,14 +7,13 @@ use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\RuleSetsFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
-use App\Presenters\BaseRestPresenter;
 use Nette\InvalidArgumentException;
 
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
  * @package App\KnowledgeBaseModule\Presenters
  */
-class RuleSetsPresenter extends BaseRestPresenter{
+class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */

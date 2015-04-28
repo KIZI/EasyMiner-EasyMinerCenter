@@ -21,6 +21,4 @@ $configurator->addConfig(__DIR__ . '/config/izi-ui.config.neon');
 
 $container = $configurator->createContainer();
 
-Kdyby\Replicator\Container::register();
-
 return $container;

@@ -144,7 +144,57 @@ class CassandraDatabase implements IDatabase{
    * @param string $name
    * @return DbColumnValuesStatistic
    */
-  public function getColumnValuesStatistic($name) {
+  public function getColumnValuesStatistic($name, $includeValues=true) {
     // TODO: Implement getColumnValuesStatistic() method.
+  }
+
+  /**
+   * @param string $column
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array[]
+   */
+  public function getColumnValuesWithId($column, $limitStart = 0, $limitCount = 0) {
+    // TODO: Implement getColumnValuesWithId() method.
+  }
+
+  /**
+   * @return DbColumn[]
+   */
+  public function getColumns() {
+    // TODO: Implement getColumns() method.
+  }
+
+  /**
+   * @param string $name
+   * @return bool
+   */
+  public function deleteColumn($name) {
+    // TODO: Implement deleteColumn() method.
+  }
+
+  /**
+   * @param string $oldName
+   * @param string $newName
+   * @return bool
+   */
+  public function renameColumn($oldName, $newName) {
+    // TODO: Implement renameColumn() method.
+  }
+
+  /**
+   * @param DbColumn $dbColumn
+   * @return bool
+   */
+  public function createColumn(DbColumn $dbColumn) {
+    // TODO: Implement createColumn() method.
+  }
+
+  /**
+   * Funkce vracející počet řádků v tabulce
+   * @return int
+   */
+  public function getRowsCount() {
+    // TODO: Implement getRowsCount() method.
   }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Model\EasyMiner\Repositories;
 
+use App\Exceptions\EntityNotFoundException;
+
 abstract class BaseRepository extends \LeanMapper\Repository {
   /**
    * @param int $id
@@ -15,7 +17,7 @@ abstract class BaseRepository extends \LeanMapper\Repository {
       ->fetch();
 
     if ($row === false) {
-      throw new \Exception('Entity was not found.');
+      throw new EntityNotFoundException('Entity was not found.');
     }
     return $this->createEntity($row);
   }
@@ -43,7 +45,7 @@ abstract class BaseRepository extends \LeanMapper\Repository {
     }
     $row = $query->fetch();
     if ($row === false) {
-      throw new \Exception('Entity was not found.');
+      throw new EntityNotFoundException('Entity was not found.');
     }
     return $this->createEntity($row);
   }
