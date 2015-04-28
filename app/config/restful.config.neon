@@ -1,0 +1,15 @@
+#
+# Soubor s konfigurací pro Drahak Restful
+#
+
+extensions:
+    restful: Drahak\Restful\DI\RestfulExtension
+
+restful:
+    convention: 'camelCase'
+    cacheDir: '%tempDir%/cache'
+    jsonpKey: 'jsonp'
+    prettyPrintKey: 'pretty'
+    routes:
+        autogenerate: false
+        panel: false

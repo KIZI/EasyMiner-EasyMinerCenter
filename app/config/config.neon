@@ -4,7 +4,7 @@
 
 php:
 	date.timezone: Europe/Prague
-	zlib.output_compression: yes
+	zlib.output_compression: no
 
 nette:
 	application:
@@ -20,7 +20,7 @@ nette:
 extensions:
     facebook: Kdyby\Facebook\DI\FacebookExtension
     google: Kdyby\Google\DI\GoogleExtension
-    restful: Drahak\Restful\DI\RestfulExtension
+#    restful: Drahak\Restful\DI\RestfulExtension
     replicator: Kdyby\Replicator\DI\ReplicatorExtension
 
 parameters:
@@ -28,11 +28,14 @@ parameters:
         directory: "libs/EasyMiner-XML/transformations"
         guhaPMML: "guhaPMML2HTML/4FTPMML2HTML.xsl"
 
-restful:
-    convention: 'camelCase'
-    cacheDir: '%tempDir%/cache'
-    jsonpKey: 'jsonp'
-    prettyPrintKey: 'pretty'
+#restful:
+#    convention: 'camelCase'
+#    cacheDir: '%tempDir%/cache'
+#    jsonpKey: 'jsonp'
+#    prettyPrintKey: 'pretty'
+#    routes:
+#        autogenerate: false
+#        panel: false
 
 services:
 	- App\RouterFactory
