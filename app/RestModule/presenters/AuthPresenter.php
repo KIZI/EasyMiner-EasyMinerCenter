@@ -6,7 +6,7 @@ use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\UI\Presenter;
 
-
+exit('sem');
 class AuthPresenter extends Presenter {
 
   /** @var  UsersFacade $usersFacade */

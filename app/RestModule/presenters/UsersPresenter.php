@@ -22,10 +22,6 @@ class UsersPresenter extends BaseResourcePresenter {
    * @throws \Nette\Application\BadRequestException
    */
   public function actionRead($id){
-    $this->resource=['state'=>'ok'];
-    $this->sendResource();
-    return;
-
     try{
       /** @var User $user */
       $user=$this->usersFacade->findUser($id);
