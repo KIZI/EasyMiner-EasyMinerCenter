@@ -123,7 +123,6 @@ class Application extends Nette\Object
 		try {
 			$name = $request->getPresenterName();
 			$this->presenterFactory->getPresenterClass($name);
-			$request->setPresenterName($name);
 		} catch (InvalidPresenterException $e) {
 			throw new BadRequestException($e->getMessage(), 0, $e);
 		}
@@ -223,24 +222,6 @@ class Application extends Nette\Object
 	public function getPresenterFactory()
 	{
 		return $this->presenterFactory;
-	}
-
-
-	/********************* request serialization ****************d*g**/
-
-
-	/** @deprecated */
-	function storeRequest($expiration = '+ 10 minutes')
-	{
-		trigger_error(__METHOD__ . '() is deprecated; use $presenter->storeRequest() instead.', E_USER_DEPRECATED);
-		return $this->presenter->storeRequest($expiration);
-	}
-
-	/** @deprecated */
-	function restoreRequest($key)
-	{
-		trigger_error(__METHOD__ . '() is deprecated; use $presenter->restoreRequest() instead.', E_USER_DEPRECATED);
-		return $this->presenter->restoreRequest($key);
 	}
 
 }

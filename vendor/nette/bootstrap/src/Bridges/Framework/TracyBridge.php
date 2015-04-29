@@ -26,9 +26,9 @@ class TracyBridge
 		$blueScreen = Tracy\Debugger::getBlueScreen();
 
 		if (class_exists('Nette\Framework')) {
-			$bar = Tracy\Debugger::getBar();
-			$bar->info[] = $blueScreen->info[] = 'Nette Framework ' . Framework::VERSION
-				. (Framework::REVISION ? ' (' . Framework::REVISION . ')' : '');
+			$version = Framework::VERSION . (Framework::REVISION ? ' (' . Framework::REVISION . ')' : '');
+			Tracy\Debugger::getBar()->getPanel('Tracy:info')->data['Nette Framework'] = $version;
+			$blueScreen->info[] = "Nette Framework $version";
 		}
 
 		$blueScreen->addPanel(function($e) {
@@ -49,14 +49,14 @@ class TracyBridge
 			if ($e instanceof Nette\Neon\Exception && preg_match('#line (\d+)#', $e->getMessage(), $m)
 				&& ($trace = Helpers::findTrace($e->getTrace(), 'Nette\Neon\Decoder::decode'))
 			) {
-					return array(
-						'tab' => 'NEON',
+				return array(
+					'tab' => 'NEON',
 					'panel' => ($trace2 = Helpers::findTrace($e->getTrace(), 'Nette\DI\Config\Adapters\NeonAdapter::load'))
 						? '<p><b>File:</b> ' . Helpers::editorLink($trace2['args'][0], $m[1]) . '</p>'
 							. BlueScreen::highlightFile($trace2['args'][0], $m[1])
 						: BlueScreen::highlightPhp($trace['args'][0], $m[1])
-					);
-				}
+				);
+			}
 		});
 	}
 

@@ -48,6 +48,9 @@ class Compiler extends Object
 	/** @var string */
 	private $templateId;
 
+	/** @var mixed */
+	private $lastAttrValue;
+
 	/** Context-aware escaping content types */
 	const CONTENT_HTML = Engine::CONTENT_HTML,
 		CONTENT_XHTML = Engine::CONTENT_XHTML,
@@ -89,9 +92,9 @@ class Compiler extends Object
 	 * @param  Token[]
 	 * @return string
 	 */
-	public function compile(array $tokens)
+	public function compile(array $tokens, $className)
 	{
-		$this->templateId = substr(lcg_value(), 2, 10);
+		$this->templateId = substr(md5($className), 0, 10);
 		$this->tokens = $tokens;
 		$output = '';
 		$this->output = & $output;
@@ -126,6 +129,12 @@ class Compiler extends Object
 		}
 
 		$output = $this->expandTokens($output);
+		$output = "<?php\n"
+			. "class $className extends Latte\\Template {\n"
+			. "function render() {\n"
+			. 'foreach ($this->params as $__k => $__v) $$__k = $__v; unset($__k, $__v);'
+			. '?>' . $output . "<?php\n}}";
+
 		return $output;
 	}
 
@@ -206,10 +215,12 @@ class Compiler extends Object
 
 	private function processText(Token $token)
 	{
-		if (in_array($this->context[0], array(self::CONTEXT_SINGLE_QUOTED_ATTR, self::CONTEXT_DOUBLE_QUOTED_ATTR), TRUE)
-			&& $token->text === $this->context[0]
-		) {
-			$this->setContext(self::CONTEXT_UNQUOTED_ATTR);
+		if (in_array($this->context[0], array(self::CONTEXT_SINGLE_QUOTED_ATTR, self::CONTEXT_DOUBLE_QUOTED_ATTR), TRUE)) {
+			if ($token->text === $this->context[0]) {
+				$this->setContext(self::CONTEXT_UNQUOTED_ATTR);
+			} elseif ($this->lastAttrValue === '') {
+				$this->lastAttrValue = $token->text;
+			}
 		}
 		$this->output .= $token->text;
 	}
@@ -217,6 +228,10 @@ class Compiler extends Object
 
 	private function processMacroTag(Token $token)
 	{
+		if (in_array($this->context[0], array(self::CONTEXT_SINGLE_QUOTED_ATTR, self::CONTEXT_DOUBLE_QUOTED_ATTR, self::CONTEXT_UNQUOTED_ATTR), TRUE)) {
+			$this->lastAttrValue = TRUE;
+		}
+
 		$isRightmost = !isset($this->tokens[$this->position + 1])
 			|| substr($this->tokens[$this->position + 1]->text, 0, 1) === "\n";
 
@@ -302,14 +317,15 @@ class Compiler extends Object
 			$htmlNode->closing = TRUE;
 		}
 
-		$lower = strtolower($htmlNode->name);
-		if (!$htmlNode->closing && ($lower === 'script' || $lower === 'style')) {
+		$this->setContext(NULL);
+
+		if ($htmlNode->closing) {
+			$this->htmlNode = $this->htmlNode->parentNode;
+
+		} elseif ((($lower = strtolower($htmlNode->name)) === 'script' || $lower === 'style')
+			&& (!isset($htmlNode->attrs['type']) || preg_match('#(java|j|ecma|live)script|json|css#i', $htmlNode->attrs['type']))
+		) {
 			$this->setContext($lower === 'script' ? self::CONTENT_JS : self::CONTENT_CSS);
-		} else {
-			$this->setContext(NULL);
-			if ($htmlNode->closing) {
-				$this->htmlNode = $this->htmlNode->parentNode;
-			}
 		}
 	}
 
@@ -328,12 +344,16 @@ class Compiler extends Object
 			return;
 		}
 
-		$this->htmlNode->attrs[$token->name] = TRUE;
+		$this->lastAttrValue = & $this->htmlNode->attrs[$token->name];
 		$this->output .= $token->text;
 
-		$contextMain = in_array($token->value, array(self::CONTEXT_SINGLE_QUOTED_ATTR, self::CONTEXT_DOUBLE_QUOTED_ATTR), TRUE)
-			? $token->value
-			: self::CONTEXT_UNQUOTED_ATTR;
+		if (in_array($token->value, array(self::CONTEXT_SINGLE_QUOTED_ATTR, self::CONTEXT_DOUBLE_QUOTED_ATTR), TRUE)) {
+			$this->lastAttrValue = '';
+			$contextMain = $token->value;
+		} else {
+			$this->lastAttrValue = $token->value;
+			$contextMain = self::CONTEXT_UNQUOTED_ATTR;
+		}
 
 		$context = NULL;
 		if (in_array($this->contentType, array(self::CONTENT_HTML, self::CONTENT_XHTML), TRUE)) {

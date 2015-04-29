@@ -67,7 +67,7 @@ use Nette,
 
 		<td><code>
 		<?php foreach ($router['defaults'] as $key => $value): ?>
-			<?php echo htmlSpecialChars($key, ENT_IGNORE, 'UTF-8'), "&nbsp;=&nbsp;", is_string($value) ? htmlSpecialChars($value) . '<br />' : Dumper::toHtml($value, array(Dumper::COLLAPSE => TRUE)) ?>
+			<?php echo htmlSpecialChars($key, ENT_IGNORE, 'UTF-8'), "&nbsp;=&nbsp;", is_string($value) ? htmlSpecialChars($value, ENT_IGNORE, 'UTF-8') . '<br />' : Dumper::toHtml($value, array(Dumper::COLLAPSE => TRUE, Dumper::LIVE => TRUE)) ?>
 		<?php endforeach ?>
 		</code></td>
 
@@ -78,7 +78,7 @@ use Nette,
 		<strong><?php echo htmlSpecialChars($router['request']->getPresenterName() . ':' . (isset($params[Presenter::ACTION_KEY]) ? $params[Presenter::ACTION_KEY] : Presenter::DEFAULT_ACTION), ENT_NOQUOTES, 'UTF-8') ?></strong><br />
 		<?php unset($params[Presenter::ACTION_KEY]) ?>
 		<?php foreach ($params as $key => $value): ?>
-			<?php echo htmlSpecialChars($key, ENT_IGNORE, 'UTF-8'), "&nbsp;=&nbsp;", is_string($value) ? htmlSpecialChars($value) . '<br />' : Dumper::toHtml($value, array(Dumper::COLLAPSE => TRUE)) ?>
+			<?php echo htmlSpecialChars($key, ENT_IGNORE, 'UTF-8'), "&nbsp;=&nbsp;", is_string($value) ? htmlSpecialChars($value, ENT_IGNORE, 'UTF-8') . '<br />' : Dumper::toHtml($value, array(Dumper::COLLAPSE => TRUE, Dumper::LIVE => TRUE)) ?>
 		<?php endforeach ?>
 		</code><?php endif ?></td>
 	</tr>
@@ -87,6 +87,10 @@ use Nette,
 	</table>
 <?php endif ?>
 
-	<?php if ($source): ?><p><?php echo $source ?> in <?php echo Tracy\Helpers::editorLink($source->getFileName(), $source->getStartLine()) ?></p><?php endif ?>
+	<?php if ($source): ?>
+	<p><?php echo $source instanceof \ReflectionClass ? $source->getName() : $source->getDeclaringClass()->getName() . '::' . $source->getName() . '()' ?> in
+	<?php echo Tracy\Helpers::editorLink($source->getFileName(), $source->getStartLine()) ?>
+	</p>
+	<?php endif ?>
 </div>
 </div>

@@ -482,7 +482,7 @@ class Form extends Container implements Nette\Utils\IHtmlString
 			$maxSize <<= $units[$ch];
 		}
 		if ($maxSize > 0 && $maxSize < $_SERVER['CONTENT_LENGTH']) {
-			$this->addError(sprintf(Rules::$defaultMessages[self::MAX_FILE_SIZE], $maxSize));
+			$this->addError(sprintf(Validator::$messages[self::MAX_FILE_SIZE], $maxSize));
 		}
 	}
 
@@ -533,14 +533,6 @@ class Form extends Container implements Nette\Utils\IHtmlString
 	public function getOwnErrors()
 	{
 		return array_unique($this->errors);
-	}
-
-
-	/** @deprecated */
-	public function getAllErrors()
-	{
-		trigger_error(__METHOD__ . '() is deprecated; use getErrors() instead.', E_USER_DEPRECATED);
-		return $this->getErrors();
 	}
 
 
