@@ -6,9 +6,23 @@ use App\Model\EasyMiner\Entities\User;
 use App\Model\EasyMiner\Facades\UsersFacade;
 use Drahak\Restful\Resource;
 use Drahak\Restful\Validation\IValidator;
-use Nette\Http\IResponse;
+use Nette\Application\Responses\TextResponse;
 use Nette\NotImplementedException;
 
+/**
+ * Class UsersPresenter - RESTFUL presenter for management of users
+ * @package App\RestModule\Presenters
+ *
+ *
+ * @SWG\Resource(
+ *   apiVersion="1.0.0",
+ *   description="Management of user accounts",
+ *   resourcePath="/users",
+ *   produces="['application/json','application/xml']",
+ *   consumes="['application/json','application/xml']",
+ * )
+ *
+ */
 class UsersPresenter extends BaseResourcePresenter {
 
   /**
@@ -17,9 +31,64 @@ class UsersPresenter extends BaseResourcePresenter {
   private $usersFacade;
 
   /**
+   * Akce vracející ApiKey konkrétního uživatelského účtu
+   * @param int $id
+   * @throws \Nette\Application\BadRequestException
+   * @SWG\Api(
+   *   path="/{id}/apiKey",
+   *   @SWG\Operation(
+   *     method="GET",
+   *     summary="Get API KEY for the selected user account",
+   *     authorizations="apiKey",
+   *     produces="['text/plain']",
+   *     @SWG\Parameter(
+   *       name="id",
+   *       description="User ID",
+   *       required=true,
+   *       type="integer",
+   *       paramType="path",
+   *       allowMultiple=false
+   *     ),
+   *     @SWG\ResponseMessage(code=200, message="API KEY"),
+   *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
+   *   )
+   * )
+   */
+  public function actionReadApiKey($id){
+    try{
+      /** @var User $user */
+      $user=$this->usersFacade->findUser($id);
+    }catch (EntityNotFoundException $e){
+      $this->error('Requested user was not found.');
+      return;
+    }
+    //TODO zkontrolovat přístup k danému uživatelskému účtu
+    $this->sendResponse(new TextResponse($user->getEncodedApiKey()));
+  }
+
+  /**
    * Akce vracející detaily konkrétního uživatelského účtu
    * @param int $id
    * @throws \Nette\Application\BadRequestException
+   * @SWG\Api(
+   *   path="/{id}",
+   *   @SWG\Operation(
+   *     method="GET",
+   *     summary="Get details of the user account",
+   *     authorizations="apiKey",
+   *     @SWG\Parameter(
+   *       name="id",
+   *       description="User ID",
+   *       required=true,
+   *       type="integer",
+   *       paramType="path",
+   *       allowMultiple=false
+   *     ),
+   *     type="UserResponse",
+   *     @SWG\ResponseMessage(code=200, message="Details of the User."),
+   *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
+   *   )
+   * )
    */
   public function actionRead($id){
     try{
@@ -38,6 +107,24 @@ class UsersPresenter extends BaseResourcePresenter {
    * Akce pro smazání uživatelského účtu
    * @param int $id
    * @throws \Nette\Application\BadRequestException
+   * @SWG\Api(
+   *   path="/{id}",
+   *   @SWG\Operation(
+   *     method="DELETE",
+   *     summary="Remove user account",
+   *     authorizations="apiKey",
+   *     @SWG\Parameter(
+   *       name="id",
+   *       description="User ID",
+   *       required=true,
+   *       type="integer",
+   *       paramType="path",
+   *       allowMultiple=false
+   *     ),
+   *     @SWG\ResponseMessage(code=200, message="User account deleted successfully."),
+   *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
+   *   )
+   * )
    */
   public function actionDelete($id){
     try{
@@ -56,6 +143,24 @@ class UsersPresenter extends BaseResourcePresenter {
   #region actionCreate
   /**
    * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
+   * @SWG\Api(
+   *   path="/",
+   *   @SWG\Operation(
+   *     method="POST",
+   *     summary="Create new user account",
+   *     type="UserResponse",
+   *     @SWG\Parameter(
+   *       description="User",
+   *       required=true,
+   *       type="UserInput",
+   *       paramType="body"
+   *     ),
+   *     @SWG\ResponseMessages(
+   *       @SWG\ResponseMessage(code=201,message="User account created successfully, returns details of User."),
+   *       @SWG\ResponseMessage(code=404,message="Requested user was not found.")
+   *     )
+   *   )
+   * )
    */
   public function actionCreate(){
     //prepare User from input values
@@ -96,6 +201,31 @@ class UsersPresenter extends BaseResourcePresenter {
   /**
    * @param int $id
    * @throws \Nette\Application\BadRequestException
+   * @SWG\Api(
+   *   path="/{id}",
+   *   @SWG\Operation(
+   *     method="PUT",
+   *     summary="Update existing user account",
+   *     authorizations="apiKey",
+   *     @SWG\Parameter(
+   *       name="id",
+   *       description="User ID",
+   *       required=true,
+   *       type="integer",
+   *       paramType="path",
+   *       allowMultiple=false
+   *     ),
+   *     @SWG\Parameter(
+   *       description="User",
+   *       required=true,
+   *       type="UserInput",
+   *       paramType="body"
+   *     ),
+   *     type="UserResponse",
+   *     @SWG\ResponseMessage(code=200, message="User account updated successfully, returns details of User."),
+   *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
+   *   )
+   * )
    */
   public function actionUpdate($id){
     try{
@@ -148,5 +278,22 @@ class UsersPresenter extends BaseResourcePresenter {
   public function injectUsersFacade(UsersFacade $usersFacade){
     $this->usersFacade=$usersFacade;
   }
-  
 }
+
+/**
+ * @SWG\Model(
+ *   id="UserResponse",
+ *   required="id,name,email,active",
+ *   @SWG\Property(name="id",type="integer",description="Unique ID of the user"),
+ *   @SWG\Property(name="name",type="string",description="Human-readable name of the user"),
+ *   @SWG\Property(name="email",type="string",description="E-mail for the user"),
+ *   @SWG\Property(name="active",type="boolean",description="Was the user account activated?")
+ * )
+ * @SWG\Model(
+ *   id="UserInput",
+ *   required="name,email,password",
+ *   @SWG\Property(name="name",type="string",description="Name of the user"),
+ *   @SWG\Property(name="email",type="string",description="E-mail for the User"),
+ *   @SWG\Property(name="password",type="string",description="Password of the User (required for new account or for password change)"),
+ * )
+ */
