@@ -15,7 +15,7 @@ use Nette,
  */
 class RouterFactory
 {
-  const REST_MODULE_BASE_URL='rest/';
+  const REST_MODULE_BASE_URL='api/';
 
 	/**
 	 * @return \Nette\Application\IRouter
@@ -56,7 +56,7 @@ class RouterFactory
     $router[] = $restRouter = new RouteList('Rest');
     $restRouter[] = new Route(self::REST_MODULE_BASE_URL.'auth[/<action=default>]',['presenter'=>'Auth']);
     $restRouter[] = new CrudRoute(self::REST_MODULE_BASE_URL.'<presenter>[/<id>[/<relation>[/<relationId>]]]', [], IResourceRouter::GET | IResourceRouter::POST | IResourceRouter::PUT | IResourceRouter::DELETE);
-
+    $restRouter[] = new Route(self::REST_MODULE_BASE_URL,['presenter'=>'Homepage','action'=>'read']);
     #endregion
 
     //$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');

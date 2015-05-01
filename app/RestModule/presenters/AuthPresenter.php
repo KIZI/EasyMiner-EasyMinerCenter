@@ -13,7 +13,7 @@ use Nette\Application\UI\Presenter;
  * @SWG\Resource(
  *   apiVersion="1.0.0",
  *   description="Authentication of the user using API KEY",
- *   basePath="/api",
+ *   basePath="BASE_PATH",
  *   resourcePath="/auth",
  *   produces="['application/json','application/xml']"
  * )

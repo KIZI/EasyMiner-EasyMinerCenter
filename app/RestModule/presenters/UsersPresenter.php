@@ -17,6 +17,7 @@ use Nette\NotImplementedException;
  * @SWG\Resource(
  *   apiVersion="1.0.0",
  *   description="Management of user accounts",
+ *   basePath="BASE_PATH",
  *   resourcePath="/users",
  *   produces="['application/json','application/xml']",
  *   consumes="['application/json','application/xml']",
@@ -35,7 +36,7 @@ class UsersPresenter extends BaseResourcePresenter {
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @SWG\Api(
-   *   path="/{id}/apiKey",
+   *   path="/users/{id}/apiKey",
    *   @SWG\Operation(
    *     method="GET",
    *     summary="Get API KEY for the selected user account",
@@ -49,7 +50,6 @@ class UsersPresenter extends BaseResourcePresenter {
    *       paramType="path",
    *       allowMultiple=false
    *     ),
-   *     @SWG\ResponseMessage(code=200, message="API KEY"),
    *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
    *   )
    * )
@@ -71,7 +71,7 @@ class UsersPresenter extends BaseResourcePresenter {
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @SWG\Api(
-   *   path="/{id}",
+   *   path="/users/{id}",
    *   @SWG\Operation(
    *     method="GET",
    *     summary="Get details of the user account",
@@ -85,7 +85,6 @@ class UsersPresenter extends BaseResourcePresenter {
    *       allowMultiple=false
    *     ),
    *     type="UserResponse",
-   *     @SWG\ResponseMessage(code=200, message="Details of the User."),
    *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
    *   )
    * )
@@ -108,7 +107,7 @@ class UsersPresenter extends BaseResourcePresenter {
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @SWG\Api(
-   *   path="/{id}",
+   *   path="/users/{id}",
    *   @SWG\Operation(
    *     method="DELETE",
    *     summary="Remove user account",
@@ -121,7 +120,6 @@ class UsersPresenter extends BaseResourcePresenter {
    *       paramType="path",
    *       allowMultiple=false
    *     ),
-   *     @SWG\ResponseMessage(code=200, message="User account deleted successfully."),
    *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
    *   )
    * )
@@ -144,7 +142,7 @@ class UsersPresenter extends BaseResourcePresenter {
   /**
    * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
    * @SWG\Api(
-   *   path="/",
+   *   path="/users",
    *   @SWG\Operation(
    *     method="POST",
    *     summary="Create new user account",
@@ -202,7 +200,7 @@ class UsersPresenter extends BaseResourcePresenter {
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @SWG\Api(
-   *   path="/{id}",
+   *   path="/users/{id}",
    *   @SWG\Operation(
    *     method="PUT",
    *     summary="Update existing user account",
@@ -222,7 +220,6 @@ class UsersPresenter extends BaseResourcePresenter {
    *       paramType="body"
    *     ),
    *     type="UserResponse",
-   *     @SWG\ResponseMessage(code=200, message="User account updated successfully, returns details of User."),
    *     @SWG\ResponseMessage(code=404, message="Requested user was not found.")
    *   )
    * )

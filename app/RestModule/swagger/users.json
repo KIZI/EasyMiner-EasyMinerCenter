@@ -1,0 +1,234 @@
+{
+    "basePath": "BASE_PATH",
+    "swaggerVersion": "1.2",
+    "apiVersion": "1.0.0",
+    "resourcePath": "/users",
+    "apis": [
+        {
+            "path": "/users",
+            "description": "Akce pro vytvo\u0159en\u00ed nov\u00e9ho u\u017eivatelsk\u00e9ho \u00fa\u010dtu na z\u00e1klad\u011b zaslan\u00fdch hodnot",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Create new user account",
+                    "nickname": "actionCreate",
+                    "type": "UserResponse",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "type": "UserInput",
+                            "required": true,
+                            "description": "User"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 201,
+                            "message": "User account created successfully, returns details of User."
+                        },
+                        {
+                            "code": 404,
+                            "message": "Requested user was not found."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/users/{id}",
+            "description": "Akce vracej\u00edc\u00ed detaily konkr\u00e9tn\u00edho u\u017eivatelsk\u00e9ho \u00fa\u010dtu",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get details of the user account",
+                    "nickname": "actionRead",
+                    "type": "UserResponse",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "integer",
+                            "required": true,
+                            "allowMultiple": false,
+                            "description": "User ID"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Requested user was not found."
+                        }
+                    ],
+                    "authorizations": {
+                        "apiKey": []
+                    }
+                },
+                {
+                    "method": "DELETE",
+                    "summary": "Remove user account",
+                    "nickname": "actionDelete",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "integer",
+                            "required": true,
+                            "allowMultiple": false,
+                            "description": "User ID"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 200,
+                            "message": "User account deleted successfully."
+                        },
+                        {
+                            "code": 404,
+                            "message": "Requested user was not found."
+                        }
+                    ],
+                    "authorizations": {
+                        "apiKey": [
+
+                        ]
+                    }
+                },
+                {
+                    "method": "PUT",
+                    "summary": "Update existing user account",
+                    "nickname": "actionUpdate",
+                    "type": "UserResponse",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "integer",
+                            "required": true,
+                            "allowMultiple": false,
+                            "description": "User ID"
+                        },
+                        {
+                            "paramType": "body",
+                            "type": "UserInput",
+                            "required": true,
+                            "description": "User"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 200,
+                            "message": "User account updated successfully, returns details of User."
+                        },
+                        {
+                            "code": 404,
+                            "message": "Requested user was not found."
+                        }
+                    ],
+                    "authorizations": {
+                        "apiKey": [
+
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "path": "/users/{id}/apiKey",
+            "description": "Akce vracej\u00edc\u00ed ApiKey konkr\u00e9tn\u00edho u\u017eivatelsk\u00e9ho \u00fa\u010dtu",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get API KEY for the selected user account",
+                    "nickname": "actionReadApiKey",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "integer",
+                            "required": true,
+                            "allowMultiple": false,
+                            "description": "User ID"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 200,
+                            "message": "API KEY"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Requested user was not found."
+                        }
+                    ],
+                    "produces": [
+                        "text/plain"
+                    ],
+                    "authorizations": {
+                        "apiKey": [
+
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "models": {
+        "UserResponse": {
+            "id": "UserResponse",
+            "required": [
+                "active",
+                "email",
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "description": "Unique ID of the user",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Human-readable name of the user",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "E-mail for the user",
+                    "type": "string"
+                },
+                "active": {
+                    "description": "Was the user account activated?",
+                    "type": "boolean"
+                }
+            }
+        },
+        "UserInput": {
+            "id": "UserInput",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Name of the user",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "E-mail for the User",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "Password of the User (required for new account or for password change)",
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "produces": [
+        "application/json",
+        "application/xml"
+    ],
+    "consumes": [
+        "application/json",
+        "application/xml"
+    ]
+}
