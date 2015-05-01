@@ -3,6 +3,8 @@ namespace App\EasyMinerModule\Presenters;
 
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMiner\MiningUI\Integration as MiningUIIntegration;
+use EasyMiner\Help\Integration as HelpIntegration;
 use IZI\IZIConfig;
 use IZI\Parser\DataParser;
 use Nette\Application\ForbiddenRequestException;
@@ -76,19 +78,13 @@ class MiningUiPresenter extends BasePresenter{
    */
   public function renderDefault($id_dm) {
     //TODO doplnit kontroly na přihlášeného uživatele, oprávnění k mineru atd.
-    require __DIR__.'/../../../submodules/EasyMiner-MiningUI/web/Integration.php';
-    require __DIR__.'/../../../submodules/EasyMiner-Help/Integration.php';
 
-    /** @noinspection PhpUndefinedNamespaceInspection */
-    $this->template->javascriptFiles=\EasyMiner\MiningUI\Integration::$javascriptFiles;
-    /** @noinspection PhpUndefinedNamespaceInspection */
-    $this->template->cssFiles=\EasyMiner\MiningUI\Integration::$cssFiles;
+    $this->template->javascriptFiles= MiningUIIntegration::$javascriptFiles;
+    $this->template->cssFiles= MiningUIIntegration::$cssFiles;
 
     //TODO optimalizace připojení helpu
-    /** @noinspection PhpUndefinedNamespaceInspection */
-    $this->template->javascriptFilesHelp= \EasyMiner\Help\Integration::$javascriptFiles;
-    /** @noinspection PhpUndefinedNamespaceInspection */
-    $this->template->cssFilesHelp=\EasyMiner\Help\Integration::$cssFiles;
+    $this->template->javascriptFilesHelp= HelpIntegration::$javascriptFiles;
+    $this->template->cssFilesHelp=HelpIntegration::$cssFiles;
   }
   
 

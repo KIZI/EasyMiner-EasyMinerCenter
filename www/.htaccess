@@ -18,6 +18,7 @@ Header set X-UA-Compatible "IE=Edge,chrome=1"
   #EasyMiner-MiningUI
   RewriteRule ^_miningUI/(.*) ../submodules/EasyMiner-MiningUI/web/$1 [L,QSA]
   RewriteRule ^_help/(.*) ../submodules/EasyMiner-Help/$1 [L,QSA]
+  RewriteRule ^_BRE/(.*) ../submodules/EasyMiner-BRE/$1 [L,QSA]
   RewriteRule ^_XML/(.*) ../submodules/EasyMiner-XML/$1 [L,QSA]
 
 	# front controller

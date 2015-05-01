@@ -50,7 +50,7 @@ class RouterFactory
             },
         ),
     ]);
-    $dataMiningRouter[] = new Route('em/<presenter>/<action>[/<id>]');
+    $dataMiningRouter[] = new Route('em/<presenter>[/<action=default>[/<id>]]');
     #region router pro RestModule
 
     $router[] = $restRouter = new RouteList('Rest');

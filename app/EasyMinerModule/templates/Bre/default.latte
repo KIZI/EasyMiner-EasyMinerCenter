@@ -1,0 +1,24 @@
+{block title}
+  {_'Business Rules Editor'}
+{/block}
+
+{block scripts}
+  {foreach $javascriptFiles as $file}
+    <script type="text/javascript" src="{$basePath}/_BRE/{$file}" ></script>
+  {/foreach}
+{/block}
+
+{block head}
+  {foreach $cssFiles as $file}
+    <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_BRE/{$file}" />
+  {/foreach}
+  <meta http-equiv="Cache-Control" content="no-cache" />
+{/block}
+
+{block headerLinks}
+  {include parent}
+{/block}
+
+{block main}
+  {$content|noescape}
+{/block}
