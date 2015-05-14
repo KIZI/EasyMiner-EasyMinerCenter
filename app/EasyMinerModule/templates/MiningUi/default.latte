@@ -1,4 +1,8 @@
 {block scripts}
+  {include parent}
+  <script>
+    var $js=jQuery.noConflict();
+  </script>
   {foreach $javascriptFiles as $file}
     <script type="text/javascript" src="{$basePath}/_miningUI/{$file}" ></script>
   {/foreach}

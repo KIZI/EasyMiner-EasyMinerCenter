@@ -1,8 +1,17 @@
 /** Styles for main page HEADER */
+headerBgColor = #075783
+headerTextColor = white
+headerMenuBgColor = white
+headerUserMenuImageSize = 100px
+headerMenuPadding = 10px
+
+
 body > header
-  background url("../images/bg-header.png") repeat-x scroll bottom #075783
+  background url("../images/bg-header.png") repeat-x scroll bottom headerBgColor
   height 100px
   width 100%
+  font-family font
+  font-size baseFontSize
   div.content
     centerMainContent()
     //region logo
@@ -40,7 +49,7 @@ body > header
       color: rgb(206,231,247);
 
       a
-        color white
+        color headerTextColor
         text-decoration none
         &.user
           display block
@@ -52,9 +61,19 @@ body > header
             width 48px
             height 48px
             margin 0 auto
+            img
+              width 100%
+              max-width 100%
+              max-height 100%
+              margin auto
+              display block
+              border 1px solid headerBgColor
           .name
             margin-top 5px
             font-size 10px
+          &:hover, &.active
+            .img img
+              border-color headerTextColor
         &.help
           display block
           float right
@@ -64,6 +83,62 @@ body > header
           padding-top 54px
           margin 0 15px
           font-size 10px
+
+
+
+
+
+  .headerMenu
+    background headerMenuBgColor
+    position absolute
+    display none
+    z-index 100
+    box-shadow(0, 0, 10px, 0, boxShadowColor)
+    div.menuLinkArrow
+      width 0 !important
+      border-color transparent transparent headerMenuBgColor
+      border-style dashed dashed solid
+      border-width 0 7px 7px
+      position absolute
+      padding 0 !important
+      min-width 0 !important
+      max-width 0 !important
+      top -7px
+    &#headerUserMenu
+      .img
+        margin headerMenuPadding
+        display block
+        float left
+        border none
+        width headerUserMenuImageSize
+        height headerUserMenuImageSize
+        overflow hidden
+        cursor pointer
+        img
+          max-width 100%
+          max-height 100%
+          width 100%
+      div
+        font-weight normal
+        font-size 80%
+        min-width 200px
+        padding-left headerUserMenuImageSize
+        padding-right headerMenuPadding
+        padding-top 0
+        &.name
+          font-weight bold
+          font-size 100%
+          min-width 2*headerUserMenuImageSize
+          padding-top headerMenuPadding
+        &.actions
+          padding-top headerMenuPadding
+          padding-bottom headerMenuPadding
+          a
+            button()
+            font-size 0.9*baseFontSize
+
+
+
 /*TODO funkce pro definování header linku*/
 
 /*

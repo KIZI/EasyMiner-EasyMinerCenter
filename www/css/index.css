@@ -7,7 +7,6 @@ figcaption,
 figure,
 footer,
 header,
-hgroup,
 nav,
 section {
   display: block;
@@ -352,6 +351,8 @@ body > header {
   background: url("../images/bg-header.png") repeat-x scroll bottom #075783;
   height: 100px;
   width: 100%;
+  font-family: 'Helvetica Neue', 'Arial', 'sans-serif';
+  font-size: 16px;
 }
 body > header div.content {
   width: 1335px;
@@ -407,9 +408,21 @@ body > header div.content div.headerLinks a.user .img {
   height: 48px;
   margin: 0 auto;
 }
+body > header div.content div.headerLinks a.user .img img {
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  display: block;
+  border: 1px solid #075783;
+}
 body > header div.content div.headerLinks a.user .name {
   margin-top: 5px;
   font-size: 10px;
+}
+body > header div.content div.headerLinks a.user:hover .img img,
+body > header div.content div.headerLinks a.user.active .img img {
+  border-color: #fff;
 }
 body > header div.content div.headerLinks a.help {
   display: block;
@@ -420,6 +433,80 @@ body > header div.content div.headerLinks a.help {
   padding-top: 54px;
   margin: 0 15px;
   font-size: 10px;
+}
+body > header .headerMenu {
+  background: #fff;
+  position: absolute;
+  display: none;
+  z-index: 100;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+}
+body > header .headerMenu div.menuLinkArrow {
+  width: 0 !important;
+  border-color: transparent transparent #fff;
+  border-style: dashed dashed solid;
+  border-width: 0 7px 7px;
+  position: absolute;
+  padding: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  top: -7px;
+}
+body > header .headerMenu#headerUserMenu .img {
+  margin: 10px;
+  display: block;
+  float: left;
+  border: none;
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  cursor: pointer;
+}
+body > header .headerMenu#headerUserMenu .img img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+}
+body > header .headerMenu#headerUserMenu div {
+  font-weight: normal;
+  font-size: 80%;
+  min-width: 200px;
+  padding-left: 100px;
+  padding-right: 10px;
+  padding-top: 0;
+}
+body > header .headerMenu#headerUserMenu div.name {
+  font-weight: bold;
+  font-size: 100%;
+  min-width: 200px;
+  padding-top: 10px;
+}
+body > header .headerMenu#headerUserMenu div.actions {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+body > header .headerMenu#headerUserMenu div.actions a {
+  background: #075783;
+  font-size: 14px;
+  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-align: left;
+  display: inline-block;
+  padding: 12px 15px;
+  font-size: 14.4px;
+}
+body > header .headerMenu#headerUserMenu div.actions a:hover,
+body > header .headerMenu#headerUserMenu div.actions a:focus {
+  background: #2d83be;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-decoration: none;
 }
 footer {
   background: #ededed;
