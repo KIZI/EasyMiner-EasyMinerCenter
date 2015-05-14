@@ -25,6 +25,8 @@ parameters:
         database:
         encoding: utf8
     imports_directory: "absolutePath"
+    users_photos_directory: "absolutePath"
+    users_photos_url: "urlToPhotosDirectory"
     mail_from: "stanislav.vojir@vse.cz"
     databases:
         mysql:

@@ -57,7 +57,7 @@ services:
 	- App\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
 	- App\Model\EasyMiner\Facades\MinersFacade
 	- App\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
-	- App\Model\EasyMiner\Facades\UsersFacade
+	- App\Model\EasyMiner\Facades\UsersFacade(%users_photos_directory%,%users_photos_url%)
 	- App\Model\Data\Facades\DatabasesFacade
 	- App\Model\EasyMiner\Facades\RulesFacade
 	- App\Model\EasyMiner\Facades\TasksFacade

@@ -35,7 +35,10 @@
       <div class="headerLinks">
         {block headerLinks}
           {if ($user->loggedIn)}
-            <a href="" class="user"><span class="img"></span><span class="name">{$user->identity->name}</span></a>
+            <a href="" class="user">
+              <span class="img">{if !empty($user->identity->imageUrl)}<img src="{$basePath}{$user->identity->imageUrl}" alt="{$user->identity->name}" />{/if}</span>
+              <span class="name">{$user->identity->name}</span>
+            </a>
             <!--<a href="{link User:details}" title="{_'My account details...'}">{$user->identity->name}</a> - <a href="{link User:logout}">{_'logout'}</a>-->
           {else}
             <a href="{link User:login}">{_'login'}</a>

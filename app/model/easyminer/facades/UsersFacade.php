@@ -21,12 +21,20 @@ class UsersFacade implements IAuthenticator{
   private $usersRepository;
   /** @var  UserForgottenPasswordsRepository $userForgottenPasswordsRepository */
   private $userForgottenPasswordsRepository;
+  /** @var string $usersPhotosDirectory */
+  private $usersPhotosDirectory;
+  /** @var string $usersPhotosDirectory */
+  private $usersPhotosUrl;
 
   /**
+   * @param string $usersPhotosDirectory
+   * @param string $usersPhotosUrl
    * @param UsersRepository $usersRepository
    * @param UserForgottenPasswordsRepository $userForgottenPasswordsRepository
    */
-  public function __construct(UsersRepository $usersRepository, UserForgottenPasswordsRepository $userForgottenPasswordsRepository){
+  public function __construct($usersPhotosDirectory, $usersPhotosUrl, UsersRepository $usersRepository, UserForgottenPasswordsRepository $userForgottenPasswordsRepository){
+    $this->usersPhotosDirectory=rtrim($usersPhotosDirectory,'/');
+    $this->usersPhotosUrl=rtrim($usersPhotosUrl,'/');
     $this->usersRepository=$usersRepository;
     $this->userForgottenPasswordsRepository=$userForgottenPasswordsRepository;
   }
@@ -208,17 +216,37 @@ class UsersFacade implements IAuthenticator{
       $this->usersRepository->persist($user);
     }
     //stáhnutí obrázku
-    $this->saveUserImageFromUrl($user,'https://graph.facebook.com/'.$facebookUserId.'/picture?width=400&height=400');
+    $this->saveUserImageFromUrl($user,'https://graph.facebook.com/'.$facebookUserId.'/picture?width=200&height=200');
     return $this->getUserIdentity($user);
   }
 
+  /**
+   * Funkce vracející URL k aktuální složce (relativní)
+   * @param User|int $user
+   * @return string|null
+   */
+  public function getUserImageUrl($user){
+    if ($user instanceof User){
+      $user=$user->userId;
+    }
+    if (file_exists($this->usersPhotosDirectory.'/'.$user.'.jpg')){
+      return $this->usersPhotosUrl.'/'.$user.'.jpg';
+    }
+    return null;
+  }
 
   /**
+   * Funkce pro uložení uživatelovy fotky lokálně na disk
    * @param User|int $user
    * @param string $url
    */
   private function saveUserImageFromUrl($user,$url){
-    //TODO dodělat stáhnutí obrázku a uložení na serveru (pro další použití)
+    if ($user instanceof User){
+      $user=$user->userId;
+    }
+    if ($url!='' && $photo=file_get_contents($url)){
+      file_put_contents($this->usersPhotosDirectory.'/'.$user.'.jpg',$photo);
+    }
   }
 
   /**
@@ -289,6 +317,9 @@ class UsersFacade implements IAuthenticator{
     }
 
     $rolesArr=array('authenticated');
+
+    $imageUrl=$this->getUserImageUrl($user);
+
     /*TODO uživatelské role
     $userRoles=$user->roles;
     if (!empty($userRoles)){
@@ -297,7 +328,7 @@ class UsersFacade implements IAuthenticator{
       }
     }
     */
-    return new Identity($user->userId,$rolesArr,array('name'=>$user->name,'email'=>$user->email));
+    return new Identity($user->userId,$rolesArr,array('name'=>$user->name,'email'=>$user->email,'imageUrl'=>$imageUrl));
   }
 
   /**
