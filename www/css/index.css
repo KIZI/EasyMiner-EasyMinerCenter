@@ -356,6 +356,7 @@ body > header {
   font-size: 16px;
 }
 body > header div.content {
+  height: 100px;
   width: 1335px;
   margin: 0 auto;
   position: relative;
@@ -368,16 +369,19 @@ body > header div.content h1 {
   letter-spacing: 2px;
   margin: 0;
   padding: 0;
+  padding-top: 9px;
   position: absolute;
   left: 20px;
-  top: 8px;
+  top: 0;
+  cursor: pointer;
+/*SPECIAL TYPES OF H1*/
 }
 body > header div.content h1 span {
   display: block;
   font-size: 17px;
   letter-spacing: 1px;
   position: relative;
-  top: -15px;
+  top: -12px;
 }
 body > header div.content h1 sup {
   color: #9de045;
@@ -385,6 +389,27 @@ body > header div.content h1 sup {
   letter-spacing: normal;
   margin-left: 10px;
   position: relative;
+}
+body > header div.content h1.typeR {
+  padding-right: 86px;
+  background: transparent url("../images/logo-r.png") right 0 no-repeat;
+}
+body > header div.content h1.typeLM {
+  padding-right: 200px;
+  background: transparent url("../images/logo-lm.png") right 32px no-repeat;
+/*TODO*/
+}
+body > header div.content div#applicationSubTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  color: #fff;
+  max-height: 60px;
+  overflow-y: hidden;
 }
 body > header div.content div.headerLinks {
   position: absolute;

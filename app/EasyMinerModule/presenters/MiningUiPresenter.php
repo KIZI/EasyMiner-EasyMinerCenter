@@ -68,6 +68,7 @@ class MiningUiPresenter extends BasePresenter{
 
     $responseContent['status'] = 'ok';
     $responseContent['miner_type'] = $miner->type;
+    $responseContent['miner_name'] = $miner->name;
 
     $this->sendJsonResponse($responseContent);
   }
