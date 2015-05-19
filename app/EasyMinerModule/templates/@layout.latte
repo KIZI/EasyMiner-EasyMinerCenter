@@ -45,6 +45,11 @@
               <span class="name">{_'Login...'}</span>
             </a>
           {/if}
+
+          <a id="headerAppsLink" href="#">{_'Menu'}</a>
+          {if @$includeHelp}
+            <a class="help" href="#" onclick="helpRun();">{_'Help'}</a>
+          {/if}
         {/block}
       </div>
     </div>
@@ -58,6 +63,12 @@
         <div class="actions"><a href="{link User:logout}">{_'Logout...'}</a></div>
       </div>
     {/if}
+    <div id="headerAppsMenu" class="headerMenu">
+      {block headerAppsMenu}
+        <a class="newMiner" href="{plink Data:newMiner}" title="{_'Create new miner or open existing one...'}">{_'Miners'}</a>
+        <a class="newFile disabled" href="#" onclick="return false;">{_'CMS'}</a>
+      {/block}
+    </div>
     {*endregion headerMenus*}
   </header>
 

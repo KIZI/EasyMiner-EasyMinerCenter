@@ -46,4 +46,28 @@ $(document).ready(function($){
     });
   }
 
+  var headerAppsLink = $('#headerAppsLink');
+  if (headerAppsLink){
+    headerAppsLink.click(function(event){
+      if ($(this).hasClass('active')){
+        //skryjeme menu
+        $('.headerMenu').hide();
+        $('.headerLinks a').removeClass('active');
+      }else{
+        //zobrazíme menu
+        $('.headerMenu').hide();
+        $('.headerLinks a').removeClass('active');
+
+        var headerAppsMenu=$('#headerAppsMenu');
+        if (headerAppsMenu){
+          setHeaderMenuPosition(headerAppsMenu,headerAppsLink,$(document).width());
+          headerAppsMenu.show();
+          $(this).addClass('active');
+        }
+      }
+      event.stopPropagation();
+      return false;
+    });
+  }
+
 });

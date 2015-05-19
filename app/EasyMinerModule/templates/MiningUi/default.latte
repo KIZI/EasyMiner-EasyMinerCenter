@@ -23,9 +23,7 @@
 {/block}
 
 {block headerLinks}
-  {include parent}
-  <a class="help" href="#" onclick="helpRun();" title="{_'Help'}">{_'Help'}</a>
-  <a href="{plink Data:newMiner}" title="{_'New miner...'}"></a>
+  {include parent, includeHelp=>true}
 {/block}
 
 {block main}

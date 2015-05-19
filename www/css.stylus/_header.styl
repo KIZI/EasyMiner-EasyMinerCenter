@@ -5,6 +5,49 @@ headerMenuBgColor = white
 headerUserMenuImageSize = 100px
 headerMenuPadding = 10px
 
+headerLink()
+  display block
+  float right
+  text-align center
+  width 48px
+  padding-top 54px
+  padding-bottom 2px
+  margin 0 12px
+  font-size 10px
+  background-position center 2px
+  background-repeat no-repeat
+  opacity 0.7
+  color transparent
+  &:hover
+  &.active
+    color headerTextColor
+    opacity 1
+  &.disabled
+    opacity 0.4
+    cursor not-allowed
+
+headerAppsLink()
+  display block
+  float left
+  text-align center
+  width 48px
+  border 1px solid headerMenuBgColor
+  padding 54px 10px 4px 10px
+  margin 5px
+  font-size 10px
+  background-position center 2px
+  background-repeat no-repeat
+  opacity 0.9
+  color black
+  text-decoration none
+  &:hover
+  &.active
+    opacity 1
+    text-decoration none
+    border 1px solid headerBgColor
+  &.disabled
+    opacity 0.4 !important
+    cursor not-allowed
 
 body > header
   background url("../images/bg-header.png") repeat-x scroll bottom headerBgColor
@@ -54,6 +97,7 @@ body > header
         &.user
           display block
           float right
+          margin-left 10px
           text-align center
           .img
             display block
@@ -75,18 +119,11 @@ body > header
             .img img
               border-color headerTextColor
         &.help
-          display block
-          float right
-          text-align center
-          background url('../images/icons/help-48.png') top center no-repeat
-          width 48px
-          padding-top 54px
-          margin 0 15px
-          font-size 10px
-
-
-
-
+          headerLink()
+          background-image url('../images/icons/help-48.png')
+        &#headerAppsLink
+          headerLink()
+          background-image url('../images/icons/apps-48.png')
 
   .headerMenu
     background headerMenuBgColor
@@ -136,6 +173,18 @@ body > header
           a
             button()
             font-size 0.9*baseFontSize
+
+    &#headerAppsMenu
+      padding 10px
+      max-width 240px
+      a
+        &.newMiner
+          headerAppsLink()
+          background-image url('../images/icons/new-miner-48.png')
+        &.newFile
+          headerAppsLink()
+          background-image url('../images/icons/new-file-48.png')
+
 
 
 
