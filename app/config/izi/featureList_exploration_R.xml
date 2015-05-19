@@ -79,7 +79,6 @@
           <ThresholdType>% of all</ThresholdType>
           <CompareType>Greater than or equal</CompareType>
           <Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
-            The value is decreased by one compared to the formula typically used in the literature.
           </Explanation>
           <Calculation>((a*(a+b+c+d))/((a+b)*(a+c)))</Calculation>
           <Field>
@@ -94,6 +93,27 @@
             </Validation>
           </Field>
         </Type>
+        <Type>
+          <Name>RULE_LENGTH</Name>
+          <Default>false</Default>
+          <Required>false</Required>
+          <LocalizedName lang="en">Rule length</LocalizedName>
+          <LocalizedName lang="cs">Rule length</LocalizedName>
+          <ThresholdType>Abs</ThresholdType>
+          <CompareType>Less than or equal</CompareType>
+          <Explanation lang="en">Length of searched rules</Explanation>
+          <Calculation />
+          <Field>
+            <Name>threshold</Name>
+            <DefaultValue>5</DefaultValue>
+            <LocalizedName lang="en">max value</LocalizedName>
+            <Validation>
+              <MinValue>2</MinValue>
+              <MaxValue>10</MaxValue>
+              <Datatype>integer</Datatype>
+            </Validation>
+          </Field>
+        </Type>
 			</Types>
       <SupportedInterestMeasureCombinations >
         <SupportedIMCombination>
@@ -105,8 +125,28 @@
           <InterestMeasure>FUI</InterestMeasure>
           <InterestMeasure>SUPP</InterestMeasure>
         </SupportedIMCombination>
+        <SupportedIMCombination>
+          <InterestMeasure>FUI</InterestMeasure>
+          <InterestMeasure>SUPP</InterestMeasure>
+          <InterestMeasure>RULE_LENGTH</InterestMeasure>
+        </SupportedIMCombination>
+        <SupportedIMCombination>
+          <InterestMeasure>FUI</InterestMeasure>
+          <InterestMeasure>SUPP</InterestMeasure>
+          <InterestMeasure>LIFT</InterestMeasure>
+          <InterestMeasure>RULE_LENGTH</InterestMeasure>
+        </SupportedIMCombination>
       </SupportedInterestMeasureCombinations>
 		</InterestMeasures>
+
+    <SpecialInterestMeasures>
+      <Types>
+        <Type>
+          <Name>CBA</Name>
+          <LocalizedName lang="en">Prune rules using CBA</LocalizedName>
+        </Type>
+      </Types>
+    </SpecialInterestMeasures>
 
 		<BasicBooleanAttribute coefficient="required">
 			<Coefficient scope="all">
