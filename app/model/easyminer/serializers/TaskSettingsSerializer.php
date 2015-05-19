@@ -90,6 +90,12 @@ class TaskSettingsSerializer {
       $this->createInterestMeasureThreshold($IM);
     }
 
+    if (!empty($rule->specialIMs)){
+      foreach ($rule->specialIMs as $IM) {
+        $this->createInterestMeasureThreshold($IM);
+      }
+    }
+
     // Create consequent
     $consequentId = $this->parseCedent($rule->succedent, 1, $forcedDepth, $strict);
     $this->consequentSetting[0]=(string)$consequentId;
