@@ -89,7 +89,7 @@ services:
 
 	- App\Model\Preprocessing\PhpDatabasePreprocessing
 
-	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%)
+	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%,%databases%)
 
 	- App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
 	- App\EasyMinerModule\Components\MailerControlFactory(%mail_from%)

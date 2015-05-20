@@ -292,4 +292,32 @@ class DatabasesFacade {
     $this->$databaseProperty->selectTable($tableName);
     return $this->$databaseProperty->getColumnValuesWithId($column);
   }
+
+  public function truncateTable($tableName){
+    try{
+      $this->$databaseProperty->truncateTable($tableName);
+      return true;
+    }catch (\Exception $e){
+      return false;
+    }
+  }
+
+  /**
+   * Funkce umožňující přímý import CSV souboru do databáze
+   * @param string $tableName
+   * @param string[] $columnsNames
+   * @param string $csvFileName
+   * @param string $delimitier=','
+   * @param string $enclosure='"'
+   * @param string $escapeCharacter='\\'
+   * @param int $offsetRows = 0
+   * @param string $databaseProperty
+   * @return bool
+   */
+  public function importCsvFile($tableName, $columnsNames, $csvFileName, $delimitier=',',$enclosure='"',$escapeCharacter='\\',$offsetRows=0,$databaseProperty=self::FIRST_DB){
+    /** @var IDatabase $database */
+    $database=$this->$databaseProperty;
+    $database->selectTable($tableName);
+    return $database->importCsvFile($csvFileName,$columnsNames, $delimitier, $enclosure, $escapeCharacter, $offsetRows);
+  }
 } 

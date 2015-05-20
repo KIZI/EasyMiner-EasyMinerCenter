@@ -15,10 +15,19 @@ class FileImportsFacade {
   private $dataDirectory;
   /** @var DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var bool $tryDirectFileImport */
+  private $tryDirectFileImport=[];
 
-  public function __construct($dataDirectory,DatabasesFacade $databasesFacade){
+  public function __construct($dataDirectory, $databases, DatabasesFacade $databasesFacade){
     $this->dataDirectory=$dataDirectory;
     $this->databasesFacade=$databasesFacade;
+    if (!empty($databases)){
+      foreach ($databases as $dbType=>$params){
+        if (@$params['allowFileImport']){
+          $this->tryDirectFileImport[$dbType]=true;
+        }
+      }
+    }
   }
 
   /**
@@ -160,11 +169,25 @@ class FileImportsFacade {
     }
     $colsCount=count($colsNames);
 
+    if (@$this->tryDirectFileImport[$dbConnection->type]){
+      #region try direct import...
+      $result=$this->databasesFacade->importCsvFile($table,$colsNames,$this->getFilePath($filename),$delimitier,$enclosure,$escapeCharacter,1);
+      if ($result){
+        return;
+      }else{
+        $this->databasesFacade->truncateTable($table);
+      }
+      #endregion
+    }
+
+    #region postupný import pomocí samostatných dotazů
     $csvFile=CsvImport::openCsv($this->getFilePath($filename));
     CsvImport::getRowsFromOpenedCSVfile($csvFile,1,$delimitier,$enclosure,$escapeCharacter);//přeskakujeme první řádek
 
     while($row=CsvImport::getRowsFromOpenedCSVfile($csvFile,1,$delimitier,$enclosure,$escapeCharacter)){
-      if (isset($row[0])){$row=$row[0];/*chceme jen jeden řádek*/}
+      if (isset($row[0])){
+        $row=$row[0];//chceme jen jeden řádek
+      }
       $insertArr=array();
       for ($i=0;$i<$colsCount;$i++){
         if (isset($row[$i])){
@@ -177,6 +200,7 @@ class FileImportsFacade {
       $this->databasesFacade->insertRow($table,$insertArr);
     }
     CsvImport::closeCsv($csvFile);
+    #endregion
   }
 
 } 

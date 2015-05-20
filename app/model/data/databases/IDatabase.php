@@ -151,4 +151,16 @@ interface IDatabase {
    * @return int
    */
   public function getRowsCount();
+
+  /**
+   * Funkce pro přímý import dat z CSV souboru
+   * @param string $csvFileName
+   * @param string[] $columnsNames
+   * @param string $delimitier
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @param int $offsetRows=0
+   * @return bool
+   */
+  public function importCsvFile($csvFileName,$columnsNames, $delimitier, $enclosure, $escapeCharacter, $offsetRows=0);
 } 

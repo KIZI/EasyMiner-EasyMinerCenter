@@ -35,6 +35,7 @@ parameters:
             username: root
             password:
             server: localhost
+            allowFileImport: true
         cassandra:
             _username: 'user*'
             _database: 'user*'

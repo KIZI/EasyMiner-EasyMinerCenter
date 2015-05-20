@@ -21,8 +21,9 @@ class MySQLDatabase implements IDatabase{
   #region connection
   private function __construct(DbConnection $dbConnection){
     $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->dbName)?'dbname='.$dbConnection->dbName.';':'').'charset=utf8';
-    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword);
+    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
   }
+
   /**
    * @param DbConnection $dbConnection
    * @return MySqlDatabase
@@ -273,6 +274,8 @@ class MySQLDatabase implements IDatabase{
     $result3=$query3->execute();
     $query4=$this->db->prepare('GRANT ALL PRIVILEGES ON `'.$dbConnection->dbName.'`.* TO "'.$dbConnection->dbUsername.'"@"%";');
     $result4=$query4->execute();
+    $query5=$this->db->prepare("GRANT FILE ON * . * TO :username@'%' IDENTIFIED BY :password;");
+    $result5=$query5->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
     return ($result2 && $result3 && $result4);
   }
 
@@ -400,5 +403,35 @@ class MySQLDatabase implements IDatabase{
     $sql= 'ALTER TABLE `'.$this->tableName.'` ADD `'.$dbColumn->name.'` VARCHAR('.$dbColumn->strLength.')';//TODO další datové typy...
     $query=$this->db->prepare($sql);
     return $query->execute();
+  }
+
+
+  /**
+   * Funkce pro přímý import dat z CSV souboru
+   * @param string $csvFileName
+   * @param string[] $columnsNames
+   * @param string $delimitier
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @param int $offsetRows =0
+   * @return bool
+   */
+  public function importCsvFile($csvFileName, $columnsNames, $delimitier, $enclosure, $escapeCharacter, $offsetRows = 0) {
+    $sql='LOAD DATA LOCAL INFILE :fileName INTO TABLE '.$this->tableName;
+
+    if ($offsetRows>0){
+      $sql.=' IGNORE '.$offsetRows.' LINES ';
+    }
+
+    $sql.=' (';
+    foreach($columnsNames as $columnName){
+      $sql.='`'.$columnName.'`,';
+    }
+    $sql=trim($sql,',').') ';
+
+    $query=$this->db->prepare($sql);
+    $result=$query->execute([':fileName'=>$csvFileName]);;
+
+    return $result;
   }
 }
