@@ -3,7 +3,6 @@
 namespace App\EasyMinerModule\Presenters;
 use App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory;
 use App\EasyMinerModule\Components\MetaAttributesSelectControl;
-use App\Libs\StringsHelper;
 use App\Model\Data\Facades\DatabasesFacade;
 use App\Model\Data\Facades\FileImportsFacade;
 use App\Model\Data\Files\CsvImport;
@@ -18,10 +17,12 @@ use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\HiddenField;
+use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Http\FileUpload;
 use Nette\Utils\DateTime;
+use Nette\Utils\FileSystem;
 use Nette\Utils\Html;
 use Nette\Utils\Strings;
 
@@ -82,6 +83,14 @@ class DataPresenter extends BasePresenter{
     $this->template->mappingFinished=$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true);
   }
 
+  /**
+   * Akce pro vygenerování náhledu na data
+   * @param string $file
+   * @param string $separator
+   * @param string $encoding
+   * @param string $enclosure
+   * @param string $escape
+   */
   public function renderImportCsvDataPreview($file,$separator=',',$encoding='utf8',$enclosure='"',$escape='\\'){
     $this->layout='blank';
     $this->fileImportsFacade->changeFileEncoding($file,$encoding);
@@ -175,14 +184,14 @@ class DataPresenter extends BasePresenter{
    * @param string $type = ''
    * @param string $name=''
    */
-  public function renderUploadData($file='',$type='',$name=''){
+  public function actionUploadData($file='',$type='',$name=''){
     if ($file && $type){
       //zobrazení nastavení importu (již máme nahraný soubor
-      /** @var Form $form */
-      $form=$this->getComponent('import'.$type.'Form');
-      $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$this->databasesFacade->prepareNewTableName($name,false));
 
-      if ($type=='Csv'){
+      if ($type==FileImportsFacade::FILE_TYPE_CSV){
+        /** @var Form $form */
+        $form=$this->getComponent('importCsvForm');
+        $defaultsArr=array('file'=>$file,'type'=>$type,'table'=>$this->databasesFacade->prepareNewTableName($name,false));
         //detekce pravděpodobného oddělovače
         $separator=$this->fileImportsFacade->getCSVDelimitier($file);
         $defaultsArr['separator']=$separator;
@@ -192,8 +201,25 @@ class DataPresenter extends BasePresenter{
         $newDatasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->usersFacade->findUser($this->user->id),$databaseType);
         $this->databasesFacade->openDatabase($newDatasource->getDbConnection());
         $defaultsArr['table']=$this->databasesFacade->prepareNewTableName($name);
+        //show data preview...
+        $this->template->showPreview=true;
+      }elseif($type==FileImportsFacade::FILE_TYPE_ZIP){
+        $zipFilesList=$this->fileImportsFacade->getZipArchiveProcessableFilesList($file);
+        if (empty($zipFilesList)){
+          $this->flashMessage($this->translate('No acceptable files found in ZIP archive.'),'error');
+          $this->redirect('Data:uploadData');
+          return;
+        }
+
+        /** @var Form $form */
+        $form=$this->getComponent('importZipForm');
+        /** @var SelectBox $unzipFileSelect */
+        $unzipFileSelect=$form->getComponent('unzipFile');
+        $unzipFileSelect->setItems($zipFilesList);
+        $defaultsArr=array('file'=>$file,'type'=>$type);
       }else{
-        //TODO další možnosti importu (ZIP soubor atd.)
+        $this->redirect('this');
+        return;
       }
 
       if (!$form->isSubmitted()){
@@ -201,10 +227,6 @@ class DataPresenter extends BasePresenter{
       }
       $this->template->importForm=$form;
     }
-  }
-
-  public function renderImportMysql(){
-    throw new BadRequestException('Not implemented yet!');//TODO
   }
 
   /**
@@ -306,12 +328,24 @@ class DataPresenter extends BasePresenter{
     $values=$form->getValues();
     /** @var FileUpload $file */
     $file=$values['file'];
+    $fileType=$this->fileImportsFacade->detectFileType($file->getName());
+    if ($fileType==FileImportsFacade::FILE_TYPE_UNKNOWN){
+      try{
+        FileSystem::delete($this->fileImportsFacade->getTempFilename());
+      }catch (\Exception $e){}
+      $this->flashMessage($this->translate('Incorrect file type!'),'error');
+      $this->redirect('Data:uploadData');
+      return;
+    }
     $filename=$this->fileImportsFacade->getTempFilename();
     $file->move($this->fileImportsFacade->getFilePath($filename));
-    $name=$file->getSanitizedName();
-    $name=mb_substr($name,0,mb_strrpos($name,'.','utf8'));
-    $name=str_replace('.','_',$name);
-    $this->redirect('Data:uploadData',array('file'=>$filename,'type'=>$values['type'],'name'=>$name));
+    //pokus o automatickou extrakci souboru
+    if ($fileType==FileImportsFacade::FILE_TYPE_ZIP){
+      $fileType=$this->fileImportsFacade->tryAutoUnzipFile($filename);
+    }
+    //--
+
+    $this->redirect('Data:uploadData',array('file'=>$filename,'type'=>$fileType,'name'=>$this->sanitizeFileNameForImport($file->getName())));
   }
   #endregion componentUploadForm
 
@@ -409,6 +443,7 @@ class DataPresenter extends BasePresenter{
     ))->setRequired()
       ->setAttribute('class','normalWidth');
     $file=$form->addHidden('file');
+    $file->setAttribute('id','frm-importCsvForm-file');
     $form->addHidden('type');
     $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
     $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
@@ -449,6 +484,43 @@ class DataPresenter extends BasePresenter{
     //smažeme dočasné soubory...
     $this->fileImportsFacade->deleteFile($file);
     $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
+  }
+  #endregion importCsvForm
+
+
+  #region componentImportCsvForm
+  /**
+   * @return Form
+   */
+  public function createComponentImportZipForm(){
+    $form = new Form();
+    $form->setTranslator($this->translator);
+    $file=$form->addHidden('file');
+    $form->addHidden('type');
+    $form->addSelect('unzipFile','Extract file:')
+      ->setPrompt('--select file--')
+      ->setRequired('You have to select file for extraction!');
+    $form->addSubmit('submit','Extract selected file...')->onClick[]=function(SubmitButton $button){
+      $values=$button->getForm(true)->getValues();
+      $zipFilesList=$this->fileImportsFacade->getZipArchiveProcessableFilesList($values->file);
+      if (empty($zipFilesList)){
+        $this->flashMessage($this->translate('No acceptable files found in ZIP archive.'),'error');
+        $this->redirect('Data:uploadData');
+        return;
+      }
+      $compressedFileName=@$zipFilesList[$values->unzipFile];
+      $this->fileImportsFacade->uncompressFileFromZipArchive($values->file,$values->unzipFile);
+      $this->redirect('Data:uploadData',['file'=>$values->file,'type'=>$this->fileImportsFacade->detectFileType($compressedFileName),'name'=>$this->sanitizeFileNameForImport($compressedFileName)]);
+    };
+    $storno=$form->addSubmit('storno','storno');
+    $storno->setValidationScope(array());
+    $storno->onClick[]=function(SubmitButton $button)use($file){
+      /** @var DataPresenter $presenter */
+      $presenter=$button->form->getParent();
+      $this->fileImportsFacade->deleteFile($file->value);
+      $presenter->redirect('Data:uploadData');
+    };
+    return $form;
   }
   #endregion importCsvForm
 
@@ -649,5 +721,15 @@ class DataPresenter extends BasePresenter{
       $this->flashMessage('For using of EasyMiner, you have to log in...','error');
       $this->redirect('User:login');
     }
+  }
+
+  /**
+   * @param string $filename
+   * @return string
+   */
+  private static function sanitizeFileNameForImport($filename){
+    $filenameArr=pathinfo($filename);
+    $result=trim(Strings::webalize($filenameArr['filename']));
+    return str_replace(['.','-'], ['_','_'], $result);
   }
 }

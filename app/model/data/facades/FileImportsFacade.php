@@ -2,9 +2,11 @@
 namespace App\Model\Data\Facades;
 use App\Model\Data\Entities\DbConnection;
 use App\Model\Data\Files\CsvImport;
+use App\Model\Data\Files\ZipImport;
 use Nette\Application\ApplicationException;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Finder;
+use Nette\Utils\Strings;
 
 /**
  * Class FileImportsFacade - model pro práci s importy souborů
@@ -18,6 +20,10 @@ class FileImportsFacade {
   /** @var bool $tryDirectFileImport */
   private $tryDirectFileImport=[];
 
+  const FILE_TYPE_ZIP='Zip';
+  const FILE_TYPE_CSV='Csv';
+  const FILE_TYPE_UNKNOWN='';
+
   public function __construct($dataDirectory, $databases, DatabasesFacade $databasesFacade){
     $this->dataDirectory=$dataDirectory;
     $this->databasesFacade=$databasesFacade;
@@ -28,6 +34,68 @@ class FileImportsFacade {
         }
       }
     }
+  }
+
+  /**
+   * Funkce pro automatické dekódování ZIP archívu (pokud projde, soubor přesune na místo původního souboru a následně vrátí finální typ souboru
+   * @param string $fileName
+   * @return string
+   */
+  public function tryAutoUnzipFile($fileName){
+    $processableFilesList=$this->getZipArchiveProcessableFilesList($fileName);
+    if (count($processableFilesList)==1){
+      foreach($processableFilesList as $index=>$name){
+        $this->uncompressFileFromZipArchive($fileName,$index);
+        return $this->detectFileType($name);
+      }
+    }
+    return self::FILE_TYPE_ZIP;
+  }
+
+  /**
+   * Funkce pro extrakci konkrétního souboru ze ZIP archívu (na místo původního souboru)
+   * @param string $fileName
+   * @param int $selectedFileIndex
+   * @throws \Exception
+   */
+  public function uncompressFileFromZipArchive($fileName,$selectedFileIndex){
+    $fileName=$this->getFilePath($fileName);
+    try{
+      FileSystem::delete($fileName.'.unzipped');
+    }catch (\Exception $e){/*ignore error*/}
+    if (ZipImport::unzipFile($fileName,$selectedFileIndex,$fileName.'.unzipped')){
+      FileSystem::rename($fileName.'.unzipped',$fileName,true);
+    }else{
+      throw new \Exception('Unzip failed.');
+    }
+  }
+
+  /**
+   * Funkce vracející seznam souborů v ZIP archívu
+   * @param string $fileName
+   * @return array
+   */
+  public function getZipArchiveFilesList($fileName){
+    return ZipImport::getFilesList($this->getFilePath($fileName));
+  }
+
+  /**
+   * Funkce vracející seznam souborů ze ZIP archívu, které je možné dál zpracovat
+   * @param string $fileName
+   * @return array
+   */
+  public function getZipArchiveProcessableFilesList($fileName){
+    $processableFilesList=[];
+    $filesList=$this->getZipArchiveFilesList($fileName);
+    if (!empty($filesList)){
+      foreach ($filesList as $itemIndex=>$itemName){
+        $itemFileType=$this->detectFileType($itemName);
+        if ($itemFileType==self::FILE_TYPE_CSV){
+          $processableFilesList[$itemIndex]=$itemName;
+        }
+      }
+    }
+    return $processableFilesList;
   }
 
   /**
@@ -66,6 +134,21 @@ class FileImportsFacade {
     foreach (Finder::findFiles('*')->date('<', '- '.$minusDays.' days')->from($this->dataDirectory) as $file){
       FileSystem::delete($file);
     }
+  }
+
+  /**
+   * Funkce detekující typ souboru podle jeho přípony
+   * @param string $filename
+   * @return string self::FILE_TYPE_ZIP|self::FILE_TYPE_CSV
+   */
+  public function detectFileType($filename){
+    $filenameInfo=pathinfo($filename);
+    $filenameInfo=Strings::lower(@$filenameInfo['extension']);
+    switch ($filenameInfo){
+      case 'csv': return self::FILE_TYPE_CSV;
+      case 'zip': return self::FILE_TYPE_ZIP;
+    }
+    return self::FILE_TYPE_UNKNOWN;
   }
 
 

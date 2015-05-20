@@ -10,20 +10,28 @@
 {block content}
 
   {ifset $importForm}
-    <div class="uploadData">
-      <div class="smallBlock">
+    {if @$showPreview}
+      <div class="uploadData">
+        <div class="smallBlock">
+          <h1>{_'Import config'}</h1>
+          {$importForm}
+        </div>
+        <div class="block">
+          <h2>{_'Data preview'}</h2>
+          <div id="datasetPreviewLoading" class="smallSpinner">{_'Reloading preview, please wait...'}</div>
+          <div id="datasetPreview"></div>
+        </div>
+      </div>
+    {else}
+      <div class="smallBlock centerContent">
         <h1>{_'Import config'}</h1>
         {$importForm}
       </div>
-      <div class="block">
-        <h2>{_'Data preview'}</h2>
-        <div id="datasetPreviewLoading" class="smallSpinner">{_'Reloading preview, please wait...'}</div>
-        <div id="datasetPreview"></div>
-      </div>
-    </div>
+    {/if}
   {else}
     <div class="smallBlock centerContent">
       <h1>{_'Upload dataset'}</h1>
+      <p>{_'Input CSV file, or ZIP archive with any CSV files...'}</p>
       {control uploadForm}
     </div>
   {/ifset}
