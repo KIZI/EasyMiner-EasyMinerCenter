@@ -419,6 +419,8 @@ class MySQLDatabase implements IDatabase{
   public function importCsvFile($csvFileName, $columnsNames, $delimitier, $enclosure, $escapeCharacter, $offsetRows = 0) {
     $sql='LOAD DATA LOCAL INFILE :fileName INTO TABLE '.$this->tableName;
 
+    $sql.=' FIELDS TERMINATED BY :delimitier OPTIONALLY ENCLOSED BY :enclosure ESCAPED BY :escapeChar';
+
     if ($offsetRows>0){
       $sql.=' IGNORE '.$offsetRows.' LINES ';
     }
@@ -430,7 +432,7 @@ class MySQLDatabase implements IDatabase{
     $sql=trim($sql,',').') ';
 
     $query=$this->db->prepare($sql);
-    $result=$query->execute([':fileName'=>$csvFileName]);;
+    $result=$query->execute([':fileName'=>$csvFileName,':delimitier'=>$delimitier,':enclosure'=>$enclosure,':escapeChar'=>$escapeCharacter]);;
 
     return $result;
   }

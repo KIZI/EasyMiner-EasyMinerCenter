@@ -293,7 +293,13 @@ class DatabasesFacade {
     return $this->$databaseProperty->getColumnValuesWithId($column);
   }
 
-  public function truncateTable($tableName){
+  /**
+   * Funkce umožňující promazání tabulky
+   * @param string $tableName
+   * @param string $databaseProperty
+   * @return bool
+   */
+  public function truncateTable($tableName,$databaseProperty=self::FIRST_DB){
     try{
       $this->$databaseProperty->truncateTable($tableName);
       return true;
