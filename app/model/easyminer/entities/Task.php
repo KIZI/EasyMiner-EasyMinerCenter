@@ -23,6 +23,7 @@ use Nette\Utils\Json;
 class Task extends Entity{
   const STATE_NEW='new';
   const STATE_IN_PROGRESS='in_progress';
+  const STATE_SOLVED_HEADS='solved_heads';
   const STATE_SOLVED='solved';
   const STATE_FAILED='failed';
   const STATE_INTERRUPTED='interrupted';

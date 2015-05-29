@@ -45,6 +45,7 @@ class RDriver implements IMiningDriver{
     $taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
     $pmml=$taskSettingsSerializer->getPmml();
     //import úlohy a spuštění dolování...
+    //exit($pmml->asXML());
     $numRequests=1;
     sendStartRequest:
     try{
@@ -83,6 +84,19 @@ class RDriver implements IMiningDriver{
       }else{
         $taskState=$this->task->taskState;
         $taskState->state=Task::STATE_FAILED;
+      }
+    }elseif ($this->task->state==Task::STATE_SOLVED_HEADS){
+      if (file_exists($this->getImportPmmlPath())){
+        //ignore user abort (continue running this script)
+        ignore_user_abort(true);
+        file_put_contents($this->getImportPmmlPath().'test','jo');
+        //update task details
+        $rulesCount=0;
+        $this->fullParseRulesPMML(simplexml_load_file($this->getImportPmmlPath()),$rulesCount,true);
+        if ($rulesCount!=$this->task->rulesCount){
+          $this->task->rulesCount=$rulesCount;
+        }
+        return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
       }
     }
     return $this->task->taskState;
@@ -160,10 +174,72 @@ class RDriver implements IMiningDriver{
    * Funkce pro načtení PMML
    * @param string|\SimpleXMLElement $pmml
    * @param int &$rulesCount = null - informace o počtu importovaných pravidel
+   * @param string $responseData
    * @return bool
    * @throws \Exception
    */
-  public function parseRulesPMML($pmml,&$rulesCount=null){
+  public function parseRulesPMML($pmml,&$rulesCount=null,$responseData){
+    if (is_dir($this->params['imports_directory'])){
+      file_put_contents($this->getImportPmmlPath(),$responseData);
+      $this->basicParseRulesPMML($pmml,$rulesCount);
+      return Task::STATE_SOLVED_HEADS;
+    }else{
+      $this->fullParseRulesPMML($pmml,$rulesCount);
+      @unlink($this->getImportPmmlPath());
+      return Task::STATE_SOLVED;
+    }
+  }
+
+  /**
+   * Funkce pro načtení PMML
+   * @param string|\SimpleXMLElement $pmml
+   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
+   * @return bool
+   * @throws \Exception
+   */
+  public function basicParseRulesPMML($pmml,&$rulesCount=null){
+    if ($pmml instanceof \SimpleXMLElement) {
+      $xml=$pmml;
+    }else{
+      $xml=simplexml_load_string($pmml);
+    }
+    $xml->registerXPathNamespace('guha','http://keg.vse.cz/ns/GUHA0.1rev1');
+    $guhaAssociationModel=$xml->xpath('//guha:AssociationModel');
+    $rulesCount=(string)$guhaAssociationModel[0]['numberOfRules'];
+
+
+    $associationRules=$xml->xpath('//guha:AssociationModel/AssociationRules/AssociationRule');
+
+    if (empty($associationRules)){return true;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+
+    $rulesArr=[];
+    foreach ($associationRules as $associationRule){
+      $rule=new Rule();
+      $rule->task=$this->task;
+      $rule->text=(string)$associationRule->Text;
+      $rule->pmmlRuleId=(string)$associationRule['id'];
+      $fourFtTable=$associationRule->FourFtTable;
+      $rule->a=(string)$fourFtTable['a'];
+      $rule->b=(string)$fourFtTable['b'];
+      $rule->c=(string)$fourFtTable['c'];
+      $rule->d=(string)$fourFtTable['d'];
+      $rulesArr[]=$rule;
+    }
+    $this->rulesFacade->saveRulesHeads($rulesArr);
+    $this->rulesFacade->calculateMissingInterestMeasures($this->task,true);
+    return true;
+  }
+
+
+  /**
+   * Funkce pro načtení PMML
+   * @param string|\SimpleXMLElement $pmml
+   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
+   * @param bool $updateImportedRulesHeads=false
+   * @return bool
+   * @throws \Exception
+   */
+  public function fullParseRulesPMML($pmml,&$rulesCount=null,$updateImportedRulesHeads=false){
     if ($pmml instanceof \SimpleXMLElement) {
       $xml=$pmml;
     }else{
@@ -289,7 +365,15 @@ class RDriver implements IMiningDriver{
     $topCedentsArr=array();
 
     foreach ($associationRulesXml->AssociationRule as $associationRule){
-      $rule=new Rule();
+      $rule='';
+      if ($updateImportedRulesHeads){
+        try{
+          $this->rulesFacade->findRuleByPmmlImportId($this->task->taskId,(string)$associationRule['id']);
+        } catch(\Exception $e){/*ignore*/}
+      }
+      if (!$rule){
+        $rule=new Rule();
+      }
       $rule->task=$this->task;
       if (isset($associationRule['antecedent'])){
         //jde o pravidlo s antecedentem
@@ -351,7 +435,7 @@ class RDriver implements IMiningDriver{
       $rule->d=(string)$fourFtTable['d'];
       $this->rulesFacade->saveRule($rule);
     }
-    $this->rulesFacade->calculateMissingInterestMeasures();
+    $this->rulesFacade->calculateMissingInterestMeasures($this->task);
     return true;
   }
 
@@ -383,8 +467,8 @@ class RDriver implements IMiningDriver{
     }elseif($body->getName()=='PMML'){
       //jde o export výsledků
       $rulesCount=0;
-      $this->parseRulesPMML($body,$rulesCount);
-      return new TaskState(Task::STATE_SOLVED,$rulesCount);
+      $taskState=$this->parseRulesPMML($body,$rulesCount,$response);
+      return new TaskState($taskState,$rulesCount);
     }else{
       throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
     }
@@ -396,6 +480,7 @@ class RDriver implements IMiningDriver{
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
+   * @param RulesFacade $rulesFacade
    * @param $params = array()
    */
   public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, $params = array()) {
@@ -446,6 +531,13 @@ class RDriver implements IMiningDriver{
     }
     curl_close($ch);
     return $responseData;
+  }
+
+  /**
+   * @return string
+   */
+  private function getImportPmmlPath(){
+    return $this->params['imports_directory'].'/'.$this->task->taskId.'.pmml';
   }
 
 

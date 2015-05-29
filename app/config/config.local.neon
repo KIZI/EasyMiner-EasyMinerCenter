@@ -11,6 +11,7 @@ parameters:
         driver_r:
             class:  App\Model\Mining\LM\RDriver
             server:
+            imports_directory: "absolutePath"
     arc2:
         db_name:
         db_user:

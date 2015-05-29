@@ -12,8 +12,9 @@ use LeanMapper\Entity;
  * @property Task $task m:hasOne
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
  * @property string $text
+ * @property string $pmmlRuleId = ''
  * @property Cedent|null $antecedent m:hasOne(antecedent)
- * @property Cedent $consequent m:hasOne(consequent)
+ * @property Cedent|null $consequent m:hasOne(consequent)
  * @property int|null $a
  * @property int|null $b
  * @property int|null $c
@@ -27,6 +28,19 @@ use LeanMapper\Entity;
 class Rule extends Entity{
 
   public function getBasicDataArr() {
-    return array('text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0'));
+    return ['text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0')];
   }
+
+  public function getRuleHeadDataArr(){
+    return [
+      'text'=>$this->text,
+      'task_id'=>$this->task->taskId,
+      'pmml_rule_id'=>$this->pmmlRuleId,
+      'a'=>$this->a,
+      'b'=>$this->b,
+      'c'=>$this->c,
+      'd'=>$this->d
+    ];
+  }
+
 }
