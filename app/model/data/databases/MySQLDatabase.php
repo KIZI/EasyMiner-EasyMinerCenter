@@ -201,18 +201,19 @@ class MySQLDatabase implements IDatabase{
           $columnsDataSql.=', '.$this->db->quote($data[$columnName]);
         }
         $valuesSql.=', ('.$this->db->quote($id).$columnsDataSql.')';
-        if ($rowsCount>500){
-          $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES '.$valuesSql.' ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
+        if ($rowsCount>1000){
+          $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES '.ltrim($valuesSql,',').' ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
           $this->db->query($sql);
           $rowsCount=0;
           $valuesSql='';
         }
       }
       if (!empty($valuesSql)){
-        $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES '.$valuesSql.' ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
+        $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES '.ltrim($valuesSql,',').' ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
         $this->db->query($sql);
       }
-      return $this->db->commit();
+      $result=$this->db->commit();
+      return $result;
     }else {
       $sql = 'UPDATE `' . $this->tableName . '` SET ' . trim($updateSql, ',') . ' WHERE id=:id';
       $this->db->beginTransaction();
