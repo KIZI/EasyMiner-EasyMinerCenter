@@ -139,26 +139,31 @@ class MySQLDatabase implements IDatabase{
   /**
    * @param array $data
    * @param $id
-   * @param bool $replace = true
+   * @param bool $insertNotExisting = true
    * @return bool
    */
   public function updateRow(array $data, $id, $insertNotExisting=true) {
-    $paramsArr=array(':id'=>$id);
+    $paramsArr=[':id'=>$id];
     $sql='';
-    $columnId=0;
-    foreach ($data as $column=>$value){
-      $sql.=',`'.$column.'`=:c'.$columnId;
-      $paramsArr[':c'.$columnId]=$value;
-      $columnId++;
+    $columnsSql='';
+    $paramsSql='';
+    $i=0;
+    foreach ($data as $columnName=>$value){
+      $sql.=',`'.$columnName.'`=:c'.$i;
+      $paramsArr[':c'.$i]=$value;
+      $columnsSql.=', `'.$columnName.'`';
+      $columnsUpdateSql=', `'.$columnName.'`=VALUES(`'.$columnName.'`)';
+      $paramsSql.=', :c'.$i;
+      $i++;
     }
     $sql=Strings::substring($sql,1);
-    $query=$this->db->prepare('UPDATE `'.$this->tableName.'` SET '.$sql.' WHERE id=:id LIMIT 1;');
-    $result=$query->execute($paramsArr) && ($query->rowCount()>0);
-    if(!$result && $insertNotExisting){
-      $data['id']=$id;
-      $this->insertRow($data,true);
+    if ($insertNotExisting){
+      $query=$this->db->prepare('INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.')VALUES(:id'.$paramsSql.') ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,','));
+      return $query->execute($paramsArr);
+    }else{
+      $query=$this->db->prepare('UPDATE `'.$this->tableName.'` SET '.$sql.' WHERE id=:id LIMIT 1;');
+      return $query->execute($paramsArr) && ($query->rowCount()>0);
     }
-    return $result;
   }
 
 
@@ -168,7 +173,6 @@ class MySQLDatabase implements IDatabase{
    * @return bool
    */
   public function updateMultiRows(array $dataArr, $insertNotExisting=true) {
-    $insertNotExisting=false;
     $columnsArr=[];
     $columnsSql='';
     $paramsSql='';
@@ -187,22 +191,42 @@ class MySQLDatabase implements IDatabase{
     }
 
     if ($insertNotExisting){
-      $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES (:id'.$paramsSql.') ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
-    }else{
-      $sql='UPDATE `'.$this->tableName.'` SET '.trim($updateSql,',').' WHERE id=:id';
-    }
-    $this->db->beginTransaction();
-    $query=$this->db->prepare($sql);
-
-    foreach($dataArr as $id=>$data){
-      $insertArr=[':id'=>$id];
-      foreach($columnsArr as $columnId=>$columnName){
-        $insertArr[':c'.$columnId]=@$data[$columnName];
+      $this->db->beginTransaction();
+      $valuesSql='';
+      $rowsCount=0;
+      foreach($dataArr as $id=>$data){
+        $columnsDataSql='';
+        $rowsCount++;
+        foreach($columnsArr as $columnName){
+          $columnsDataSql.=', '.$this->db->quote($data[$columnName]);
+        }
+        $valuesSql.=', ('.$this->db->quote($id).$columnsDataSql.')';
+        if ($rowsCount>500){
+          $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES '.$valuesSql.' ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
+          $this->db->query($sql);
+          $rowsCount=0;
+          $valuesSql='';
+        }
       }
-      $query->execute($insertArr);
+      if (!empty($valuesSql)){
+        $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES '.$valuesSql.' ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
+        $this->db->query($sql);
+      }
+      return $this->db->commit();
+    }else {
+      $sql = 'UPDATE `' . $this->tableName . '` SET ' . trim($updateSql, ',') . ' WHERE id=:id';
+      $this->db->beginTransaction();
+      $query = $this->db->prepare($sql);
+
+      foreach ($dataArr as $id => $data) {
+        $insertArr = [':id' => $id];
+        foreach ($columnsArr as $columnId => $columnName) {
+          $insertArr[':c' . $columnId] = @$data[$columnName];
+        }
+        $query->execute($insertArr);
+      }
+      return $this->db->commit();
     }
-    return $this->db->commit();
-    //FIXME
   }
 
   /**

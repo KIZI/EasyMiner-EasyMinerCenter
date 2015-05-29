@@ -282,11 +282,11 @@ class DatabasesFacade {
   }
 
   /**
-   * TODO
-   * @param $tableName
-   * @param $column
-   * @param $dataArr
-   * @param string $databaseProperty
+   * Funkce pro aktualizaci hodnot konkrétního sloupce u většího počtu řádků
+   * @param string $tableName
+   * @param string $column
+   * @param array $dataArr pole ve struktuře [id řádku=>hodnota sloupce $column]
+   * @param string $databaseProperty = self::FIRST_DB
    */
   public function multiUpdateColumnValueById($tableName,$column,$dataArr,$databaseProperty=self::FIRST_DB){
     $this->$databaseProperty->selectTable($tableName);

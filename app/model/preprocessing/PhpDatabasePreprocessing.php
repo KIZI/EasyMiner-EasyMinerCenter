@@ -70,8 +70,8 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
     if (!empty($valuesArr)){
       $updateDataArr=array();
       foreach ($valuesArr as $id=>$value){
-        //TODO $arr=[$metasource->attributesTable,$attribute->name,$id,$function($value)];
         $updateDataArr[$id]=$function($value);
+        //$this->databasesFacade->updateColumnValueById($metasource->attributesTable,$attribute->name,$id,$function($value),DatabasesFacade::SECOND_DB);
       }
       $this->databasesFacade->multiUpdateColumnValueById($metasource->attributesTable,$attribute->name,$updateDataArr,DatabasesFacade::SECOND_DB);
     }
