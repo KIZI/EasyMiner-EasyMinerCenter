@@ -36,7 +36,7 @@ class LMDriver implements IMiningDriver{
   /** LISp-Miner šablona pro export informací o stavu úlohy a počtu nalezených pravidel */
   const TASK_STATE_LM_TEMPLATE=null;//TODO
   /** LISp-Miner šablona pro export pravidel */
-  const PMML_LM_TEMPLATE=null;//TODO
+  const PMML_LM_TEMPLATE='4ftMiner.Task.Template.PMML';//TODO
   #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
   const MAX_MINING_REQUESTS=10;
   const REQUEST_DELAY=1;// delay between requests (in seconds)
@@ -59,9 +59,9 @@ class LMDriver implements IMiningDriver{
 
     $taskState=$this->parseTaskState($result);
     if ($taskState->rulesCount>0){
-      //try{//FIXME
+      try{
         $this->parseRulesPMML($result);
-      //}catch (\Exception $e){}
+      }catch (\Exception $e){}
     }
     return $taskState;
   }
@@ -522,10 +522,6 @@ class LMDriver implements IMiningDriver{
     if (!empty($dbConnection->dbUsername)) {
       $connectionXml->addChild('Username', $dbConnection->dbUsername);
     }
-    if (!empty($dbConnection->dbUsername)) {
-      $connectionXml->addChild('Username', $dbConnection->dbUsername);
-    }
-
     if (!empty($dbConnection->dbPassword)) {
       $connectionXml->addChild('Password', $dbConnection->dbPassword);
     }
@@ -686,11 +682,13 @@ class LMDriver implements IMiningDriver{
 
       $curlRequest=$this->prepareNewCurlRequest($url);
       $curlRequest->getUrl()->appendQuery($options);
-      try{
-        $response = $curlRequest->post($query);
-      }catch (\Exception $e){
+      //try{
+        $response = $curlRequest->post($query);//FIXME
+      /*}catch (\Exception $e){
+        exit($e->getMessage());
+
         exit(var_dump($e));//FIXME
-      }
+      }*/
     }
     if ($response->isOk()) {
       return $response->getResponse();
