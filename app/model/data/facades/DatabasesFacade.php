@@ -282,6 +282,23 @@ class DatabasesFacade {
   }
 
   /**
+   * TODO
+   * @param $tableName
+   * @param $column
+   * @param $dataArr
+   * @param string $databaseProperty
+   */
+  public function multiUpdateColumnValueById($tableName,$column,$dataArr,$databaseProperty=self::FIRST_DB){
+    $this->$databaseProperty->selectTable($tableName);
+    $dataArr2=[];
+    foreach($dataArr as $id=>$value){
+      $dataArr2[$id]=[$column=>$value];
+    }
+    return $this->$databaseProperty->updateMultiRows($dataArr2);
+  }
+
+
+  /**
    * Funkce vracející pole hodnot z daného sloupce (indexované podle ID)
    * @param string $tableName
    * @param string $column

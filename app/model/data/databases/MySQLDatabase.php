@@ -161,6 +161,50 @@ class MySQLDatabase implements IDatabase{
     return $result;
   }
 
+
+  /**
+   * @param array $dataArr
+   * @param $insertNotExisting=true
+   * @return bool
+   */
+  public function updateMultiRows(array $dataArr, $insertNotExisting=true) {
+    $insertNotExisting=false;
+    $columnsArr=[];
+    $columnsSql='';
+    $paramsSql='';
+    $updateSql='';
+    $i=0;
+    foreach($dataArr as $id=>$data){
+      foreach($data as $columnName=>$value){
+        $columnsArr[]=$columnName;
+        $columnsSql.=', `'.$columnName.'`';
+        $columnsUpdateSql=', `'.$columnName.'`=VALUES(`'.$columnName.'`)';
+        $paramsSql.=', :c'.$i;
+        $updateSql.=', `'.$columnName.'`=:c'.$i;
+        $i++;
+      }
+      break;
+    }
+
+    if ($insertNotExisting){
+      $sql='INSERT INTO `'.$this->tableName.'` (`id`'.$columnsSql.') VALUES (:id'.$paramsSql.') ON DUPLICATE KEY UPDATE '.trim($columnsUpdateSql,',');
+    }else{
+      $sql='UPDATE `'.$this->tableName.'` SET '.trim($updateSql,',').' WHERE id=:id';
+    }
+    $this->db->beginTransaction();
+    $query=$this->db->prepare($sql);
+
+    foreach($dataArr as $id=>$data){
+      $insertArr=[':id'=>$id];
+      foreach($columnsArr as $columnId=>$columnName){
+        $insertArr[':c'.$columnId]=@$data[$columnName];
+      }
+      $query->execute($insertArr);
+    }
+    return $this->db->commit();
+    //FIXME
+  }
+
   /**
    * @param $id
    * @return bool

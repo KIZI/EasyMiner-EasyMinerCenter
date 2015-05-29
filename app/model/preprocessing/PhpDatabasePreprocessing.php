@@ -26,7 +26,7 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
    * Funkce pro vygenerování preprocessingu
    * @param Attribute $attribute
    */
-  public function generateAttribute(Attribute $attribute) {
+  public function generateAttribute(Attribute $attribute){
     $datasourceColumn=$attribute->datasourceColumn;
     $metasource=$attribute->metasource;
     $preprocessing=$attribute->preprocessing;
@@ -68,9 +68,12 @@ class PhpDatabasePreprocessing implements IPreprocessingDriver{
     }
     $valuesArr=$this->databasesFacade->getColumnValuesWithId($datasource->dbTable,$datasourceColumn->name,DatabasesFacade::FIRST_DB);
     if (!empty($valuesArr)){
+      $updateDataArr=array();
       foreach ($valuesArr as $id=>$value){
-        $this->databasesFacade->updateColumnValueById($metasource->attributesTable,$attribute->name,$id,$function($value),DatabasesFacade::SECOND_DB);
+        //TODO $arr=[$metasource->attributesTable,$attribute->name,$id,$function($value)];
+        $updateDataArr[$id]=$function($value);
       }
+      $this->databasesFacade->multiUpdateColumnValueById($metasource->attributesTable,$attribute->name,$updateDataArr,DatabasesFacade::SECOND_DB);
     }
   }
 
