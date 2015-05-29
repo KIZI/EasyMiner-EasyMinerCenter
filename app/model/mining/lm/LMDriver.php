@@ -783,6 +783,7 @@ class LMDriver implements IMiningDriver{
     $curlRequest=new CurlRequest($url);
     $curlSender=new CurlSender();
     $curlSender->options['USERPWD']='test:test';//TODO LM credentials!!!
+    $curlSender->options['timeout']=300;//request timeout in seconds
     $curlRequest->setSender($curlSender);
     return $curlRequest;
   }
