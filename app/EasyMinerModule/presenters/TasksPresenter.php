@@ -64,24 +64,6 @@ class TasksPresenter  extends BasePresenter{
     $this->sendJsonResponse($task->getTaskState()->asArray());
   }
 
-
-  public function actionRunBg(){
-    //$this->sendJsonResponse('test');
-    //ignore_user_abort();
-    //$result=file_get_contents('http://br-dev.lmcloud.vse.cz/easyminercenter/em/tasks/background-import');
-    //$pool=new \HttpRequestPool(new \HttpRequest('http://www.google.con'));
-    //$pool->send();
-    //echo 'DONE';
-    $this->terminate();
-    //$this->sendJsonResponse(['DONE'=>'ok']);
-  }
-
-  public function actionBackgroundImport(){
-    //TODO background task...
-    sleep(10);
-    $this->sendJsonResponse(['done'=>'OK']);
-  }
-  
   /**
    * Akce pro zastavení dolování
    * @param string $miner

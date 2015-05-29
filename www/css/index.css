@@ -230,12 +230,13 @@ textarea {
   vertical-align: top;
   resize: vertical;
 }
+/*
 input:valid,
 textarea:valid,
 input:invalid,
 textarea:invalid {
-  background-color: #f0dddd;
-}
+  background-color: white;
+}*/
 table {
   border-collapse: collapse;
   border-spacing: 0;
