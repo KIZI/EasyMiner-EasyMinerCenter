@@ -495,11 +495,13 @@ class MySQLDatabase implements IDatabase{
     }
 
     #region prostý import
+    /*
     $sql.=' (';
     foreach($columnsNames as $columnName){
       $sql.='`'.$columnName.'`,';
     }
     $sql=trim($sql,',').') ';
+    */
     #endregion prostý import
 
     #region import s náhradou prázdných hodnot na null
