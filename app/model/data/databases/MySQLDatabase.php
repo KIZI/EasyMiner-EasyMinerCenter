@@ -494,13 +494,28 @@ class MySQLDatabase implements IDatabase{
       $sql.=' IGNORE '.$offsetRows.' LINES ';
     }
 
+    #region prostý import
     $sql.=' (';
     foreach($columnsNames as $columnName){
       $sql.='`'.$columnName.'`,';
     }
     $sql=trim($sql,',').') ';
+    #endregion prostý import
+
+    #region import s náhradou prázdných hodnot na null
+    $sql.=' (';
+    $sqlSets='';
+    $counter=0;
+    foreach($columnsNames as $columnName){
+      $sql.='@v'.$counter.',';
+      $sqlSets.='`'.$columnName.'`=nullif(@v'.$counter.',\'\'),';
+      $counter++;
+    }
+    $sql=trim($sql,',').') SET '.trim($sqlSets,',');
+    #endregion import s náhradou prázdných hodnot na null
 
     $query=$this->db->prepare($sql);
+
     $result=$query->execute([':fileName'=>$csvFileName,':delimitier'=>$delimitier,':enclosure'=>$enclosure,':escapeChar'=>$escapeCharacter]);;
 
     return $result;
