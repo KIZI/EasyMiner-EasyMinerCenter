@@ -127,7 +127,7 @@ class MySQLDatabase implements IDatabase{
     foreach ($data as $column=>$value){
       $sqlColumns.=',`'.$column.'`';
       $sqlParams.=',:c'.$columnId;
-      $paramsArr[':c'.$columnId]=$value;
+      $paramsArr[':c'.$columnId]=($value!=''?$value:null);
       $columnId++;
     }
     $sqlColumns=Strings::substring($sqlColumns,1);
@@ -150,7 +150,7 @@ class MySQLDatabase implements IDatabase{
     $i=0;
     foreach ($data as $columnName=>$value){
       $sql.=',`'.$columnName.'`=:c'.$i;
-      $paramsArr[':c'.$i]=$value;
+      $paramsArr[':c'.$i]=($value!=''?$value:null);
       $columnsSql.=', `'.$columnName.'`';
       $columnsUpdateSql=', `'.$columnName.'`=VALUES(`'.$columnName.'`)';
       $paramsSql.=', :c'.$i;
@@ -198,7 +198,7 @@ class MySQLDatabase implements IDatabase{
         $columnsDataSql='';
         $rowsCount++;
         foreach($columnsArr as $columnName){
-          $columnsDataSql.=', '.$this->db->quote($data[$columnName]);
+          $columnsDataSql.=', '.($data[$columnName]!=''?$this->db->quote($data[$columnName]):'NULL');
         }
         $valuesSql.=', ('.$this->db->quote($id).$columnsDataSql.')';
         if ($rowsCount>1000){
@@ -222,7 +222,7 @@ class MySQLDatabase implements IDatabase{
       foreach ($dataArr as $id => $data) {
         $insertArr = [':id' => $id];
         foreach ($columnsArr as $columnId => $columnName) {
-          $insertArr[':c' . $columnId] = @$data[$columnName];
+          $insertArr[':c' . $columnId] = (@$data[$columnName]!=''?$data[$columnName]:null);
         }
         $query->execute($insertArr);
       }
