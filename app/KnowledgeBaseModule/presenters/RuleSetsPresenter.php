@@ -27,7 +27,15 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
   public function actionList(){
     $ruleSets=$this->ruleSetsFacade->findRuleSetsByUser($this->user->id);
     $result=[];
-    if (!empty($ruleSets)){
+    if (empty($ruleSets)) {
+      //pokud není nalezen ani jeden RuleSet, jeden založíme...
+      $ruleSet=new RuleSet();
+      $user=$this->usersFacade->findUser($this->user->id);
+      $ruleSet->user=$user;
+      $ruleSet->name=$user->name;
+      $this->ruleSetsFacade->saveRuleSet($ruleSet);
+      $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
+    }else{
       foreach ($ruleSets as $ruleSet){
         $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
       }
