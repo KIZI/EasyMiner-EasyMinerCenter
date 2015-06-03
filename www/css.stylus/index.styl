@@ -12,8 +12,13 @@
 @import '_header.styl'
 @import '_footer.styl'
 
+html
+  min-height 100%
+  position relative
+
 body
   background: transparent url("../images/bg-body.jpg") center repeat;
   font-family font
   font-size baseFontSize
   overflow-y scroll
+  margin 0 0 footerHeight 0

@@ -230,13 +230,6 @@ textarea {
   vertical-align: top;
   resize: vertical;
 }
-/*
-input:valid,
-textarea:valid,
-input:invalid,
-textarea:invalid {
-  background-color: white;
-}*/
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -630,19 +623,54 @@ body > header .headerMenu#headerAppsMenu a.newFile.disabled {
   opacity: 0.4 !important;
   cursor: not-allowed;
 }
-footer {
-  background: #ededed;
-  color: #434343;
+body > footer {
+  border-top: 1px solid #075783;
+  background: #075783;
+  background: rgba(7,87,131,0.4);
+  color: #e1e1ff;
   text-align: center;
   font-size: 14px;
-  padding: 10px 0;
+  padding: 0;
   margin: 0;
   min-width: 1335px;
+  height: 34px;
   width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+body > footer div.content {
+  height: 20px;
+  padding: 7px 0;
+  width: 1335px;
+  margin: 0 auto;
+  position: relative;
+  font-size: 11px;
+  text-align: left;
+}
+body > footer div.content .disclaimer {
+  padding-left: 20px;
+  float: left;
+}
+body > footer div.content .copyright {
+  padding-right: 20px;
+  float: right;
+}
+body > footer div.content a {
+  font-size: 11px;
+  color: #e1e1ff;
+}
+body > footer div.content a:hover {
+  color: #fff;
+}
+html {
+  min-height: 100%;
+  position: relative;
 }
 body {
   background: transparent url("../images/bg-body.jpg") center repeat;
   font-family: 'Helvetica Neue', 'Arial', 'sans-serif';
   font-size: 16px;
   overflow-y: scroll;
+  margin: 0 0 34px 0;
 }

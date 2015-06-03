@@ -1,9 +1,42 @@
-footer
-  background backgroundColor
-  color color
+footerContentHeight=20px
+footerContentPadding=7px;
+footerHeight=footerContentHeight+2*footerContentPadding
+footerFontSize=11px
+footerFontColor=rgb(225,225,255)
+
+body > footer
+  border-top 1px solid #075783
+  background #075783
+  background rgba(7,87,131,0.4)
+  color footerFontColor
   text-align center
   font-size 14px
-  padding 10px 0
+  padding 0
   margin 0
   min-width minContentWidth2
+  height footerHeight
   width 100%
+  position absolute
+  left 0
+  bottom 0
+
+  div.content
+    height footerContentHeight
+    padding footerContentPadding 0
+    centerMainContent()
+    font-size footerFontSize
+    text-align left
+
+    .disclaimer
+      padding-left 20px
+      float left
+
+    .copyright
+      padding-right 20px
+      float right
+
+    a
+      font-size footerFontSize
+      color footerFontColor
+      &:hover
+        color white
