@@ -483,7 +483,10 @@ class DataPresenter extends BasePresenter{
     $this->datasourcesFacade->saveDatasource($datasource);
     //smažeme dočasné soubory...
     $this->fileImportsFacade->deleteFile($file);
-    $this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
+
+    //FIXME Standa jiná přesměrovávací obrazovka...
+    //$this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
+    $this->redirect('Data:newMinerFromDatasource',array('datasource'=>$datasource->datasourceId));
   }
   #endregion importCsvForm
 
