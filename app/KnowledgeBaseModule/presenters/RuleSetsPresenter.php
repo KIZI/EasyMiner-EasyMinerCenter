@@ -116,7 +116,7 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
       $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
       if (!empty($rules)){
         foreach($rules as $rule){
-          $result['rules'][$rule->ruleId]=['text'=>$rule->text];
+          $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
         }
       }
     }
@@ -128,8 +128,9 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
    * @param int $id
    * @param string|int $rules - ID pravidel oddělená čárkami či středníky
    * @param string $relation = 'positive'
+   * @param string $result = "simple" (varianty "simple", "rules")
    */
-  public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
+  public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE, $result="simple"){
     //najití RuleSetu a kontroly
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
@@ -138,21 +139,31 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
     if (!empty($ruleIdsArr)){
       foreach($ruleIdsArr as $ruleId){
         if (!$ruleId){continue;}
-        //try{
+        try{
           $rule=$this->rulesFacade->findRule($ruleId);
           $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
-        //}catch (\Exception $e){continue;}
+        }catch (\Exception $e){continue;}
       }
     }
-    $this->sendJsonResponse(['state'=>'ok']);
+    if ($result=="rules"){
+      $result=[
+        'ruleset'=>$ruleSet->getDataArr(),
+        'rules'=>[]
+      ];
+      $result['rules']=$this->prepareRulesResult($ruleIdsArr,$ruleSet);
+      $this->sendJsonResponse($result);
+    }else{
+      $this->sendJsonResponse(['state'=>'ok']);
+    }
   }
 
   /**
    * Akce pro odebrání pravidel z rulesetu
    * @param int $id
    * @param string|int $rules
+   * @param string $result = "simple" (varianty "simple", "rules")
    */
-  public function actionRemoveRules($id,$rules){
+  public function actionRemoveRules($id, $rules, $result="simple"){
     //najití RuleSetu a kontroly
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
@@ -168,7 +179,17 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
       }
     }
     $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
-    $this->sendJsonResponse(['state'=>'ok']);
+
+    if ($result=="rules"){
+      $result=[
+        'ruleset'=>$ruleSet->getDataArr(),
+        'rules'=>[]
+      ];
+      $result['rules']=$this->prepareRulesResult($ruleIdsArr, $ruleSet);
+      $this->sendJsonResponse($result);
+    }else{
+      $this->sendJsonResponse(['state'=>'ok']);
+    }
   }
 
   /**
@@ -182,6 +203,36 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
     //smazání
     $this->ruleSetsFacade->removeAllRulesFromRuleSet($ruleSet);
     $this->sendJsonResponse(['state'=>'ok']);
+  }
+
+  /**
+   * Funkce připravující pole s informacemi o vybraných pravidlech pro vrácení v rámci JSON odpovědi
+   * @param int[] $ruleIdsArr
+   * @param RuleSet|int $ruleSet
+   * @return array
+   */
+  private function prepareRulesResult($ruleIdsArr, $ruleSet=null){
+    $result=[];
+    if (!empty($ruleIdsArr)) {
+      foreach ($ruleIdsArr as $ruleId) {
+        if (!$ruleId) {
+          continue;
+        }
+        try {
+          $rule = $this->rulesFacade->findRule($ruleId);
+          $result[$rule->ruleId]=$rule->getBasicDataArr();
+          if (!empty($ruleSet)){
+            $relation=$rule->getRuleSetRelation($ruleSet);
+            if (!empty($relation)){
+              $result[$rule->ruleId]['ruleSetRelation']=$relation->relation;
+            }else{
+              $result[$rule->ruleId]['ruleSetRelation']='';
+            }
+          }
+        }catch (\Exception $e){continue;}
+      }
+    }
+    return $result;
   }
 
   #endregion akce pro manipulaci s pravidly v rulesetech

@@ -31,6 +31,24 @@ class Rule extends Entity{
     return ['text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0')];
   }
 
+  /**
+   * Funkce vracející relaci tohoto pravidla ke konkrétnímu rule setu
+   * @param $ruleSet
+   * @return RuleSetRuleRelation
+   */
+  public function getRuleSetRelation($ruleSet){
+    if ($ruleSet instanceof RuleSet){
+      $ruleSet=$ruleSet->ruleSetId;
+    }
+    if (!empty($this->ruleSetRuleRelations)){
+      foreach($this->ruleSetRuleRelations as $ruleSetRuleRelation){
+        if ($ruleSetRuleRelation->ruleSet->ruleSetId==$ruleSet){
+          return $ruleSetRuleRelation;
+        }
+      }
+    }
+  }
+
   public function getRuleHeadDataArr(){
     return [
       'text'=>$this->text,
