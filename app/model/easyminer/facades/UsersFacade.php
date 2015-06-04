@@ -88,7 +88,12 @@ class UsersFacade implements IAuthenticator{
       //při ukládání nového uživatele mu přiřadíme heslo...
       $user->setDbPassword(StringsHelper::randString(8));
     }
-    if ($user->apiKey==''){
+    try{
+      $apiKey=$user->apiKey;
+    }catch (\Exception $e){
+      $apiKey='';
+    }
+    if ($apiKey==''){
       //při ukládání uživatele bez apiKey mu vygenerujeme náhodný
       $user->apiKey=StringsHelper::randString(20).round(rand(3911,89301)).StringsHelper::randString(20);
     }
