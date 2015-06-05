@@ -77,8 +77,20 @@ class MiningUiPresenter extends BasePresenter{
   /**
    * Akce pro zobrazení EasyMiner-MiningUI
    */
-  public function renderDefault($id_dm) {
+  public function renderDefault($id_dm,$miner) {
     //TODO doplnit kontroly na přihlášeného uživatele, oprávnění k mineru atd.
+
+    if (empty($miner)){
+      $miner=$id_dm;
+    }
+
+    $miner=$this->minersFacade->findMiner($miner);
+    /*FIXME
+    if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
+      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
+    }
+    $minerType=$miner->type;*/
+    $this->template->miner=$miner;
 
     $this->template->javascriptFiles= MiningUIIntegration::$javascriptFiles;
     $this->template->cssFiles= MiningUIIntegration::$cssFiles;

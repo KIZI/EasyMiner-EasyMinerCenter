@@ -2,9 +2,15 @@
   {include parent}
   <script>
     var $js=jQuery.noConflict();
+    var minerId={$miner->minerId};
+    var rootElementId='IZIMiner';
   </script>
   {foreach $javascriptFiles as $file}
-    <script type="text/javascript" src="{$basePath}/_miningUI/{$file}" ></script>
+    {if $file=='config'}
+      <script type="text/javascript" src={link config} ></script>
+    {else}
+      <script type="text/javascript" src="{$basePath}/_miningUI/{$file}" ></script>
+    {/if}
   {/foreach}
   {foreach $javascriptFilesHelp as $file}
     <script type="text/javascript" src="{$basePath}/_help/{$file}" ></script>
