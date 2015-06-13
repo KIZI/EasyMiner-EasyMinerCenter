@@ -156,7 +156,7 @@ class UserPresenter  extends BasePresenter{
       ->setAttribute('placeholder','Name')
       ->setAttribute('class','text')
       ->addRule(Nette\Forms\Form::FILLED,'You have to input your name!')
-      ->addRule(Nette\Forms\Form::MIN_LENGTH,'You have to input your name!',5);
+      ->addRule(Nette\Forms\Form::MIN_LENGTH,'You have to input your name!',2);
     $form->addText('email', 'E-mail:')
       ->setAttribute('placeholder','E-mail')
       ->setAttribute('class','text')
@@ -178,7 +178,7 @@ class UserPresenter  extends BasePresenter{
       ->setAttribute('placeholder','Password')
       ->setAttribute('class','text')
       ->addRule(Nette\Forms\Form::FILLED,'You have to input your password!')
-      ->validateEqual($password,'Passwords do not match!');
+      ->addRule(Nette\Forms\Form::EQUAL,'Passwords do not match!',$password);
 
     $form->addSubmit('submit', 'Sign up...')
       ->setAttribute('class','button');
