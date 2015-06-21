@@ -48,8 +48,8 @@
           {/if}
 
           <a id="headerAppsLink" href="#">{_'Menu'}</a>
-          {if @$includeHelp}
-            <a class="help" href="#" onclick="helpRun();">{_'Help'}</a>
+          {if !empty($includeHelp)}
+            <a class="help" href="#" onclick="helpRun('{$includeHelp|noescape}');">{_'Help'}</a>
           {/if}
         {/block}
       </div>
