@@ -23,7 +23,8 @@
 		"srigi/nette-confirmationdialog": "1.0.1",
 		"kdyby/curl": "v2.2.0",
 		"kdyby/forms-replicator": "@dev",
-		"drahak/restful": "dev-master"
+		"drahak/restful": "dev-master",
+		"joseki/error-presenter-extension": "v1.0.1"
 	},
 	"require-dev": {
 		"nette/tester": "~1.4"

@@ -1,18 +1,17 @@
 <?php
 
-namespace App\Presenters;
+namespace App\EasyMinerModule\Presenters;
 
 use Nette,
 	App\Model,
-	Nette\Diagnostics\Debugger;
+	Tracy\Debugger;
 
 
 /**
  * Error presenter.
  */
-class ErrorPresenter extends BasePresenter
+class ErrorPresenter extends Nette\Application\UI\Presenter
 {
-
 	/**
 	 * @param  Exception
 	 * @return void
@@ -28,7 +27,7 @@ class ErrorPresenter extends BasePresenter
 
 		} else {
 			$this->setView('500'); // load template 500.latte
-			Debugger::log($exception, Debugger::ERROR); // and log exception
+      Debugger::log($exception, Debugger::ERROR); // and log exception
 		}
 
 		if ($this->isAjax()) { // AJAX request? Note this error in payload.

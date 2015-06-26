@@ -8,7 +8,7 @@ php:
 
 nette:
 	application:
-		errorPresenter: Rest:Error
+		errorPresenter: EasyMiner:Error
 #		catchExceptions: true
 		mapping:
 			*: App\*Module\Presenters\*Presenter
@@ -22,6 +22,7 @@ extensions:
     google: Kdyby\Google\DI\GoogleExtension
     restful: Drahak\Restful\DI\RestfulExtension
     replicator: Kdyby\Replicator\DI\ReplicatorExtension
+    ErrorPresenter: Joseki\Application\DI\ErrorPresenterExtension
 
 parameters:
     xmlTransformations:

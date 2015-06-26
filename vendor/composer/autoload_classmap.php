@@ -2478,6 +2478,8 @@ return array(
     'IDibiDriver' => $vendorDir . '/dg/dibi/dibi/libs/interfaces.php',
     'IDibiReflector' => $vendorDir . '/dg/dibi/dibi/libs/interfaces.php',
     'IDibiResultDriver' => $vendorDir . '/dg/dibi/dibi/libs/interfaces.php',
+    'Joseki\\Application\\DI\\ErrorPresenterExtension' => $vendorDir . '/joseki/error-presenter-extension/src/Joseki/Application/DI/ErrorPresenterExtension.php',
+    'Joseki\\Application\\ErrorPresenterFactory' => $vendorDir . '/joseki/error-presenter-extension/src/Joseki/Application/ErrorPresenterFactory.php',
     'Kdyby\\CurlCaBundle\\CertificateHelper' => $vendorDir . '/kdyby/curl-ca-bundle/src/CertificateHelper.php',
     'Kdyby\\Curl\\BadStatusException' => $vendorDir . '/kdyby/curl/src/Kdyby/Curl/exceptions.php',
     'Kdyby\\Curl\\CurlException' => $vendorDir . '/kdyby/curl/src/Kdyby/Curl/exceptions.php',

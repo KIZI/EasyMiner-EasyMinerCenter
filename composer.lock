@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0f8f214bb583cf35508d10f219ac0618",
+    "hash": "fb04018eb3c9687865c3ff9ba383f582",
     "packages": [
         {
             "name": "dg/dibi",
@@ -169,6 +169,42 @@
                 "google"
             ],
             "time": "2014-11-25 14:35:03"
+        },
+        {
+            "name": "joseki/error-presenter-extension",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Joseki/ErrorPresenter-extension.git",
+                "reference": "6693307a1c879c82aed1ffc50c6147071060d11e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Joseki/ErrorPresenter-extension/zipball/6693307a1c879c82aed1ffc50c6147071060d11e",
+                "reference": "6693307a1c879c82aed1ffc50c6147071060d11e",
+                "shasum": ""
+            },
+            "suggest": {
+                "nette/nette": "PHP framework to which this extension belongs to."
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Miroslav Paulík",
+                    "email": "miras.paulik@seznam.cz"
+                }
+            ],
+            "description": "Dynamic error presenter loader extension",
+            "time": "2014-09-13 06:41:26"
         },
         {
             "name": "kdyby/curl",

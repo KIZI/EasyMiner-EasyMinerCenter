@@ -1,0 +1,17 @@
+{
+    "name": "joseki/error-presenter-extension",
+    "description": "Dynamic error presenter loader extension",
+    "authors": [
+        {
+            "name": "Miroslav Paulík",
+            "email": "miras.paulik@seznam.cz"
+        }
+    ],
+    "suggest": {
+        "nette/nette": "PHP framework to which this extension belongs to."
+    },
+    "license": "MIT",
+    "autoload": {
+        "classmap": ["src"]
+    }
+}
