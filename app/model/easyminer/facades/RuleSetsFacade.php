@@ -220,6 +220,35 @@ class RuleSetsFacade {
   }
 
   /**
+   * Funkce pro vygenerování a uložení nového rule setu pro zadaného uživatele; pokud není jméno rule setu unikátní, je přidáno pořadové číslo...
+   * @param string $ruleSetName
+   * @param User $user
+   * @return RuleSet
+   */
+  public function saveNewRuleSetForUser($ruleSetName,User $user){
+    //vyřešení unikátního jména
+    $newName=$ruleSetName;
+    $needCheck=true;
+    $counter=2;
+    while($needCheck){
+      try{
+        $this->checkUniqueRuleSetNameByUser($newName,$user);
+        $needCheck=false;
+      }catch (InvalidArgumentException $e){
+        $needCheck=true;
+        $newName=$ruleSetName.' '.$counter;
+        $counter++;
+      }
+    }
+    //uložení...
+    $ruleSet=new RuleSet();
+    $ruleSet->user=$user;
+    $ruleSet->name=$newName;
+    $this->saveRuleSet($ruleSet);
+    return $ruleSet;
+  }
+
+  /**
    * Funkce pro přepočítání počtu pravidel v rulesetu
    * @param RuleSet|int $ruleSet
    */

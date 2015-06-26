@@ -54,7 +54,6 @@ services:
 
 	- App\Model\EasyMiner\Transformators\XmlTransformator(%xmlTransformations%)
 
-	- App\Model\EasyMiner\Facades\HelperFacade
 	- App\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
 	- App\Model\EasyMiner\Facades\MinersFacade
 	- App\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
@@ -70,7 +69,6 @@ services:
 	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
 	- App\Model\EasyMiner\Repositories\MetasourcesRepository
 	- App\Model\EasyMiner\Repositories\TasksRepository
-	- App\Model\EasyMiner\Repositories\HelperDataRepository
 	- App\Model\EasyMiner\Repositories\MinersRepository
 	- App\Model\EasyMiner\Repositories\UsersRepository
 	- App\Model\EasyMiner\Repositories\AttributesRepository

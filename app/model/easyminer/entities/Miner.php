@@ -16,7 +16,7 @@ use Nette\Utils\Json;
  * @property string $type m:Enum('lm','r')
  * @property Datasource|null $datasource m:hasOne(datasource_id:) - zdroj původních dat v DB
  * @property Metasource|null $metasource m:hasOne(metasource_id:) - zdroj předzpracovaných dat v DB
- * @property RuleSet|null $ruleSet=null
+ * @property RuleSet|null $ruleSet m:hasOne(rule_set_id:)
  * @property-read string $attributesTable
  * @property Nette\Utils\DateTime|null $created = null
  * @property Nette\Utils\DateTime|null $lastOpened = null

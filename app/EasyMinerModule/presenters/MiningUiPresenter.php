@@ -3,6 +3,8 @@ namespace App\EasyMinerModule\Presenters;
 
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Facades\DatasourcesFacade;
+use App\Model\EasyMiner\Facades\RuleSetsFacade;
+use App\Model\EasyMiner\Facades\UsersFacade;
 use EasyMiner\MiningUI\Integration as MiningUIIntegration;
 use EasyMiner\Help\Integration as HelpIntegration;
 use IZI\IZIConfig;
@@ -20,6 +22,10 @@ class MiningUiPresenter extends BasePresenter{
   private $config;
   /** @var  DatasourcesFacade $datasourcesFacade*/
   private $datasourcesFacade;
+  /** @var  RuleSetsFacade $ruleSetsFacade */
+  private $ruleSetsFacade;
+  /** @var  UsersFacade $usersFacade */
+  private $usersFacade;
 
   /**
    * Akce vracející data description a konfiguraci pro EasyMiner UI
@@ -70,6 +76,16 @@ class MiningUiPresenter extends BasePresenter{
     $responseContent['miner_type'] = $miner->type;
     $responseContent['miner_name'] = $miner->name;
 
+    if ($miner->ruleSet){
+      $ruleSet=$miner->ruleSet;
+    }else{
+      $ruleSet=$this->ruleSetsFacade->saveNewRuleSetForUser($miner->name,$this->usersFacade->findUser($this->user->id));
+      $miner->ruleSet=$ruleSet;
+      $this->minersFacade->saveMiner($miner);
+    }
+
+    $responseContent['miner_ruleset'] = ['id'=>$ruleSet->ruleSetId, 'name'=>$ruleSet->name];
+
     $this->sendJsonResponse($responseContent);
   }
 
@@ -113,6 +129,18 @@ class MiningUiPresenter extends BasePresenter{
    */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
     $this->datasourcesFacade=$datasourcesFacade;
+  }
+  /**
+   * @param RuleSetsFacade $ruleSetsFacade
+   */
+  public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
+    $this->ruleSetsFacade=$ruleSetsFacade;
+  }
+  /**
+   * @param UsersFacade $usersFacade
+   */
+  public function injectUsersFacade(UsersFacade $usersFacade){
+    $this->usersFacade=$usersFacade;
   }
   #endregion
 } 
