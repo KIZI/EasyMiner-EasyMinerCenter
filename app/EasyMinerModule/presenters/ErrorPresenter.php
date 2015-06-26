@@ -10,7 +10,7 @@ use Nette,
 /**
  * Error presenter.
  */
-class ErrorPresenter extends Nette\Application\UI\Presenter
+class ErrorPresenter extends BasePresenter
 {
 	/**
 	 * @param  Exception
@@ -24,13 +24,12 @@ class ErrorPresenter extends Nette\Application\UI\Presenter
 			$this->setView(in_array($code, array(403, 404, 405, 410, 500)) ? $code : '4xx');
 			// log to access.log
 			Debugger::log("HTTP code $code: {$exception->getMessage()} in {$exception->getFile()}:{$exception->getLine()}", 'access');
-
 		} else {
 			$this->setView('500'); // load template 500.latte
       Debugger::log($exception, Debugger::ERROR); // and log exception
 		}
 
-    $this->setView('500');
+//    $this->setView('500');
 
     $this->template->exception=$exception;
 

@@ -9,7 +9,7 @@ php:
 nette:
 	application:
 		errorPresenter: EasyMiner:Error
-#		catchExceptions: true
+		catchExceptions: true
 		mapping:
 			*: App\*Module\Presenters\*Presenter
 
