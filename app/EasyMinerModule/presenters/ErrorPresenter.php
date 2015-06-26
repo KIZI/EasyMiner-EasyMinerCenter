@@ -30,6 +30,8 @@ class ErrorPresenter extends Nette\Application\UI\Presenter
       Debugger::log($exception, Debugger::ERROR); // and log exception
 		}
 
+    $this->view->exception=$exception;
+
 		if ($this->isAjax()) { // AJAX request? Note this error in payload.
 			$this->payload->error = TRUE;
 			$this->terminate();
