@@ -1,3 +1,5 @@
+
+/*region headerMenu - menu zobrazovaná v hlavičce*/
 /**
  * Funkce pro nastavení absolutní pozice pro menu v hlavičce (absolutně vzhledem k dokumentu)
  * @param menuBlock
@@ -17,9 +19,7 @@ function setHeaderMenuPosition(menuBlock, menuLink,documentWidth){
   menuBlock.find('div.menuLinkArrow').css({left:menuLinkArrowLeft});
 }
 
-
-$(document).ready(function($){
-  //region prepareHeaderMenus
+$(document).ready(function($){return;
   $('.headerMenu').append('<div class="menuLinkArrow"></div>');
   var menuVisible=false;
   var headerUserLink = $('#headerUserLink');
@@ -90,3 +90,11 @@ $(document).ready(function($){
   }
 
 });
+
+/*endregion headerMenu*/
+
+/*region long running forms*/
+//TODO
+
+
+/*endregion long running forms*/
