@@ -99,8 +99,8 @@ $(document).ready(function($){
 /*region long running forms*/
 //TODO
 $(document).ready(function($){
-  $('form').submit(function(){
-    console.log('submit');
+  $('form').on("afterSubmit",function(){
+    console.log('form submitted...');
   });
 });
 
