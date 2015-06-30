@@ -6,7 +6,7 @@
  * @param menuLink
  * @param documentWidth
  */
-function setHeaderMenuPosition(menuBlock, menuLink,documentWidth){
+var setHeaderMenuPosition = function (menuBlock, menuLink,documentWidth){
   var SPACE_FROM_RIGHT=10;
   var MENU_LINK_ARROW_SIZE=9;
   var menuLinkCenterFromDocumentLeft = menuLink.offset().left+Math.floor(menuLink.outerWidth()/2);
@@ -17,9 +17,12 @@ function setHeaderMenuPosition(menuBlock, menuLink,documentWidth){
   menuBlock.css({left:menuBlockLeft,top:(menuLink.offset().top+menuLink.outerHeight()+MENU_LINK_ARROW_SIZE)});
   var menuLinkArrowLeft = Math.floor((menuBlockWidth-MENU_LINK_ARROW_SIZE)/2)+menuBlockShiftCenterToLeft;
   menuBlock.find('div.menuLinkArrow').css({left:menuLinkArrowLeft});
-}
+};
 
-$(document).ready(function($){return;
+/**
+ * Připojení událostí nápovědy po načtení stránky
+ */
+$(document).ready(function($){
   $('.headerMenu').append('<div class="menuLinkArrow"></div>');
   var menuVisible=false;
   var headerUserLink = $('#headerUserLink');
@@ -95,6 +98,11 @@ $(document).ready(function($){return;
 
 /*region long running forms*/
 //TODO
+$(document).ready(function($){
+  $('form').submit(function(){
+    console.log('submit');
+  });
+});
 
 
 /*endregion long running forms*/
