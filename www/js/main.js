@@ -21,22 +21,38 @@ function setHeaderMenuPosition(menuBlock, menuLink,documentWidth){
 $(document).ready(function($){
   //region prepareHeaderMenus
   $('.headerMenu').append('<div class="menuLinkArrow"></div>');
-
+  var menuVisible=false;
   var headerUserLink = $('#headerUserLink');
   if (headerUserLink){
+    /**
+     * Skrytí všech headerMenu při kliknutí na jiný element
+     */
+    $(document).mousedown(function(event){
+      if (!menuVisible){return;}
+      var targetElement=$(event.target);
+      if (!(targetElement.hasClass('headerMenu') || targetElement.closest('.headerMenu').length || targetElement.closest('.headerLinks').length)){
+        $('.headerMenu').hide();
+        $('.headerLinks a').removeClass('active');
+      }
+    });
+    /**
+     * Událost při kliknutí na odkaz v hlavičce (zobrazení/skrytí menu)
+     */
     headerUserLink.click(function(event){
       if ($(this).hasClass('active')){
         //skryjeme menu
+        menuVisible=false;
         $('.headerMenu').hide();
         $('.headerLinks a').removeClass('active');
       }else{
         //zobrazíme menu
         $('.headerMenu').hide();
+        menuVisible=false;
         $('.headerLinks a').removeClass('active');
-
         var headerUserMenu=$('#headerUserMenu');
         if (headerUserMenu){
           setHeaderMenuPosition(headerUserMenu,headerUserLink,$(document).width());
+          menuVisible=true;
           headerUserMenu.show();
           $(this).addClass('active');
         }
@@ -51,16 +67,19 @@ $(document).ready(function($){
     headerAppsLink.click(function(event){
       if ($(this).hasClass('active')){
         //skryjeme menu
+        menuVisible=false;
         $('.headerMenu').hide();
         $('.headerLinks a').removeClass('active');
       }else{
         //zobrazíme menu
+        menuVisible=false;
         $('.headerMenu').hide();
         $('.headerLinks a').removeClass('active');
 
         var headerAppsMenu=$('#headerAppsMenu');
         if (headerAppsMenu){
           setHeaderMenuPosition(headerAppsMenu,headerAppsLink,$(document).width());
+          menuVisible=true;
           headerAppsMenu.show();
           $(this).addClass('active');
         }
