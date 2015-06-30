@@ -67,10 +67,6 @@ html.js .jshidden {
 /*region Základní styly layoutu*/
 
 
-body.iframe{
-  background: white;
-}
-
 div.centerContent{
   margin: 10px auto;
 }

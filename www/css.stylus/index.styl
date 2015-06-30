@@ -8,6 +8,9 @@
 //import basic shared styles
 @import '../../submodules/EasyMiner-MiningUI/web/css.stylus/_mixins.styl'
 
+//constants
+iframeBackgroundColor = white
+
 //import project specific styles
 @import '_header.styl'
 @import '_footer.styl'
@@ -19,8 +22,30 @@ html
   position relative
 
 body
-  background: transparent url("../images/bg-body.jpg") center repeat;
+  background transparent url("../images/bg-body.jpg") center repeat
   font-family font
   font-size baseFontSize
   overflow-y scroll
   margin 0 0 footerHeight 0
+
+  div#loadingOverlay
+    display none
+    height 100%
+    width 100%
+    position fixed
+    top 0
+    left 0
+    z-index 10000
+    background-position center center
+    background-image url("../images/icons/icon-loading-big.gif")
+    background-repeat no-repeat
+    background-color rgba(red(backgroundColor),green(backgroundColor),blue(backgroundColor),0.8)
+
+  &.slowLoading
+    div#loadingOverlay
+      display block
+
+  &.iframe
+    background iframeBackgroundColor
+    div#loadingOverlay
+      background-color rgba(red(iframeBackgroundColor),green(iframeBackgroundColor),blue(iframeBackgroundColor),0.8)

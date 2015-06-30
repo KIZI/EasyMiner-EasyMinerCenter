@@ -699,3 +699,25 @@ body {
   overflow-y: scroll;
   margin: 0 0 34px 0;
 }
+body div#loadingOverlay {
+  display: none;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  background-position: center center;
+  background-image: url("../images/icons/icon-loading-big.gif");
+  background-repeat: no-repeat;
+  background-color: rgba(237,237,237,0.8);
+}
+body.slowLoading div#loadingOverlay {
+  display: block;
+}
+body.iframe {
+  background: #fff;
+}
+body.slowLoading.iframe div#loadingOverlay {
+  background-color: rgba(255,255,255,0.8);
+}
