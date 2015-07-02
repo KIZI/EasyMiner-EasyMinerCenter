@@ -1,0 +1,73 @@
+
+loginFormInputWidth = 422px
+labelColor = rgb(165,165,165)
+
+/*region login and registration form*/
+#loginPage
+  box()
+  centerContent()
+  > form
+    padding-bottom 12px
+    margin 5px 0
+    position relative
+    overflow auto
+
+    &#frm-registrationForm
+      label
+        font-size 12px
+        color labelColor
+        display block
+        margin 5px 0 0 0
+        padding 0
+
+    input.text
+      display block
+      width loginFormInputWidth
+      margin 5px 0 2px 0
+
+    .error
+      padding-left 15px
+      display block
+
+    .small
+      font-size 13px
+      color labelColor
+      position relative
+      overflow auto
+      margin-bottom 10px
+      margin-top 5px
+
+      label
+        float left
+
+      a
+        display inline-block
+        float right
+
+    .actions
+      text-align center
+      margin 15px 0 0 0
+
+      input.button
+        display inline-block
+        width 200px
+
+  div.otherLogins
+    border-top invisButtonBorder
+    padding-top 10px
+
+    a
+      display block
+      margin 5px auto
+      width 180px
+      padding-left 50px
+      &.facebookLogin
+        background url('../images/facebookIcon.png') 5px center no-repeat buttonBackground
+        &:hover
+          background url('../images/facebookIcon.png') 5px center no-repeat buttonHoverBackground
+      &.googleLogin
+        background url('../images/googleIcon.png') 5px center no-repeat buttonBackground
+        &:hover
+          background url('../images/googleIcon.png') 5px center no-repeat buttonHoverBackground
+/*endregion login and registration form*/
+

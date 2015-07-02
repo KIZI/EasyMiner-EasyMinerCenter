@@ -15,7 +15,10 @@ iframeBackgroundColor = white
 @import '_header.styl'
 @import '_footer.styl'
 
-@import '_errorPage.styl';
+@import '_errorPage.styl'
+@import '_overlay.styl'
+@import '_preprocessing.styl'
+@import '_user.styl'
 
 html
   min-height 100%
@@ -27,26 +30,4 @@ body
   font-size baseFontSize
   overflow-y scroll
   margin 0 0 footerHeight 0
-
-  div#loadingOverlay
-    display none
-    height 100%
-    width 100%
-    position fixed
-    top 0
-    left 0
-    z-index 10000
-    background-position 40% center
-    background-image url("../images/icons/icon-loading-wg-72.gif")
-    background-repeat no-repeat
-    background-color rgba(0,0,0,0.7)
-
-  &.slowLoading
-    div#loadingOverlay
-      display block
-
-  &.iframe
-    background iframeBackgroundColor
-    div#loadingOverlay
-      background-color rgba(red(iframeBackgroundColor),green(iframeBackgroundColor),blue(iframeBackgroundColor),0.8)
-      background-image url("../images/icons/icon-loading-bw-72.gif")
+  min-width minContentWidth2

@@ -344,7 +344,7 @@ td {
 body > header {
   background: url("../images/bg-header.png") repeat-x scroll bottom #075783;
   height: 100px;
-  width: 100%;
+  min-width: 100%;
   font-family: 'Helvetica Neue', 'Arial', 'sans-serif';
   font-size: 16px;
 }
@@ -688,6 +688,200 @@ body > footer div.content a:hover {
   z-index: -1;
   opacity: 0.4;
 }
+div#loadingOverlay {
+  display: none;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  background-position: 40% center;
+  background-repeat: no-repeat;
+  background-color: #000;
+  background-color: rgba(0,0,0,0.7);
+  background-image: url("../images/icons/icon-loading-wg-72.gif");
+}
+body.iframe div#loadingOverlay {
+  background-color: rgba(255,255,255,0.8);
+  background-image: url("../images/icons/icon-loading-bw-72.gif");
+}
+body.slowLoading div#loadingOverlay {
+  display: block;
+}
+div.valuesBin {
+  border: 1px solid #2d83be;
+  margin: 20px 0;
+  padding: 20px;
+  position: relative;
+}
+div.valuesBin label {
+  width: 100px;
+  display: inline-block;
+}
+div.valuesBin > input[type='text'] {
+  width: 300px;
+}
+div.valuesBin .removeBin {
+  float: right;
+  background: #fff;
+  border: 1px solid #ededed;
+  color: #800000;
+}
+div.valuesBin .removeBin:hover {
+  border-color: #800000;
+  background: #800000;
+  color: #fff;
+}
+div.valuesBin .addInterval table select {
+  width: 60px;
+}
+div.valuesBin .addInterval table input[type='text'] {
+  width: 67px;
+}
+div.valuesBin.show {
+  padding: 0 20px;
+}
+div.valuesBin .addInterval,
+div.valuesBin .addValue {
+  margin-top: 20px;
+}
+div.valuesBin .addInterval table,
+div.valuesBin .addValue table {
+  border-spacing: 0;
+}
+div.valuesBin .addInterval table label,
+div.valuesBin .addValue table label {
+  padding-top: 10px;
+}
+.formatValues {
+  margin: 10px 0;
+  padding: 10px;
+  color: #808080;
+  border: 1px solid #ededed;
+}
+.formatValues span {
+  display: inline-block;
+  margin: 2px;
+  padding: 0 5px;
+  text-align: center;
+  border-right: 1px solid #ededed;
+}
+.formatValues span:last-child {
+  border-right: none;
+}
+div.valuesBin .intervals,
+div.valuesBin .values {
+  margin: 20px 0;
+}
+div.valuesBin .intervals .interval,
+div.valuesBin .values .value {
+  border: 1px solid #075783;
+  display: inline-block;
+}
+div.valuesBin .intervals .interval input[type='text'],
+div.valuesBin .values .value input[type='text'] {
+  display: none;
+}
+div.valuesBin .intervals .interval strong,
+div.valuesBin .values .value strong {
+  display: inline-block;
+  margin-left: 20px;
+  margin-right: 5px;
+}
+div.valuesBin .intervals .interval input,
+div.valuesBin .values .value input {
+  background: #fff;
+  border: none;
+  color: #800000;
+}
+div.valuesBin .intervals .interval input:hover,
+div.valuesBin .values .value input:hover {
+  background: #800000;
+  color: #fff;
+}
+div.valuesBin.show .value,
+div.valuesBin.show .interval {
+  display: inline-block;
+  padding: 5px 10px;
+  font-weight: bold;
+}
+#loginPage {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px 10px;
+}
+#loginPage > form {
+  padding-bottom: 12px;
+  margin: 5px 0;
+  position: relative;
+  overflow: auto;
+}
+#loginPage > form#frm-registrationForm label {
+  font-size: 12px;
+  color: #a5a5a5;
+  display: block;
+  margin: 5px 0 0 0;
+  padding: 0;
+}
+#loginPage > form input.text {
+  display: block;
+  width: 422px;
+  margin: 5px 0 2px 0;
+}
+#loginPage > form .error {
+  padding-left: 15px;
+  display: block;
+}
+#loginPage > form .small {
+  font-size: 13px;
+  color: #a5a5a5;
+  position: relative;
+  overflow: auto;
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+#loginPage > form .small label {
+  float: left;
+}
+#loginPage > form .small a {
+  display: inline-block;
+  float: right;
+}
+#loginPage > form .actions {
+  text-align: center;
+  margin: 15px 0 0 0;
+}
+#loginPage > form .actions input.button {
+  display: inline-block;
+  width: 200px;
+}
+#loginPage div.otherLogins {
+  border-top: 1px solid #ededed;
+  padding-top: 10px;
+}
+#loginPage div.otherLogins a {
+  display: block;
+  margin: 5px auto;
+  width: 180px;
+  padding-left: 50px;
+}
+#loginPage div.otherLogins a.facebookLogin {
+  background: url("../images/facebookIcon.png") 5px center no-repeat #075783;
+}
+#loginPage div.otherLogins a.facebookLogin:hover {
+  background: url("../images/facebookIcon.png") 5px center no-repeat #2d83be;
+}
+#loginPage div.otherLogins a.googleLogin {
+  background: url("../images/googleIcon.png") 5px center no-repeat #075783;
+}
+#loginPage div.otherLogins a.googleLogin:hover {
+  background: url("../images/googleIcon.png") 5px center no-repeat #2d83be;
+}
 html {
   min-height: 100%;
   position: relative;
@@ -698,27 +892,5 @@ body {
   font-size: 16px;
   overflow-y: scroll;
   margin: 0 0 34px 0;
-}
-body div#loadingOverlay {
-  display: none;
-  height: 100%;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 10000;
-  background-position: center 40%;
-  background-image: url("../images/icons/icon-loading-wg-72.gif");
-  background-repeat: no-repeat;
-  background-color: rgba(0,0,0,0.7);
-}
-body.slowLoading div#loadingOverlay {
-  display: block;
-}
-body.iframe {
-  background: #fff;
-}
-body.iframe div#loadingOverlay {
-  background-color: rgba(255,255,255,0.8);
-  background-image: url("../images/icons/icon-loading-bw-72.gif");
+  min-width: 1335px;
 }

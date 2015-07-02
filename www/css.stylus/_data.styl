@@ -1,0 +1,51 @@
+/*styly pro šablony DataPresenteru*/
+
+/*FIXME*/
+
+div.uploadData{
+  position: relative;
+  margin: 0 auto;
+  overflow: auto;
+  min-width: 500px;
+  max-width: 1600px;
+}
+div.uploadData div.smallBlock{
+  display: block;
+  margin: 10px 5px;
+  float: left;
+}
+div.uploadData div.block{
+  margin-left: 505px;
+  min-width: 400px;
+}
+div.uploadData #datasetPreview{
+  overflow: auto;
+}
+table.dataPreviewTable{
+  border-spacing: 0;
+  border: 1px solid rgb(235,235,235);
+}
+table.dataPreviewTable th{
+  padding: 5px 8px;
+  text-align: left;
+  font-weight: normal;
+  color: white;
+  background: #075783;
+  border-left: 1px solid rgb(49,78,100);
+}
+table.dataPreviewTable th:first-child{
+  border-left: none;
+}
+table.dataPreviewTable td{
+  padding: 5px 8px;
+  background: #ffffff;
+  border-top: 1px solid rgb(235,235,235);
+  border-left: 1px solid rgb(235,235,235);
+}
+table.dataPreviewTable td:first-child{
+  border-left: none;
+}
+.smallSpinner{
+  background: url("../images/spinner.gif") left center no-repeat;
+  padding-left: 30px;
+}

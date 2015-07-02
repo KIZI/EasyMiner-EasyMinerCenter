@@ -2,7 +2,7 @@
 
 {block content}
 
-  <div class="centerContent smallBlock loginForm">
+  <div id="loginPage" class="smallBlock">
     <h1 n:block=title>{_'EasyMiner login'}</h1>
     <p>{_'Welcome to EasyMiner data-mining system!'}</p>
 
@@ -22,7 +22,7 @@
       </div>
     {/form}
 
-    <div class="loginFormOtherLogins">
+    <div class="otherLogins">
       <a n:href="facebookLogin-open!" class="facebookLogin button">{_'Log in using Facebook...'}</a>
       <a n:href="googleLogin-open!" class="googleLogin button">{_'Log in using Google...'}</a>
     </div>

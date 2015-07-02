@@ -4,7 +4,6 @@
  * @constructor
  */
 var HeaderMenu = function(options){
-  var $ = jQuery.noConflict();
   this.menuVisible = false;
   /**
    * @type {{subMenus: Array, links: Array, SPACE_FROM_RIGHT: number, MENU_LINK_ARROW_SIZE: number}}

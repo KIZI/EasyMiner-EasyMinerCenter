@@ -1,0 +1,20 @@
+div#loadingOverlay
+  display none
+  height 100%
+  width 100%
+  position fixed
+  top 0
+  left 0
+  z-index 10000
+  background-position 40% center
+  background-repeat no-repeat
+  background-color #000000
+  background-color rgba(0,0,0,0.7)
+  background-image url("../images/icons/icon-loading-wg-72.gif")
+
+  body.iframe &
+    background-color rgba(red(iframeBackgroundColor),green(iframeBackgroundColor),blue(iframeBackgroundColor),0.8)
+    background-image url("../images/icons/icon-loading-bw-72.gif")
+
+  body.slowLoading &
+    display block
