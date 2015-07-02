@@ -101,13 +101,12 @@ $(document).ready(function($){
  * Připojení událostí pro slow formuláře
  */
 $(document).ready(function($){
-  //připojení funkce pro odchycení custom eventu afterSubmit
-  $('form.slowForm').on("afterSubmit",function(){
-    $("body").addClass("slowLoading");
-  });
-  //TODO add support for ajax forms
   //připojení prvku, který řeší překrytí obsahu spinnerem
   $("body").append('<div id="loadingOverlay"></div>');
+  //připojení funkce pro odchycení custom eventu afterSubmit
+  $('form:not(.ajax)').on("afterSubmit",function(){
+    $("body").addClass("slowLoading");
+  });
 });
 
 /*endregion long running forms*/

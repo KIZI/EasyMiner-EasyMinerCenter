@@ -707,10 +707,10 @@ body div#loadingOverlay {
   top: 0;
   left: 0;
   z-index: 10000;
-  background-position: center center;
-  background-image: url("../images/icons/icon-loading-big.gif");
+  background-position: center 40%;
+  background-image: url("../images/icons/icon-loading-wg-72.gif");
   background-repeat: no-repeat;
-  background-color: rgba(237,237,237,0.8);
+  background-color: rgba(0,0,0,0.7);
 }
 body.slowLoading div#loadingOverlay {
   display: block;
@@ -718,6 +718,7 @@ body.slowLoading div#loadingOverlay {
 body.iframe {
   background: #fff;
 }
-body.slowLoading.iframe div#loadingOverlay {
+body.iframe div#loadingOverlay {
   background-color: rgba(255,255,255,0.8);
+  background-image: url("../images/icons/icon-loading-bw-72.gif");
 }
