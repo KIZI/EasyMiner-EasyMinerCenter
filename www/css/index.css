@@ -1,4 +1,3 @@
-@import url("http://fonts.googleapis.com/css?family=Droid+Sans:400,700");
 article,
 aside,
 details,
@@ -51,11 +50,11 @@ body {
   text-shadow: none;
 }
 a {
-  color: linkColor;
+  color: #126499;
   text-decoration: none;
 }
 a:hover {
-  color: linkHoverColor;
+  color: #06e;
   text-decoration: underline;
 }
 abbr[title] {
@@ -289,6 +288,9 @@ td {
 @media print {
   * {
     background: transparent !important;
+    box-shadow: 0 0 0 0 #fff;
+    -webkit-box-shadow: 0 0 0 0 #fff;
+    -moz-box-shadow: 0 0 0 0 #fff;
     text-shadow: none !important;
     filter: none !important;
     -ms-filter: none !important;
@@ -343,7 +345,7 @@ html.js .jshidden {
 }
 body {
   background: #2d83be url("../images/bg-body.jpg") center repeat;
-  font-family: 'Helvetica Neue', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-size: 16px;
   overflow-y: scroll;
   margin: 0;
@@ -440,7 +442,7 @@ h3 {
 a.button {
   background: #075783;
   font-size: 14px;
-  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -460,7 +462,7 @@ a.button:focus {
 a.extButton {
   background: #075783;
   font-size: 14px;
-  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -491,7 +493,7 @@ div.actions a,
 div.buttons a {
   background: #075783;
   font-size: 14px;
-  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -513,7 +515,7 @@ div.buttons a:focus {
 div.bigButtons a {
   background: #075783;
   font-size: 14px;
-  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -538,7 +540,7 @@ body > header {
   background: url("../images/bg-header.png") repeat-x scroll bottom #075783;
   height: 100px;
   min-width: 100%;
-  font-family: 'Helvetica Neue', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-size: 16px;
 }
 body > header div.content {
@@ -740,7 +742,7 @@ body > header .headerMenu#headerUserMenu div.actions {
 body > header .headerMenu#headerUserMenu div.actions a {
   background: #075783;
   font-size: 14px;
-  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -857,7 +859,7 @@ body > footer div.content a:hover {
 form input,
 form select {
   padding: 10px 13px;
-  font-family: 'Droid Sans', arial, sans-serif;
+  font-family: 'Arial', 'sans-serif';
   font-size: 15px;
   border: 1px solid #ebebeb;
 }
@@ -892,7 +894,7 @@ form input[type="button"],
 form input[type="reset"] {
   background: #075783;
   font-size: 14px;
-  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-family: 'Arial', 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
