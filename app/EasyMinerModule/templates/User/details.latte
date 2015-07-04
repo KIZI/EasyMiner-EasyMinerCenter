@@ -2,9 +2,9 @@
 
 {block content}
 
-  <div class="centerContent smallBlock">
+  <div id="mainBlock">
     <h1 n:block=title>{if !empty($selectedUser->name)}{$selectedUser->name}{else}{$selectedUser->email}{/if}</h1>
-    <p>E-mail: <strong>{$selectedUser->email}</strong></p>
+    <p>{_'E-mail'}: <strong>{$selectedUser->email}</strong></p>
     <h2>{_'Methods for logging'}</h2>
     <ul>
       {if !empty($selectedUser->password)}<li>{_'Local account (e-mail + password)'}</li>{/if}

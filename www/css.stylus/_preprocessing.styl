@@ -1,7 +1,7 @@
-/*FIXME přestrukturovat... */
+/*Styly preprocessingu*/
 
-div
-  &.valuesBin
+div#preprocessingPage
+  .valuesBin
     border 1px solid #2d83be
     margin 20px 0
     padding 20px
@@ -17,77 +17,69 @@ div
       border 1px solid #ededed
       color maroon
       &:hover
+      &:focus
+      &:active
         border-color maroon
         background maroon
         color white
+
     .addInterval
+    .addValue
+      margin-top 20px
       table
+        border-spacing 0
+        label
+          padding-top 10px
         select
           width 60px
         input[type='text']
           width 67px
+
+    form
+      input
+        margin 0
+
+    .intervals
+    .values
+      margin 20px 0
+      .interval
+      .value
+        border 1px solid #075783
+        display inline-block
+        input[type='text']
+          display none
+        input[type='submit']
+          background #ffffff
+          border none
+          color maroon
+          padding 10px
+          &:hover
+            background maroon
+            color white
+        strong
+          display inline-block
+          margin-left 20px
+          margin-right 5px
+
     &.show
       padding 0 20px
+      .value
+      .interval
+        display inline-block
+        padding 5px 10px
+        font-weight bold
 
-div.valuesBin .addInterval,
-div.valuesBin .addValue
-  margin-top 20px
-
-div.valuesBin .addInterval table,
-div.valuesBin .addValue table
-  border-spacing 0
-
-div.valuesBin .addInterval table label,
-div.valuesBin .addValue table label
-  padding-top 10px
-
-.formatValues
-  margin 10px 0
-  padding 10px
-  color gray
-  border 1px solid #ededed
-  span
-    display inline-block
-    margin 2px
-    padding 0 5px
-    text-align center
-    border-right 1px solid #ededed
-    &:last-child
-      border-right none
-
-div.valuesBin .intervals,
-div.valuesBin .values
-  margin 20px 0
-
-div.valuesBin .intervals .interval,
-div.valuesBin .values .value
-  border 1px solid #075783
-  display inline-block
-
-div.valuesBin .intervals .interval input[type='text'],
-div.valuesBin .values .value input[type='text']
-  display none
-
-div.valuesBin .intervals .interval strong,
-div.valuesBin .values .value strong
-  display inline-block
-  margin-left 20px
-  margin-right 5px
-
-div.valuesBin .intervals .interval input,
-div.valuesBin .values .value input
-  background #ffffff
-  border none
-  color maroon
-
-div.valuesBin .intervals .interval input:hover,
-div.valuesBin .values .value input:hover
-  background maroon
-  color white
-
-div.valuesBin.show .value,
-div.valuesBin.show .interval
-  display inline-block
-  padding 5px 10px
-  font-weight bold
+  .formatValues
+    margin 10px 0
+    padding 10px
+    color gray
+    border 1px solid #ededed
+    span
+      display inline-block
+      margin 2px
+      padding 0 5px
+      text-align center
+      border-right 1px solid #ededed
+      &:last-child
+        border-right none
 

@@ -1,0 +1,97 @@
+/*Základní vzhled stránky (základní styly)*/
+
+bodyBackgroundColor = #2D83BE
+iframeBodyBackgroundColor = white
+
+headerBgColor = #075783
+headerTextColor = white
+headerMenuBgColor = white
+headerUserMenuImageSize = 100px
+headerMenuPadding = 10px
+
+footerBgColor = headerBgColor
+footerContentHeight = 20px
+footerContentPadding = 7px
+footerHeight = footerContentHeight + 2*footerContentPadding
+footerFontSize = 11px
+footerFontColor = rgb(225, 225, 255)
+
+html
+  min-height 100%
+  position relative
+  &.js .jshidden
+    display none
+
+body
+  background bodyBackgroundColor url("../images/bg-body.jpg") center repeat
+  font-family font
+  font-size baseFontSize
+  overflow-y scroll
+  margin 0
+  padding 0
+  min-width minContentWidth2
+
+  &.iframe
+    background iframeBodyBackgroundColor
+    min-width 0.3 * minContentWidth2
+
+  > main
+    centerMainContent()
+    margin-bottom footerHeight+ 10px
+    padding 0
+    &#IZIMiner
+      position inherit
+
+    #mainBlock
+      mainBlock()
+
+  #ajax-spinner
+    margin 15px 0 0 15px
+    padding 13px
+    background transparent url('../images/icons/icon-loading-bw-20.gif') no-repeat 50% 50%
+    font-size 0
+    z-index 123456
+    display none
+
+//TODO check this style
+
+h1
+  color rgb(146, 82, 19)
+  font-size 36px
+  font-weight normal
+  margin 10px 0 10px 0
+  padding 0
+
+h2
+  color rgb(49, 78, 100)
+  font-size 28px;
+  font-weight normal
+
+h3
+  color rgb(72, 113, 19)
+  font-size 19px
+  font-weight normal
+
+/*region basic classes */
+.smallBlock
+  smallBlock()
+
+.block
+  block()
+
+a.button
+  button()
+
+a.extButton
+  invisButton()
+
+div.actions
+div.buttons
+  a
+    button()
+
+div.bigButtons
+  a
+    bigButton()
+
+/*endregion*/

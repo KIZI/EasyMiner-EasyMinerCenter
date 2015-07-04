@@ -1,33 +1,23 @@
 @import url(http://fonts.googleapis.com/css?family=Droid\+Sans:400,700);
-@import url('screen.css')
 
 //impot basic styles
 @import '_boilerplate.styl'
-@import '_boilerplate2.styl'
+@import 'flexbox.styl'
 
 //import basic shared styles
 @import '../../submodules/EasyMiner-MiningUI/web/css.stylus/_mixins.styl'
-
-//constants
-iframeBackgroundColor = white
+@import '_mixinsEMC.styl'
 
 //import project specific styles
+@import '_body.styl'
 @import '_header.styl'
 @import '_footer.styl'
+@import '_forms.styl'
+@import '_flashMessages.styl'
 
 @import '_errorPage.styl'
 @import '_overlay.styl'
 @import '_preprocessing.styl'
 @import '_user.styl'
+@import '_data.styl'
 
-html
-  min-height 100%
-  position relative
-
-body
-  background transparent url("../images/bg-body.jpg") center repeat
-  font-family font
-  font-size baseFontSize
-  overflow-y scroll
-  margin 0 0 footerHeight 0
-  min-width minContentWidth2

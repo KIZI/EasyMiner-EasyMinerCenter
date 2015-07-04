@@ -6,15 +6,45 @@ div#loadingOverlay
   top 0
   left 0
   z-index 10000
-  background-position 40% center
+  background-position center 40%
   background-repeat no-repeat
   background-color #000000
   background-color rgba(0,0,0,0.7)
   background-image url("../images/icons/icon-loading-wg-72.gif")
 
   body.iframe &
-    background-color rgba(red(iframeBackgroundColor),green(iframeBackgroundColor),blue(iframeBackgroundColor),0.8)
+    background-color rgba(red(iframeBodyBackgroundColor),green(iframeBodyBackgroundColor),blue(iframeBodyBackgroundColor),0.8)
     background-image url("../images/icons/icon-loading-bw-72.gif")
 
   body.slowLoading &
     display block
+
+
+/*region overlay*/
+/*FIXME předělat styl ovelayerů*/
+div.overlay{
+  position: fixed;
+  z-index:100;
+  top: 0;
+  left: 0;
+  height:100%;
+  width:100%;
+  background-color:#000;
+  background-color:rgba(0,0,0,0.5);
+}
+div.modal, section.modal {
+  background: #ffffff;
+  z-index: 102;
+  color:#000000;
+  border: none;
+  padding: 30px;
+  text-align:left;
+  margin: 0 auto;
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+/*endregion overlay*/

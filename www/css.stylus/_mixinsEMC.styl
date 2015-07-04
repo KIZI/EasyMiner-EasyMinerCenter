@@ -1,0 +1,78 @@
+blockMargin = 10px
+smallBlockWidth = 450px
+
+/** hlavní blok zobrazovaný v EMC */
+block()
+  box()
+  margin blockMargin blockMargin blockMargin 0
+  > h1, > h2
+    margin-top 0
+
+/** mixin pro definici malý dialogový obsah */
+smallBlock()
+  block()
+  width smallBlockWidth
+
+/** mixin pro hlavní hlavního obsahového bloku */
+mainBlock()
+  smallBlock()
+  centerContent()
+  margin blockMargin auto
+
+
+/*region basic colors*/
+baseBgColor = white
+textColor = rgb(67,67,67)
+errorTextColor = red
+
+detailsTextColor = gray
+
+subSectionBorderColor = #f0f0f0
+
+tableBgColor  = white
+tableBgColor2 = rgb(252,251,255)
+tableColor = textColor
+tableHeadBgColor = #075783
+tableHeadColor = white
+tableTdPadding = 5px 8px
+tableTdBorderColor  = rgb(235,235,235)
+tableGraphColorLeft = #dad5fd
+tableGraphColorRight = #b4e8d7
+/*endregion*/
+
+basicTableWithBorders()
+  background tableBgColor
+  color tableColor
+  border-spacing 0
+  margin 20px 0
+  tr:first-child th
+    border-top 1px solid tableHeadBgColor
+  th
+    padding tableTdPadding
+    background tableHeadBgColor
+    color tableHeadColor
+    text-align left
+    border 1px solid tableHeadBgColor
+    border-left  none
+    border-top none
+    &:first-child
+      border 1px solid tableHeadBgColor
+    &.empty
+      background tableBgColor
+      &:first-child
+        border-left none
+        border-top  none
+  td
+    padding tableTdPadding
+    text-align left
+    border-bottom 1px solid tableTdBorderColor
+    border-right  1px solid tableTdBorderColor
+    border-top none
+    &:first-child
+      border-left 1px solid tableTdBorderColor
+
+listTable()
+  basicTableWithBorders()
+  tr:nth-child(even)
+    background tableBgColor2
+

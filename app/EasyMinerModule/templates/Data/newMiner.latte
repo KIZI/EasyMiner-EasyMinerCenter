@@ -1,16 +1,16 @@
 {block content}
 
-  <div class="newMiner {if (count($miners))}twoColumns{/if}">
+  <div id="newMinerPage">
 
-    <div class="smallBlock">
+    <div>
       <h2>{_'Create new miner'}</h2>
       <div class="actionsDiv bigButtons">
         <a href="{link Data:uploadData}">{_'Upload CSV'}</a>
         <!--TODO existing database-->
 
         {if (count($datasources))}
-          <a href="" onclick="$('.existingSource').show();$(this).hide();return false;">{_'New miner from existing datasource'}</a>
-          <div class="existingSource">
+          <a href="" onclick="$('#existingDataSources').show();$(this).hide();return false;">{_'New miner from existing datasource'}</a>
+          <div id="existingDataSources">
             <h3>{_'New miner from existing datasource'}</h3>
             {foreach $datasources as $datasource}
               <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}">{$datasource->type}: {$datasource->dbTable}</a>
@@ -21,7 +21,7 @@
     </div>
 
     {if (count($miners))}
-      <div class="smallBlock">
+      <div>
         <h2>{_'Open existing EasyMiner'}</h2>
         <div class="actionsDiv bigButtons">
           {foreach $miners as $miner}

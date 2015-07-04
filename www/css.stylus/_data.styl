@@ -1,51 +1,70 @@
 /*styly pro šablony DataPresenteru*/
 
-/*FIXME*/
+#newMinerPage
+  width auto
+  flexbox(flex)
+  flex-direction(row)
+  flex-justify(center)
+  flex-wrap(wrap)
+  flex-content(center)
+  flex-align(start)
+  > div
+    smallBlock()
 
-div.uploadData{
-  position: relative;
-  margin: 0 auto;
-  overflow: auto;
-  min-width: 500px;
-  max-width: 1600px;
-}
-div.uploadData div.smallBlock{
+    #existingDataSources
+      display none
+
+#uploadDataPage
+  width minContentWidth2 - 2*blockMargin
+  padding-left blockMargin
+  padding-right blockMargin
+  flexbox(flex)
+  flex-direction(row)
+  flex-justify(center)
+  flex-wrap(wrap)
+  flex-content(stretch)
+  flex-align(start)
+
+  div.config
+    smallBlock()
+
+  div.preview
+    block()
+    flex(grow:1, shrink: 1)
+    margin-right 0
+
+    #dataPreviewLoading
+      background: url("../images/icons/icon-loading-bw-20.gif") left center no-repeat;
+      padding-left: 30px;
+
+    table
+      listTable()
+
+
+
+/*region datasource* /
+a.datasourceColumnItem {
   display: block;
-  margin: 10px 5px;
-  float: left;
-}
-div.uploadData div.block{
-  margin-left: 505px;
-  min-width: 400px;
-}
-div.uploadData #datasetPreview{
-  overflow: auto;
-}
-table.dataPreviewTable{
-  border-spacing: 0;
-  border: 1px solid rgb(235,235,235);
-}
-table.dataPreviewTable th{
-  padding: 5px 8px;
-  text-align: left;
-  font-weight: normal;
-  color: white;
+  margin: 5px auto;
+  padding:12px 15px;
   background: #075783;
-  border-left: 1px solid rgb(49,78,100);
+  border: 1px solid rgb(49,78,100);
+  color: white;
+  cursor: pointer;
 }
-table.dataPreviewTable th:first-child{
-  border-left: none;
+a.datasourceColumnItem:hover, a.datasourceColumnItem:focus, a.datasourceColumnItem.selected{
+  border: 1px solid #2d83be;
+  background-color:#2d83be;
+  text-decoration: none;
 }
-table.dataPreviewTable td{
-  padding: 5px 8px;
-  background: #ffffff;
-  border-top: 1px solid rgb(235,235,235);
-  border-left: 1px solid rgb(235,235,235);
+a.datasourceColumnItem .title{
+  display: block;
+  margin-bottom: 5px;
 }
-table.dataPreviewTable td:first-child{
-  border-left: none;
+a.datasourceColumnItem .subtitle{
+  color: rgb(230,230,230);
 }
-.smallSpinner{
-  background: url("../images/spinner.gif") left center no-repeat;
-  padding-left: 30px;
+a.datasourceColumnItem .subtitle .stateErr {
+  color: orange;
 }
+/ *endregion*/

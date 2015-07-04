@@ -1,0 +1,59 @@
+/*Základní styly pro zobrazení formulářů*/
+
+form
+  input
+  select
+    padding: 10px 13px;
+    font-family: 'Droid Sans', arial, sans-serif;
+    font-size: 15px;
+    border: 1px solid inputBorderColor;
+    &:hover
+    &:focus
+    &:active
+      border 1px solid inputHoverBorderColor
+    &.has-error
+      border-color errorColor !important
+    *.noBorder
+      border none !important
+
+  select
+    padding 9px 13px
+
+  input.normalWidth
+    width 300px
+
+  select.normalWidth
+    width 328px
+
+  input.button
+  input[type="submit"]
+  input[type="button"]
+  input[type="reset"]
+    button()
+    padding: 11px 13px
+
+  th[colspan]
+    input.button
+    input[type="submit"]
+    input[type="button"]
+    input[type="reset"]
+      margin-top 10px
+
+  .error
+  .error-message
+    display block
+    padding 3px 5px 5px 13px
+    color errorColor
+    font-size 85%
+
+  th
+    vertical-align top
+    font-weight normal
+    text-align right
+    > label
+      padding 7px 13px 0 8px
+      display block
+
+  td
+    vertical-align top
+    font-weight normal

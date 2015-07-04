@@ -1,5 +1,4 @@
 @import url("http://fonts.googleapis.com/css?family=Droid+Sans:400,700");
-@import url("screen.css");
 article,
 aside,
 details,
@@ -8,15 +7,14 @@ figure,
 footer,
 header,
 nav,
-section {
+section,
+main {
   display: block;
 }
 audio,
 canvas,
 video {
   display: inline-block;
-  *display: inline;
-  *zoom: 1;
 }
 audio:not([controls]) {
   display: none;
@@ -53,17 +51,12 @@ body {
   text-shadow: none;
 }
 a {
-  color: #00e;
+  color: linkColor;
+  text-decoration: none;
 }
 a:hover {
-  color: #06e;
-}
-a:focus {
-  outline: thin dotted;
-}
-a:hover,
-a:active {
-  outline: 0;
+  color: linkHoverColor;
+  text-decoration: underline;
 }
 abbr[title] {
   border-bottom: 1px dotted;
@@ -341,6 +334,206 @@ td {
     page-break-after: avoid;
   }
 }
+html {
+  min-height: 100%;
+  position: relative;
+}
+html.js .jshidden {
+  display: none;
+}
+body {
+  background: #2d83be url("../images/bg-body.jpg") center repeat;
+  font-family: 'Helvetica Neue', 'Arial', 'sans-serif';
+  font-size: 16px;
+  overflow-y: scroll;
+  margin: 0;
+  padding: 0;
+  min-width: 1335px;
+}
+body.iframe {
+  background: #fff;
+  min-width: 400.5px;
+}
+body > main {
+  width: 1335px;
+  margin: 0 auto;
+  position: relative;
+  margin-bottom: 44px;
+  padding: 0;
+}
+body > main#IZIMiner {
+  position: inherit;
+}
+body > main #mainBlock {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  margin: 10px auto;
+}
+body > main #mainBlock > h1,
+body > main #mainBlock > h2 {
+  margin-top: 0;
+}
+body #ajax-spinner {
+  margin: 15px 0 0 15px;
+  padding: 13px;
+  background: transparent url("../images/icons/icon-loading-bw-20.gif") no-repeat 50% 50%;
+  font-size: 0;
+  z-index: 123456;
+  display: none;
+}
+h1 {
+  color: #925213;
+  font-size: 36px;
+  font-weight: normal;
+  margin: 10px 0 10px 0;
+  padding: 0;
+}
+h2 {
+  color: #314e64;
+  font-size: 28px;
+  font-weight: normal;
+}
+h3 {
+  color: #487113;
+  font-size: 19px;
+  font-weight: normal;
+}
+.smallBlock {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  width: 450px;
+}
+.smallBlock > h1,
+.smallBlock > h2 {
+  margin-top: 0;
+}
+.block {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+}
+.block > h1,
+.block > h2 {
+  margin-top: 0;
+}
+a.button {
+  background: #075783;
+  font-size: 14px;
+  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-align: center;
+  display: inline-block;
+  padding: 8px 13px;
+}
+a.button:hover,
+a.button:focus {
+  background: #2d83be;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-decoration: none;
+}
+a.extButton {
+  background: #075783;
+  font-size: 14px;
+  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-align: center;
+  display: inline-block;
+  padding: 8px 13px;
+  background: #fff;
+  color: #075783;
+  border: 1px solid #ededed;
+  text-align: center;
+}
+a.extButton:hover,
+a.extButton:focus {
+  background: #2d83be;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-decoration: none;
+}
+a.extButton:hover,
+a.extButton:focus {
+  background: #fff;
+  color: #2d83be;
+  border: 1px solid #2d83be;
+}
+div.actions a,
+div.buttons a {
+  background: #075783;
+  font-size: 14px;
+  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-align: center;
+  display: inline-block;
+  padding: 8px 13px;
+}
+div.actions a:hover,
+div.buttons a:hover,
+div.actions a:focus,
+div.buttons a:focus {
+  background: #2d83be;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-decoration: none;
+}
+div.bigButtons a {
+  background: #075783;
+  font-size: 14px;
+  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-align: center;
+  display: inline-block;
+  padding: 8px 13px;
+  padding: 12px 15px;
+  text-align: left;
+  display: block;
+  margin: 5px auto;
+}
+div.bigButtons a:hover,
+div.bigButtons a:focus {
+  background: #2d83be;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-decoration: none;
+}
 body > header {
   background: url("../images/bg-header.png") repeat-x scroll bottom #075783;
   height: 100px;
@@ -390,7 +583,6 @@ body > header div.content h1.typeR {
 body > header div.content h1.typeLM {
   padding-right: 200px;
   background: transparent url("../images/logo-lm.png") right 32px no-repeat;
-/*TODO*/
 }
 body > header div.content div#applicationSubTitle {
   font-size: 12px;
@@ -554,9 +746,9 @@ body > header .headerMenu#headerUserMenu div.actions a {
   cursor: pointer;
   color: #fff;
   border: 1px solid #314e64;
-  text-align: left;
+  text-align: center;
   display: inline-block;
-  padding: 12px 15px;
+  padding: 8px 13px;
   font-size: 14.4px;
 }
 body > header .headerMenu#headerUserMenu div.actions a:hover,
@@ -662,6 +854,101 @@ body > footer div.content a {
 body > footer div.content a:hover {
   color: #fff;
 }
+form input,
+form select {
+  padding: 10px 13px;
+  font-family: 'Droid Sans', arial, sans-serif;
+  font-size: 15px;
+  border: 1px solid #ebebeb;
+}
+form input:hover,
+form select:hover,
+form input:focus,
+form select:focus,
+form input:active,
+form select:active {
+  border: 1px solid #2d83be;
+}
+form input.has-error,
+form select.has-error {
+  border-color: #d01d1d !important;
+}
+form input *.noBorder,
+form select *.noBorder {
+  border: none !important;
+}
+form select {
+  padding: 9px 13px;
+}
+form input.normalWidth {
+  width: 300px;
+}
+form select.normalWidth {
+  width: 328px;
+}
+form input.button,
+form input[type="submit"],
+form input[type="button"],
+form input[type="reset"] {
+  background: #075783;
+  font-size: 14px;
+  font-family: 'Droid Sans', 'Arial', 'sans-serif';
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-align: center;
+  display: inline-block;
+  padding: 8px 13px;
+  padding: 11px 13px;
+}
+form input.button:hover,
+form input[type="submit"]:hover,
+form input[type="button"]:hover,
+form input[type="reset"]:hover,
+form input.button:focus,
+form input[type="submit"]:focus,
+form input[type="button"]:focus,
+form input[type="reset"]:focus {
+  background: #2d83be;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-decoration: none;
+}
+form th[colspan] input.button,
+form th[colspan] input[type="submit"],
+form th[colspan] input[type="button"],
+form th[colspan] input[type="reset"] {
+  margin-top: 10px;
+}
+form .error,
+form .error-message {
+  display: block;
+  padding: 3px 5px 5px 13px;
+  color: #d01d1d;
+  font-size: 85%;
+}
+form th {
+  vertical-align: top;
+  font-weight: normal;
+  text-align: right;
+}
+form th > label {
+  padding: 7px 13px 0 8px;
+  display: block;
+}
+form td {
+  vertical-align: top;
+  font-weight: normal;
+}
+div.flash {
+  color: #000;
+  background: #fff9d7;
+  border: 1px solid #e2c822;
+  padding: 1em;
+  margin: 1em 0;
+}
 #errorPage {
   display: block;
   margin: 0 auto;
@@ -673,7 +960,7 @@ body > footer div.content a:hover {
 #errorPage p {
   position: relative;
   color: #fff;
-  text-shadow: 2px 2px 10px #f00;
+  text-shadow: 2px 2px 10px #d01d1d;
   width: 80%;
 }
 #errorPage .errorCode {
@@ -696,7 +983,7 @@ div#loadingOverlay {
   top: 0;
   left: 0;
   z-index: 10000;
-  background-position: 40% center;
+  background-position: center 40%;
   background-repeat: no-repeat;
   background-color: #000;
   background-color: rgba(0,0,0,0.7);
@@ -709,102 +996,148 @@ body.iframe div#loadingOverlay {
 body.slowLoading div#loadingOverlay {
   display: block;
 }
-div.valuesBin {
+div.overlay {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #000;
+  background-color: rgba(0,0,0,0.5);
+}
+div.modal,
+section.modal {
+  background: #fff;
+  z-index: 102;
+  color: #000;
+  border: none;
+  padding: 30px;
+  text-align: left;
+  margin: 0 auto;
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+div#preprocessingPage .valuesBin {
   border: 1px solid #2d83be;
   margin: 20px 0;
   padding: 20px;
   position: relative;
 }
-div.valuesBin label {
+div#preprocessingPage .valuesBin label {
   width: 100px;
   display: inline-block;
 }
-div.valuesBin > input[type='text'] {
+div#preprocessingPage .valuesBin > input[type='text'] {
   width: 300px;
 }
-div.valuesBin .removeBin {
+div#preprocessingPage .valuesBin .removeBin {
   float: right;
   background: #fff;
   border: 1px solid #ededed;
   color: #800000;
 }
-div.valuesBin .removeBin:hover {
+div#preprocessingPage .valuesBin .removeBin:hover,
+div#preprocessingPage .valuesBin .removeBin:focus,
+div#preprocessingPage .valuesBin .removeBin:active {
   border-color: #800000;
   background: #800000;
   color: #fff;
 }
-div.valuesBin .addInterval table select {
-  width: 60px;
-}
-div.valuesBin .addInterval table input[type='text'] {
-  width: 67px;
-}
-div.valuesBin.show {
-  padding: 0 20px;
-}
-div.valuesBin .addInterval,
-div.valuesBin .addValue {
+div#preprocessingPage .valuesBin .addInterval,
+div#preprocessingPage .valuesBin .addValue {
   margin-top: 20px;
 }
-div.valuesBin .addInterval table,
-div.valuesBin .addValue table {
+div#preprocessingPage .valuesBin .addInterval table,
+div#preprocessingPage .valuesBin .addValue table {
   border-spacing: 0;
 }
-div.valuesBin .addInterval table label,
-div.valuesBin .addValue table label {
+div#preprocessingPage .valuesBin .addInterval table label,
+div#preprocessingPage .valuesBin .addValue table label {
   padding-top: 10px;
 }
-.formatValues {
+div#preprocessingPage .valuesBin .addInterval table select,
+div#preprocessingPage .valuesBin .addValue table select {
+  width: 60px;
+}
+div#preprocessingPage .valuesBin .addInterval table input[type='text'],
+div#preprocessingPage .valuesBin .addValue table input[type='text'] {
+  width: 67px;
+}
+div#preprocessingPage .valuesBin form input {
+  margin: 0;
+}
+div#preprocessingPage .valuesBin .intervals,
+div#preprocessingPage .valuesBin .values {
+  margin: 20px 0;
+}
+div#preprocessingPage .valuesBin .intervals .interval,
+div#preprocessingPage .valuesBin .values .interval,
+div#preprocessingPage .valuesBin .intervals .value,
+div#preprocessingPage .valuesBin .values .value {
+  border: 1px solid #075783;
+  display: inline-block;
+}
+div#preprocessingPage .valuesBin .intervals .interval input[type='text'],
+div#preprocessingPage .valuesBin .values .interval input[type='text'],
+div#preprocessingPage .valuesBin .intervals .value input[type='text'],
+div#preprocessingPage .valuesBin .values .value input[type='text'] {
+  display: none;
+}
+div#preprocessingPage .valuesBin .intervals .interval input[type='submit'],
+div#preprocessingPage .valuesBin .values .interval input[type='submit'],
+div#preprocessingPage .valuesBin .intervals .value input[type='submit'],
+div#preprocessingPage .valuesBin .values .value input[type='submit'] {
+  background: #fff;
+  border: none;
+  color: #800000;
+  padding: 10px;
+}
+div#preprocessingPage .valuesBin .intervals .interval input[type='submit']:hover,
+div#preprocessingPage .valuesBin .values .interval input[type='submit']:hover,
+div#preprocessingPage .valuesBin .intervals .value input[type='submit']:hover,
+div#preprocessingPage .valuesBin .values .value input[type='submit']:hover {
+  background: #800000;
+  color: #fff;
+}
+div#preprocessingPage .valuesBin .intervals .interval strong,
+div#preprocessingPage .valuesBin .values .interval strong,
+div#preprocessingPage .valuesBin .intervals .value strong,
+div#preprocessingPage .valuesBin .values .value strong {
+  display: inline-block;
+  margin-left: 20px;
+  margin-right: 5px;
+}
+div#preprocessingPage .valuesBin.show {
+  padding: 0 20px;
+}
+div#preprocessingPage .valuesBin.show .value,
+div#preprocessingPage .valuesBin.show .interval {
+  display: inline-block;
+  padding: 5px 10px;
+  font-weight: bold;
+}
+div#preprocessingPage .formatValues {
   margin: 10px 0;
   padding: 10px;
   color: #808080;
   border: 1px solid #ededed;
 }
-.formatValues span {
+div#preprocessingPage .formatValues span {
   display: inline-block;
   margin: 2px;
   padding: 0 5px;
   text-align: center;
   border-right: 1px solid #ededed;
 }
-.formatValues span:last-child {
+div#preprocessingPage .formatValues span:last-child {
   border-right: none;
-}
-div.valuesBin .intervals,
-div.valuesBin .values {
-  margin: 20px 0;
-}
-div.valuesBin .intervals .interval,
-div.valuesBin .values .value {
-  border: 1px solid #075783;
-  display: inline-block;
-}
-div.valuesBin .intervals .interval input[type='text'],
-div.valuesBin .values .value input[type='text'] {
-  display: none;
-}
-div.valuesBin .intervals .interval strong,
-div.valuesBin .values .value strong {
-  display: inline-block;
-  margin-left: 20px;
-  margin-right: 5px;
-}
-div.valuesBin .intervals .interval input,
-div.valuesBin .values .value input {
-  background: #fff;
-  border: none;
-  color: #800000;
-}
-div.valuesBin .intervals .interval input:hover,
-div.valuesBin .values .value input:hover {
-  background: #800000;
-  color: #fff;
-}
-div.valuesBin.show .value,
-div.valuesBin.show .interval {
-  display: inline-block;
-  padding: 5px 10px;
-  font-weight: bold;
 }
 #loginPage {
   color: #434343;
@@ -813,7 +1146,17 @@ div.valuesBin.show .interval {
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
-  padding: 20px 10px;
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  margin: 10px auto;
+}
+#loginPage > h1,
+#loginPage > h2 {
+  margin-top: 0;
 }
 #loginPage > form {
   padding-bottom: 12px;
@@ -869,6 +1212,7 @@ div.valuesBin.show .interval {
   margin: 5px auto;
   width: 180px;
   padding-left: 50px;
+  text-align: left;
 }
 #loginPage div.otherLogins a.facebookLogin {
   background: url("../images/facebookIcon.png") 5px center no-repeat #075783;
@@ -882,15 +1226,165 @@ div.valuesBin.show .interval {
 #loginPage div.otherLogins a.googleLogin:hover {
   background: url("../images/googleIcon.png") 5px center no-repeat #2d83be;
 }
-html {
-  min-height: 100%;
-  position: relative;
+#newMinerPage {
+  width: auto;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-direction: normal;
+  -moz-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-align-content: center;
+  -ms-flex-line-pack: center;
+  align-content: center;
+  -webkit-box-align: start;
+  -moz-box-align: start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
+  align-items: flex-start;
 }
-body {
-  background: transparent url("../images/bg-body.jpg") center repeat;
-  font-family: 'Helvetica Neue', 'Arial', 'sans-serif';
-  font-size: 16px;
-  overflow-y: scroll;
-  margin: 0 0 34px 0;
-  min-width: 1335px;
+#newMinerPage > div {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  width: 450px;
+}
+#newMinerPage > div > h1,
+#newMinerPage > div > h2 {
+  margin-top: 0;
+}
+#newMinerPage > div #existingDataSources {
+  display: none;
+}
+#uploadDataPage {
+  width: 1315px;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-direction: normal;
+  -moz-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-align-content: stretch;
+  -ms-flex-line-pack: stretch;
+  align-content: stretch;
+  -webkit-box-align: start;
+  -moz-box-align: start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+}
+#uploadDataPage div.config {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  width: 450px;
+}
+#uploadDataPage div.config > h1,
+#uploadDataPage div.config > h2 {
+  margin-top: 0;
+}
+#uploadDataPage div.preview {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  margin-right: 0;
+}
+#uploadDataPage div.preview > h1,
+#uploadDataPage div.preview > h2 {
+  margin-top: 0;
+}
+#uploadDataPage div.preview #dataPreviewLoading {
+  background: url("../images/icons/icon-loading-bw-20.gif") left center no-repeat;
+  padding-left: 30px;
+}
+#uploadDataPage div.preview table {
+  background: #fff;
+  color: #434343;
+  border-spacing: 0;
+  margin: 20px 0;
+}
+#uploadDataPage div.preview table tr:first-child th {
+  border-top: 1px solid #075783;
+}
+#uploadDataPage div.preview table th {
+  padding: 5px 8px;
+  background: #075783;
+  color: #fff;
+  text-align: left;
+  border: 1px solid #075783;
+  border-left: none;
+  border-top: none;
+}
+#uploadDataPage div.preview table th:first-child {
+  border: 1px solid #075783;
+}
+#uploadDataPage div.preview table th.empty {
+  background: #fff;
+}
+#uploadDataPage div.preview table th.empty:first-child {
+  border-left: none;
+  border-top: none;
+}
+#uploadDataPage div.preview table td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-top: none;
+}
+#uploadDataPage div.preview table td:first-child {
+  border-left: 1px solid #ebebeb;
+}
+#uploadDataPage div.preview table tr:nth-child(even) {
+  background: #fcfbff;
 }
