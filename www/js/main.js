@@ -1,10 +1,12 @@
 /**
  * Object for management of HeaderMenu
+ * @param $ {jQuery}
  * @param options
  * @constructor
  */
-var HeaderMenu = function(options){
+var HeaderMenu = function($,options){
   this.menuVisible = false;
+
   /**
    * @type {{subMenus: Array, links: Array, SPACE_FROM_RIGHT: number, MENU_LINK_ARROW_SIZE: number}}
    */
