@@ -160,7 +160,7 @@ class TasksPresenter  extends BasePresenter{
     //vygenerování PMML
     $pmml=$this->prepareTaskPmml($task);
     $this->template->task=$task;
-    $this->template->content=$this->xmlTransformator->transformToHtml($pmml);
+    $this->template->content=$this->xmlTransformator->transformToHtml($pmml,$this->template->basePath);
   }
 
   /**

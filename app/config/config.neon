@@ -26,7 +26,7 @@ extensions:
 
 parameters:
     xmlTransformations:
-        directory: "libs/EasyMiner-XML/transformations"
+        directory: "../submodules/EasyMiner-XML/transformations"
         guhaPMML: "guhaPMML2HTML/4FTPMML2HTML.xsl"
 
 restful:

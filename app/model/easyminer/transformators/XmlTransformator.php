@@ -10,6 +10,8 @@ class XmlTransformator {
   private $transformationsDirectory;
   private $templates=[];
 
+  private $basePath='';
+
   public function __construct($params){
     $this->transformationsDirectory=__DIR__.'/../../../'.$params['directory'];
     $this->templates['guhaPMML']=$params['guhaPMML'];
@@ -20,9 +22,10 @@ class XmlTransformator {
    * @return string
    * @throws \Exception
    */
-  public function transformToHtml($xmlDocument){
+  public function transformToHtml($xmlDocument,$basePath){
     //TODO kontrola jednotlivých typů dokumentů
     $filename=$this->transformationsDirectory.'/'.$this->templates['guhaPMML'];
+    $this->basePath=$basePath;
     if (!($xslt=file_get_contents($filename))){
       throw new \Exception('Transformation template not found!');
     }
@@ -31,7 +34,7 @@ class XmlTransformator {
     $xsl->loadXML($xslt);
     $xsl->documentURI = $filename;
 
-    return self::xsltTransformation($xmlDocument,$xsl);
+    return $this->xsltTransformation($xmlDocument,$xsl);
   }
 
   /**
@@ -39,7 +42,7 @@ class XmlTransformator {
    * @param \SimpleXMLElement|\DOMDocument|string $xslt
    * @return string
    */
-  private static function xsltTransformation($xml,$xslt){
+  private function xsltTransformation($xml,$xslt){
     $xsltPreprocessor = new \XSLTProcessor();
     if (is_string($xml)){
       $xml=simplexml_load_string($xml);
@@ -48,6 +51,14 @@ class XmlTransformator {
       $xslt=simplexml_load_string($xslt);
     }
     $xsltPreprocessor->importStylesheet($xslt);
+
+
+    //region parameters
+    $xsltPreprocessor->setParameter('','contentOnly',true);
+    $xsltPreprocessor->setParameter('','loadJquery',false);
+    $xsltPreprocessor->setParameter('','basePath',$this->basePath.'/_XML/transformations/guhaPMML2HTML');//TODO
+    //endregion parameters
+
     return $xsltPreprocessor->transformToXml($xml);
   }
 

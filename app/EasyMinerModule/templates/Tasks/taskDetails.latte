@@ -1,14 +1,7 @@
 {block title}{$task->name}{/block}
 
 {block content}
-  <script type="text/javascript" src="{$basePath}/EasyMiner-XML/js/graph_url.js"></script>
-  <script type="text/javascript" src="{$basePath}/EasyMiner-XML/js/showhide.js"></script>
-  <script type="text/javascript" src="{$basePath}/EasyMiner-XML/js/ajax.js"></script>
-  <style type="text/css">
-    @import url({$basePath|noescape}/EasyMiner-XML/css/navigation.css);
-    @import url({$basePath|noescape}/EasyMiner-XML/css/pmml.css)
-  </style>
-  <div class="block">
-    {$content|noescape}
-
-  </div>
+<div class="block">
+  <style type="text/css">@import url({$basePath|noescape}/_XML/transformations/guhaPMML2HTML/navigation.css);</style>
+  {$content|noescape}
+</div>
