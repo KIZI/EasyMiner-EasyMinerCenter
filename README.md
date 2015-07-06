@@ -8,7 +8,7 @@ EasyMinerCenter is the main integration part of MiningUI. This repository includ
 * [EasyMiner-XML](https://github.com/KIZI/EasyMiner-XML)
 * [EasyMiner-Help](https://github.com/KIZI/EasyMiner-Help)
 
-:book: For more information about this repository and installation configuration and requirements, please **go to the  [Wiki pages](https://github.com/KIZI/EasyMiner-EasyMinerCenter/wiki)**
+:book: For more information about this repository and installation configuration and requirements, please **[go to the  Wiki pages](https://github.com/KIZI/EasyMiner-EasyMinerCenter/wiki)**
 
 ##Data mining backends
 For usage of the EasyMiner Project, it is necessary to install at least one data mining backend. Possible backends:
