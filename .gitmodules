@@ -1,6 +1,3 @@
-[submodule "app/libs/EasyMiner-XML"]
-	path = app/libs/EasyMiner-XML
-	url = https://github.com/KIZI/EasyMiner-XML.git
 [submodule "submodules/EasyMiner-MiningUI"]
 	path = submodules/EasyMiner-MiningUI
 	url = https://github.com/KIZI/EasyMiner-MiningUI.git
