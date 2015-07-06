@@ -1,6 +1,5 @@
 <?php
 namespace App\Model\EasyMiner\Transformators;
-//phpinfo();exit();
 /**
  * Class XmlTransformator - třída pro transformace používaných XML dokumentů
  * @package App\Model\EasyMiner\Transformators
@@ -9,23 +8,45 @@ class XmlTransformator {
 
   private $transformationsDirectory;
   private $templates=[];
-
+  /**
+   * @var string $basePath
+   */
   private $basePath='';
 
+  /**
+   * @param array $params
+   */
   public function __construct($params){
     $this->transformationsDirectory=__DIR__.'/../../../'.$params['directory'];
     $this->templates['guhaPMML']=$params['guhaPMML'];
   }
 
   /**
+   * @param $basePath
+   */
+  public function setBasePath($basePath){
+    $this->basePath=$basePath;
+  }
+
+
+  /**
    * @param \SimpleXMLElement|\DOMDocument|string $xmlDocument
    * @return string
    * @throws \Exception
    */
-  public function transformToHtml($xmlDocument,$basePath){
+  public function transformToHtml($xmlDocument){
     //TODO kontrola jednotlivých typů dokumentů
-    $filename=$this->transformationsDirectory.'/'.$this->templates['guhaPMML'];
-    $this->basePath=$basePath;
+    $filename=$this->transformationsDirectory.'/';
+    /** @var array $transformationParams Parametry transformace */
+    $transformationParams=[];
+    if (is_array($this->templates['guhaPMML'])){
+      $filename.=$this->templates['guhaPMML']['path'];
+      if (!empty($this->templates['guhaPMML']['params'])){
+        $transformationParams=$this->templates['guhaPMML']['params'];
+      }
+    }else{
+      $filename.=$this->templates['guhaPMML'];
+    }
     if (!($xslt=file_get_contents($filename))){
       throw new \Exception('Transformation template not found!');
     }
@@ -34,15 +55,16 @@ class XmlTransformator {
     $xsl->loadXML($xslt);
     $xsl->documentURI = $filename;
 
-    return $this->xsltTransformation($xmlDocument,$xsl);
+    return $this->xsltTransformation($xmlDocument, $xsl, $transformationParams);
   }
 
   /**
    * @param \SimpleXMLElement|\DOMDocument|string $xml
    * @param \SimpleXMLElement|\DOMDocument|string $xslt
+   * @param array $params
    * @return string
    */
-  private function xsltTransformation($xml,$xslt){
+  private function xsltTransformation($xml, $xslt, $params=array()){
     $xsltPreprocessor = new \XSLTProcessor();
     if (is_string($xml)){
       $xml=simplexml_load_string($xml);
@@ -54,9 +76,12 @@ class XmlTransformator {
 
 
     //region parameters
-    $xsltPreprocessor->setParameter('','contentOnly',true);
-    $xsltPreprocessor->setParameter('','loadJquery',false);
-    $xsltPreprocessor->setParameter('','basePath',$this->basePath.'/_XML/transformations/guhaPMML2HTML');//TODO
+    if (!empty($params)){
+      foreach ($params as $name => $value) {
+        $value=str_replace('$basePath',$this->basePath,$value);
+        $xsltPreprocessor->setParameter('',$name,$value);
+      }
+    }
     //endregion parameters
 
     return $xsltPreprocessor->transformToXml($xml);

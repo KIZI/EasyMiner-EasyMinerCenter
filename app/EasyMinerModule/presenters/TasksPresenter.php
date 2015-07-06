@@ -203,6 +203,8 @@ class TasksPresenter  extends BasePresenter{
    */
   public function injectXmlTransformator(XmlTransformator $xmlTransformator){
     $this->xmlTransformator=$xmlTransformator;
+    //nastaven basePath
+    $this->xmlTransformator->setBasePath($this->template->basePath);
   }
   #endregion
 } 

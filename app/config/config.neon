@@ -27,7 +27,12 @@ extensions:
 parameters:
     xmlTransformations:
         directory: "../submodules/EasyMiner-XML/transformations"
-        guhaPMML: "guhaPMML2HTML/4FTPMML2HTML.xsl"
+        guhaPMML:
+            path: "guhaPMML2HTML/4FTPMML2HTML.xsl"
+            params:
+                basePath: $basePath/_XML/transformations/guhaPMML2HTML
+                loadJquery: false
+                contentOnly: true
 
 restful:
     convention: 'camelCase'
