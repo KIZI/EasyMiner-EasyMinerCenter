@@ -1390,3 +1390,108 @@ div#preprocessingPage .formatValues span:last-child {
 #uploadDataPage div.preview table tr:nth-child(even) {
   background: #fcfbff;
 }
+div#homePage #slogan {
+  opacity: 0.8;
+  margin: 10px;
+  min-height: 80px;
+}
+div#homePage #slogan > div {
+  padding: 20px 10px;
+  display: none;
+}
+div#homePage #slogan > div.visible {
+  display: block;
+}
+div#homePage #slogan > div h2 {
+  margin: 0;
+  padding: 5px 0;
+  color: #fff;
+}
+div#homePage #slogan > div p {
+  margin: 0;
+  padding: 0;
+  color: #fff;
+}
+div#homePage #slogan > div > img {
+  float: left;
+  width: 80px;
+  height: 80px;
+  margin-right: 30px;
+}
+div#homePage #actions {
+  overflow: auto;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-direction: normal;
+  -moz-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-align-content: center;
+  -ms-flex-line-pack: center;
+  align-content: center;
+  -webkit-box-align: stretch;
+  -moz-box-align: stretch;
+  -webkit-align-items: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+}
+div#homePage #actions section {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  -webkit-box-flex: 0;
+  -moz-box-flex: 0;
+  width: 25%;
+  -webkit-flex: 0 0 auto;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+div#homePage #actions section > h1,
+div#homePage #actions section > h2 {
+  margin-top: 0;
+}
+div#homePage #actions section h2 {
+  padding: 10px 10px 5px 60px;
+}
+div#homePage #actions section.start {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -webkit-flex: 1 0 auto;
+  -ms-flex: 1 0 auto;
+  flex: 1 0 auto;
+}
+div#homePage #actions section.start h2 {
+  background: url("../images/icons/plane-48.png") left center no-repeat;
+}
+div#homePage #actions section.start .actions {
+  text-align: center;
+}
+div#homePage #actions section.start .actions a {
+  font-size: 16px;
+  padding: 15px 30px;
+}
+div#homePage #actions section.more h2 {
+  background: url("../images/icons/questinaire-48.png") left center no-repeat;
+}
+div#homePage #actions section.about h2 {
+  background: url("../images/icons/flag-48.png") left center no-repeat;
+}

@@ -23,6 +23,12 @@ class RouterFactory
 	public function createRouter()
 	{
 		$router = new RouteList();
+    $router[] = new Route('',[
+      'module'=>'EasyMiner',
+      'presenter'=>'Homepage',
+      'action'=>'default'
+    ]);
+
     $router[] = $knowledgeBaseRouter = new RouteList('KnowledgeBase');
     //$knowledgeBaseRouter[] = new Route('kb/<presenter>/<action>[/<id>]');
     $knowledgeBaseRouter[] = new Route('kb/<presenter>/<action>');
