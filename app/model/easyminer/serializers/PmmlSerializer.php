@@ -232,10 +232,10 @@ class PmmlSerializer {
       if ($preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
         //serializace eachOne
         $mapValuesXml=$derivedFieldXml->addChild('MapValues');
-        $mapValuesXml->addAttribute('outputColumn',$attribute->name);
+        $mapValuesXml->addAttribute('outputColumn','field');
         $fieldColumnPairXml=$mapValuesXml->addChild('FieldColumnPair');
-        $fieldColumnPairXml->addAttribute('column',$datasourceColumn->name);
-        $fieldColumnPairXml->addAttribute('field',$attribute->name);
+        $fieldColumnPairXml->addAttribute('column','column');
+        $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frekvence
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
@@ -258,7 +258,7 @@ class PmmlSerializer {
       if (!empty($valuesBins[0]->intervals)){
         //serializace discretizace pomocí intervalů
         $discretizeXml=$derivedFieldXml->addChild('Discretize');
-        $discretizeXml->addAttribute('field',$attribute->name);
+        $discretizeXml->addAttribute('field',$datasourceColumn->name);
         //frekvence
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
@@ -283,10 +283,10 @@ class PmmlSerializer {
       }elseif(!empty($valuesBins[0]->values)){
         //serializace discretizace pomocí výčtů hodnot
         $mapValuesXml=$derivedFieldXml->addChild('MapValues');
-        $mapValuesXml->addAttribute('outputColumn',$attribute->name);
+        $mapValuesXml->addAttribute('outputColumn','field');
         $fieldColumnPairXml=$mapValuesXml->addChild('FieldColumnPair');
-        $fieldColumnPairXml->addAttribute('column',$datasourceColumn->name);
-        $fieldColumnPairXml->addAttribute('field',$attribute->name);
+        $fieldColumnPairXml->addAttribute('column','column');
+        $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frekvence
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
