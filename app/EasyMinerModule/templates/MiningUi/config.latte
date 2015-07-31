@@ -48,6 +48,7 @@ var Config = new Class({
   knowledgeBaseRemoveRulesUrl: {plink RuleSets:removeRules id=>'__RULESETID__',rules=>'__RULEIDS__',result=>'__RESULT__'},
   knowledgeBaseRemoveAllRulesUrl: {plink RuleSets:removeAllRules id=>'__RULESETID__'},
 
+  knowledgeBaseSetMinerRuleSetUrl: {plink Miners:setRuleSet miner=>'__MINERID__', ruleSet=>'__RULESETID__'},
 
   showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',task=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},
   showTaskDetailsUrl: {plink Tasks:taskDetails miner=>'__MINERID__',task=>'__TASKID__'},
@@ -198,6 +199,10 @@ var Config = new Class({
 
   getKnowledgeBaseRemoveAllRulesUrl: function (rulesetId) {
     return this.knowledgeBaseRemoveAllRulesUrl.replace('__RULESETID__',rulesetId);
+  },
+
+  getKnowledgeBaseSetMinerRuleSetUrl: function (rulesetId) {
+    return this.knowledgeBaseSetMinerRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
   },
 
   getKnowledgeBaseAddRuleClipboardUrl: function(rulesetId,taskId,relation){
