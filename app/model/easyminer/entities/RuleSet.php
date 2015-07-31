@@ -9,6 +9,7 @@ use LeanMapper\Entity;
  * @package App\Model\EasyMiner\Entities
  * @property int $ruleSetId
  * @property string $name
+ * @property string $description
  * @property int $rulesCount = 0
  * @property User $user m:hasOne
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
@@ -23,6 +24,7 @@ class RuleSet extends Entity{
     return [
       'rule_set_id'=>$this->ruleSetId,
       'name'=>$this->name,
+      'description'=>$this->description,
       'rulesCount'=>$this->rulesCount
     ];
   }
