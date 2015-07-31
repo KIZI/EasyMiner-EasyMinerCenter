@@ -50,14 +50,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * )
      */
     public function actionRead($id){
-      try{
-        /** @var RuleSet $ruleSet */
-        $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-      }catch (EntityNotFoundException $e){
-        $this->error('Requested rule set was not found.');
-        return;
-      }
-      //TODO zkontrolovat přístup k danému rule setu dle uživatelského účtu
+      /** @var RuleSet $ruleSet */
+      $ruleSet=$this->findRuleSetWithCheckAccess($id);
       $this->resource=$ruleSet->getDataArr();
       $this->sendResource();
     }
@@ -87,14 +81,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * )
      */
     public function actionDelete($id){
-      try{
-        /** @var RuleSet $ruleSet */
-        $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-      }catch (EntityNotFoundException $e){
-        $this->error('Requested rule set was not found.');
-        return;
-      }
-      //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+      /** @var RuleSet $ruleSet */
+      $ruleSet=$this->findRuleSetWithCheckAccess($id);
 
       //smazání
       if ($this->ruleSetsFacade->deleteRuleSet($ruleSet)){
@@ -162,7 +150,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       }
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
     }
-    #endregion
+    #endregion actionCreate
 
     #region actionUpdate
 
@@ -196,15 +184,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      */
     public function actionUpdate($id){
       //prepare RuleSet from input values
-      try{
-        /** @var RuleSet $ruleSet */
-        $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-      }catch (EntityNotFoundException $e){
-        $this->error('Requested user was not found.');
-        return;
-      }
-
-      //TODO zkontrolovat přístup k danému rule setu pro daného uživatele
+      /** @var RuleSet $ruleSet */
+      $ruleSet=$this->findRuleSetWithCheckAccess($id);
 
       /** @noinspection PhpUndefinedFieldInspection */
       $ruleSet->name=$this->input->name;
@@ -241,13 +222,9 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       }
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
     }
-    #endregion
+    #endregion actionUpdate
 
   #endregion akce pro manipulaci s rulesetem
-
-  /***********************************************************************************************************************/
-
-
 
 
   /**
@@ -289,9 +266,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
    */
   public function actionReadRules($id,$offset=0,$limit=25,$order=null){
     //FIXME
-    //najití RuleSetu a kontroly
-    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    /** @var RuleSet $ruleSet */
+    $ruleSet=$this->findRuleSetWithCheckAccess($id);
     //připravení výstupu
     $result=[
       'ruleset'=>$ruleSet->getDataArr(),
@@ -308,130 +284,141 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     $this->sendJsonResponse($result);
   }
 
-  /**
-   * Akce pro přidání pravidel do rulesetu
-   * @param int $id
-   * @param string|int $rules - ID pravidel oddělená čárkami či středníky
-   * @param string $relation = 'positive'
-   * @param string $result = "simple" (varianty "simple", "rules")
-   */
-  public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE, $result="simple"){
-    //najití RuleSetu a kontroly
-    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    /** @var int[] $ruleIdsArr */
-    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
-    if (!empty($ruleIdsArr)){
-      foreach($ruleIdsArr as $ruleId){
-        if (!$ruleId){continue;}
-        try{
-          $rule=$this->rulesFacade->findRule($ruleId);
-          $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
-        }catch (\Exception $e){continue;}
-      }
-    }
-    if ($result=="rules"){
-      $result=[
-        'ruleset'=>$ruleSet->getDataArr(),
-        'rules'=>[]
-      ];
-      $result['rules']=$this->prepareRulesResult($ruleIdsArr,$ruleSet);
-      $this->sendJsonResponse($result);
-    }else{
-      $this->sendJsonResponse(['state'=>'ok']);
-    }
-  }
-
-  #region actionDeleteRules
-  /**
-   * Akce pro odebrání pravidel z rulesetu
-   * @param int $id
-   * @param int|string $rules
-   * @throws \Nette\Application\BadRequestException
-   * @SWG\Api(
-   *   path="/users/{id}",
-   *   @SWG\Operation(
-   *     method="DELETE",
-   *     summary="Remove rules from the selected rule set",
-   *     authorizations="apiKey",
-   *     @SWG\Parameter(
-   *       name="id",
-   *       description="RuleSet ID",
-   *       required=true,
-   *       type="integer",
-   *       paramType="path",
-   *       allowMultiple=false
-   *     ),
-   *     @SWG\Parameter(
-   *       name="rules",
-   *       description="Rule ID (optinally multiple - separated with , or ;)",
-   *       required=true,
-   *       type="string",
-   *       paramType="path",
-   *       allowMultiple=false
-   *     ),
-   *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
-   *   )
-   * )
-   */
-  public function actionDeleteRules($id, $rules){
-    try{
+    #region actionCreateRules
+    /**
+     * Akce pro přidání pravidel do rulesetu
+     * @param int $id - ID rule setu
+     * @param int|string $rules - ID pravidel oddělená čárkami či středníky
+     * @param string $relation = 'positive'
+     * @throws \Nette\Application\BadRequestException
+     * @SWG\Api(
+     *   path="/rule-sets/{id}/rules/{rules}",
+     *   @SWG\Operation(
+     *     method="POST",
+     *     summary="Add rules into the selected rule set",
+     *     authorizations="apiKey",
+     *     @SWG\Parameter(
+     *       name="id",
+     *       description="RuleSet ID",
+     *       required=true,
+     *       type="integer",
+     *       paramType="path",
+     *       allowMultiple=false
+     *     ),
+     *     @SWG\Parameter(
+     *       name="rules",
+     *       description="IDs of rules (optinally multiple - separated with , or ;)",
+     *       required=true,
+     *       type="string",
+     *       paramType="path",
+     *       allowMultiple=false
+     *     ),
+     *     @SWG\Parameter(
+     *       name="relation",
+     *       description="positive|neutral|negative",
+     *       required=false,
+     *       type="string",
+     *       paramType="query",
+     *       allowMultiple=false
+     *     ),
+     *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
+     *   )
+     * )
+     */
+    public function actionCreateRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
       /** @var RuleSet $ruleSet */
-      $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    }catch (EntityNotFoundException $e){
-      $this->error('Requested rule set was not found.');
-      return;
-    }
-    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    /** @var int[] $ruleIdsArr */
-    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
-    if (!empty($ruleIdsArr)){
-      foreach($ruleIdsArr as $ruleId){
-        if (!$ruleId){continue;}
-        try{
-          $rule=$this->rulesFacade->findRule($ruleId);
-          $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
-        }catch (\Exception $e){continue;}
-      }
-    }
-    $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
-
-    $this->resource=['state'=>'ok'];
-    $this->sendResource();
-  }
-  #endregion actionDeleteRules
-
-  /**
-   * Funkce připravující pole s informacemi o vybraných pravidlech pro vrácení v rámci JSON odpovědi
-   * @param int[] $ruleIdsArr
-   * @param RuleSet|int $ruleSet
-   * @return array
-   */
-  private function prepareRulesResult($ruleIdsArr, $ruleSet=null){
-    $result=[];
-    if (!empty($ruleIdsArr)) {
-      foreach ($ruleIdsArr as $ruleId) {
-        if (!$ruleId) {
-          continue;
+      $ruleSet=$this->findRuleSetWithCheckAccess($id);
+      /** @var int[] $ruleIdsArr */
+      $ruleIdsArr=explode(',',str_replace(';',',',$rules));
+      if (!empty($ruleIdsArr)){
+        foreach($ruleIdsArr as $ruleId){
+          if (!$ruleId){continue;}
+          try{
+            $rule=$this->rulesFacade->findRule($ruleId);
+            $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
+          }catch (\Exception $e){continue;}
         }
-        try {
-          $rule = $this->rulesFacade->findRule($ruleId);
-          $result[$rule->ruleId]=$rule->getBasicDataArr();
-          if (!empty($ruleSet)){
-            $relation=$rule->getRuleSetRelation($ruleSet);
-            if (!empty($relation)){
-              $result[$rule->ruleId]['ruleSetRelation']=$relation->relation;
-            }else{
-              $result[$rule->ruleId]['ruleSetRelation']='';
-            }
-          }
-        }catch (\Exception $e){continue;}
       }
+
+      $this->resource=['state'=>'ok'];
+      $this->sendResource();
     }
-    return $result;
-  }
+    #endregion actionCreateRules
+
+    #region actionDeleteRules
+    /**
+     * Akce pro odebrání pravidel z rulesetu
+     * @param int $id
+     * @param int|string $rules
+     * @throws \Nette\Application\BadRequestException
+     * @SWG\Api(
+     *   path="/rule-sets/{id}/rules/{rules}",
+     *   @SWG\Operation(
+     *     method="DELETE",
+     *     summary="Remove rules from the selected rule set",
+     *     authorizations="apiKey",
+     *     @SWG\Parameter(
+     *       name="id",
+     *       description="RuleSet ID",
+     *       required=true,
+     *       type="integer",
+     *       paramType="path",
+     *       allowMultiple=false
+     *     ),
+     *     @SWG\Parameter(
+     *       name="rules",
+     *       description="IDs of rules (optinally multiple - separated with , or ;)",
+     *       required=true,
+     *       type="string",
+     *       paramType="path",
+     *       allowMultiple=false
+     *     ),
+     *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
+     *   )
+     * )
+     */
+    public function actionDeleteRules($id, $rules){
+      /** @var RuleSet $ruleSet */
+      $ruleSet=$this->findRuleSetWithCheckAccess($id);
+      /** @var int[] $ruleIdsArr */
+      $ruleIdsArr=explode(',',str_replace(';',',',$rules));
+      if (!empty($ruleIdsArr)){
+        foreach($ruleIdsArr as $ruleId){
+          if (!$ruleId){continue;}
+          try{
+            $rule=$this->rulesFacade->findRule($ruleId);
+            $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
+          }catch (\Exception $e){continue;}
+        }
+      }
+      $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
+
+      $this->resource=['state'=>'ok'];
+      $this->sendResource();
+    }
+    #endregion actionDeleteRules
 
   #endregion akce pro manipulaci s pravidly v rulesetech
+
+
+  /**
+   * Funkce pro nalezení rule setu dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným rule setem
+   * @param int $ruleSetId
+   * @return RuleSet
+   * @throws \Nette\Application\BadRequestException
+   */
+  private function findRuleSetWithCheckAccess($ruleSetId){
+    try{
+      /** @var RuleSet $ruleSet */
+      $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleSetId);
+    }catch (EntityNotFoundException $e){
+      $this->error('Requested rule set was not found.');
+      return null;
+    }
+    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    return $ruleSet;
+  }
+
 
   #region injections
   /**
