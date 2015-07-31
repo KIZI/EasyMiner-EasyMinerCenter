@@ -37,16 +37,16 @@ var Config = new Class({
   ruleClipboardRemoveFromKnowledgeBaseUrl: {plink RuleClipboard:removeRulesFromRuleSet miner=>'__MINERID__',task=>'__TASKID__',ruleset=>'__RULESETID__'},
 
 
-  knowledgeBaseGetRulesUrl: {plink :KnowledgeBase:RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
-  knowledgeBaseGetRuleSetsUrl: {plink :KnowledgeBase:RuleSets:list},
+  knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
+  knowledgeBaseGetRuleSetsUrl: {plink RuleSets:list},
 
-  knowledgeBaseAddRuleSetUrl: {plink :KnowledgeBase:RuleSets:new name=>'__NAME__'},
-  knowledgeBaseRenameRuleSetUrl: {plink :KnowledgeBase:RuleSets:rename id=>'__RULESETID__',name=>'__NAME__'},
-  knowledgeBaseDeleteRuleSetUrl: {plink :KnowledgeBase:RuleSets:delete id=>'__RULESETID__'},
+  knowledgeBaseAddRuleSetUrl: {plink RuleSets:new name=>'__NAME__'},
+  knowledgeBaseRenameRuleSetUrl: {plink RuleSets:rename id=>'__RULESETID__',name=>'__NAME__'},
+  knowledgeBaseDeleteRuleSetUrl: {plink RuleSets:delete id=>'__RULESETID__'},
 
-  knowledgeBaseAddRulesUrl: {plink :KnowledgeBase:RuleSets:addRules id=>'__RULESETID__',rules=>'__RULEIDS__',relation=>'__RELATION__',result=>'__RESULT__'},
-  knowledgeBaseRemoveRulesUrl: {plink :KnowledgeBase:RuleSets:removeRules id=>'__RULESETID__',rules=>'__RULEIDS__',result=>'__RESULT__'},
-  knowledgeBaseRemoveAllRulesUrl: {plink :KnowledgeBase:RuleSets:removeAllRules id=>'__RULESETID__'},
+  knowledgeBaseAddRulesUrl: {plink RuleSets:addRules id=>'__RULESETID__',rules=>'__RULEIDS__',relation=>'__RELATION__',result=>'__RESULT__'},
+  knowledgeBaseRemoveRulesUrl: {plink RuleSets:removeRules id=>'__RULESETID__',rules=>'__RULEIDS__',result=>'__RESULT__'},
+  knowledgeBaseRemoveAllRulesUrl: {plink RuleSets:removeAllRules id=>'__RULESETID__'},
 
 
   showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',task=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},

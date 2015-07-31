@@ -1,6 +1,6 @@
 <?php
 
-namespace App\KnowledgeBaseModule\Presenters;
+namespace App\EasyMinerModule\Presenters;
 
 use App\Model\EasyMiner\Entities\RuleSet;
 use App\Model\EasyMiner\Entities\RuleSetRuleRelation;

@@ -41,7 +41,19 @@ class RulesPresenter  extends BasePresenter{
     $this->template->rule=$rule;
   }
 
+  #region funkce pro práci s Knowledge Base
+  public function actionGetRules($id){
+    //TODO
+  }
 
+  public function actionAddRule($id,$rule){
+    //TODO
+  }
+
+  public function actionRemoveRule($id,$rule){
+    //TODO
+  }
+  #endregion
 
   protected function beforeRender(){
     if ($this->mode=='component' || $this->mode=='iframe'){
