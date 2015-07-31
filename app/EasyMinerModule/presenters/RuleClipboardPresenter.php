@@ -129,6 +129,22 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
   /**
+   * @param int $miner
+   * @param string $task
+   * @param string $returnRules='' - IDčka oddělená čárkami, případně jedno ID
+   * @throws ForbiddenRequestException
+   */
+  public function actionRemoveAllRules($miner,$task,$returnRules=''){
+    $this->checkMinerAccess($miner);
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
+    //označení všech pravidel patřících do dané úlohy
+    $this->rulesFacade->changeAllTaskRulesClipboardState($task,false);
+    $this->tasksFacade->checkTaskInRuleClipoard($task);
+    $this->sendJsonResponse(['state'=>'ok']);
+  }
+
+  /**
    * Akce pro odebrání pravidla z rule clipboard
    * @param int $miner
    * @param string $task

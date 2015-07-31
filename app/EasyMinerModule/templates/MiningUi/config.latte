@@ -32,6 +32,7 @@ var Config = new Class({
   ruleClipboardAddRuleUrl: {plink RuleClipboard:addRule miner=>'__MINERID__',task=>'__TASKID__',rules=>'__RULEIDS__'},
   ruleClipboardAddAllRulesUrl: {plink RuleClipboard:addAllRules miner=>'__MINERID__',task=>'__TASKID__',returnRules=>'__RETURNRULES__'},
   ruleClipboardRemoveRuleUrl:  {plink RuleClipboard:removeRule miner=>'__MINERID__',task=>'__TASKID__',rules=>'__RULEIDS__'},
+  ruleClipboardRemoveAllRulesUrl: {plink RuleClipboard:removeAllRules miner=>'__MINERID__',task=>'__TASKID__'},
 
   ruleClipboardAddToKnowledgeBaseUrl: {plink RuleClipboard:addRulesToRuleSet miner=>'__MINERID__',task=>'__TASKID__',ruleset=>'__RULESETID__',relation=>'__RELATION__'},
   ruleClipboardRemoveFromKnowledgeBaseUrl: {plink RuleClipboard:removeRulesFromRuleSet miner=>'__MINERID__',task=>'__TASKID__',ruleset=>'__RULESETID__'},
@@ -241,6 +242,9 @@ var Config = new Class({
   getRuleClipboardRemoveRuleUrl: function (taskId, ruleId) {
     //jako parametr je možné zadat i více ID oddělených čárkou
     return this.ruleClipboardRemoveRuleUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
+  },
+  getRuleClipboardRemoveAllRulesUrl: function(taskId){
+    return this.ruleClipboardRemoveAllRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
   },
   //endregion
   getTaskRenameUrl: function (taskId, newName) {
