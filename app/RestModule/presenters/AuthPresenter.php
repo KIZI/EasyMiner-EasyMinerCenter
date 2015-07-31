@@ -20,9 +20,6 @@ use Nette\Application\UI\Presenter;
  */
 class AuthPresenter extends Presenter {
 
-  /** @var UsersFacade $usersFacade */
-  private $usersFacade;
-
   /**
    * @param string $key
    * @SWG\Api(
@@ -41,7 +38,7 @@ class AuthPresenter extends Presenter {
    *       allowMultiple=false
    *     ),
    *     @SWG\ResponseMessage(code=400, message="Invalid ID supplied"),
-   *     @SWG\ResponseMessage(code=404, message="Pet not found")
+   *     @SWG\ResponseMessage(code=404, message="User not found")
    *   )
    * )
    */
@@ -50,10 +47,6 @@ class AuthPresenter extends Presenter {
     $this->terminate();
     //$this->resource=['state'=>'ok'];
     //$this->sendResource();
-  }
-
-  public function injectUsersFacade(UsersFacade $usersFacade){
-    $this->usersFacade=$usersFacade;
   }
 
 }

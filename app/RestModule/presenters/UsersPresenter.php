@@ -27,11 +27,6 @@ use Nette\NotImplementedException;
 class UsersPresenter extends BaseResourcePresenter {
 
   /**
-   * @var UsersFacade $usersFacade
-   */
-  private $usersFacade;
-
-  /**
    * Akce vracející ApiKey konkrétního uživatelského účtu
    * @param int $id
    * @throws \Nette\Application\BadRequestException
@@ -268,13 +263,6 @@ class UsersPresenter extends BaseResourcePresenter {
       ->addRule(IValidator::MIN_LENGTH,'Minimal length of password is %s characters!',6);
   }
   #endregion
-
-  /**
-   * @param UsersFacade $usersFacade
-   */
-  public function injectUsersFacade(UsersFacade $usersFacade){
-    $this->usersFacade=$usersFacade;
-  }
 }
 
 /**
