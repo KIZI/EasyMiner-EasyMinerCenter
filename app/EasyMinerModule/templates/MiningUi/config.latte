@@ -40,8 +40,8 @@ var Config = new Class({
   knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
   knowledgeBaseGetRuleSetsUrl: {plink RuleSets:list},
 
-  knowledgeBaseAddRuleSetUrl: {plink RuleSets:new name=>'__NAME__'},
-  knowledgeBaseRenameRuleSetUrl: {plink RuleSets:rename id=>'__RULESETID__',name=>'__NAME__'},
+  knowledgeBaseAddRuleSetUrl: {plink RuleSets:new name=>'__NAME__',description=>'__DESCRIPTION__'},
+  knowledgeBaseRenameRuleSetUrl: {plink RuleSets:rename id=>'__RULESETID__',name=>'__NAME__',description=>'__DESCRIPTION__'},
   knowledgeBaseDeleteRuleSetUrl: {plink RuleSets:delete id=>'__RULESETID__'},
 
   knowledgeBaseAddRulesUrl: {plink RuleSets:addRules id=>'__RULESETID__',rules=>'__RULEIDS__',relation=>'__RELATION__',result=>'__RESULT__'},
@@ -162,13 +162,14 @@ var Config = new Class({
     return this.knowledgeBaseGetRuleSetsUrl;
   },
 
-  getKnowledgeBaseAddRuleSetUrl: function(name){
-    return this.knowledgeBaseAddRuleSetUrl.replace('__NAME__',name);
+  getKnowledgeBaseAddRuleSetUrl: function(name, description){
+    return this.knowledgeBaseAddRuleSetUrl.replace('__NAME__',name).replace('__DESCRIPTION__',description);
   },
 
   getKnowledgeBaseRenameRuleSetUrl: function (rulesetId, newName) {
-    return this.knowledgeBaseRenameRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__NAME__',newName);
+    return this.knowledgeBaseRenameRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__NAME__',newName).replace('__DESCRIPTION__',description);
   },
+
   getKnowledgeBaseDeleteRuleSetUrl: function (rulesetId){
     return this.knowledgeBaseDeleteRuleSetUrl.replace('__RULESETID__',rulesetId);
   },

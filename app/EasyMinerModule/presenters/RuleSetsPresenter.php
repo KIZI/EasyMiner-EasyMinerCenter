@@ -48,13 +48,15 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
   /**
    * Akce pro vytvoření nového rulesetu (se zadaným jménem)
    * @param string $name
+   * @param string $description=""
    * @throws InvalidArgumentException
    */
-  public function actionNew($name){
+  public function actionNew($name, $description=""){
     $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($name,$this->user->id);
     //vytvoření rulesetu
     $ruleSet=new RuleSet();
     $ruleSet->name=$name;
+    $ruleSet->description=$description;
     $ruleSet->user=$this->usersFacade->findUser($this->user->id);
     $this->ruleSetsFacade->saveRuleSet($ruleSet);
     //odeslání výsledku
@@ -65,14 +67,16 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
    * Akce pro přejmenování existujícího rulesetu
    * @param int $id
    * @param string $name
+   * @param string $description=""
    */
-  public function actionRename($id,$name){
+  public function actionRename($id,$name,$description=""){
     //najití RuleSetu a kontroly
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($name,$this->user->id,$ruleSet);
     //změna a uložení
     $ruleSet->name=$name;
+    $ruleSet->description=$description;
     $this->ruleSetsFacade->saveRuleSet($ruleSet);
     //odeslání výsledku
     $this->sendJsonResponse($ruleSet->getDataArr());
