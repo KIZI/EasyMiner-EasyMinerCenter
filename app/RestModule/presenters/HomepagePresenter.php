@@ -2,9 +2,6 @@
 
 namespace App\RestModule\Presenters;
 
-use App\RouterFactory;
-use Nette\Application\Responses\FileResponse;
-use Nette\Application\Responses\TextResponse;
 use Nette\Application\UI\Presenter;
 use Nette\Utils\Strings;
 use Tracy\Debugger;
