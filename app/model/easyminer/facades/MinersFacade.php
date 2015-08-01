@@ -19,18 +19,21 @@ class MinersFacade {
   private $rulesFacade;
   /** @var  TasksFacade $tasksFacade */
   private $tasksFacade;
+  /** @var  MetaAttributesFacade $metaAttributesFacade */
+  private $metaAttributesFacade;
   /** @var  IPreprocessingDriver $preprocessingDriver */
   private $preprocessingDriver;
   /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
 
-  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, RulesFacade $rulesFacade, TasksFacade $tasksFacade){
+  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, RulesFacade $rulesFacade, TasksFacade $tasksFacade, MetaAttributesFacade $metaAttributesFacade){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
     $this->preprocessingDriver=$preprocessingDriver;
     $this->miningDriverFactory=$miningDriverFactory;
     $this->rulesFacade=$rulesFacade;
     $this->tasksFacade=$tasksFacade;
+    $this->metaAttributesFacade=$metaAttributesFacade;
   }
 
   /**
@@ -112,13 +115,13 @@ class MinersFacade {
     //u samotného driveru
     $task=new Task();
     $task->miner=$miner;
-    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade);
+    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade);
     $miningDriver->deleteMiner();
     //u jednotlivých úlog
     $tasks=$miner->tasks;
     if (!empty($tasks)){
       foreach ($tasks as $task){
-        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade);
+        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade);
         $miningDriver->deleteMiner();
       }
     }
@@ -188,7 +191,7 @@ class MinersFacade {
     if (!$task instanceof Task){
       $task=$this->tasksFacade->findTask($task);
     }
-    return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade);
+    return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade);
   }
 
   /**

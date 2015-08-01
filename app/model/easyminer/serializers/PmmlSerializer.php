@@ -429,9 +429,9 @@ class PmmlSerializer {
     $BBAXML->addAttribute('id','bba_'.$ruleAttribute->ruleAttributeId);
     $BBAXML->addAttribute('literal','false');
     $BBAXML->addChild('FieldRef');
-    $BBAXML->FieldRef=$ruleAttribute->field;
+    $BBAXML->FieldRef=$ruleAttribute->attribute->name;
     $BBAXML->addChild('CatRef');
-    $BBAXML->CatRef=$ruleAttribute->value;//TODO atributy s více hodnotami!
+    $BBAXML->CatRef=(empty($ruleAttribute->valuesBin)?$ruleAttribute->value->value:$ruleAttribute->valuesBin->name);//TODO atributy s více hodnotami!
     //
     $DBAXML=$this->DBAsWorkXml->addChild('DBA');
     $DBAXML->addAttribute('id','dba_'.$ruleAttribute->ruleAttributeId);

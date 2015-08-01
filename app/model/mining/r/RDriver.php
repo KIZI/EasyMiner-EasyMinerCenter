@@ -1,12 +1,17 @@
 <?php
 namespace App\Model\Mining\R;
 
+use App\Model\EasyMiner\Entities\Attribute;
 use App\Model\EasyMiner\Entities\Cedent;
 use App\Model\EasyMiner\Entities\Miner;
+use App\Model\EasyMiner\Entities\Preprocessing;
 use App\Model\EasyMiner\Entities\Rule;
 use App\Model\EasyMiner\Entities\RuleAttribute;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Entities\TaskState;
+use App\Model\EasyMiner\Entities\Value;
+use App\Model\EasyMiner\Entities\ValuesBin;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Serializers\PmmlSerializer;
@@ -25,6 +30,8 @@ class RDriver implements IMiningDriver{
   private $minersFacade;
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
+  /** @var MetaAttributesFacade $metaAttributesFacade */
+  private $metaAttributesFacade;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
 
@@ -279,20 +286,43 @@ class RDriver implements IMiningDriver{
     }
     #endregion
     /** @var Cedent[] $cedentsArr */
-    $cedentsArr=array();
+    $cedentsArr=[];
     /** @var RuleAttribute[] $ruleAttributesArr */
-    $ruleAttributesArr=array();
-    $unprocessedIdsArr=array();
+    $ruleAttributesArr=[];
+    /** @var string[] $unprocessedIdsArr */
+    $unprocessedIdsArr=[];
+    /** @var ValuesBin[]|Value[] $valuesBinsArr */
+    $valuesBinsArr=[];
+    /** @var Attribute[] $attributesArr - pole indexované pomocí názvů atributů použitých v PMML */
+    $attributesArr=$this->miner->metasource->getAttributesByNamesArr();
     #region zpracování rule attributes
     $bbaItems=$associationRulesXml->xpath('//BBA');
     if (!empty($bbaItems)){
       foreach ($bbaItems as $bbaItem){
         $ruleAttribute=new RuleAttribute();
         $idStr=(string)$bbaItem['id'];
-        $ruleAttribute->field=(string)$bbaItem->FieldRef;
-        $ruleAttribute->value=(string)$bbaItem->CatRef;
-        $ruleAttributesArr[$idStr]=$ruleAttribute;
+        //uložení vazby na Attribute
+        $attributeName=(string)$bbaItem->FieldRef;
+        $valueName=(string)$bbaItem->CatRef;
+
+        $attribute=$attributesArr[$attributeName];
+        $ruleAttribute->attribute=$attribute;
+
+        $valueItem=$attribute->preprocessing->findValue($valueName);
+        if ($valueItem instanceof Value){
+          $ruleAttribute->value=$valueItem;
+        }elseif($valueItem instanceof ValuesBin){
+          $ruleAttribute->valuesBin=$valueItem;
+        }elseif($attribute->preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
+          //pokud jde o preprocessing each-one a nebyla nalezena příslušná hodnota v DB, tak ji uložíme
+          $value=new Value();
+          $value->format=$attribute->preprocessing->format;
+          $value->value=$valueName;
+          $this->metaAttributesFacade->saveValue($value);
+          $ruleAttribute->value=$value;
+        }
         $this->rulesFacade->saveRuleAttribute($ruleAttribute);
+        $ruleAttributesArr[$idStr]=$ruleAttribute;
       }
     }
     //pročištění pole s alternativními IDčky
@@ -368,7 +398,7 @@ class RDriver implements IMiningDriver{
       $rule='';
       if ($updateImportedRulesHeads){
         try{
-          $this->rulesFacade->findRuleByPmmlImportId($this->task->taskId,(string)$associationRule['id']);
+          $rule=$this->rulesFacade->findRuleByPmmlImportId($this->task->taskId,(string)$associationRule['id']);
         } catch(\Exception $e){/*ignore*/}
       }
       if (!$rule){
@@ -481,13 +511,15 @@ class RDriver implements IMiningDriver{
    * @param Task $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
+   * @param MetaAttributesFacade $metaAttributesFacade
    * @param $params = array()
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
     $this->rulesFacade=$rulesFacade;
+    $this->metaAttributesFacade=$metaAttributesFacade;
   }
 
   /**

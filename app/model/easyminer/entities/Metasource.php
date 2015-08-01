@@ -61,4 +61,49 @@ class Metasource extends Entity{
   public function setDbPassword($password){
     $this->row->db_password=StringsHelper::encodePassword($password);
   }
+
+  /**
+   * Funkce vracející pole atributů zahrnutých v rámci tohoto Metasource
+   * @return Attribute[]
+   */
+  public function getAttributesArr(){
+    $attributesArr=[];
+    if (!empty($this->attributes)){
+      foreach($this->attributes as $attribute){
+        $attributesArr[$attribute->attributeId]=$attribute;
+      }
+    }
+    return $attributesArr;
+  }
+
+  /**
+   * Funkce vracející pole atributů zahrnutých v rámci tohoto Metasource
+   * @return Attribute[]
+   */
+  public function getAttributesByNamesArr(){
+    $attributesArr=[];
+    if (!empty($this->attributes)){
+      foreach($this->attributes as $attribute){
+        $attributesArr[$attribute->name]=$attribute;
+      }
+    }
+    return $attributesArr;
+  }
+
+  /**
+   * Funkce vracející atribut dle zadaného jména
+   * @param string $name
+   * @return Attribute|null
+   */
+  public function getAttributeByName($name){
+    $attributes=$this->attributes;
+    if (!empty($attributes)){
+      foreach ($attributes as $attribute){
+        if ($attribute->name==$name){
+          return $attribute;
+        }
+      }
+    }
+    return null;
+  }
 } 

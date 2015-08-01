@@ -3,6 +3,7 @@ namespace App\Model\Mining;
 
 
 use App\Model\EasyMiner\Entities\Task;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use Nette\ArgumentOutOfRangeException;
@@ -23,12 +24,13 @@ class MiningDriverFactory extends Object{
    * @param Task $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
+   * @param MetaAttributesFacade $metaAttributesFacade
    * @return IMiningDriver
    */
-  public function getDriverInstance(Task $task ,MinersFacade $minersFacade, RulesFacade $rulesFacade){
+  public function getDriverInstance(Task $task ,MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade){
     if (isset($this->params['driver_'.$task->type])){
       $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
-      return new $driverClass($task, $minersFacade, $rulesFacade, $this->params['driver_'.$task->type]);
+      return new $driverClass($task, $minersFacade, $rulesFacade, $metaAttributesFacade, $this->params['driver_'.$task->type]);
     }
     throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
   }

@@ -4,6 +4,7 @@ namespace App\Model\Mining;
 use App\Model\EasyMiner\Entities\Miner;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Entities\TaskState;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
 
@@ -40,9 +41,10 @@ interface IMiningDriver {
    * @param Task $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
+   * @param MetaAttributesFacade $metaAttributesFacade
    * @param array $params = array() - parametry výchozí konfigurace
    */
-  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade, $params = array());
+  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, $params = array());
 
   /**
    * Funkce pro nastavení aktivní úlohy

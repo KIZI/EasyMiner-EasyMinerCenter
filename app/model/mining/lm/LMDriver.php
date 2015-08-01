@@ -9,6 +9,7 @@ use App\Model\EasyMiner\Entities\Rule;
 use App\Model\EasyMiner\Entities\RuleAttribute;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Entities\TaskState;
+use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Serializers\PmmlSerializer;
@@ -379,7 +380,8 @@ class LMDriver implements IMiningDriver{
     $bbaItems=$associationRulesXml->xpath('//BBA');
     if (!empty($bbaItems)){
       foreach ($bbaItems as $bbaItem){
-        $ruleAttribute=new RuleAttribute();
+        $ruleAttribute=new RuleAttribute();//FIXME IMPORTANT změna ukládání ruleAttributes
+        //FIXME IMPORTANT podpora většího množství hodnot v rule attribute
         $idStr=(string)$bbaItem['id'];
         $ruleAttribute->field=(string)$bbaItem->FieldRef;
         $ruleAttribute->value=(string)$bbaItem->CatRef;
@@ -797,9 +799,11 @@ class LMDriver implements IMiningDriver{
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
-   * @param $params = array()
+   * @param RulesFacade $rulesFacade
+   * @param MetaAttributesFacade $metaAttributesFacade
+   * @param array $params
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
