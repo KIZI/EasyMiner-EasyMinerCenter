@@ -70,7 +70,7 @@ class Miner extends Entity{
     try{
       $arr=Nette\Utils\Json::decode($this->row->config,Json::FORCE_ARRAY);
     }catch (\Exception $e){
-      $arr=array();
+      $arr=[];
     }
     return $arr;
   }
@@ -83,5 +83,29 @@ class Miner extends Entity{
     if (is_array($config)||is_object($config)){
       $this->row->config=Json::encode($config);
     }
+  }
+
+  /**
+   * Funkce vracející externí konfiguraci
+   * @return array
+   */
+  public function getExternalConfig(){
+    $config=$this->getConfig();
+    if (!empty($config['ext'])){
+      return $config['ext'];
+    }else{
+      return [];
+    }
+  }
+
+  /**
+   * Funkce pro nastavení externí konfigurace
+   * @param array $externalConfig
+   * @return array
+   */
+  public function setExternalConfig($externalConfig){
+    $config=$this->getConfig();
+    $config['ext']=$externalConfig;
+    $this->setConfig($config);
   }
 }

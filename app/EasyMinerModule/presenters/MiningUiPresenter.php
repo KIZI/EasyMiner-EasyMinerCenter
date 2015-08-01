@@ -85,6 +85,7 @@ class MiningUiPresenter extends BasePresenter{
     }
 
     $responseContent['miner_ruleset'] = ['id'=>$ruleSet->ruleSetId, 'name'=>$ruleSet->name];
+    $responseContent['miner_config'] = $miner->getExternalConfig();
 
     $this->sendJsonResponse($responseContent);
   }

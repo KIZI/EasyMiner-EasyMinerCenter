@@ -48,9 +48,9 @@ class MinersPresenter extends BasePresenter{
     if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
       throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
     }
-    $minerConfig=$miner->getConfig();
-    $minerConfig['ext'][$property]=$value;
-    $miner->setConfig($minerConfig);
+    $minerConfig=$miner->getExternalConfig();
+    $minerConfig[$property]=$value;
+    $miner->setExternalConfig($minerConfig);
     $this->minersFacade->saveMiner($miner);
     $this->actionGetConfig($miner->minerId);
   }
@@ -58,15 +58,23 @@ class MinersPresenter extends BasePresenter{
   /**
    * Funkce vracející detaily nastavení zvoleného mineru
    * @param int $miner
+   * @param string $property=""
    * @throws ForbiddenRequestException
    */
-  public function actionGetConfig($miner){
+  public function actionGetConfig($miner, $property=""){
     $miner=$this->minersFacade->findMiner($miner);
     if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
       throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
     }
-    $config=$miner->getConfig();
-    $this->sendJsonResponse(@$config['ext']);
+    $config=$miner->getExternalConfig();
+    if ($property!=''){
+      if (!empty($config[$property])){
+        $config=$config[$property];
+      }else{
+        $config="";
+      }
+    }
+    $this->sendJsonResponse($config);
   }
 
   #region injections
