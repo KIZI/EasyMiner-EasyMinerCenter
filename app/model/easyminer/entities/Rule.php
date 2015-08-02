@@ -28,7 +28,7 @@ use LeanMapper\Entity;
 class Rule extends Entity{
 
   public function getBasicDataArr() {
-    return ['text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0')];
+    return ['id'=>$this->ruleId,'text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0')];
   }
 
   /**

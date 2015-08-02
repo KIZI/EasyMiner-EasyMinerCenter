@@ -7,6 +7,7 @@ use Drahak\Restful\Application\UI\ResourcePresenter;
 use Drahak\Restful\Application\UI\SecuredResourcePresenter;
 use Drahak\Restful\Http\IInput;
 use Drahak\Restful\Validation\IDataProvider;
+use Nette\Application\Responses\TextResponse;
 
 /**
  * Class BaseResourcePresenter
@@ -46,6 +47,16 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
     //TODO implementovat kontrolu dle API KEY
   }
 
+
+  /**
+   * Funkce pro odeslání XML odpovědi
+   * @param \SimpleXMLElement|string $simpleXml
+   */
+  protected function sendXmlResponse($simpleXml){
+    $httpResponse=$this->getHttpResponse();
+    $httpResponse->setContentType('application/xml','UTF-8');
+    $this->sendResponse(new TextResponse(($simpleXml instanceof \SimpleXMLElement?$simpleXml->asXML():$simpleXml)));
+  }
 
   #region injections
   /**

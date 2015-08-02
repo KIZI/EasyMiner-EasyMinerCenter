@@ -2,6 +2,8 @@
 
 namespace App\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
+use LeanMapper\Filtering;
+use LeanMapper\Fluent;
 
 /**
  * Class RuleSet
@@ -27,6 +29,41 @@ class RuleSet extends Entity{
       'description'=>$this->description,
       'rulesCount'=>$this->rulesCount
     ];
+  }
+
+  /**
+   * Funkce vracející pravidla zařazená do tohoto rulesetu
+   * @param null|string $relationType=null
+   * @return Rule[]
+   */
+  public function findRules($relationType=null){
+    if ($relationType){
+      $ruleSetRuleRelations=$this->findRuleRelationsByType($relationType);
+    }else{
+      $ruleSetRuleRelations=$this->ruleSetRuleRelations;
+    }
+    $rulesArr=[];
+    if (!empty($ruleSetRuleRelations)){
+      foreach($ruleSetRuleRelations as $ruleRelation){
+        $rule=$ruleRelation->rule;
+        $rulesArr[$rule->ruleId]=$rule;
+      }
+    }
+    return $rulesArr;
+  }
+
+  /**
+   * Funkce vracející relace aktuálního rulesetu k pravidlům (v závislosti na zvoleném typu relace)
+   * @param string $relationType
+   * @return RuleSetRuleRelation[]
+   * @throws \LeanMapper\Exception\Exception
+   */
+  public function findRuleRelationsByType($relationType){
+    $ruleSetRuleRelations = $this->getValueByPropertyWithRelationship('values', null, new Filtering(function (Fluent $statement)use($relationType){
+      $statement->where("relation = %s", $relationType);
+      $statement->limit(1);
+    }));
+    return $ruleSetRuleRelations;
   }
 
 } 

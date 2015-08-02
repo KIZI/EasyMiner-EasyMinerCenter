@@ -8,8 +8,8 @@ use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\RuleSetsFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
+use App\Model\EasyMiner\Serializers\XmlSerializer;
 use Drahak\Restful\Validation\IValidator;
-use Nette\InvalidArgumentException;
 
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
@@ -257,32 +257,61 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
   #region akce pro manipulaci s pravidly v rulesetech
 
-  /**
-   * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
-   * @param int $id
-   * @param int $offset
-   * @param int $limit
-   * @param string|null $order = null
-   */
-  public function actionReadRules($id,$offset=0,$limit=25,$order=null){
-    //FIXME
-    /** @var RuleSet $ruleSet */
-    $ruleSet=$this->findRuleSetWithCheckAccess($id);
-    //připravení výstupu
-    $result=[
-      'ruleset'=>$ruleSet->getDataArr(),
-      'rules'=>[]
-    ];
-    if ($ruleSet->rulesCount>0 || true){
-      $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
-      if (!empty($rules)){
-        foreach($rules as $rule){
-          $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
+    #region actionReadRules
+    /**
+     * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
+     * @param int $id
+     * @param string $rel = "" - typ vztahu pravidel k tomuto rulesetu
+     * @SWG\Api(
+     *   path="/rule-sets/{id}/rules",
+     *   @SWG\Operation(
+     *     method="GET",
+     *     summary="List rules saved in the selected rule set",
+     *     authorizations="apiKey",
+     *     @SWG\Parameter(
+     *       name="id",
+     *       description="RuleSet ID",
+     *       required=true,
+     *       type="integer",
+     *       paramType="path",
+     *       allowMultiple=false
+     *     ),
+     *     @SWG\Parameter(
+     *       name="rel",
+     *       description="positive|neutral|negative",
+     *       required=false,
+     *       type="string",
+     *       paramType="query",
+     *       allowMultiple=false
+     *     ),
+     *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
+     *   )
+     * )
+     */
+    public function actionReadRules($id,$rel=""){
+      /** @var RuleSet $ruleSet */
+      $ruleSet=$this->findRuleSetWithCheckAccess($id);
+      //připravení výstupu
+      $result=[
+        'ruleset'=>$ruleSet->getDataArr()
+      ];
+      if (!empty($rel)){
+        $ruleSetRuleRelations=$ruleSet->findRuleRelationsByType($rel);
+      }else{
+        $ruleSetRuleRelations=$ruleSet->ruleSetRuleRelations;
+      }
+      if (!empty($ruleSetRuleRelations)){
+        foreach($ruleSetRuleRelations as $ruleSetRuleRelation){
+          $rule=$ruleSetRuleRelation->rule;
+          $ruleDataArr=$rule->getBasicDataArr();
+          $ruleDataArr['relation']=$ruleSetRuleRelation->relation;
+          $result['rule'][]=$ruleDataArr;
         }
       }
+      $this->resource=$result;
+      $this->sendResource();
     }
-    $this->sendJsonResponse($result);
-  }
+    #endregion actionReadRules
 
     #region actionCreateRules
     /**
@@ -292,7 +321,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * @param string $relation = 'positive'
      * @throws \Nette\Application\BadRequestException
      * @SWG\Api(
-     *   path="/rule-sets/{id}/rules/{rules}",
+     *   path="/rule-sets/{id}/rules",
      *   @SWG\Operation(
      *     method="POST",
      *     summary="Add rules into the selected rule set",
@@ -310,7 +339,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *       description="IDs of rules (optinally multiple - separated with , or ;)",
      *       required=true,
      *       type="string",
-     *       paramType="path",
+     *       paramType="query",
      *       allowMultiple=false
      *     ),
      *     @SWG\Parameter(
@@ -352,7 +381,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * @param int|string $rules
      * @throws \Nette\Application\BadRequestException
      * @SWG\Api(
-     *   path="/rule-sets/{id}/rules/{rules}",
+     *   path="/rule-sets/{id}/rules",
      *   @SWG\Operation(
      *     method="DELETE",
      *     summary="Remove rules from the selected rule set",
@@ -370,7 +399,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *       description="IDs of rules (optinally multiple - separated with , or ;)",
      *       required=true,
      *       type="string",
-     *       paramType="path",
+     *       paramType="query",
      *       allowMultiple=false
      *     ),
      *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
@@ -398,7 +427,42 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     }
     #endregion actionDeleteRules
 
+
+  #region actionReadRules
+  /**
+   * Akce vracející jeden podrobnou XML prezentaci konkrétního rulesetu včetně pravidel
+   * @param int $id
+   * @SWG\Api(
+   *   path="/rule-sets/{id}/rulesXml",
+   *   @SWG\Operation(
+   *     method="GET",
+   *     summary="List rules saved in the selected rule set",
+   *     authorizations="apiKey",
+   *     @SWG\Parameter(
+   *       name="id",
+   *       description="RuleSet ID",
+   *       required=true,
+   *       type="integer",
+   *       paramType="path",
+   *       allowMultiple=false
+   *     ),
+   *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
+   *   )
+   * )
+   */
+  public function actionReadRulesXml($id){
+    /** @var RuleSet $ruleSet */
+    $ruleSet=$this->findRuleSetWithCheckAccess($id);
+    //připravení výstupu
+    $xmlSerializer = new XmlSerializer();
+    $xml=$xmlSerializer->ruleSetAsXml($ruleSet);
+    $this->sendXmlResponse($xml);
+  }
+  #endregion actionReadRules
+
+
   #endregion akce pro manipulaci s pravidly v rulesetech
+
 
 
   /**
@@ -407,7 +471,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
    * @return RuleSet
    * @throws \Nette\Application\BadRequestException
    */
-  private function findRuleSetWithCheckAccess($ruleSetId){
+  private function findRuleSetWithCheckAccess($ruleSetId){//FIXME
     try{
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleSetId);
