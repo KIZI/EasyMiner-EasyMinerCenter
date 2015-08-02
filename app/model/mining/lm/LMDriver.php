@@ -12,7 +12,7 @@ use App\Model\EasyMiner\Entities\TaskState;
 use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Serializers\PmmlSerializer;
+use App\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use App\Model\Mining\IMiningDriver;
 use Kdyby\Curl\CurlSender;
@@ -48,7 +48,7 @@ class LMDriver implements IMiningDriver{
    * @return TaskState
    */
   public function startMining() {
-    $pmmlSerializer=new PmmlSerializer($this->task);
+    $pmmlSerializer=new GuhaPmmlSerializer($this->task);
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
     //import úlohy a spuštění dolování...
@@ -118,7 +118,7 @@ class LMDriver implements IMiningDriver{
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
 
   public function importResults(){
-    $pmmlSerializer=new PmmlSerializer($this->task);
+    $pmmlSerializer=new GuhaPmmlSerializer($this->task);
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
     //import úlohy a spuštění dolování...

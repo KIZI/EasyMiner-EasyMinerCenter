@@ -14,7 +14,7 @@ use App\Model\EasyMiner\Entities\ValuesBin;
 use App\Model\EasyMiner\Facades\MetaAttributesFacade;
 use App\Model\EasyMiner\Facades\MinersFacade;
 use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Serializers\PmmlSerializer;
+use App\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use App\Model\Mining\IMiningDriver;
 use Nette\Utils\Strings;
@@ -46,7 +46,7 @@ class RDriver implements IMiningDriver{
    * @throws \Exception
    */
   public function startMining() {
-    $pmmlSerializer=new PmmlSerializer($this->task);
+    $pmmlSerializer=new GuhaPmmlSerializer($this->task);
     $pmmlSerializer->appendMetabaseInfo();
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);

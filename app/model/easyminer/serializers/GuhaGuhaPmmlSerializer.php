@@ -13,10 +13,10 @@ use App\Model\EasyMiner\Entities\Task;
 use Nette\Utils\Strings;
 
 /**
- * Class PmmlSerializer - serializer umožňující sestavit PMML dokument z dat zadané úlohy...
+ * Class GuhaPmmlSerializer - serializer umožňující sestavit GUHA PMML dokument z dat zadané úlohy...
  * @package App\Model\EasyMiner\Serializers
  */
-class PmmlSerializer {
+class GuhaPmmlSerializer {
   /** @var  \SimpleXMLElement $pmml */
   private $pmml;
   /** @var  Task $task */

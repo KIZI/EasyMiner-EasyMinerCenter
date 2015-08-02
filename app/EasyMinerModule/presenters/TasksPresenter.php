@@ -6,7 +6,7 @@ use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\TasksFacade;
-use App\Model\EasyMiner\Serializers\PmmlSerializer;
+use App\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use App\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Utils\Json;
 
@@ -171,7 +171,7 @@ class TasksPresenter  extends BasePresenter{
     /** @var Metasource $metasource */
     $metasource=$task->miner->metasource;
     $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    $pmmlSerializer=new PmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer=new GuhaPmmlSerializer($task,null,$this->databasesFacade);
     $pmmlSerializer->appendTaskSettings();
     $pmmlSerializer->appendDataDictionary();
     $pmmlSerializer->appendTransformationDictionary();
