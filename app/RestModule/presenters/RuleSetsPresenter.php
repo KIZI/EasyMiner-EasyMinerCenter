@@ -14,6 +14,15 @@ use Drahak\Restful\Validation\IValidator;
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
  * @package App\KnowledgeBaseModule\Presenters
+ *
+ * @SWG\Resource(
+ *   apiVersion="1.0.0",
+ *   description="Management of rule sets",
+ *   basePath="BASE_PATH",
+ *   resourcePath="/rule-sets",
+ *   produces="['application/json','application/xml']",
+ *   consumes="['application/json','application/xml']",
+ * )
  */
 class RuleSetsPresenter extends BaseResourcePresenter{
   /** @var  RulesFacade $rulesFacade */
@@ -426,40 +435,6 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       $this->sendResource();
     }
     #endregion actionDeleteRules
-
-
-  #region actionReadRules
-  /**
-   * Akce vracející jeden podrobnou XML prezentaci konkrétního rulesetu včetně pravidel
-   * @param int $id
-   * @SWG\Api(
-   *   path="/rule-sets/{id}/rulesXml",
-   *   @SWG\Operation(
-   *     method="GET",
-   *     summary="List rules saved in the selected rule set",
-   *     authorizations="apiKey",
-   *     @SWG\Parameter(
-   *       name="id",
-   *       description="RuleSet ID",
-   *       required=true,
-   *       type="integer",
-   *       paramType="path",
-   *       allowMultiple=false
-   *     ),
-   *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
-   *   )
-   * )
-   */
-  public function actionReadRulesXml($id){
-    /** @var RuleSet $ruleSet */
-    $ruleSet=$this->findRuleSetWithCheckAccess($id);
-    //připravení výstupu
-    $xmlSerializer = new XmlSerializer();
-    $xml=$xmlSerializer->ruleSetAsXml($ruleSet);
-    $this->sendXmlResponse($xml);
-  }
-  #endregion actionReadRules
-
 
   #endregion akce pro manipulaci s pravidly v rulesetech
 
