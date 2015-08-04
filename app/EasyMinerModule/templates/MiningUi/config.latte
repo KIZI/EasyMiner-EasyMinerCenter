@@ -29,7 +29,7 @@ var Config = new Class({
   taskRenameUrl: {plink Tasks:renameTask miner=>'__MINERID__',task=>'__TASKID__',name=>'__NAME__'},
 
   minerGetConfigParamUrl: {plink Miners:getConfig miner=>'__MINERID__',property=>'__PROPERTY__'},
-  minerSetConfigParamUrl: {plink Miners:getConfig miner=>'__MINERID__',property=>'__PROPERTY__',value=>'__VALUE__'},
+  minerSetConfigParamUrl: {plink Miners:setConfig miner=>'__MINERID__',property=>'__PROPERTY__',value=>'__VALUE__'},
 
   ruleClipboardGetTasksUrl: {plink RuleClipboard:getTasks miner=>'__MINERID__'},
   ruleClipboardGetRulesUrl: {plink RuleClipboard:getRules miner=>'__MINERID__',task=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
@@ -228,7 +228,7 @@ var Config = new Class({
     return this.minerGetConfigParamUrl.replace('__MINERID__',this.getMinerId()).replace('__PROPERTY__',encodeURIComponent(property));
   },
   getMinerSetConfigParamUrl: function (property,value) {
-    return this.minerGetConfigParamUrl.replace('__MINERID__',this.getMinerId()).replace('__PROPERTY__',encodeURIComponent(property)).replace('__VALUE__',encodeURIComponent(value));
+    return this.minerSetConfigParamUrl.replace('__MINERID__',this.getMinerId()).replace('__PROPERTY__',encodeURIComponent(property)).replace('__VALUE__',encodeURIComponent(value));
   },
   //endregion minerConfig
 
