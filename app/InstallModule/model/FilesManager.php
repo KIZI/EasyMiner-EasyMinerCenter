@@ -1,0 +1,11 @@
+<?php
+
+namespace EasyMinerCenter\InstallModule\Model;
+
+/**
+ * Class FilesManager - tøída spravující soubory a složky pøi instalaci
+ * @package EasyMinerCenter\InstallModule\Model
+ */
+class FilesManager {
+
+}

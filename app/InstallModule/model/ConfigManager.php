@@ -1,0 +1,11 @@
+<?php
+
+namespace EasyMinerCenter\InstallModule\Model;
+
+/**
+ * Class ConfigModel - tøída spravující lokální konfiguraci
+ * @package EasyMinerCenter\InstallModule\Model
+ */
+class ConfigModel {
+
+}

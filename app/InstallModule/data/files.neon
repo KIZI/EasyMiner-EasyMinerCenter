@@ -1,0 +1,11 @@
+#Configuration of requested install operations
+
+#Directories in the section "writable" has to been created and writable
+writable:
+    - "/log"
+    - "/temp"
+    - "/temp/fileImports"
+    - "/temp/pmmlImports"
+    - "/temp/pmmlImports/lm"
+    - "/temp/pmmlImports/r"
+

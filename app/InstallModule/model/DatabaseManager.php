@@ -1,0 +1,13 @@
+<?php
+
+namespace EasyMinerCenter\InstallModule\Model;
+
+/**
+ * Class DatabaseModel - model pro vytvoøení struktury databáze
+ * @package EasyMinerCenter\InstallModule\Model
+ */
+class DatabaseModel {
+
+  //TODO vytvoøení pøístupù
+
+}

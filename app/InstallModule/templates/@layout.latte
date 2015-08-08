@@ -1,0 +1,43 @@
+{**
+ * @param string   $basePath web base path
+ * @param array    $flashes  flash messages
+ *}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{_'Installer'} :: EasyMiner</title>
+
+  <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/index.css">
+  <link rel="icon" type="image/png" href="{$basePath}/images/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="{$basePath}/images/favicon-16x16.png" sizes="16x16" />
+  <link rel="icon" type="image/x-icon" href="{$basePath}/images/favicon.ico" sizes="16x16" />
+
+  {block scripts}{/block}
+  {block head}{/block}
+</head>
+<body>
+  <header>
+    <div class="content">
+      <h1 id="applicationMainTitle">
+        EasyMiner<sup>{@$version}</sup>
+        <span>easy association rule mining</span>
+      </h1>
+    </div>
+  </header>
+
+  {block main}
+    <main>
+      <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
+      {include content}
+    </main>
+  {/block}
+
+  <footer>
+    <div class="content">
+      <div class="copyright">Copyright &copy; <a href="http://kizi.vse.cz">KIZI, VŠE Praha</a></div>
+    </div>
+  </footer>
+</body>
+</html>
