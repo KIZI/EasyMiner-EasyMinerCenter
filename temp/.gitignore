@@ -1,1 +1,6 @@
-# Created by .ignore support plugin (hsz.mobi)
+# ignore everything except this file
+*
+!.gitignore
+!README.md
+!**/.gitignore
+!**/README.md
