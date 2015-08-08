@@ -1,7 +1,6 @@
 log/*
 temp/*
 .idea/*
-vendor/*/.git
 
 .DS_Store
 !.gitignore
