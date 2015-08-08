@@ -1,0 +1,19 @@
+{layout none}
+<!DOCTYPE html><!-- "' --></script></style></noscript></xmp>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Server Error</title>
+
+<div id="errorPage">
+  <style type="text/css">
+    {var $cssUrl=$basePath.'/css/index.css'}
+    @import url({$cssUrl});
+  </style>
+  <h1>Server Error</h1>
+  <p>We're sorry! The server encountered an internal error and was unable to complete your request. Please try again later.</p>
+  <div class="errorCode">500</div>
+</div>
+
+<script>
+  document.documentElement.innerHTML = '<title>Server Error<\/title>'+document.getElementById('errorPage').innerHTML;
+</script>

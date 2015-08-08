@@ -1,0 +1,22 @@
+#Nette configuration file for InstallModule (no other dependencies required)
+#
+# Soubor s globální konfigurací aplikace
+#
+
+php:
+	date.timezone: Europe/Prague
+	zlib.output_compression: no
+
+nette:
+	application:
+		errorPresenter: Install:Error
+		catchExceptions: true
+		mapping:
+			*: EasyMinerCenter\*Module\Presenters\*Presenter
+
+	session:
+		expiration: 14 days
+		autoStart: yes
+
+services:
+	routing.router: EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter()

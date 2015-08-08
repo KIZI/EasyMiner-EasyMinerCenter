@@ -22,8 +22,4 @@ $configurator->addConfig(__DIR__ . '/config/izi-ui.config.neon');
 
 $container = $configurator->createContainer();
 
-/** @var Nette\Application\Application $application */
-$application=$container->getService('application');
-
-
 return $container;

@@ -12,12 +12,6 @@ parameters:
             class:  EasyMinerCenter\Model\Mining\LM\RDriver
             server:
             imports_directory: "absolutePath"
-    arc2:
-        db_name:
-        db_user:
-        db_pwd:
-        store_name: 'easyminerkb'
-        max_errors: 1000
     leanmapper:
         driver: mysqli
         host: localhost
@@ -46,10 +40,10 @@ parameters:
 
 facebook:
     appId: ""
-    appSecret: ""
+    appSecret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     permissions: [email,public_profile]
 
 google:
     clientId: ""
-    clientSecret: ""
+    clientSecret: "xxxxxxxxxxxxxxxxxxxxxxxx"
     returnUri: ':EasyMiner:User:oauthGoogle'(do=login-google-response)
