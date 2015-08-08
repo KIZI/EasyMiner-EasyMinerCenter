@@ -1,18 +1,18 @@
 <?php
 
-namespace App\EasyMinerModule\Presenters;
-use App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory;
-use App\EasyMinerModule\Components\MetaAttributesSelectControl;
-use App\Model\Data\Facades\DatabasesFacade;
-use App\Model\Data\Facades\FileImportsFacade;
-use App\Model\Data\Files\CsvImport;
-use App\Model\EasyMiner\Entities\Datasource;
-use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Format;
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\EasyMiner\Facades\MetaAttributesFacade;
-use App\Model\EasyMiner\Facades\UsersFacade;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
+use EasyMinerCenter\EasyMinerModule\Components\IMetaAttributesSelectControlFactory;
+use EasyMinerCenter\EasyMinerModule\Components\MetaAttributesSelectControl;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
+use EasyMinerCenter\Model\Data\Files\CsvImport;
+use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Format;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
@@ -28,7 +28,7 @@ use Nette\Utils\Strings;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
- * @package App\EasyMinerModule\Presenters
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class DataPresenter extends BasePresenter{
 
@@ -562,7 +562,7 @@ class DataPresenter extends BasePresenter{
 
   #region selectMetaAttributeDialog
   /**
-   * @return \App\EasyMinerModule\Components\MetaAttributesSelectControl
+   * @return \EasyMinerCenter\EasyMinerModule\Components\MetaAttributesSelectControl
    */
   protected function createComponentSelectMetaAttributeDialog(){
     /** @var MetaAttributesSelectControl $metaAttributesSelectControl */

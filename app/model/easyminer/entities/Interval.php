@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
-use App\Libs\StringsHelper;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
+use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
 
 /**
  * Class Interval
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  *
  * @property int $intervalId
  * @property Format|null $format m:hasOne

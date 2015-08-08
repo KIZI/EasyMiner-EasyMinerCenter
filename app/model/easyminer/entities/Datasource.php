@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
-use App\Libs\StringsHelper;
-use App\Model\Data\Entities\DbConnection;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
+use EasyMinerCenter\Libs\StringsHelper;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use LeanMapper\Entity;
 
 /**
  * Class Datasource
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','cassandra')

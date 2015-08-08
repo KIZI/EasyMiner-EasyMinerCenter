@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Presenters;
+namespace EasyMinerCenter\Presenters;
 
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\IResponse;

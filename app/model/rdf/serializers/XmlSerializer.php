@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Model\Rdf\Serializers;
+namespace EasyMinerCenter\Model\Rdf\Serializers;
 
-use App\Model\Rdf\Entities\Attribute;
-use App\Model\Rdf\Entities\Cedent;
-use App\Model\Rdf\Entities\Format;
-use App\Model\Rdf\Entities\Interval;
-use App\Model\Rdf\Entities\KnowledgeBase;
-use App\Model\Rdf\Entities\MetaAttribute;
-use App\Model\Rdf\Entities\Rule;
-use App\Model\Rdf\Entities\RuleAttribute;
-use App\Model\Rdf\Entities\RuleSet;
-use App\Model\Rdf\Entities\Value;
+use EasyMinerCenter\Model\Rdf\Entities\Attribute;
+use EasyMinerCenter\Model\Rdf\Entities\Cedent;
+use EasyMinerCenter\Model\Rdf\Entities\Format;
+use EasyMinerCenter\Model\Rdf\Entities\Interval;
+use EasyMinerCenter\Model\Rdf\Entities\KnowledgeBase;
+use EasyMinerCenter\Model\Rdf\Entities\MetaAttribute;
+use EasyMinerCenter\Model\Rdf\Entities\Rule;
+use EasyMinerCenter\Model\Rdf\Entities\RuleAttribute;
+use EasyMinerCenter\Model\Rdf\Entities\RuleSet;
+use EasyMinerCenter\Model\Rdf\Entities\Value;
 use Nette\Object;
 
 /**
  * Class XmlSerializer - třída pro serializaci entit do podoby XML
- * @package App\Model
+ * @package EasyMinerCenter\Model
  */
 class XmlSerializer extends Object{
 #region base Xml templates

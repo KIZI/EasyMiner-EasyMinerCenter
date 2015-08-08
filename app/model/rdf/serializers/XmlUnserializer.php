@@ -1,29 +1,29 @@
 <?php
 
-namespace App\Model\Rdf\Serializers;
+namespace EasyMinerCenter\Model\Rdf\Serializers;
 
-use App\Model\Rdf\Entities\Attribute;
-use App\Model\Rdf\Entities\Cedent;
-use App\Model\Rdf\Entities\Format;
-use App\Model\Rdf\Entities\Interval;
-use App\Model\Rdf\Entities\IntervalClosure;
-use App\Model\Rdf\Entities\KnowledgeBase;
-use App\Model\Rdf\Entities\MetaAttribute;
-use App\Model\Rdf\Entities\Rule;
-use App\Model\Rdf\Entities\RuleAttribute;
-use App\Model\Rdf\Entities\RuleSet;
-use App\Model\Rdf\Entities\Value;
-use App\Model\Rdf\Entities\ValuesBin;
-use App\Model\Rdf\Repositories\KnowledgeRepository;
+use EasyMinerCenter\Model\Rdf\Entities\Attribute;
+use EasyMinerCenter\Model\Rdf\Entities\Cedent;
+use EasyMinerCenter\Model\Rdf\Entities\Format;
+use EasyMinerCenter\Model\Rdf\Entities\Interval;
+use EasyMinerCenter\Model\Rdf\Entities\IntervalClosure;
+use EasyMinerCenter\Model\Rdf\Entities\KnowledgeBase;
+use EasyMinerCenter\Model\Rdf\Entities\MetaAttribute;
+use EasyMinerCenter\Model\Rdf\Entities\Rule;
+use EasyMinerCenter\Model\Rdf\Entities\RuleAttribute;
+use EasyMinerCenter\Model\Rdf\Entities\RuleSet;
+use EasyMinerCenter\Model\Rdf\Entities\Value;
+use EasyMinerCenter\Model\Rdf\Entities\ValuesBin;
+use EasyMinerCenter\Model\Rdf\Repositories\KnowledgeRepository;
 use Nette\Object;
 
 /**
  * Class XmlUnserializer - třída pro unserializaci entit z XML do podoby objektů
  * Třída je součástí Facade pro ukládání entit v závislosti na znalostní bázi
- * @package App\Model
+ * @package EasyMinerCenter\Model
  */
 class XmlUnserializer extends Object{
-  /** @var \App\Model\Rdf\Repositories\KnowledgeRepository $knowledgeRepository */
+  /** @var \EasyMinerCenter\Model\Rdf\Repositories\KnowledgeRepository $knowledgeRepository */
   private $knowledgeRepository;
 
   public function __construct(KnowledgeRepository $knowledgeRepository){

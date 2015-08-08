@@ -1,14 +1,14 @@
 <?php
-namespace App\RestModule\Presenters;
+namespace EasyMinerCenter\RestModule\Presenters;
 
-use App\Libs\StringsHelper;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Libs\StringsHelper;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\UI\Presenter;
 
 /**
  * Class AuthPresenter
- * @package App\RestModule\Presenters
+ * @package EasyMinerCenter\RestModule\Presenters
  *
  * @SWG\Resource(
  *   apiVersion="1.0.0",

@@ -1,17 +1,17 @@
 <?php
-namespace App\Model\Mining;
+namespace EasyMinerCenter\Model\Mining;
 
 
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Facades\MetaAttributesFacade;
-use App\Model\EasyMiner\Facades\MinersFacade;
-use App\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use Nette\ArgumentOutOfRangeException;
 use Nette\Object;
 
 /**
  * Class MiningDriverFactory - třída zajišťující vytvoření odpovídajícího driveru pro dolování
- * @package App\Model\Mining
+ * @package EasyMinerCenter\Model\Mining
  */
 class MiningDriverFactory extends Object{
   private $params;

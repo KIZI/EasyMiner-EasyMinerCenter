@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\EasyMiner\Mappers;
+namespace EasyMinerCenter\Model\EasyMiner\Mappers;
 use Nette\Utils\Strings;
 
 
@@ -16,7 +16,7 @@ use Nette\Utils\Strings;
 class StandardMapper extends \LeanMapper\DefaultMapper {
 
   /** @var string */
-  protected $defaultEntityNamespace = 'App\Model\EasyMiner\Entities';
+  protected $defaultEntityNamespace = 'EasyMinerCenter\Model\EasyMiner\Entities';
 
   /**
    * PK format [table]_id

@@ -1,14 +1,14 @@
 <?php
-namespace App\Model\Preprocessing;
+namespace EasyMinerCenter\Model\Preprocessing;
 
-use App\Model\Data\Entities\DbColumn;
-use App\Model\Data\Facades\DatabasesFacade;
-use App\Model\EasyMiner\Entities\Attribute;
-use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Interval;
-use App\Model\EasyMiner\Entities\Metasource;
-use App\Model\EasyMiner\Entities\Preprocessing;
-use App\Model\EasyMiner\Facades\PreprocessingsFacade;
+use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
+use EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade;
 use Nette\Utils\Strings;
 
 class PhpDatabasePreprocessing implements IPreprocessingDriver{

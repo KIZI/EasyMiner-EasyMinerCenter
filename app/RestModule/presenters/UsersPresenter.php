@@ -1,9 +1,9 @@
 <?php
-namespace App\RestModule\Presenters;
+namespace EasyMinerCenter\RestModule\Presenters;
 
-use App\Exceptions\EntityNotFoundException;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Drahak\Restful\Resource;
 use Drahak\Restful\Validation\IValidator;
 use Nette\Application\Responses\TextResponse;
@@ -11,7 +11,7 @@ use Nette\NotImplementedException;
 
 /**
  * Class UsersPresenter - RESTFUL presenter for management of users
- * @package App\RestModule\Presenters
+ * @package EasyMinerCenter\RestModule\Presenters
  *
  *
  * @SWG\Resource(

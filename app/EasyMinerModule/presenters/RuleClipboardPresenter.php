@@ -1,17 +1,17 @@
 <?php
 
-namespace App\EasyMinerModule\Presenters;
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
-use App\Model\EasyMiner\Facades\RuleSetsFacade;
-use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Facades\TasksFacade;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
  * Class RuleClipboardPresenter - presenter pro práci s Rule clipboard v rámci EasyMineru
- * @package App\EasyMinerModule\Presenters
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class RuleClipboardPresenter  extends BasePresenter{
   /** @var  RulesFacade $rulesFacade */

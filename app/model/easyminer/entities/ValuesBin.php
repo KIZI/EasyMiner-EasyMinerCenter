@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 
 /**
  * Class ValuesBin
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $valuesBinId
  * @property string $name
  * @property Format $format m:hasOne

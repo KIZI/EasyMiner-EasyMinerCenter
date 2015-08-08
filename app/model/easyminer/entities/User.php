@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
-use App\Libs\StringsHelper;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
+use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
 use Nette\Utils\DateTime;
 use Nette\Utils\Strings;
 
 /**
  * Class User
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $userId
  * @property string $name
  * @property string $email

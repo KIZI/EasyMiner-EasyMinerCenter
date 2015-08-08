@@ -1,12 +1,12 @@
 <?php
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
 use LeanMapper\Entity;
 
 
 /**
  * Class Cedent
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $cedentId
  * @property string $connective = 'conjunction' m:Enum(self::CONNECTIVE_*)
  * @property Cedent[] $cedents m:hasMany(parent_cedent_id:cedents_relations:child_cedent_id:cedents)

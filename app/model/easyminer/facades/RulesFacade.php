@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use App\Model\EasyMiner\Entities\Cedent;
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleAttribute;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Repositories\CedentsRepository;
-use App\Model\EasyMiner\Repositories\RuleAttributesRepository;
-use App\Model\EasyMiner\Repositories\RulesRepository;
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Repositories\CedentsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\RuleAttributesRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\RulesRepository;
 use Nette\Utils\Strings;
 
 
 /**
  * Class RulesFacade - třída pro práci s pravidly v DB
- * @package App\Model\EasyMiner\Facades
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
  */
 class RulesFacade {
   /** @var  RulesRepository $rulesRepository */
@@ -36,7 +36,7 @@ class RulesFacade {
    * @param int $taskId
    * @param int $pmmlRuleId
    * @return Rule
-   * @throws \App\Exceptions\EntityNotFoundException
+   * @throws \EasyMinerCenter\Exceptions\EntityNotFoundException
    */
   public function findRuleByPmmlImportId($taskId,$pmmlRuleId){
     return $this->rulesRepository->findBy(['task_id'=>$taskId,'pmml_rule_id'=>$pmmlRuleId]);

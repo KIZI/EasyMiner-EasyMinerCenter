@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 
 /**

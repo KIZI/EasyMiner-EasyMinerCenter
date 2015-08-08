@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model\EasyMiner\Repositories;
+namespace EasyMinerCenter\Model\EasyMiner\Repositories;
 
-use App\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 
 class RulesRepository extends BaseRepository{
 

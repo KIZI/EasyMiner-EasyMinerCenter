@@ -1,14 +1,14 @@
 <?php
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use App\Model\EasyMiner\Entities\Attribute;
-use App\Model\EasyMiner\Entities\Metasource;
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Repositories\MinersRepository;
-use App\Model\Mining\MiningDriverFactory;
-use App\Model\Preprocessing\IPreprocessingDriver;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Repositories\MinersRepository;
+use EasyMinerCenter\Model\Mining\MiningDriverFactory;
+use EasyMinerCenter\Model\Preprocessing\IPreprocessingDriver;
 
 class MinersFacade {
   /** @var  MinersRepository $minersRepository */
@@ -185,7 +185,7 @@ class MinersFacade {
 
   /**
    * @param Task|int $task
-   * @return \App\Model\Mining\IMiningDriver
+   * @return \EasyMinerCenter\Model\Mining\IMiningDriver
    */
   public function getTaskMiningDriver($task){
     if (!$task instanceof Task){

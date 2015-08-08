@@ -1,19 +1,19 @@
 <?php
 
-namespace App\EasyMinerModule\Presenters;
-use App\Model\Data\Facades\DatabasesFacade;
-use App\Model\EasyMiner\Entities\Metasource;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Facades\TasksFacade;
-use App\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
-use App\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
-use App\Model\EasyMiner\Transformators\XmlTransformator;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Utils\Json;
 
 /**
  * Class TasksPresenter - presenter pro práci s úlohami...
- * @package App\EasyMinerModule\Presenters
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class TasksPresenter  extends BasePresenter{
   /** @var RulesFacade $rulesFacade */

@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleSet;
-use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository;
-use App\Model\EasyMiner\Repositories\RuleSetsRepository;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetsRepository;
 use Nette\Application\BadRequestException;
 use Nette\InvalidArgumentException;
 
 /**
  * Class RuleSetsFacade - třída pro práci s pravidly v DB
- * @package App\Model\EasyMiner\Facades
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
  */
 class RuleSetsFacade {
   /** @var  RuleSetsRepository $rulesRepository */

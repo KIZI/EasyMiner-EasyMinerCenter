@@ -1,20 +1,20 @@
 <?php
-namespace App\Model\EasyMiner\Serializers;
+namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
-use App\Model\EasyMiner\Entities\Attribute;
-use App\Model\EasyMiner\Entities\Cedent;
-use App\Model\EasyMiner\Entities\Format;
-use App\Model\EasyMiner\Entities\Interval;
-use App\Model\EasyMiner\Entities\KnowledgeBase;
-use App\Model\EasyMiner\Entities\MetaAttribute;
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleAttribute;
-use App\Model\EasyMiner\Entities\RuleSet;
-use App\Model\EasyMiner\Entities\Value;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
+use EasyMinerCenter\Model\EasyMiner\Entities\Format;
+use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\KnowledgeBase;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetaAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
+use EasyMinerCenter\Model\EasyMiner\Entities\Value;
 
 /**
  * Class XmlSerializer - Serializer pro export pravidel v jednoduchém formátu
- * @package App\Model\EasyMiner\Serializers
+ * @package EasyMinerCenter\Model\EasyMiner\Serializers
  */
 class XmlSerializer {
 #region base Xml templates

@@ -1,10 +1,10 @@
 <?php
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\EasyMiner\Facades\RuleSetsFacade;
-use App\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMiner\MiningUI\Integration as MiningUIIntegration;
 use EasyMiner\Help\Integration as HelpIntegration;
 use IZI\IZIConfig;
@@ -14,7 +14,7 @@ use Nette\Utils\Strings;
 
 /**
  * Class MiningUiPresenter - presenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
- * @package App\EasyMinerModule\Presenters
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class MiningUiPresenter extends BasePresenter{
   private $lang='en';//TODO předávání jazyka rozhraní

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Model\Data\Databases;
-use App\Model\Data\Entities\DbColumn;
-use App\Model\Data\Entities\DbColumnValuesStatistic;
-use App\Model\Data\Entities\DbConnection;
+namespace EasyMinerCenter\Model\Data\Databases;
+use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 
 /**
  * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
- * @package App\Model\Data\Databases
+ * @package EasyMinerCenter\Model\Data\Databases
  */
 interface IDatabase {
 

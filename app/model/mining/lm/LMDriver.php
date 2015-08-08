@@ -1,20 +1,20 @@
 <?php
-namespace App\Model\Mining\LM;
+namespace EasyMinerCenter\Model\Mining\LM;
 
 
-use App\Model\Data\Entities\DbConnection;
-use App\Model\EasyMiner\Entities\Cedent;
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleAttribute;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Entities\TaskState;
-use App\Model\EasyMiner\Facades\MetaAttributesFacade;
-use App\Model\EasyMiner\Facades\MinersFacade;
-use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
-use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
-use App\Model\Mining\IMiningDriver;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
+use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Kdyby\Curl\CurlSender;
 use Kdyby\Curl\Request as CurlRequest;
 use Kdyby\Curl\Response as CurlResponse;

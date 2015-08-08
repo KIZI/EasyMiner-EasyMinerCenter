@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Model\EasyMiner\Serializers;
+namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
-use App\Model\Data\Facades\DatabasesFacade;
-use App\Model\EasyMiner\Entities\Attribute;
-use App\Model\EasyMiner\Entities\Cedent;
-use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Entities\Preprocessing;
-use App\Model\EasyMiner\Entities\RuleAttribute;
-use App\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
+use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use Nette\Utils\Strings;
 
 /**
  * Class GuhaPmmlSerializer - serializer umožňující sestavit GUHA PMML dokument z dat zadané úlohy...
- * @package App\Model\EasyMiner\Serializers
+ * @package EasyMinerCenter\Model\EasyMiner\Serializers
  */
 class GuhaPmmlSerializer {
   /** @var  \SimpleXMLElement $pmml */

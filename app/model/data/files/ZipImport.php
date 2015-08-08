@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Model\Data\Files;
+namespace EasyMinerCenter\Model\Data\Files;
 
 /**
  * Class ZipImport - třída pro práci se ZIP archívy
- * @package App\Model\Data\Files
+ * @package EasyMinerCenter\Model\Data\Files
  */
 class ZipImport {
 

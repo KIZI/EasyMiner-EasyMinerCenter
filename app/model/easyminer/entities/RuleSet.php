@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 use LeanMapper\Filtering;
 use LeanMapper\Fluent;
@@ -8,7 +8,7 @@ use LeanMapper\Fluent;
 /**
  * Class RuleSet
  *
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $ruleSetId
  * @property string $name
  * @property string $description

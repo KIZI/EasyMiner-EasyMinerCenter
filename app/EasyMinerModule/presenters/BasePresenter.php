@@ -1,17 +1,16 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Stanislav
+ * User: Stanislav Vojíř
  * Date: 22.9.14
  * Time: 18:08
  */
 
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Facades\MinersFacade;
-use App\Presenters\BaseRestPresenter;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
+use EasyMinerCenter\Presenters\BaseRestPresenter;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 

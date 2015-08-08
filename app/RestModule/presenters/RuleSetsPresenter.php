@@ -1,19 +1,19 @@
 <?php
 
-namespace App\RestModule\Presenters;
+namespace EasyMinerCenter\RestModule\Presenters;
 
-use App\Exceptions\EntityNotFoundException;
-use App\Model\EasyMiner\Entities\RuleSet;
-use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
-use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Facades\RuleSetsFacade;
-use App\Model\EasyMiner\Facades\UsersFacade;
-use App\Model\EasyMiner\Serializers\XmlSerializer;
+use EasyMinerCenter\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializer;
 use Drahak\Restful\Validation\IValidator;
 
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
- * @package App\KnowledgeBaseModule\Presenters
+ * @package EasyMinerCenter\KnowledgeBaseModule\Presenters
  *
  * @SWG\Resource(
  *   apiVersion="1.0.0",

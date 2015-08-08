@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model\Data\Entities;
+namespace EasyMinerCenter\Model\Data\Entities;
 
 use Nette;
 
 /**
  * Class DbConnection
- * @package App\Model\Data\Entities
+ * @package EasyMinerCenter\Model\Data\Entities
  * @property string $type = m:Enum('mysql','cassandra')
  * @property string $dbServer
  * @property string $dbPort

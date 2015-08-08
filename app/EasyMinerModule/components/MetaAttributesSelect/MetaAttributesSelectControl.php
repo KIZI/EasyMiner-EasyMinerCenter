@@ -1,15 +1,15 @@
 <?php
 
-namespace App\EasyMinerModule\Components;
+namespace EasyMinerCenter\EasyMinerModule\Components;
 
-use App\Model\Data\Entities\DbColumnValuesStatistic;
-use App\Model\Data\Facades\DatabasesFacade;
-use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Format;
-use App\Model\EasyMiner\Entities\MetaAttribute;
-use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\EasyMiner\Facades\MetaAttributesFacade;
-use App\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Format;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetaAttribute;
+use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\ITemplate;
@@ -20,7 +20,7 @@ use Nette\Localization\ITranslator;
 
 /**
  * Class MetaAttributesSelectControl
- * @package App\EasyMinerModule\Components
+ * @package EasyMinerCenter\EasyMinerModule\Components
  * @method onComponentHide
  * @method onComponentShow
  */
@@ -50,6 +50,7 @@ class MetaAttributesSelectControl extends Control{
    * @param DatabasesFacade $databasesFacade
    */
   public function __construct(MetaAttributesFacade $metaAttributesFacade, DatasourcesFacade $datasourcesFacade, ITranslator $translator, UsersFacade $usersFacade, DatabasesFacade $databasesFacade){
+    parent::__construct();
     $this->metaAttributesFacade=$metaAttributesFacade;
     $this->datasourcesFacade=$datasourcesFacade;
     $this->translator=$translator;
@@ -288,7 +289,7 @@ class MetaAttributesSelectControl extends Control{
     $formatName->addRule(Form::MIN_LENGTH,'Min length of format name is %s characters!',3);
     $formatName->addRule(function(TextInput $control)use($metaAttribute){
       try{
-        $format=$this->metaAttributesFacade->findFormatByName($metaAttribute->value,$control->value);
+        $format=$this->metaAttributesFacade->findFormatByName($metaAttribute->value,$control->value);///XXX
         if ($format instanceof Format){
           return false;
         }

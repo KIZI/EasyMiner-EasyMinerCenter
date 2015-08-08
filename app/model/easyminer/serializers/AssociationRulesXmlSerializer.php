@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Model\EasyMiner\Serializers;
+namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
-use App\Model\EasyMiner\Entities\Cedent;
-use App\Model\EasyMiner\Entities\Interval;
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleAttribute;
-use App\Model\EasyMiner\Entities\Value;
-use App\Model\EasyMiner\Entities\ValuesBin;
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
+use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Value;
+use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
 
 /**
  * Class AssociationRulesXmlSerializer - serializer umožňující sestavit AssociationRules XML
- * @package App\Model\EasyMiner\Serializers
+ * @package EasyMinerCenter\Model\EasyMiner\Serializers
  */
 class AssociationRulesXmlSerializer {
 

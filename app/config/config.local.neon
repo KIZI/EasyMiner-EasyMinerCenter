@@ -5,11 +5,11 @@
 parameters:
     miningDriverFactory:
         driver_lm:
-            class:  App\Model\Mining\LM\LMDriver
+            class:  EasyMinerCenter\Model\Mining\LM\LMDriver
             pooler: task
             server:
         driver_r:
-            class:  App\Model\Mining\LM\RDriver
+            class:  EasyMinerCenter\Model\Mining\LM\RDriver
             server:
             imports_directory: "absolutePath"
     arc2:

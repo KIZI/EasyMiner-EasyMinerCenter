@@ -1,13 +1,12 @@
 <?php
 
-namespace App;
+namespace EasyMinerCenter;
 
 use Drahak\Restful\Application\IResourceRouter;
 use Drahak\Restful\Application\Routes\CrudRoute;
 use Nette,
-	Nette\Application\Routers\RouteList,
-	Nette\Application\Routers\Route,
-	Nette\Application\Routers\SimpleRouter;
+	  Nette\Application\Routers\RouteList,
+	  Nette\Application\Routers\Route;
 
 
 /**

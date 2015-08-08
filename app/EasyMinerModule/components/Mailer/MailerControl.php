@@ -1,8 +1,8 @@
 <?php
 
-namespace App\EasyMinerModule\Components;
+namespace EasyMinerCenter\EasyMinerModule\Components;
 
-use App\Model\EasyMiner\Entities\UserForgottenPassword;
+use EasyMinerCenter\Model\EasyMiner\Entities\UserForgottenPassword;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\ITemplate;
 use Nette\Localization\ITranslator;
@@ -11,7 +11,7 @@ use Nette\Mail\Message;
 
 /**
  * Class MailerControl
- * @package App\EasyMinerModule\Components
+ * @package EasyMinerCenter\EasyMinerModule\Components
  */
 class MailerControl extends Control{
 

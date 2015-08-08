@@ -1,12 +1,12 @@
 <?php
 
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-use App\EasyMinerModule\Components\MailerControlFactory;
-use App\EasyMinerModule\Components\MailerControl;
+use EasyMinerCenter\EasyMinerModule\Components\MailerControlFactory;
+use EasyMinerCenter\EasyMinerModule\Components\MailerControl;
 use LeanMapper\Exception\Exception;
 use Nette;
-use App\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Kdyby\Facebook\Facebook;
 use Kdyby\Facebook\Dialog\LoginDialog as FacebookLoginDialog;
 use Kdyby\Facebook\FacebookApiException;
@@ -456,7 +456,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * @return \App\EasyMinerModule\Components\MailerControl
+   * @return \EasyMinerCenter\EasyMinerModule\Components\MailerControl
    */
   public function createComponentMailerControl(){
     return $this->mailerControlFactory->create();

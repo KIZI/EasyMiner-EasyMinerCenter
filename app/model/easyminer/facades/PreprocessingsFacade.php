@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use App\Model\EasyMiner\Entities\Preprocessing;
-use App\Model\EasyMiner\Repositories\PreprocessingsRepository;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
+use EasyMinerCenter\Model\EasyMiner\Repositories\PreprocessingsRepository;
 
 class PreprocessingsFacade {
   /** @var PreprocessingsRepository $preprocessingsRepository */

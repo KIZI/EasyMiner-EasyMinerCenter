@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 
 /**
  * Class KnowledgeBase
  *
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $knowledgeBaseId
  * @property string $name
  */

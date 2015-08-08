@@ -1,12 +1,12 @@
 <?php
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
 use Nette\Object;
 use Nette\Utils\Strings;
 
 /**
  * Class TaskState - pracovní třída pro zachycení stavu úlohy
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property string|null $state
  * @property int|null $rulesCount
  * @property string|null $resultsUrl

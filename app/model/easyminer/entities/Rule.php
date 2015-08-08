@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
 
 use LeanMapper\Entity;
 
 /**
  * Class Rule
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $ruleId
  * @property Task $task m:hasOne
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany

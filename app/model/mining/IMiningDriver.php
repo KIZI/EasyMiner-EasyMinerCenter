@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Model\Mining;
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Entities\TaskState;
-use App\Model\EasyMiner\Facades\MetaAttributesFacade;
-use App\Model\EasyMiner\Facades\MinersFacade;
-use App\Model\EasyMiner\Facades\RulesFacade;
+namespace EasyMinerCenter\Model\Mining;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 
 /**
  * Class IMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
- * @package App\Model\mining
+ * @package EasyMinerCenter\Model\mining
  */
 interface IMiningDriver {
 

@@ -1,15 +1,15 @@
 <?php
-namespace App\Model\Data\Facades;
-use App\Model\Data\Databases\IDatabase;
-use App\Model\Data\Entities\DbColumn;
-use App\Model\Data\Entities\DbColumnValuesStatistic;
-use App\Model\Data\Entities\DbConnection;
+namespace EasyMinerCenter\Model\Data\Facades;
+use EasyMinerCenter\Model\Data\Databases\IDatabase;
+use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use Nette\Application\ApplicationException;
 use Nette\Utils\Strings;
 
 /**
  * Class DatabasesFacade - model zajišťující práci se dvěma databázemi najednou
- * @package App\Model\Data\Facades
+ * @package EasyMinerCenter\Model\Data\Facades
  */
 class DatabasesFacade {
   /** @var  IDatabase $database */
@@ -23,8 +23,8 @@ class DatabasesFacade {
   const MYSQL_COLUMNS_MAX_COUNT=50;
   const DB_TYPE_MYSQL='mysql';
   const DB_TYPE_CASSANDRA='cassandra';
-  const DB_CLASS_MYSQL='\App\Model\Data\Databases\MySQLDatabase';
-  const DB_CLASS_CASSANDRA='\App\Model\Data\Databases\CassandraDatabase';
+  const DB_CLASS_MYSQL='\EasyMinerCenter\Model\Data\Databases\MySQLDatabase';
+  const DB_CLASS_CASSANDRA='\EasyMinerCenter\Model\Data\Databases\CassandraDatabase';
 
   /**
    * Funkce vracející přehled podporovaných typů databází

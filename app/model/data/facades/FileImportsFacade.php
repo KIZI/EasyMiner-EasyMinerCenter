@@ -1,8 +1,8 @@
 <?php
-namespace App\Model\Data\Facades;
-use App\Model\Data\Entities\DbConnection;
-use App\Model\Data\Files\CsvImport;
-use App\Model\Data\Files\ZipImport;
+namespace EasyMinerCenter\Model\Data\Facades;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Files\CsvImport;
+use EasyMinerCenter\Model\Data\Files\ZipImport;
 use Nette\Application\ApplicationException;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Finder;
@@ -10,7 +10,7 @@ use Nette\Utils\Strings;
 
 /**
  * Class FileImportsFacade - model pro práci s importy souborů
- * @package App\Model\Data\Facades
+ * @package EasyMinerCenter\Model\Data\Facades
  */
 class FileImportsFacade {
   /** @var  string $dataDirectory */
@@ -193,7 +193,7 @@ class FileImportsFacade {
    * @param string $delimitier
    * @param string $enclosure
    * @param string $escapeCharacter
-   * @return \App\Model\Data\Entities\DbColumn[]
+   * @return \EasyMinerCenter\Model\Data\Entities\DbColumn[]
    */
   public function getColsInCSV($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
     return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimitier,$enclosure,$escapeCharacter);

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 
 /**
  * Class RuleSetRuleRelation
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $ruleSetRuleRelationId
  * @property Rule $rule m:hasOne
  * @property RuleSet $ruleSet m:hasOne

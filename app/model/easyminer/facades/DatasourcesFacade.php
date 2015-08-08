@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 
-use App\Model\Data\Entities\DbColumn;
-use App\Model\Data\Entities\DbConnection;
-use App\Model\Data\Facades\DatabasesFacade;
-use App\Model\EasyMiner\Entities\Datasource;
-use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Metasource;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Repositories\DatasourceColumnsRepository;
-use App\Model\EasyMiner\Repositories\DatasourcesRepository;
+use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 

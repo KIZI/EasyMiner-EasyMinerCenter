@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use App\Model\Data\Entities\DbConnection;
-use App\Model\Data\Facades\DatabasesFacade;
-use App\Model\EasyMiner\Entities\Attribute;
-use App\Model\EasyMiner\Entities\Metasource;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Repositories\AttributesRepository;
-use App\Model\EasyMiner\Repositories\MetasourcesRepository;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Repositories\AttributesRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository;
 use Nette\Utils\Strings;
 
 class MetasourcesFacade {//XXX dodelat!!!

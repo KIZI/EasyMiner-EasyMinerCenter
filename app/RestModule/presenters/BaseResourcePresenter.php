@@ -1,8 +1,8 @@
 <?php
-namespace App\RestModule\Presenters;
+namespace EasyMinerCenter\RestModule\Presenters;
 
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Drahak\Restful\Application\UI\ResourcePresenter;
 use Drahak\Restful\Application\UI\SecuredResourcePresenter;
 use Drahak\Restful\Http\IInput;
@@ -11,7 +11,7 @@ use Nette\Application\Responses\TextResponse;
 
 /**
  * Class BaseResourcePresenter
- * @package App\RestModule\Presenters
+ * @package EasyMinerCenter\RestModule\Presenters
  * @property IInput|IDataProvider $input
  *
  * @SWG\Info(

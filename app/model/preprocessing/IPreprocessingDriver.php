@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Model\Preprocessing;
-use App\Model\EasyMiner\Entities\Attribute;
+namespace EasyMinerCenter\Model\Preprocessing;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 
 /**
  * Class IPreprocessingDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
- * @package App\Model\mining
+ * @package EasyMinerCenter\Model\mining
  */
 interface IPreprocessingDriver {
 

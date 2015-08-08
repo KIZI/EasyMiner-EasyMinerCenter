@@ -1,12 +1,12 @@
 <?php
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMiner\BRE\Integration as BREIntegration;
 
 
 /**
  * Class BrePresenter - presenter obsahující funkcionalitu pro integraci submodulu EasyMiner-BRE
- * @package App\EasyMinerModule\Presenters
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class BrePresenter extends BasePresenter{
   /**

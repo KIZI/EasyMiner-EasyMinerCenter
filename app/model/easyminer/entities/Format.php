@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 use LeanMapper\Filtering;
 use LeanMapper\Fluent;
 
 /**
  * Class Format
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  *
  * @property int $formatId
  * @property string $name

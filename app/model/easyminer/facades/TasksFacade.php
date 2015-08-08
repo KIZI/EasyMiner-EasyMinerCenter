@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Entities\TaskState;
-use App\Model\EasyMiner\Repositories\TasksRepository;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
+use EasyMinerCenter\Model\EasyMiner\Repositories\TasksRepository;
 
 class TasksFacade {
   /** @var  TasksRepository $tasksRepository */
@@ -81,7 +81,7 @@ class TasksFacade {
    * Funkce pro uložení úlohy s daným uuid (než se odešle mineru...)
    * @param Miner $miner
    * @param string $taskUuid
-   * @return \App\Model\EasyMiner\Entities\Task
+   * @return \EasyMinerCenter\Model\EasyMiner\Entities\Task
    */
   public function prepareTaskWithUuid(Miner $miner,$taskUuid){
     try{

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Model\EasyMiner\Repositories;
+namespace EasyMinerCenter\Model\EasyMiner\Repositories;
 
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleSet;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use LeanMapper\Fluent;
 
 class RuleSetRuleRelationsRepository extends BaseRepository{

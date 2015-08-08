@@ -1,6 +1,6 @@
 <?php
 
-namespace App\RestModule\Presenters;
+namespace EasyMinerCenter\RestModule\Presenters;
 
 use Nette\Application\UI\Presenter;
 use Nette\Utils\Strings;
@@ -8,7 +8,7 @@ use Tracy\Debugger;
 
 /**
  * Class HomepagePresenter - UI presenter pro zprovoznění swagger přístupu k API
- * @package App\RestModule\Presenters
+ * @package EasyMinerCenter\RestModule\Presenters
  */
 class HomepagePresenter extends Presenter{
 

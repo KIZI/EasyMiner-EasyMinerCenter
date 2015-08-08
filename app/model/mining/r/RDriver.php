@@ -1,22 +1,22 @@
 <?php
-namespace App\Model\Mining\R;
+namespace EasyMinerCenter\Model\Mining\R;
 
-use App\Model\EasyMiner\Entities\Attribute;
-use App\Model\EasyMiner\Entities\Cedent;
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Entities\Preprocessing;
-use App\Model\EasyMiner\Entities\Rule;
-use App\Model\EasyMiner\Entities\RuleAttribute;
-use App\Model\EasyMiner\Entities\Task;
-use App\Model\EasyMiner\Entities\TaskState;
-use App\Model\EasyMiner\Entities\Value;
-use App\Model\EasyMiner\Entities\ValuesBin;
-use App\Model\EasyMiner\Facades\MetaAttributesFacade;
-use App\Model\EasyMiner\Facades\MinersFacade;
-use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
-use App\Model\EasyMiner\Serializers\TaskSettingsSerializer;
-use App\Model\Mining\IMiningDriver;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
+use EasyMinerCenter\Model\EasyMiner\Entities\Value;
+use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
+use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Nette\Utils\Strings;
 
 class RDriver implements IMiningDriver{

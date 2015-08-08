@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Libs;
+namespace EasyMinerCenter\Libs;
 
 
-use App\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
 use Nette\Utils\Strings;
 
 class StringsHelper {

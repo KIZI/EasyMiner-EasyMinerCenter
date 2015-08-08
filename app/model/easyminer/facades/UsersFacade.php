@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 
-use App\Libs\StringsHelper;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Entities\UserForgottenPassword;
-use App\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository;
-use App\Model\EasyMiner\Repositories\UsersRepository;
+use EasyMinerCenter\Libs\StringsHelper;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Entities\UserForgottenPassword;
+use EasyMinerCenter\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\UsersRepository;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IAuthenticator;
 use Nette\Security\Identity;

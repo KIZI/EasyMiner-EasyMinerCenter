@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Model\Data\Entities;
+namespace EasyMinerCenter\Model\Data\Entities;
 
 /**
  * Class DbColumnValuesStatistic - informace o statistice vypočtené na základě databázového sloupce
- * @package App\Model\Data\Entities
+ * @package EasyMinerCenter\Model\Data\Entities
  */
 class DbColumnValuesStatistic extends DbColumn{
 

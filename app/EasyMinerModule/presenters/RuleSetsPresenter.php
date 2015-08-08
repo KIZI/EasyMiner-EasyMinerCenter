@@ -1,21 +1,21 @@
 <?php
 
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-use App\Model\EasyMiner\Entities\RuleSet;
-use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
-use App\Model\EasyMiner\Facades\RulesFacade;
-use App\Model\EasyMiner\Facades\RuleSetsFacade;
-use App\Model\EasyMiner\Facades\UsersFacade;
-use App\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
-use App\Model\EasyMiner\Transformators\XmlTransformator;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\InvalidArgumentException;
 
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
- * @package App\KnowledgeBaseModule\Presenters
+ * @package EasyMinerCenter\KnowledgeBaseModule\Presenters
  */
-class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
+class RuleSetsPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */

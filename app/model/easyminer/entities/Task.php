@@ -1,12 +1,12 @@
 <?php
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 use Nette\Utils\Json;
 
 
 /**
  * Class Task - entita zachycující jednu konkrétní dataminingovou úlohu
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $taskId=null
  * @property string $taskUuid = ''
  * @property string $type m:Enum(Miner::TYPE_*)

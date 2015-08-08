@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
 use LeanMapper\Entity;
 
 /**
  * Class RuleAttribute
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $ruleAttributeId
  * @property Attribute $attribute m:hasOne
  * @property ValuesBin|null $valuesBin m:hasOne

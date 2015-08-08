@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 use LeanMapper\Filtering;
 use LeanMapper\Fluent;
@@ -8,7 +8,7 @@ use LeanMapper\Fluent;
 /**
  * Class Preprocessing
  *
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $preprocessingId
  * @property Format $format m:hasOne
  * @property string $name

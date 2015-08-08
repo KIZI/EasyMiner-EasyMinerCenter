@@ -24,14 +24,14 @@
 
     <h2>{_'New preprocessing'}</h2>
     <div class="actionsDiv bigButtons">
-      {if $format->dataType==\App\Model\EasyMiner\Entities\Format::DATATYPE_INTERVAL}
+      {if $format->dataType==\EasyMinerCenter\Model\EasyMiner\Entities\Format::DATATYPE_INTERVAL}
         <a href="{link newPreprocessingIntervalEnumeration miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Interval enumeration'}</a>
         <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equidistant intervals'}</a>
       {/if}
       <a href="{link newPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,type=>'nominalEnumeration'}">{_'Nominal enumeration'}</a>
       {if !empty($preprocessings)}
         {foreach $preprocessings as $preprocessing}
-          {if $preprocessing->specialType==\App\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
+          {if $preprocessing->specialType==\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
             {var $preprocessingEachOne = true;}
             {breakIf true}
           {/if}
@@ -46,7 +46,7 @@
       <h2>{_'Existing preprocessing definitions'}</h2>
       <div class="actionsDiv bigButtons">
         {foreach $preprocessings as $preprocessing}
-          {if $preprocessing->specialType==\App\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
+          {if $preprocessing->specialType==\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
             <a href="{link newAttribute miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->preprocessingId}">{$preprocessing->name}</a>
           {else}
             <a href="{link showPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,preprocessing=>$preprocessing->preprocessingId}">{$preprocessing->name}</a>

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Presenters;
+namespace EasyMinerCenter\Presenters;
 
 use Nette,
-	App\Model;
+    EasyMinerCenter\Model;
 
 
 /**

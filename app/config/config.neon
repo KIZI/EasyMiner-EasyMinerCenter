@@ -11,7 +11,7 @@ nette:
 		errorPresenter: EasyMiner:Error
 		catchExceptions: true
 		mapping:
-			*: App\*Module\Presenters\*Presenter
+			*: EasyMinerCenter\*Module\Presenters\*Presenter
 
 	session:
 		expiration: 14 days
@@ -46,56 +46,56 @@ restful:
         panel: false
 
 services:
-	- App\RouterFactory
-	router: @App\RouterFactory::createRouter
-	translator: App\Model\BlankTranslator
-	#xmlSerializer: App\Model\Rdf\Serializers\XmlSerializer
-	#xmlUnserializer: App\Model\Rdf\Serializers\XmlUnserializer
+	- EasyMinerCenter\RouterFactory
+	router: @EasyMinerCenter\RouterFactory::createRouter
+	translator: EasyMinerCenter\Model\BlankTranslator
+	#xmlSerializer: EasyMinerCenter\Model\Rdf\Serializers\XmlSerializer
+	#xmlUnserializer: EasyMinerCenter\Model\Rdf\Serializers\XmlUnserializer
 
 	- IZI\IZIConfig(%izi-ui%)
 
 	- LeanMapper\Connection(%leanmapper%)
 	- LeanMapper\DefaultEntityFactory
-	- App\Model\EasyMiner\Mappers\StandardMapper
-	- App\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
+	- EasyMinerCenter\Model\EasyMiner\Mappers\StandardMapper
+	- EasyMinerCenter\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
 
-	- App\Model\EasyMiner\Transformators\XmlTransformator(%xmlTransformations%)
+	- EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator(%xmlTransformations%)
 
-	- App\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
-	- App\Model\EasyMiner\Facades\MinersFacade
-	- App\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
-	- App\Model\EasyMiner\Facades\UsersFacade(%users_photos_directory%,%users_photos_url%)
-	- App\Model\Data\Facades\DatabasesFacade
-	- App\Model\EasyMiner\Facades\RulesFacade
-	- App\Model\EasyMiner\Facades\TasksFacade
-	- App\Model\EasyMiner\Facades\MetaAttributesFacade
-	- App\Model\EasyMiner\Facades\PreprocessingsFacade
-	- App\Model\EasyMiner\Facades\RuleSetsFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
+	- EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
+	- EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade(%users_photos_directory%,%users_photos_url%)
+	- EasyMinerCenter\Model\Data\Facades\DatabasesFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade
 
-	- App\Model\EasyMiner\Repositories\DatasourcesRepository
-	- App\Model\EasyMiner\Repositories\DatasourceColumnsRepository
-	- App\Model\EasyMiner\Repositories\MetasourcesRepository
-	- App\Model\EasyMiner\Repositories\TasksRepository
-	- App\Model\EasyMiner\Repositories\MinersRepository
-	- App\Model\EasyMiner\Repositories\UsersRepository
-	- App\Model\EasyMiner\Repositories\AttributesRepository
-	- App\Model\EasyMiner\Repositories\RulesRepository
-	- App\Model\EasyMiner\Repositories\CedentsRepository
-	- App\Model\EasyMiner\Repositories\RuleAttributesRepository
-	- App\Model\EasyMiner\Repositories\MetaAttributesRepository
-	- App\Model\EasyMiner\Repositories\FormatsRepository
-	- App\Model\EasyMiner\Repositories\RuleSetsRepository
-	- App\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository
-	- App\Model\EasyMiner\Repositories\IntervalsRepository
-	- App\Model\EasyMiner\Repositories\ValuesRepository
-	- App\Model\EasyMiner\Repositories\ValuesBinsRepository
-	- App\Model\EasyMiner\Repositories\KnowledgeBasesRepository
-	- App\Model\EasyMiner\Repositories\PreprocessingsRepository
-	- App\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\TasksRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\MinersRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\UsersRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\AttributesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\RulesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\CedentsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\RuleAttributesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\MetaAttributesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\FormatsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\IntervalsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\ValuesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\ValuesBinsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\KnowledgeBasesRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\PreprocessingsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository
 
-	- App\Model\Preprocessing\PhpDatabasePreprocessing
+	- EasyMinerCenter\Model\Preprocessing\PhpDatabasePreprocessing
 
-	- App\Model\Data\Facades\FileImportsFacade(%imports_directory%,%databases%)
+	- EasyMinerCenter\Model\Data\Facades\FileImportsFacade(%imports_directory%,%databases%)
 
-	- App\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
-	- App\EasyMinerModule\Components\MailerControlFactory(%mail_from%)
+	- EasyMinerCenter\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
+	- EasyMinerCenter\EasyMinerModule\Components\MailerControlFactory(%mail_from%)

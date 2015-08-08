@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Model\Data\Entities;
+namespace EasyMinerCenter\Model\Data\Entities;
 
 /**
  * Class DbColumn
- * @package App\Model\Data\Entities
+ * @package EasyMinerCenter\Model\Data\Entities
  */
 class DbColumn {
   /** @var string $name */

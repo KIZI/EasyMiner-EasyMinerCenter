@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Model\EasyMiner\Facades;
+namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use App\Model\Data\Entities\DbColumnValuesStatistic;
-use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Format;
-use App\Model\EasyMiner\Entities\Interval;
-use App\Model\EasyMiner\Entities\MetaAttribute;
-use App\Model\EasyMiner\Entities\Preprocessing;
-use App\Model\EasyMiner\Entities\User;
-use App\Model\EasyMiner\Entities\Value;
-use App\Model\EasyMiner\Entities\ValuesBin;
-use App\Model\EasyMiner\Repositories\IntervalsRepository;
-use App\Model\EasyMiner\Repositories\MetaAttributesRepository;
-use App\Model\EasyMiner\Repositories\FormatsRepository;
-use App\Model\EasyMiner\Repositories\PreprocessingsRepository;
-use App\Model\EasyMiner\Repositories\ValuesBinsRepository;
-use App\Model\EasyMiner\Repositories\ValuesRepository;
+use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
+use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Format;
+use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetaAttribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Entities\Value;
+use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
+use EasyMinerCenter\Model\EasyMiner\Repositories\IntervalsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\MetaAttributesRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\FormatsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\PreprocessingsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\ValuesBinsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\ValuesRepository;
 use Nette\Utils\Strings;
 
 class MetaAttributesFacade {

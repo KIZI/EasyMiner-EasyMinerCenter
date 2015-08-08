@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Model\EasyMiner\Serializers;
+namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
-use App\Model\EasyMiner\Entities\Miner;
-use App\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use Nette\Utils\Json;
 
 class TaskSettingsSerializer {

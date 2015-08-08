@@ -1,8 +1,8 @@
 <?php
-namespace App\Model\EasyMiner\Transformators;
+namespace EasyMinerCenter\Model\EasyMiner\Transformators;
 /**
  * Class XmlTransformator - třída pro transformace používaných XML dokumentů
- * @package App\Model\EasyMiner\Transformators
+ * @package EasyMinerCenter\Model\EasyMiner\Transformators
  */
 class XmlTransformator {
 

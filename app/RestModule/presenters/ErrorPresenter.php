@@ -1,6 +1,6 @@
 <?php
 
-namespace App\RestModule\Presenters;
+namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\Application\UI\ResourcePresenter;
 
 /**

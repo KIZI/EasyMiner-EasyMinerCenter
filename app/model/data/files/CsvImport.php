@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model\Data\Files;
-use App\Model\Data\Entities\DbColumn;
+namespace EasyMinerCenter\Model\Data\Files;
+use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use Nette\Utils\Strings;
 
 /**
  * Class CsvImport - model pro import CSV souborů
- * @package App\Model\Data\Files
+ * @package EasyMinerCenter\Model\Data\Files
  */
 class CsvImport {
 

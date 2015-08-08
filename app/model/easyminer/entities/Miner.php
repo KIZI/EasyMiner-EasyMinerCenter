@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
 use LeanMapper\Entity;
 use Nette;
@@ -8,7 +8,7 @@ use Nette\Utils\Json;
 
 /**
  * Class Miner
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  *
  * @property int|null $minerId = null
  * @property User|null $user = null m:hasOne

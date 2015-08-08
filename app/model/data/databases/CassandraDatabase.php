@@ -1,13 +1,13 @@
 <?php
-namespace App\Model\Data\Databases;
+namespace EasyMinerCenter\Model\Data\Databases;
 
-use App\Model\Data\Entities\DbColumn;
-use App\Model\Data\Entities\DbColumnValuesStatistic;
-use App\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 
 /**
  * Class CassandraDatabase - třída pro práci s DB cassandra
- * @package App\Model\Data\Databases
+ * @package EasyMinerCenter\Model\Data\Databases
  * @property \PDO $db
  * @property string $tableName
  */

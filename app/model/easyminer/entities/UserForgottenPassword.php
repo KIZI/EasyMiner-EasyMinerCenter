@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model\EasyMiner\Entities;
-use App\Libs\StringsHelper;
+namespace EasyMinerCenter\Model\EasyMiner\Entities;
+use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
 
 /**
  * Class UserForgottenPassword
- * @package App\Model\EasyMiner\Entities
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $userForgottenPasswordId
  * @property User $user m:hasOne
  * @property string $code

@@ -1,5 +1,5 @@
 <?php
-namespace App\EasyMinerModule\Components;
+namespace EasyMinerCenter\EasyMinerModule\Components;
 
 use Nette\Localization\ITranslator;
 use Nette\Mail\IMailer;

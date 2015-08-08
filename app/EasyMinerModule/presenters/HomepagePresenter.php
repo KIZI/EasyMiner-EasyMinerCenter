@@ -4,7 +4,7 @@
  * @author Stanislav Vojíř
  */
 
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 
 class HomepagePresenter extends BasePresenter{

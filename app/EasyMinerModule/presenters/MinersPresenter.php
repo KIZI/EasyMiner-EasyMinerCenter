@@ -1,16 +1,15 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Stanislav
+ * User: Stanislav Vojíř
  * Date: 31. 7. 2015
  * Time: 12:14
  */
 
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 
-use App\Model\EasyMiner\Facades\RuleSetsFacade;
-use App\Presenters\BaseRestPresenter;
+use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Presenters\BaseRestPresenter;
 use Nette\Application\ForbiddenRequestException;
 
 class MinersPresenter extends BasePresenter{

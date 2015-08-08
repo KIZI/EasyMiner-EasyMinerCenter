@@ -1,5 +1,5 @@
 <?php
-namespace App\EasyMinerModule\Components;
+namespace EasyMinerCenter\EasyMinerModule\Components;
 
 interface IMetaAttributesSelectControlFactory {
   /** @return MetaAttributesSelectControl */

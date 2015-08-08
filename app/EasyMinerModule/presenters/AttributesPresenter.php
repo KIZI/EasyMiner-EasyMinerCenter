@@ -1,21 +1,21 @@
 <?php
 
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-use App\Libs\StringsHelper;
-use App\Model\EasyMiner\Entities\Attribute;
-use App\Model\EasyMiner\Entities\Datasource;
-use App\Model\EasyMiner\Entities\DatasourceColumn;
-use App\Model\EasyMiner\Entities\Format;
-use App\Model\EasyMiner\Entities\Interval;
-use App\Model\EasyMiner\Entities\Preprocessing;
-use App\Model\EasyMiner\Entities\Value;
-use App\Model\EasyMiner\Entities\ValuesBin;
-use App\Model\EasyMiner\Facades\DatasourcesFacade;
-use App\Model\EasyMiner\Facades\MetasourcesFacade;
-use App\Model\EasyMiner\Facades\MetaAttributesFacade;
-use App\Model\EasyMiner\Facades\PreprocessingsFacade;
-use App\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Libs\StringsHelper;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Format;
+use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
+use EasyMinerCenter\Model\EasyMiner\Entities\Value;
+use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
+use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;

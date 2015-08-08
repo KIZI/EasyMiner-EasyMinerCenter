@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model\EasyMiner\Repositories;
+namespace EasyMinerCenter\Model\EasyMiner\Repositories;
 
-use App\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Exceptions\EntityNotFoundException;
 
 abstract class BaseRepository extends \LeanMapper\Repository {
   /**

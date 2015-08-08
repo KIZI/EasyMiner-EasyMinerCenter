@@ -1,9 +1,9 @@
 <?php
 
-namespace App\EasyMinerModule\Presenters;
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use Nette,
-	App\Model,
+	EasyMinerCenter\Model,
 	Tracy\Debugger;
 
 
