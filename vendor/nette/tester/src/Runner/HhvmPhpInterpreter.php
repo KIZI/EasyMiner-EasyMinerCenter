@@ -12,8 +12,6 @@ use Tester\Helpers;
 
 /**
  * HHVM command-line executable.
- *
- * @author  Michael Moravec
  */
 class HhvmPhpInterpreter implements PhpInterpreter
 {
@@ -29,11 +27,14 @@ class HhvmPhpInterpreter implements PhpInterpreter
 	/** @var string  PHP version */
 	private $phpVersion;
 
+	/** @var string */
+	private $error;
+
 
 	public function __construct($path, $args = NULL)
 	{
 		$this->path = Helpers::escapeArg($path);
-		$proc = @proc_open(
+		$proc = proc_open(
 			"$this->path --php $args -r " . Helpers::escapeArg('echo HHVM_VERSION . "|" . PHP_VERSION;'),
 			array(array('pipe', 'r'), array('pipe', 'w'), array('pipe', 'w')),
 			$pipes,
@@ -42,10 +43,10 @@ class HhvmPhpInterpreter implements PhpInterpreter
 			array('bypass_shell' => TRUE)
 		);
 		$output = stream_get_contents($pipes[1]);
-		$error = stream_get_contents($pipes[2]);
+		$this->error = trim(stream_get_contents($pipes[2]));
 
 		if (proc_close($proc)) {
-			throw new \Exception("Unable to run '$path': " . preg_replace('#[\r\n ]+#', ' ', $error));
+			throw new \Exception("Unable to run '$path': " . preg_replace('#[\r\n ]+#', ' ', $this->error));
 		} elseif (count($tmp = explode('|', $output)) !== 2) {
 			throw new \Exception("Unable to detect HHVM version (output: $output).");
 		}
@@ -91,6 +92,15 @@ class HhvmPhpInterpreter implements PhpInterpreter
 	public function isCgi()
 	{
 		return FALSE;
+	}
+
+
+	/**
+	 * @return string
+	 */
+	public function getErrorOutput()
+	{
+		return $this->error;
 	}
 
 }

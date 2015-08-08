@@ -7,14 +7,12 @@
 
 namespace Nette\Forms\Controls;
 
-use Nette,
-	Nette\Utils\Html;
+use Nette;
+use Nette\Utils\Html;
 
 
 /**
  * Set of checkboxes.
- *
- * @author     David Grudl
  *
  * @property-read Html $separatorPrototype
  */
@@ -82,6 +80,7 @@ class CheckboxList extends MultiChoiceControl
 	 */
 	public function getControlPart($key)
 	{
+		$key = key(array((string) $key => NULL));
 		return parent::getControl()->addAttributes(array(
 			'id' => $this->getHtmlId() . '-' . $key,
 			'checked' => in_array($key, (array) $this->value, TRUE),
@@ -95,9 +94,11 @@ class CheckboxList extends MultiChoiceControl
 	/**
 	 * @return Html
 	 */
-	public function getLabelPart($key)
+	public function getLabelPart($key = NULL)
 	{
-		return parent::getLabel($this->items[$key])->for($this->getHtmlId() . '-' . $key);
+		return func_num_args()
+			? parent::getLabel($this->items[$key])->for($this->getHtmlId() . '-' . $key)
+			: $this->getLabel();
 	}
 
 }

@@ -7,15 +7,13 @@
 
 namespace Nette\Bridges\DITracy;
 
-use Nette,
-	Nette\DI\Container,
-	Tracy;
+use Nette;
+use Nette\DI\Container;
+use Tracy;
 
 
 /**
  * Dependency injection container panel for Debugger Bar.
- *
- * @author     Patrik Votoček
  */
 class ContainerPanel extends Nette\Object implements Tracy\IBarPanel
 {

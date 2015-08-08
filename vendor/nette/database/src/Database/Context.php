@@ -7,14 +7,12 @@
 
 namespace Nette\Database;
 
-use Nette,
-	Nette\Database\Conventions\StaticConventions;
+use Nette;
+use Nette\Database\Conventions\StaticConventions;
 
 
 /**
  * Database context.
- *
- * @author     David Grudl
  */
 class Context extends Nette\Object
 {

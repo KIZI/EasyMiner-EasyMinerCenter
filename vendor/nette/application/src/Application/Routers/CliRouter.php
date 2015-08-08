@@ -7,14 +7,12 @@
 
 namespace Nette\Application\Routers;
 
-use Nette,
-	Nette\Application;
+use Nette;
+use Nette\Application;
 
 
 /**
  * The unidirectional router for CLI. (experimental)
- *
- * @author     David Grudl
  *
  * @property-read array $defaults
  */

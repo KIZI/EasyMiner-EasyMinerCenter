@@ -7,14 +7,12 @@
 
 namespace Nette\Forms\Controls;
 
-use Nette,
-	Nette\Http\FileUpload;
+use Nette;
+use Nette\Http\FileUpload;
 
 
 /**
  * Text box and browse button that allow users to select a file to upload to the server.
- *
- * @author     David Grudl
  */
 class UploadControl extends BaseControl
 {

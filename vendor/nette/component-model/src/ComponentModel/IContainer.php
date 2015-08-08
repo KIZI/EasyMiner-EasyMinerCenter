@@ -7,13 +7,9 @@
 
 namespace Nette\ComponentModel;
 
-use Nette;
-
 
 /**
  * Containers are objects that logically contain zero or more IComponent components.
- *
- * @author     David Grudl
  */
 interface IContainer extends IComponent
 {

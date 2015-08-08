@@ -13,9 +13,6 @@ use Nette;
 /**
  * Single row representation.
  * ActiveRow is based on the great library NotORM http://www.notorm.com written by Jakub Vrana.
- *
- * @author     Jakub Vrana
- * @author     Jan Skrasek
  */
 class ActiveRow implements \IteratorAggregate, IRow
 {
@@ -38,7 +35,6 @@ class ActiveRow implements \IteratorAggregate, IRow
 
 	/**
 	 * @internal
-	 * @ignore
 	 */
 	public function setTable(Selection $table)
 	{
@@ -313,13 +309,17 @@ class ActiveRow implements \IteratorAggregate, IRow
 	}
 
 
-	protected function accessColumn($key, $selectColumn = TRUE)
+	/**
+	 * @internal
+	 */
+	public function accessColumn($key, $selectColumn = TRUE)
 	{
 		$this->table->accessColumn($key, $selectColumn);
 		if ($this->table->getDataRefreshed() && !$this->dataRefreshed) {
 			$this->data = $this->table[$this->getSignature()]->data;
 			$this->dataRefreshed = TRUE;
 		}
+		return array_key_exists($key, $this->data);
 	}
 
 

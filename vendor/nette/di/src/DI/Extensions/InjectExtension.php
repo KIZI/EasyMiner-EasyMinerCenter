@@ -7,15 +7,13 @@
 
 namespace Nette\DI\Extensions;
 
-use Nette,
-	Nette\DI,
-	Nette\DI\PhpReflection;
+use Nette;
+use Nette\DI;
+use Nette\DI\PhpReflection;
 
 
 /**
  * Calls inject methods and fills @inject properties.
- *
- * @author     David Grudl
  */
 class InjectExtension extends DI\CompilerExtension
 {
@@ -67,7 +65,7 @@ class InjectExtension extends DI\CompilerExtension
 	 */
 	public static function getInjectMethods($class)
 	{
-		return array_values(array_filter(get_class_methods($class), function($name) {
+		return array_values(array_filter(get_class_methods($class), function ($name) {
 			return substr($name, 0, 6) === 'inject';
 		}));
 	}
@@ -125,7 +123,7 @@ class InjectExtension extends DI\CompilerExtension
 		} elseif (!class_exists($type) && !interface_exists($type)) {
 			throw new Nette\InvalidStateException("Class or interface '$type' used in @var annotation at $fullname not found. Check annotation and 'use' statements.");
 		} elseif (!$container->getByType($type, FALSE)) {
-			throw new ServiceCreationException("Service of type {$type} used in @var annotation at $fullname not found. Did you register it in configuration file?");
+			throw new Nette\InvalidStateException("Service of type {$type} used in @var annotation at $fullname not found. Did you register it in configuration file?");
 		}
 	}
 

@@ -7,14 +7,12 @@
 
 namespace Nette\Utils;
 
-use Nette,
-	Nette\MemberAccessException;
+use Nette;
+use Nette\MemberAccessException;
 
 
 /**
  * Nette\Object behaviour mixin.
- *
- * @author     David Grudl
  */
 class ObjectMixin
 {
@@ -62,7 +60,7 @@ class ObjectMixin
 					Callback::invokeArgs($handler, $args);
 				}
 			} elseif ($_this->$name !== NULL) {
-				throw new Nette\UnexpectedValueException("Property $class::$$name must be array or NULL, " . gettype($_this->$name) ." given.");
+				throw new Nette\UnexpectedValueException("Property $class::$$name must be array or NULL, " . gettype($_this->$name) . ' given.');
 			}
 
 		} elseif (($methods = & self::getMethods($class)) && isset($methods[$name]) && is_array($methods[$name])) { // magic @methods
@@ -226,7 +224,8 @@ class ObjectMixin
 				if ($rp->isPublic() && !$rp->isStatic()) {
 					$prop = $name >= 'onA' && $name < 'on_' ? 'event' : TRUE;
 				}
-			} catch (\ReflectionException $e) {}
+			} catch (\ReflectionException $e) {
+			}
 		}
 		return $prop;
 	}
@@ -270,7 +269,8 @@ class ObjectMixin
 			if ($rc->hasProperty($prop) && ($rp = $rc->getProperty($prop)) && !$rp->isStatic()) {
 				$rp->setAccessible(TRUE);
 				if ($op === 'get' || $op === 'is') {
-					$type = NULL; $op = 'get';
+					$type = NULL;
+					$op = 'get';
 				} elseif (!$type && preg_match('#@var[ \t]+(\S+)' . ($op === 'add' ? '\[\]#' : '#'), $rp->getDocComment(), $m)) {
 					$type = $m[1];
 				}

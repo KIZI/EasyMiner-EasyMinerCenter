@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * Session extension for Nette DI.
- *
- * @author     David Grudl
  */
 class SessionExtension extends Nette\DI\CompilerExtension
 {
@@ -48,7 +46,7 @@ class SessionExtension extends Nette\DI\CompilerExtension
 
 		if ($this->debugMode && $config['debugger']) {
 			$session->addSetup('@Tracy\Bar::addPanel', array(
-				new Nette\DI\Statement('Nette\Bridges\HttpTracy\SessionPanel')
+				new Nette\DI\Statement('Nette\Bridges\HttpTracy\SessionPanel'),
 			));
 		}
 

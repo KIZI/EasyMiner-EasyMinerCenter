@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * JSON encoder and decoder.
- *
- * @author     David Grudl
  */
 class Json
 {
@@ -50,7 +48,7 @@ class Json
 		$flags = PHP_VERSION_ID >= 50400 ? (JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | ($options & self::PRETTY ? JSON_PRETTY_PRINT : 0)) : 0;
 
 		if (PHP_VERSION_ID < 50500) {
-			$json = Callback::invokeSafe('json_encode', array($value, $flags), function($message) { // needed to receive 'recursion detected' error
+			$json = Callback::invokeSafe('json_encode', array($value, $flags), function ($message) { // needed to receive 'recursion detected' error
 				throw new JsonException($message);
 			});
 		} else {
@@ -98,12 +96,4 @@ class Json
 		return $value;
 	}
 
-}
-
-
-/**
- * The exception that indicates error of JSON encoding/decoding.
- */
-class JsonException extends \Exception
-{
 }

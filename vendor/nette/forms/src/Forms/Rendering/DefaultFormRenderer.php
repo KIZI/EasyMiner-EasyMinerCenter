@@ -7,14 +7,12 @@
 
 namespace Nette\Forms\Rendering;
 
-use Nette,
-	Nette\Utils\Html;
+use Nette;
+use Nette\Utils\Html;
 
 
 /**
  * Converts a Form into the HTML output.
- *
- * @author     David Grudl
  */
 class DefaultFormRenderer extends Nette\Object implements Nette\Forms\IFormRenderer
 {

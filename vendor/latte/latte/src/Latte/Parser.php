@@ -1,8 +1,8 @@
 <?php
 
 /**
- * This file is part of the Nette Framework (http://nette.org)
- * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
+ * This file is part of the Latte (http://latte.nette.org)
+ * Copyright (c) 2008 David Grudl (http://davidgrudl.com)
  */
 
 namespace Latte;
@@ -10,8 +10,6 @@ namespace Latte;
 
 /**
  * Latte parser.
- *
- * @author     David Grudl
  */
 class Parser extends Object
 {
@@ -96,7 +94,7 @@ class Parser extends Object
 		$this->lastHtmlTag = $this->syntaxEndTag = NULL;
 
 		while ($this->offset < strlen($input)) {
-			if ($this->{"context".$this->context[0]}() === FALSE) {
+			if ($this->{'context' . $this->context[0]}() === FALSE) {
 				break;
 			}
 			while ($tokenCount < count($this->output)) {
@@ -389,7 +387,7 @@ class Parser extends Object
 				(?P<name>\?|/?[a-z]\w*+(?:[.:]\w+)*+(?!::|\(|\\\\))|   ## ?, name, /name, but not function( or class:: or namespace\
 				(?P<noescape>!?)(?P<shortname>/?[=\~#%^&_]?)      ## !expression, !=expression, ...
 			)(?P<args>.*?)
-			(?P<modifiers>\|[a-z](?:'.Parser::RE_STRING.'|[^\'"])*(?<!/))?
+			(?P<modifiers>\|[a-z](?:' . self::RE_STRING . '|[^\'"])*(?<!/))?
 			(?P<empty>/?\z)
 		()\z~isx', $tag, $match)) {
 			if (preg_last_error()) {

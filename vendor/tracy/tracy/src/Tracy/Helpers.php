@@ -7,13 +7,9 @@
 
 namespace Tracy;
 
-use Tracy;
-
 
 /**
  * Rendering helpers for Debugger.
- *
- * @author     David Grudl
  */
 class Helpers
 {
@@ -60,7 +56,7 @@ class Helpers
 	public static function formatHtml($mask)
 	{
 		$args = func_get_args();
-		return preg_replace_callback('#%#', function() use (& $args, & $count) {
+		return preg_replace_callback('#%#', function () use (& $args, & $count) {
 			return htmlspecialchars($args[++$count], ENT_IGNORE | ENT_QUOTES, 'UTF-8');
 		}, $mask);
 	}

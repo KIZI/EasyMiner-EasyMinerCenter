@@ -8,9 +8,6 @@
 namespace Tester\Runner;
 
 
-/**
- * @author  Michael Moravec
- */
 interface PhpInterpreter
 {
 
@@ -33,5 +30,10 @@ interface PhpInterpreter
 	 * @return bool
 	 */
 	function isCgi();
+
+	/**
+	 * @return string
+	 */
+	function getErrorOutput();
 
 }

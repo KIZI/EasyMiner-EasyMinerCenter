@@ -7,14 +7,12 @@
 
 namespace Nette\DI\Config;
 
-use Nette,
-	Nette\Utils\Validators;
+use Nette;
+use Nette\Utils\Validators;
 
 
 /**
  * Configuration file loader.
- *
- * @author     David Grudl
  */
 class Loader extends Nette\Object
 {

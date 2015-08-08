@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * DateTime.
- *
- * @author     David Grudl
  */
 class DateTime extends \DateTime
 {
@@ -39,7 +37,7 @@ class DateTime extends \DateTime
 	/**
 	 * DateTime object factory.
 	 * @param  string|int|\DateTime
-	 * @return DateTime
+	 * @return self
 	 */
 	public static function from($time)
 	{
@@ -106,7 +104,7 @@ class DateTime extends \DateTime
 	 * @param string The format the $time parameter should be in
 	 * @param string String representing the time
 	 * @param string|\DateTimeZone desired timezone (default timezone is used if NULL is passed)
-	 * @return DateTime|FALSE
+	 * @return self|FALSE
 	 */
 	public static function createFromFormat($format, $time, $timezone = NULL)
 	{

@@ -7,14 +7,12 @@
 
 namespace Nette\Application\Routers;
 
-use Nette,
-	Nette\Application;
+use Nette;
+use Nette\Application;
 
 
 /**
  * The bidirectional route for trivial routing via query parameters.
- *
- * @author     David Grudl
  *
  * @property-read array $defaults
  * @property-read int $flags

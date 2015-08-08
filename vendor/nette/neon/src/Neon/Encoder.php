@@ -7,13 +7,9 @@
 
 namespace Nette\Neon;
 
-use Nette;
-
 
 /**
  * Simple generator for Nette Object Notation.
- *
- * @author     David Grudl
  */
 class Encoder
 {
@@ -37,7 +33,8 @@ class Encoder
 		}
 
 		if (is_object($var)) {
-			$obj = $var; $var = array();
+			$obj = $var;
+			$var = array();
 			foreach ($obj as $k => $v) {
 				$var[$k] = $v;
 			}

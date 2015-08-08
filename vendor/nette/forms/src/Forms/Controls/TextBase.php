@@ -7,15 +7,13 @@
 
 namespace Nette\Forms\Controls;
 
-use Nette,
-	Nette\Forms\Form,
-	Nette\Utils\Strings;
+use Nette;
+use Nette\Forms\Form;
+use Nette\Utils\Strings;
 
 
 /**
  * Implements the basic functionality common to text input controls.
- *
- * @author     David Grudl
  *
  * @property   string $emptyValue
  */

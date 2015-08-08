@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * Method parameter description.
- *
- * @author     David Grudl
  */
 class Parameter extends Nette\Object
 {
@@ -54,7 +52,7 @@ class Parameter extends Nette\Object
 		$param->defaultValue = (PHP_VERSION_ID === 50316 ? $from->isOptional() : $from->isDefaultValueAvailable()) ? $from->getDefaultValue() : NULL;
 
 		$namespace = $from->getDeclaringClass()->getNamespaceName();
-		$namespace = $namespace ? "\\$namespace\\" : "\\";
+		$namespace = $namespace ? "\\$namespace\\" : '\\';
 		if (Nette\Utils\Strings::startsWith($param->typeHint, $namespace)) {
 			$param->typeHint = substr($param->typeHint, strlen($namespace));
 		}

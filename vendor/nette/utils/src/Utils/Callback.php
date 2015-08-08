@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * PHP callable tools.
- *
- * @author     David Grudl
  */
 class Callback
 {
@@ -51,7 +49,7 @@ class Callback
 
 		self::check($callable);
 		$_callable_ = $callable;
-		return function() use ($_callable_) {
+		return function () use ($_callable_) {
 			return call_user_func_array($_callable_, func_get_args());
 		};
 	}
@@ -81,12 +79,16 @@ class Callback
 
 	/**
 	 * Invokes internal PHP function with own error handler.
+	 * @param  string
 	 * @return mixed
 	 */
 	public static function invokeSafe($function, array $args, $onError)
 	{
-		$prev = set_error_handler(function($severity, $message, $file) use ($onError, & $prev) {
-			if ($file === __FILE__ && $onError($message, $severity) !== FALSE) {
+		$prev = set_error_handler(function ($severity, $message, $file, $line, $context = NULL, $stack = NULL) use ($onError, & $prev, $function) {
+			if ($file === '' && defined('HHVM_VERSION')) { // https://github.com/facebook/hhvm/issues/4625
+				$file = $stack[1]['file'];
+			}
+			if ($file === __FILE__ && $onError(str_replace("$function(): ", '', $message), $severity) !== FALSE) {
 				return;
 			} elseif ($prev) {
 				return call_user_func_array($prev, func_get_args());

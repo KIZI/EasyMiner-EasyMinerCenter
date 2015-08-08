@@ -20,8 +20,6 @@ use Nette;
  *
  * echo $el->startTag(), $el->endTag();
  * </code>
- *
- * @author     David Grudl
  */
 class Html extends Nette\Object implements \ArrayAccess, \Countable, \IteratorAggregate, IHtmlString
 {
@@ -340,7 +338,7 @@ class Html extends Nette\Object implements \ArrayAccess, \Countable, \IteratorAg
 	 */
 	public function insert($index, $child, $replace = FALSE)
 	{
-		if ($child instanceof Html || is_scalar($child)) {
+		if ($child instanceof self || is_scalar($child)) {
 			if ($index === NULL) { // append
 				$this->children[] = $child;
 

@@ -7,14 +7,12 @@
 
 namespace Nette\Mail;
 
-use Nette,
-	Nette\Utils\Strings;
+use Nette;
+use Nette\Utils\Strings;
 
 
 /**
  * Mail provides functionality to compose and send both text and MIME-compliant multipart email messages.
- *
- * @author     David Grudl
  *
  * @property   array $from
  * @property   string $subject
@@ -248,7 +246,7 @@ class Message extends MimePart
 		}
 
 		if ($this->getSubject() == NULL) { // intentionally ==
-			$html = Strings::replace($html, '#<title>(.+?)</title>#is', function($m) use (& $title) {
+			$html = Strings::replace($html, '#<title>(.+?)</title>#is', function ($m) use (& $title) {
 				$title = $m[1];
 			});
 			$this->setSubject(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
@@ -302,6 +300,16 @@ class Message extends MimePart
 
 
 	/**
+	 * Gets all email attachments.
+	 * @return MimePart[]
+	 */
+	public function getAttachments()
+	{
+		return $this->attachments;
+	}
+
+
+	/**
 	 * Creates file MIME part.
 	 * @return MimePart
 	 */
@@ -339,7 +347,7 @@ class Message extends MimePart
 
 	/**
 	 * Builds email. Does not modify itself, but returns a new object.
-	 * @return Message
+	 * @return self
 	 */
 	protected function build()
 	{
@@ -393,7 +401,7 @@ class Message extends MimePart
 	{
 		$text = Strings::replace($html, array(
 			'#<(style|script|head).*</\\1>#Uis' => '',
-			'#<t[dh][ >]#i' => " $0",
+			'#<t[dh][ >]#i' => ' $0',
 			'#[\r\n]+#' => ' ',
 			'#<(/?p|/?h\d|li|br|/tr)[ >/]#i' => "\n$0",
 		));

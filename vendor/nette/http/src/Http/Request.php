@@ -13,8 +13,6 @@ use Nette;
 /**
  * HttpRequest provides access scheme for request sent via HTTP.
  *
- * @author     David Grudl
- *
  * @property-read UrlScript $url
  * @property-read array $query
  * @property-read array $post
@@ -323,7 +321,8 @@ class Request extends Nette\Object implements IRequest
 		foreach ($matches[1] as $key => $value) {
 			$q = $matches[2][$key] === '' ? 1.0 : (float) $matches[2][$key];
 			if ($q > $max) {
-				$max = $q; $lang = $value;
+				$max = $q;
+				$lang = $value;
 			}
 		}
 

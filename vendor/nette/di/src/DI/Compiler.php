@@ -7,14 +7,12 @@
 
 namespace Nette\DI;
 
-use Nette,
-	Nette\Utils\Validators;
+use Nette;
+use Nette\Utils\Validators;
 
 
 /**
  * DI container compiler.
- *
- * @author     David Grudl
  */
 class Compiler extends Nette\Object
 {
@@ -60,7 +58,7 @@ class Compiler extends Nette\Object
 	public function getExtensions($type = NULL)
 	{
 		return $type
-			? array_filter($this->extensions, function($item) use ($type) { return $item instanceof $type; })
+			? array_filter($this->extensions, function ($item) use ($type) { return $item instanceof $type; })
 			: $this->extensions;
 	}
 
@@ -250,8 +248,8 @@ class Compiler extends Nette\Object
 
 		foreach ($services as $origName => $def) {
 			if ((string) (int) $origName === (string) $origName) {
-				$name = (count($builder->getDefinitions()) + 1)
-					. preg_replace('#\W+#', '_', $def instanceof Statement ? '.' . $def->getEntity() : (is_scalar($def) ? ".$def" : ''));
+				$postfix = $def instanceof Statement && is_string($def->getEntity()) ? '.' . $def->getEntity() : (is_scalar($def) ? ".$def" : '');
+				$name = (count($builder->getDefinitions()) + 1) . preg_replace('#\W+#', '_', $postfix);
 			} else {
 				$name = ($namespace ? $namespace . '.' : '') . strtr($origName, '\\', '_');
 			}

@@ -13,8 +13,6 @@ use Nette;
 /**
  * ComponentContainer is default implementation of IContainer.
  *
- * @author     David Grudl
- *
  * @property-read \ArrayIterator $components
  */
 class Container extends Component implements IContainer
@@ -200,7 +198,8 @@ class Container extends Component implements IContainer
 			$iterator = new \RecursiveIteratorIterator($iterator, $deep);
 		}
 		if ($filterType) {
-			$iterator = new Nette\Iterators\Filter($iterator, function($item) use ($filterType) {
+			$class = PHP_VERSION_ID < 50400 ? 'Nette\Iterators\Filter' : 'CallbackFilterIterator';
+			$iterator = new $class($iterator, function ($item) use ($filterType) {
 				return $item instanceof $filterType;
 			});
 		}

@@ -7,14 +7,12 @@
 
 namespace Nette\Http;
 
-use Nette,
-	Nette\Utils\DateTime;
+use Nette;
+use Nette\Utils\DateTime;
 
 
 /**
  * Rendering helpers for HTTP.
- *
- * @author     David Grudl
  */
 class Helpers
 {
@@ -39,20 +37,14 @@ class Helpers
 	public static function ipMatch($ip, $mask)
 	{
 		list($mask, $size) = explode('/', $mask . '/');
-		$ipv4 = strpos($ip, '.');
-		$max = $ipv4 ? 32 : 128;
-		if (($ipv4 xor strpos($mask, '.')) || $size < 0 || $size > $max) {
+		$tmp = function ($n) { return sprintf('%032b', $n); };
+		$ip = implode('', array_map($tmp, unpack('N*', inet_pton($ip))));
+		$mask = implode('', array_map($tmp, unpack('N*', inet_pton($mask))));
+		$max = strlen($ip);
+		if (!$max || $max !== strlen($mask) || $size < 0 || $size > $max) {
 			return FALSE;
-		} elseif ($ipv4) {
-			$arr = array(ip2long($ip), ip2long($mask));
-		} else {
-			$arr = unpack('N*', inet_pton($ip) . inet_pton($mask));
-			$size = $size === '' ? 0 : $max - $size;
 		}
-		$bits = implode('', array_map(function ($n) {
-			return sprintf('%032b', $n);
-		}, $arr));
-		return substr($bits, 0, $max - $size) === substr($bits, $max, $max - $size);
+		return strncmp($ip, $mask, $size === '' ? $max : $size) === 0;
 	}
 
 

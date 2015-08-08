@@ -7,21 +7,20 @@
 
 namespace Tracy;
 
-use Tracy,
-	ErrorException;
+use Tracy;
+use ErrorException;
 
 
 /**
  * Debugger: displays and logs errors.
- *
- * @author     David Grudl
  */
 class Debugger
 {
-	const VERSION = '2.3.1';
+	const VERSION = '2.3.3';
 
 	/** server modes {@link Debugger::enable()} */
-	const DEVELOPMENT = FALSE,
+	const
+		DEVELOPMENT = FALSE,
 		PRODUCTION = TRUE,
 		DETECT = NULL;
 
@@ -73,7 +72,8 @@ class Debugger
 	public static $email;
 
 	/** {@link Debugger::log()} and {@link Debugger::fireLog()} */
-	const DEBUG = ILogger::DEBUG,
+	const
+		DEBUG = ILogger::DEBUG,
 		INFO = ILogger::INFO,
 		WARNING = ILogger::WARNING,
 		ERROR = ILogger::ERROR,
@@ -211,10 +211,11 @@ class Debugger
 
 	/**
 	 * Handler to catch uncaught exception.
+	 * @param  \Exception|\Throwable
 	 * @return void
 	 * @internal
 	 */
-	public static function exceptionHandler(\Exception $exception, $exit = TRUE)
+	public static function exceptionHandler($exception, $exit = TRUE)
 	{
 		if (self::$done) {
 			return;
@@ -271,7 +272,8 @@ class Debugger
 		} catch (\Exception $e) {
 			try {
 				self::log($e, self::EXCEPTION);
-			} catch (\Exception $e) {}
+			} catch (\Exception $e) {
+			}
 		}
 
 		if ($exit) {
@@ -312,7 +314,8 @@ class Debugger
 			$e->context = $context;
 			try {
 				self::log($e, self::ERROR);
-			} catch (\Exception $foo) {}
+			} catch (\Exception $foo) {
+			}
 			return NULL;
 
 		} elseif (!self::$productionMode && !isset($_GET['_tracy_skip_error'])
@@ -333,7 +336,8 @@ class Debugger
 		} elseif (self::$productionMode) {
 			try {
 				self::log("$message in $file:$line", self::ERROR);
-			} catch (\Exception $foo) {}
+			} catch (\Exception $foo) {
+			}
 			return NULL;
 
 		} else {
@@ -494,7 +498,7 @@ class Debugger
 
 	/**
 	 * Logs message or exception.
-	 * @param  string|Exception
+	 * @param  string|\Exception|\Throwable
 	 * @return mixed
 	 */
 	public static function log($message, $priority = ILogger::INFO)

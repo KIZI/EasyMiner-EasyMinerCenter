@@ -12,12 +12,11 @@ use Tracy;
 
 /**
  * Dumps a variable.
- *
- * @author     David Grudl
  */
 class Dumper
 {
-	const DEPTH = 'depth', // how many nested levels of array/object properties display (defaults to 4)
+	const
+		DEPTH = 'depth', // how many nested levels of array/object properties display (defaults to 4)
 		TRUNCATE = 'truncate', // how truncate long strings? (defaults to 150)
 		COLLAPSE = 'collapse', // collapse top array/object or how big are collapsed? (defaults to 14)
 		COLLAPSE_COUNT = 'collapsecount', // how big array/object are collapsed? (defaults to 7)
@@ -58,6 +57,9 @@ class Dumper
 		'SplObjectStorage' => 'Tracy\Dumper::exportSplObjectStorage',
 		'__PHP_Incomplete_Class' => 'Tracy\Dumper::exportPhpIncompleteClass',
 	);
+
+	/** @var string @internal */
+	public static $livePrefix;
 
 	/** @var array  */
 	private static $liveStorage = array();
@@ -127,7 +129,7 @@ class Dumper
 	 */
 	public static function toTerminal($var, array $options = NULL)
 	{
-		return htmlspecialchars_decode(strip_tags(preg_replace_callback('#<span class="tracy-dump-(\w+)">|</span>#', function($m) {
+		return htmlspecialchars_decode(strip_tags(preg_replace_callback('#<span class="tracy-dump-(\w+)">|</span>#', function ($m) {
 			return "\033[" . (isset($m[1], Dumper::$terminalColors[$m[1]]) ? Dumper::$terminalColors[$m[1]] : '0') . 'm';
 		}, self::toHtml($var, $options))), ENT_QUOTES);
 	}
@@ -280,7 +282,7 @@ class Dumper
 			$out = "<span class=\"tracy-toggle tracy-collapsed\">$out</span>\n<div class=\"tracy-collapsed\">";
 			foreach (call_user_func(self::$resources[$type], $var) as $k => $v) {
 				$out .= '<span class="tracy-dump-indent">   ' . str_repeat('|  ', $level) . '</span>'
-					. '<span class="tracy-dump-key">' . htmlSpecialChars($k, ENT_IGNORE, 'UTF-8') . "</span> => " . self::dumpVar($v, $options, $level + 1);
+					. '<span class="tracy-dump-key">' . htmlSpecialChars($k, ENT_IGNORE, 'UTF-8') . '</span> => ' . self::dumpVar($v, $options, $level + 1);
 			}
 			return $out . '</div>';
 		}
@@ -330,7 +332,7 @@ class Dumper
 			}
 			static $counter = 1;
 			$obj = $obj ?: array(
-				'id' => '0' . $counter++, // differentiate from resources
+				'id' => self::$livePrefix . '0' . $counter++, // differentiate from resources
 				'name' => get_class($var),
 				'editor' => empty($editor) ? NULL : array('file' => $rc->getFileName(), 'line' => $rc->getStartLine(), 'url' => $editor),
 				'level' => $level,
@@ -357,7 +359,7 @@ class Dumper
 			$obj = & self::$liveStorage[(string) $var];
 			if (!$obj) {
 				$type = get_resource_type($var);
-				$obj = array('id' => (int) $var, 'name' => $type . ' resource');
+				$obj = array('id' => self::$livePrefix . (int) $var, 'name' => $type . ' resource');
 				if (isset(self::$resources[$type])) {
 					foreach (call_user_func(self::$resources[$type], $var) as $k => $v) {
 						$obj['items'][] = array($k, self::toJson($v, $options, $level + 1));
@@ -397,7 +399,7 @@ class Dumper
 			foreach (array_merge(range("\x00", "\x1F"), range("\x7F", "\xFF")) as $ch) {
 				$table[$ch] = '\x' . str_pad(dechex(ord($ch)), 2, '0', STR_PAD_LEFT);
 			}
-			$table["\\"] = '\\\\';
+			$table['\\'] = '\\\\';
 			$table["\r"] = '\r';
 			$table["\n"] = '\n';
 			$table["\t"] = '\t';
@@ -511,7 +513,8 @@ class Dumper
 						$location = $item;
 						continue;
 					}
-				} catch (\ReflectionException $e) {}
+				} catch (\ReflectionException $e) {
+				}
 			}
 			break;
 		}
@@ -522,7 +525,7 @@ class Dumper
 			return array(
 				$location['file'],
 				$location['line'],
-				trim(preg_match('#\w*dump(er::\w+)?\(.*\)#i', $line, $m) ? $m[0] : $line)
+				trim(preg_match('#\w*dump(er::\w+)?\(.*\)#i', $line, $m) ? $m[0] : $line),
 			);
 		}
 	}

@@ -1,16 +1,16 @@
 <?php
 
 /**
- * This file is part of the Nette Framework (http://nette.org)
- * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
+ * This file is part of the Latte (http://latte.nette.org)
+ * Copyright (c) 2008 David Grudl (http://davidgrudl.com)
  */
 
 namespace Latte\Macros;
 
-use Latte,
-	Latte\CompileException,
-	Latte\MacroNode,
-	Latte\PhpWriter;
+use Latte;
+use Latte\CompileException;
+use Latte\MacroNode;
+use Latte\PhpWriter;
 
 
 /**
@@ -33,8 +33,6 @@ use Latte,
  * - {contentType ...} HTTP Content-Type header
  * - {status ...} HTTP status
  * - {l} {r} to display { }
- *
- * @author     David Grudl
  */
 class CoreMacros extends MacroSet
 {
@@ -287,7 +285,7 @@ class CoreMacros extends MacroSet
 		if (isset($node->htmlNode->attrs['class'])) {
 			throw new CompileException('It is not possible to combine class with n:class.');
 		}
-		return $writer->write('if ($_l->tmp = array_filter(%node.array)) echo \' class="\' . %escape(implode(" ", array_unique($_l->tmp))) . \'"\'');
+		return $writer->write('if ($_l->tmp = array_filter(%node.array)) echo \' class="\', %escape(implode(" ", array_unique($_l->tmp))), \'"\'');
 	}
 
 

@@ -7,15 +7,12 @@
 
 namespace Nette\Database;
 
-use Nette,
-	PDO;
+use Nette;
+use PDO;
 
 
 /**
  * Represents a result set.
- *
- * @author     David Grudl
- * @author     Jan Skrasek
  *
  * @property-read Connection $connection
  */
@@ -64,9 +61,15 @@ class ResultSet extends Nette\Object implements \Iterator, IRowContainer
 			if (substr($queryString, 0, 2) === '::') {
 				$connection->getPdo()->{substr($queryString, 2)}();
 			} elseif ($queryString !== NULL) {
+				static $types = array('boolean' => PDO::PARAM_BOOL, 'integer' => PDO::PARAM_INT,
+					'resource' => PDO::PARAM_LOB, 'NULL' => PDO::PARAM_NULL);
 				$this->pdoStatement = $connection->getPdo()->prepare($queryString);
+				foreach ($params as $key => $value) {
+					$type = gettype($value);
+					$this->pdoStatement->bindValue(is_int($key) ? $key + 1 : $key, $value, isset($types[$type]) ? $types[$type] : PDO::PARAM_STR);
+				}
 				$this->pdoStatement->setFetchMode(PDO::FETCH_ASSOC);
-				$this->pdoStatement->execute($params);
+				$this->pdoStatement->execute();
 			}
 		} catch (\PDOException $e) {
 			$e = $this->supplementalDriver->convertException($e);

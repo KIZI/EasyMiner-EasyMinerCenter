@@ -7,13 +7,9 @@
 
 namespace Nette\Http;
 
-use Nette;
-
 
 /**
  * IHttpResponse interface.
- *
- * @author     David Grudl
  */
 interface IResponse
 {
@@ -41,7 +37,7 @@ interface IResponse
 		S303_POST_GET = 303,
 		S304_NOT_MODIFIED = 304,
 		S305_USE_PROXY = 305,
-		S307_TEMPORARY_REDIRECT= 307,
+		S307_TEMPORARY_REDIRECT = 307,
 		S400_BAD_REQUEST = 400,
 		S401_UNAUTHORIZED = 401,
 		S402_PAYMENT_REQUIRED = 402,

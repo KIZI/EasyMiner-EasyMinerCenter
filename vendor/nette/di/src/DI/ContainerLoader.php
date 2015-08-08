@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * DI container loader.
- *
- * @author     David Grudl
  */
 class ContainerLoader extends Nette\Object
 {
@@ -33,7 +31,7 @@ class ContainerLoader extends Nette\Object
 
 	/**
 	 * @param  mixed
-	 * @param  callable  function(Nette\DI\Compiler $compiler): string|NULL
+	 * @param  callable  function (Nette\DI\Compiler $compiler): string|NULL
 	 * @return string
 	 */
 	public function load($key, $generator)
@@ -116,7 +114,7 @@ class ContainerLoader extends Nette\Object
 		$files = $files ? array_combine($files, $files) : array(); // workaround for PHP 5.3 array_combine
 		return array(
 			"<?php\n$code",
-			serialize(@array_map('filemtime', $files)) // @ - file may not exist
+			serialize(@array_map('filemtime', $files)), // @ - file may not exist
 		);
 	}
 

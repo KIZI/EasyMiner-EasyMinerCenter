@@ -7,14 +7,12 @@
 
 namespace Nette\PhpGenerator;
 
-use Nette,
-	Nette\Utils\Strings;
+use Nette;
+use Nette\Utils\Strings;
 
 
 /**
  * Class/Interface/Trait description.
- *
- * @author     David Grudl
  */
 class ClassType extends Nette\Object
 {

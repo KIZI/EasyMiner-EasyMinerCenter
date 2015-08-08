@@ -13,17 +13,15 @@ use Nette;
 /**
  * Submittable button control.
  *
- * @author     David Grudl
- *
  * @property-read bool $submittedBy
  * @property   mixed $validationScope
  */
 class SubmitButton extends Button implements Nette\Forms\ISubmitterControl
 {
-	/** @var callable[]  function(SubmitButton $sender); Occurs when the button is clicked and form is successfully validated */
+	/** @var callable[]  function (SubmitButton $sender); Occurs when the button is clicked and form is successfully validated */
 	public $onClick;
 
-	/** @var callable[]  function(SubmitButton $sender); Occurs when the button is clicked and form is not validated */
+	/** @var callable[]  function (SubmitButton $sender); Occurs when the button is clicked and form is not validated */
 	public $onInvalidClick;
 
 	/** @var array */

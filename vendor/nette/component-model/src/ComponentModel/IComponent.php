@@ -7,13 +7,9 @@
 
 namespace Nette\ComponentModel;
 
-use Nette;
-
 
 /**
  * Provides functionality required by all components.
- *
- * @author     David Grudl
  */
 interface IComponent
 {

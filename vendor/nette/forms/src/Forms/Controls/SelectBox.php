@@ -13,8 +13,6 @@ use Nette;
 /**
  * Select box control that allows single item selection.
  *
- * @author     David Grudl
- *
  * @property   bool $prompt
  */
 class SelectBox extends ChoiceControl
@@ -91,7 +89,7 @@ class SelectBox extends ChoiceControl
 			$items,
 			array(
 				'selected?' => $this->value,
-				'disabled:' => is_array($this->disabled) ? $this->disabled : NULL
+				'disabled:' => is_array($this->disabled) ? $this->disabled : NULL,
 			)
 		)->addAttributes(parent::getControl()->attrs);
 	}

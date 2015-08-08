@@ -1,20 +1,18 @@
 <?php
 
 /**
- * This file is part of the Nette Framework (http://nette.org)
- * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
+ * This file is part of the Latte (http://latte.nette.org)
+ * Copyright (c) 2008 David Grudl (http://davidgrudl.com)
  */
 
 namespace Latte\Macros;
 
-use Latte,
-	Latte\MacroNode;
+use Latte;
+use Latte\MacroNode;
 
 
 /**
  * Base IMacro implementation. Allows add multiple macros.
- *
- * @author     David Grudl
  */
 class MacroSet extends Latte\Object implements Latte\IMacro
 {

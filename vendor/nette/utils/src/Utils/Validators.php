@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * Validation utilities.
- *
- * @author     David Grudl
  */
 class Validators extends Nette\Object
 {
@@ -26,7 +24,7 @@ class Validators extends Nette\Object
 		'number' => NULL, // is_int || is_float,
 		'numeric' => array(__CLASS__, 'isNumeric'),
 		'numericint' => array(__CLASS__, 'isNumericInt'),
-		'string' =>  'is_string',
+		'string' => 'is_string',
 		'unicode' => array(__CLASS__, 'isUnicode'),
 		'array' => 'is_array',
 		'list' => array('Nette\Utils\Arrays', 'isList'),
@@ -52,7 +50,7 @@ class Validators extends Nette\Object
 	);
 
 	protected static $counters = array(
-		'string' =>  'strlen',
+		'string' => 'strlen',
 		'unicode' => array('Nette\Utils\Strings', 'length'),
 		'array' => 'count',
 		'list' => 'count',
@@ -294,12 +292,4 @@ class Validators extends Nette\Object
 		return is_string($value) && preg_match('#^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\z#', $value);
 	}
 
-}
-
-
-/**
- * The exception that indicates assertion error.
- */
-class AssertionException extends \Exception
-{
 }

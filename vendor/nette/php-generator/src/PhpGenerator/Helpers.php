@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * PHP code generator utils.
- *
- * @author     David Grudl
  */
 class Helpers
 {
@@ -114,7 +112,7 @@ class Helpers
 				}
 				foreach ($arr as $k => & $v) {
 					if (!isset($props) || isset($props[$k])) {
-						$out .= "$space\t" . self::_dump($k, $level + 1) . " => " . self::_dump($v, $level + 1) . ",\n";
+						$out .= "$space\t" . self::_dump($k, $level + 1) . ' => ' . self::_dump($v, $level + 1) . ",\n";
 					}
 				}
 				array_pop($list);
@@ -189,7 +187,7 @@ class Helpers
 	{
 		return $name instanceof PhpLiteral || !self::isIdentifier($name)
 			? '{' . self::_dump($name) . '}'
-			: $name ;
+			: $name;
 	}
 
 

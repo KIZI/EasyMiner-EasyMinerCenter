@@ -7,14 +7,12 @@
 
 namespace Nette\Http;
 
-use Nette,
-	Nette\Utils\Strings;
+use Nette;
+use Nette\Utils\Strings;
 
 
 /**
  * Current HTTP request factory.
- *
- * @author     David Grudl
  */
 class RequestFactory extends Nette\Object
 {
@@ -221,7 +219,7 @@ class RequestFactory extends Nette\Object
 		}
 
 		// raw body
-		$rawBodyCallback = function() {
+		$rawBodyCallback = function () {
 			static $rawBody;
 
 			if (PHP_VERSION_ID >= 50600) {

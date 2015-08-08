@@ -7,14 +7,12 @@
 
 namespace Nette\Mail;
 
-use Nette,
-	Nette\Utils\Strings;
+use Nette;
+use Nette\Utils\Strings;
 
 
 /**
  * MIME message part.
- *
- * @author     David Grudl
  *
  * @property-read array $headers
  * @property-write $contentType

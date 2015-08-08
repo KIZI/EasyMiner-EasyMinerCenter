@@ -7,14 +7,12 @@
 
 namespace Nette\Application\Responses;
 
-use Nette,
-	Nette\Http;
+use Nette;
+use Nette\Http;
 
 
 /**
  * Redirects to new URI.
- *
- * @author     David Grudl
  *
  * @property-read string $url
  * @property-read int $code

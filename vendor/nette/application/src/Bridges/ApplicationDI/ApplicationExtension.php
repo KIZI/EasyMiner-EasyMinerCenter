@@ -7,14 +7,12 @@
 
 namespace Nette\Bridges\ApplicationDI;
 
-use Nette,
-	Nette\Application\UI;
+use Nette;
+use Nette\Application\UI;
 
 
 /**
  * Application extension for Nette DI.
- *
- * @author     David Grudl
  */
 class ApplicationExtension extends Nette\DI\CompilerExtension
 {
@@ -81,7 +79,7 @@ class ApplicationExtension extends Nette\DI\CompilerExtension
 
 		$container->addDefinition($this->prefix('linkGenerator'))
 			->setFactory('Nette\Application\LinkGenerator', array(
-				1 => new Nette\DI\Statement('@Nette\Http\Request::getUrl'),
+				1 => new Nette\DI\Statement('@Nette\Http\IRequest::getUrl'),
 			));
 
 		if ($this->name === 'application') {
@@ -123,6 +121,9 @@ class ApplicationExtension extends Nette\DI\CompilerExtension
 		$classes = array();
 
 		if ($config['scanDirs']) {
+			if (!class_exists('Nette\Loaders\RobotLoader')) {
+				throw new Nette\NotSupportedException("RobotLoader is required to find presenters, install package `nette/robot-loader` or disable option {$this->prefix('scanDirs')}: false");
+			}
 			$robot = new Nette\Loaders\RobotLoader;
 			$robot->setCacheStorage(new Nette\Caching\Storages\DevNullStorage);
 			$robot->addDirectory($config['scanDirs']);
@@ -137,7 +138,7 @@ class ApplicationExtension extends Nette\DI\CompilerExtension
 			$classFile = dirname($rc->getFileName()) . '/autoload_classmap.php';
 			if (is_file($classFile)) {
 				$this->getContainerBuilder()->addDependency($classFile);
-				$classes = array_merge($classes, array_keys(call_user_func(function($path) {
+				$classes = array_merge($classes, array_keys(call_user_func(function ($path) {
 					return require $path;
 				}, $classFile)));
 			}

@@ -7,16 +7,14 @@
 
 namespace Nette\DI\Config\Adapters;
 
-use Nette,
-	Nette\DI\Config\Helpers,
-	Nette\DI\Statement,
-	Nette\Neon;
+use Nette;
+use Nette\DI\Config\Helpers;
+use Nette\DI\Statement;
+use Nette\Neon;
 
 
 /**
  * Reading and generating NEON files.
- *
- * @author     David Grudl
  */
 class NeonAdapter extends Nette\Object implements Nette\DI\Config\IAdapter
 {

@@ -7,15 +7,12 @@
 
 namespace Nette\Http;
 
-use Nette,
-	Nette\Security\IIdentity;
+use Nette;
+use Nette\Security\IIdentity;
 
 
 /**
  * Session storage for user object.
- *
- * @author  David Grudl
- * @author  Jan Tichý
  */
 class UserStorage extends Nette\Object implements Nette\Security\IUserStorage
 {
@@ -29,7 +26,7 @@ class UserStorage extends Nette\Object implements Nette\Security\IUserStorage
 	private $sessionSection;
 
 
-	public function  __construct(Session $sessionHandler)
+	public function __construct(Session $sessionHandler)
 	{
 		$this->sessionHandler = $sessionHandler;
 	}

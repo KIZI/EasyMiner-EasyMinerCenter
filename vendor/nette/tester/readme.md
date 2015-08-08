@@ -3,6 +3,8 @@
 
 [![Downloads this Month](https://img.shields.io/packagist/dm/nette/tester.svg)](https://packagist.org/packages/nette/tester)
 [![Build Status](https://travis-ci.org/nette/tester.svg?branch=master)](https://travis-ci.org/nette/tester)
+[![Latest Stable Version](https://poser.pugx.org/nette/tester/v/stable)](https://github.com/nette/tester/releases)
+[![License](https://img.shields.io/badge/license-New%20BSD-blue.svg)](https://github.com/nette/tester/blob/master/license.md)
 
 Nette Tester is a productive and enjoyable unit testing framework. It's used by
 the [Nette Framework](http://nette.org) and is capable of testing any PHP code.
@@ -61,7 +63,7 @@ Now we run tests from command-line using the `tester` command:
 > tester
  _____ ___  ___ _____ ___  ___
 |_   _/ __)( __/_   _/ __)| _ )
-  |_| \___ /___) |_| \___ |_|_\  v1.4.0
+  |_| \___ /___) |_| \___ |_|_\  v1.5.0
 
 PHP 5.3.16 | "php-cgi" -n | 8 threads
 .

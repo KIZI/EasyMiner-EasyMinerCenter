@@ -7,16 +7,14 @@
 
 namespace Nette\Forms\Controls;
 
-use Nette,
-	Nette\Forms\IControl,
-	Nette\Utils\Html,
-	Nette\Forms\Form;
+use Nette;
+use Nette\Forms\IControl;
+use Nette\Utils\Html;
+use Nette\Forms\Form;
 
 
 /**
  * Base class that implements the basic functionality common to form controls.
- *
- * @author     David Grudl
  *
  * @property-read Form $form
  * @property-read string $htmlName

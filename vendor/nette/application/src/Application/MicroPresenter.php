@@ -7,17 +7,15 @@
 
 namespace NetteModule;
 
-use Nette,
-	Nette\Application,
-	Nette\Application\Responses,
-	Nette\Http,
-	Latte;
+use Nette;
+use Nette\Application;
+use Nette\Application\Responses;
+use Nette\Http;
+use Latte;
 
 
 /**
  * Micro presenter.
- *
- * @author     David Grudl
  *
  * @property-read Nette\Application\IRequest $request
  */

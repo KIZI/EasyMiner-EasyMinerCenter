@@ -7,14 +7,12 @@
 
 namespace Nette\Caching\Storages;
 
-use Nette,
-	Nette\Caching\Cache;
+use Nette;
+use Nette\Caching\Cache;
 
 
 /**
  * Cache file storage.
- *
- * @author     David Grudl
  */
 class FileStorage extends Nette\Object implements Nette\Caching\IStorage
 {

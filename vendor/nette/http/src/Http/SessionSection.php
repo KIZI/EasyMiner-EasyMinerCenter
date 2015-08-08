@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * Session section.
- *
- * @author     David Grudl
  */
 class SessionSection extends Nette\Object implements \IteratorAggregate, \ArrayAccess
 {
@@ -39,7 +37,7 @@ class SessionSection extends Nette\Object implements \IteratorAggregate, \ArrayA
 	public function __construct(Session $session, $name)
 	{
 		if (!is_string($name)) {
-			throw new Nette\InvalidArgumentException("Session namespace must be a string, " . gettype($name) . " given.");
+			throw new Nette\InvalidArgumentException('Session namespace must be a string, ' . gettype($name) . ' given.');
 		}
 
 		$this->session = $session;

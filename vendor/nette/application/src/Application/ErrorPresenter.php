@@ -7,15 +7,13 @@
 
 namespace NetteModule;
 
-use Nette,
-	Nette\Application,
-	Tracy\ILogger;
+use Nette;
+use Nette\Application;
+use Tracy\ILogger;
 
 
 /**
  * Default Error Presenter.
- *
- * @author     David Grudl
  */
 class ErrorPresenter extends Nette\Object implements Application\IPresenter
 {

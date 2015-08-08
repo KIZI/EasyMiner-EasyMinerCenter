@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * Provides objects to work as array.
- *
- * @author     David Grudl
  */
 class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \IteratorAggregate
 {
@@ -21,7 +19,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
 	/**
 	 * @param  array to wrap
 	 * @param  bool
-	 * @return ArrayHash
+	 * @return self
 	 */
 	public static function from($arr, $recursive = TRUE)
 	{

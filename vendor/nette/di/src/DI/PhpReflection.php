@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * PHP reflection helpers.
- *
- * @author     David Grudl
  * @internal
  */
 class PhpReflection
@@ -36,7 +34,7 @@ class PhpReflection
 			}
 			$ok = TRUE;
 		}
-		if (preg_match("#[\\s*]@$name\\s++([^@]\\S*)?#", trim($ref->getDocComment(), '/*'), $m)) {
+		if (preg_match("#[\\s*]@$name(?:\\s++([^@]\\S*)?|$)#", trim($ref->getDocComment(), '/*'), $m)) {
 			return isset($m[1]) ? $m[1] : '';
 		}
 	}

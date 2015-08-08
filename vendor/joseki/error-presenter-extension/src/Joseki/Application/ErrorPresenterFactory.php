@@ -49,7 +49,6 @@ class ErrorPresenterFactory
         $name = $request->getPresenterName();
         $modules = explode(":", $name);
         unset($modules[count($modules) - 1]);
-
         while (count($modules) != 0) {
             $catched = false;
             try {
@@ -61,7 +60,6 @@ class ErrorPresenterFactory
             }
             unset($modules[count($modules) - 1]);
         }
-
         if (isset($catched) && $catched) {
             return $this->defaultErrorPresenter;
         }

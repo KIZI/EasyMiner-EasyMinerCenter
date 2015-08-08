@@ -7,13 +7,9 @@
 
 namespace Nette\Iterators;
 
-use Nette;
-
 
 /**
  * RecursiveCallbackFilterIterator for PHP < 5.4.
- *
- * @author     David Grudl
  */
 class RecursiveFilter extends Filter implements \RecursiveIterator
 {

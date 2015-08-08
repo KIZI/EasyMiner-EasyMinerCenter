@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * String tools library.
- *
- * @author     David Grudl
  */
 class Strings
 {
@@ -47,7 +45,7 @@ class Strings
 	{
 		// removes xD800-xDFFF, x110000 and higher
 		if (PHP_VERSION_ID < 50400) {
-			return @iconv('UTF-16', 'UTF-8//IGNORE', iconv('UTF-8', 'UTF-16//IGNORE', $s)); // intentionally @
+			return @iconv('UTF-16', 'UTF-8//IGNORE', iconv('UTF-8', 'UTF-16//IGNORE', $s)); // @ - ignore encoding errors
 		} else {
 			return htmlspecialchars_decode(htmlspecialchars($s, ENT_NOQUOTES | ENT_IGNORE, 'UTF-8'), ENT_NOQUOTES);
 		}
@@ -188,7 +186,7 @@ class Strings
 				. "\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8"
 				. "\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xfe"
 				. "\x96\xa0\x8b\x97\x9b\xa6\xad\xb7",
-				"ALLSSSSTZZZallssstzzzRAAAALCCCEEEEIIDDNNOOOOxRUUUUYTsraaaalccceeeeiiddnnooooruuuuyt- <->|-.");
+				'ALLSSSSTZZZallssstzzzRAAAALCCCEEEEIIDDNNOOOOxRUUUUYTsraaaalccceeeeiiddnnooooruuuuyt- <->|-.');
 			$s = preg_replace('#[^\x00-\x7F]++#', '', $s);
 		} else {
 			$s = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s); // intentionally @
@@ -347,7 +345,7 @@ class Strings
 		for ($i = 0; $i < strlen($first); $i++) {
 			foreach ($strings as $s) {
 				if (!isset($s[$i]) || $first[$i] !== $s[$i]) {
-					while ($i && $first[$i-1] >= "\x80" && $first[$i] >= "\x80" && $first[$i] < "\xC0") {
+					while ($i && $first[$i - 1] >= "\x80" && $first[$i] >= "\x80" && $first[$i] < "\xC0") {
 						$i--;
 					}
 					return substr($first, 0, $i);
@@ -435,6 +433,68 @@ class Strings
 
 
 	/**
+	 * Returns part of $haystack before $nth occurence of $needle.
+	 * @param  string
+	 * @param  string
+	 * @param  int  negative value means searching from the end
+	 * @return string|FALSE  returns FALSE if the needle was not found
+	 */
+	public static function before($haystack, $needle, $nth = 1)
+	{
+		$pos = self::pos($haystack, $needle, $nth);
+		return $pos === FALSE
+			? FALSE
+			: substr($haystack, 0, $pos);
+	}
+
+
+	/**
+	 * Returns part of $haystack after $nth occurence of $needle.
+	 * @param  string
+	 * @param  string
+	 * @param  int  negative value means searching from the end
+	 * @return string|FALSE  returns FALSE if the needle was not found
+	 */
+	public static function after($haystack, $needle, $nth = 1)
+	{
+		$pos = self::pos($haystack, $needle, $nth);
+		return $pos === FALSE
+			? FALSE
+			: (string) substr($haystack, $pos + strlen($needle));
+	}
+
+
+	/**
+	 * Returns position of $nth occurence of $needle in $haystack.
+	 * @return int|FALSE  offset in bytes or FALSE if the needle was not found
+	 */
+	private static function pos($haystack, $needle, $nth = 1)
+	{
+		if (!$nth) {
+			return FALSE;
+		} elseif ($nth > 0) {
+			if (strlen($needle) === 0) {
+				return 0;
+			}
+			$pos = 0;
+			while (FALSE !== ($pos = strpos($haystack, $needle, $pos)) && --$nth) {
+				$pos++;
+			}
+		} else {
+			$len = strlen($haystack);
+			if (strlen($needle) === 0) {
+				return $len;
+			}
+			$pos = $len - 1;
+			while (FALSE !== ($pos = strrpos($haystack, $needle, $pos - $len)) && ++$nth) {
+				$pos--;
+			}
+		}
+		return $pos;
+	}
+
+
+	/**
 	 * Splits string by a regular expression.
 	 * @param  string
 	 * @param  string
@@ -482,7 +542,7 @@ class Strings
 		self::pcre('preg_match_all', array(
 			$pattern, $subject, & $m,
 			($flags & PREG_PATTERN_ORDER) ? $flags : ($flags | PREG_SET_ORDER),
-			$offset
+			$offset,
 		));
 		return $m;
 	}
@@ -527,7 +587,7 @@ class Strings
 			PREG_BAD_UTF8_ERROR => 'Malformed UTF-8 data',
 			5 => 'Offset didn\'t correspond to the begin of a valid UTF-8 code point', // PREG_BAD_UTF8_OFFSET_ERROR
 		);
-		$res = Callback::invokeSafe($func, $args, function($message) use ($args) {
+		$res = Callback::invokeSafe($func, $args, function ($message) use ($args) {
 			// compile-time error, not detectable by preg_last_error
 			throw new RegexpException($message . ' in pattern: ' . implode(' or ', (array) $args[0]));
 		});
@@ -541,12 +601,4 @@ class Strings
 		return $res;
 	}
 
-}
-
-
-/**
- * The exception that indicates error of the last Regexp execution.
- */
-class RegexpException extends \Exception
-{
 }

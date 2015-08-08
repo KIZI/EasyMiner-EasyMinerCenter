@@ -7,16 +7,14 @@
 
 namespace Nette\Application\Routers;
 
-use Nette,
-	Nette\Application,
-	Nette\Utils\Strings;
+use Nette;
+use Nette\Application;
+use Nette\Utils\Strings;
 
 
 /**
  * The bidirectional route is responsible for mapping
  * HTTP request to a Request object for dispatch and vice-versa.
- *
- * @author     David Grudl
  *
  * @property-read string $mask
  * @property-read array $defaults

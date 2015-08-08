@@ -12,8 +12,6 @@ use Nette;
 
 /**
  * List of validation & condition rules.
- *
- * @author     David Grudl
  */
 class Rules extends Nette\Object implements \IteratorAggregate
 {
@@ -96,7 +94,7 @@ class Rules extends Nette\Object implements \IteratorAggregate
 	 * Adds a validation condition and returns new branch.
 	 * @param  mixed      condition type
 	 * @param  mixed      optional condition arguments
-	 * @return Rules      new branch
+	 * @return self       new branch
 	 */
 	public function addCondition($validator, $arg = NULL)
 	{
@@ -109,7 +107,7 @@ class Rules extends Nette\Object implements \IteratorAggregate
 	 * @param  IControl form control
 	 * @param  mixed      condition type
 	 * @param  mixed      optional condition arguments
-	 * @return Rules      new branch
+	 * @return self       new branch
 	 */
 	public function addConditionOn(IControl $control, $validator, $arg = NULL)
 	{
@@ -128,7 +126,7 @@ class Rules extends Nette\Object implements \IteratorAggregate
 
 	/**
 	 * Adds a else statement.
-	 * @return Rules      else branch
+	 * @return self      else branch
 	 */
 	public function elseCondition()
 	{
@@ -161,8 +159,8 @@ class Rules extends Nette\Object implements \IteratorAggregate
 		Nette\Utils\Callback::check($filter);
 		$this->rules[] = $rule = new Rule;
 		$rule->control = $this->control;
-		$rule->validator = function($control) use ($filter) {
-			$control->setValue( call_user_func($filter, $control->getValue()) );
+		$rule->validator = function (IControl $control) use ($filter) {
+			$control->setValue(call_user_func($filter, $control->getValue()));
 			return TRUE;
 		};
 		return $this;

@@ -7,14 +7,12 @@
 
 namespace Nette\Bridges\ApplicationLatte;
 
-use Nette,
-	Latte;
+use Nette;
+use Latte;
 
 
 /**
  * Template loader.
- *
- * @author     David Grudl
  */
 class Loader extends Latte\Loaders\FileLoader
 {
