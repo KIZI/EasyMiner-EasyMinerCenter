@@ -13,7 +13,7 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
    * @param RuleSet $ruleSet
    * @return \DibiResult|int
    */
-  public function deleteAllByRuleSet(RuleSet $ruleSet){
+  public function deleteAllByRuleSet(RuleSet $ruleSet){//TODO missing param $relation
     return $this->connection->query(
       'DELETE FROM %n WHERE %n = ?', $this->getTable(), 'rule_set_id', $ruleSet->ruleSetId
     );
@@ -28,21 +28,24 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
    * @return Rule[]
    */
   public function findAllRulesByRuleSet(RuleSet $ruleSet,$order=null,$offset=null,$limit=null){
+    //TODO najít jiný způsob vytváření entit (chyba v LeanMapper\Repository)
+    $relevantTable='rules';
+
     /** @var Fluent $query */
-    $query=$this->connection->select('rules.*')
-      ->from('rules')
-      ->leftJoin('rule_set_rule_relations')->on('rules.rule_id=%n.rule_id',$this->getTable())
+    $query=$this->connection->select($relevantTable.'.*')
+      ->from($relevantTable)
+      ->leftJoin('rule_set_rule_relations')->on($relevantTable.'.rule_id=%n.rule_id',$this->getTable())
       ->where('rule_set_id = ?',$ruleSet->ruleSetId);
     if ($order){
       $query=$query->orderBy($order);
     }
-    $entityClass=$this->mapper->getEntityClass('rules');
-    $table='rules';
+    $entityClass=$this->mapper->getEntityClass($relevantTable);
+
 
     $ruleRows=$query->fetchAll($offset, $limit);
     $result=[];
     foreach ($ruleRows as $ruleRow){
-      $result[]=$this->createEntity($ruleRow,$entityClass,$table);
+      $result[]=$this->createEntity($ruleRow,$entityClass,$relevantTable);
     }
     return $this->entityFactory->createCollection($result);
   }
