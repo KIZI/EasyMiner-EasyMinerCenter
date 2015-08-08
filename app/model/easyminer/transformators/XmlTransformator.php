@@ -19,6 +19,7 @@ class XmlTransformator {
   public function __construct($params){
     $this->transformationsDirectory=__DIR__.'/../../../'.$params['directory'];
     $this->templates['guhaPMML']=$params['guhaPMML'];
+    $this->templates['DRL']=$params['DRL'];
   }
 
   /**
@@ -26,6 +27,34 @@ class XmlTransformator {
    */
   public function setBasePath($basePath){
     $this->basePath=$basePath;
+  }
+
+  /**
+   * @param \SimpleXMLElement|\DOMDocument|string $xmlDocument
+   * @return string
+   * @throws \Exception
+   */
+  public function transformToDrl($xmlDocument){
+    $filename=$this->transformationsDirectory.'/';
+    /** @var array $transformationParams Parametry transformace */
+    $transformationParams=[];
+    if (is_array($this->templates['DRL'])){
+      $filename.=$this->templates['DRL']['path'];
+      if (!empty($this->templates['DRL']['params'])){
+        $transformationParams=$this->templates['DRL']['params'];
+      }
+    }else{
+      $filename.=$this->templates['DRL'];
+    }
+    if (!($xslt=file_get_contents($filename))){
+      throw new \Exception('Transformation template not found!');
+    }
+    $xsl = new \DOMDocument('1.0','UTF-8');
+
+    $xsl->loadXML($xslt);
+    $xsl->documentURI = $filename;
+
+    return $this->xsltTransformation($xmlDocument, $xsl, $transformationParams);
   }
 
 

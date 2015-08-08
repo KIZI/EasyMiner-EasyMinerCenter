@@ -7,6 +7,8 @@ use App\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\RuleSetsFacade;
 use App\Model\EasyMiner\Facades\UsersFacade;
+use App\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
+use App\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\InvalidArgumentException;
 
 /**
@@ -20,6 +22,24 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
   private $ruleSetsFacade;
   /** @var  UsersFacade $usersFacade */
   private $usersFacade;
+  /** @var  XmlTransformator $xmlTransformator */
+  private $xmlTransformator;
+
+
+  /**
+   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * @param int $id - id of the rule set
+   * @throws \Exception
+   * @throws \Nette\Application\ForbiddenRequestException
+   */
+  public function renderDRL($id){
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //vygenerování a zobrazení DRL
+    $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($ruleSet->findRules());
+    $xml=$associationRulesXmlSerializer->getXml();
+    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml,$this->template->basePath));
+  }
 
   /**
    * Akce pro vypsání existujících rulesetů
@@ -259,6 +279,14 @@ class RuleSetsPresenter extends \App\Presenters\BaseRestPresenter{
    */
   public function injectUsersFacade(UsersFacade $usersFacade){
     $this->usersFacade=$usersFacade;
+  }
+  /**
+   * @param XmlTransformator $xmlTransformator
+   */
+  public function injectXmlTransformator(XmlTransformator $xmlTransformator){
+    $this->xmlTransformator=$xmlTransformator;
+    //nastaven basePath
+    $this->xmlTransformator->setBasePath($this->template->basePath);
   }
   #endregion injections
 }

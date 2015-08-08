@@ -33,6 +33,8 @@ parameters:
                 basePath: $basePath/_XML/transformations/guhaPMML2HTML
                 loadJquery: false
                 contentOnly: true
+        DRL:
+            path: "associationRules2DRL/ar2drl.xslt"
 
 restful:
     convention: 'camelCase'

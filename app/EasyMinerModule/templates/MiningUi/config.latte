@@ -171,7 +171,7 @@ var Config = new Class({
     return this.knowledgeBaseAddRuleSetUrl.replace('__NAME__',name).replace('__DESCRIPTION__',description);
   },
 
-  getKnowledgeBaseRenameRuleSetUrl: function (rulesetId, newName) {
+  getKnowledgeBaseRenameRuleSetUrl: function (rulesetId, newName, description) {
     return this.knowledgeBaseRenameRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__NAME__',newName).replace('__DESCRIPTION__',description);
   },
 

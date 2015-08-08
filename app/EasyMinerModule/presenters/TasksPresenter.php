@@ -6,6 +6,7 @@ use App\Model\EasyMiner\Entities\Metasource;
 use App\Model\EasyMiner\Entities\Task;
 use App\Model\EasyMiner\Facades\RulesFacade;
 use App\Model\EasyMiner\Facades\TasksFacade;
+use App\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use App\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use App\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Utils\Json;
@@ -154,13 +155,46 @@ class TasksPresenter  extends BasePresenter{
    * @throws \Exception
    * @throws \Nette\Application\ForbiddenRequestException
    */
+  public function renderTaskXML($miner,$task){
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+    //vygenerování a odeslání PMML
+    $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
+    $this->sendXmlResponse($associationRulesXmlSerializer->getXml());
+  }
+
+  /**
+   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * @param $miner
+   * @param $task
+   * @throws \Exception
+   * @throws \Nette\Application\ForbiddenRequestException
+   */
+  public function renderTaskDRL($miner,$task){
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+    //vygenerování a odeslání PMML
+    $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
+    $xml=$associationRulesXmlSerializer->getXml();
+    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml,$this->template->basePath));
+  }
+
+  /**
+   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * @param string $miner
+   * @param string $task
+   * @throws \Exception
+   * @throws \Nette\Application\ForbiddenRequestException
+   */
   public function renderTaskDetails($miner,$task){
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $this->checkMinerAccess($task->miner);
     //vygenerování PMML
     $pmml=$this->prepareTaskPmml($task);
     $this->template->task=$task;
-    $this->template->content=$this->xmlTransformator->transformToHtml($pmml,$this->template->basePath);
+    $this->template->content=$this->xmlTransformator->transformToHtml($pmml,$this->template->basePath);//TODO basePath?
   }
 
   /**
