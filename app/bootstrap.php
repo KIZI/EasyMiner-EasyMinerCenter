@@ -1,24 +1,26 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+define('APP_ROOT',__DIR__);
+
+require APP_ROOT . '/../vendor/autoload.php';
 
 $configurator = new Nette\Configurator;
 
 $configurator->setDebugMode(true);
-$configurator->enableDebugger(__DIR__ . '/../log');
+$configurator->enableDebugger(APP_ROOT . '/../log');
 
-$configurator->setTempDirectory(__DIR__ . '/../temp');
+$configurator->setTempDirectory(APP_ROOT . '/../temp');
 
 $configurator->createRobotLoader()
-	->addDirectory(__DIR__)
+	->addDirectory(APP_ROOT)
   //->addDirectory(__DIR__ . '/../vendor/others')
-    ->addDirectory(__DIR__ . '/../submodules')
+    ->addDirectory(APP_ROOT . '/../submodules')
 	->register();
 
-$configurator->addConfig(__DIR__ . '/config/config.neon');
-$configurator->addConfig(__DIR__ . '/config/config.local.neon');
+$configurator->addConfig(APP_ROOT . '/config/config.neon');
+$configurator->addConfig(APP_ROOT . '/config/config.local.neon');
 
-$configurator->addConfig(__DIR__ . '/config/izi-ui.config.neon');
+$configurator->addConfig(APP_ROOT . '/config/izi-ui.config.neon');
 
 $container = $configurator->createContainer();
 

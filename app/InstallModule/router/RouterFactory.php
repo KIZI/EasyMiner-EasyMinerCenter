@@ -21,7 +21,7 @@ class RouterFactory {
    */
 	public static function createRouter($baseUrl=self::BASE_PATH) {
     $installRouter = new RouteList('Install');
-    $installRouter[] = new Route($baseUrl.'<presenter>/<action>', 'Default:default');
+    $installRouter[] = new Route($baseUrl.'<presenter=Default>[/<action=default>]');
     return $installRouter;
   }
 

@@ -1,4 +1,17 @@
 {block content}
+
   <div id="installer">
-    Welcome to installer...
+
+    <h1 n:inner-block="title">Welcome to EasyMiner installer!</h1>
+
+    <p>This wizard allows you to easily configure EasyMinerCenter, which is the central part of the user interface EasyMiner.</p>
+
+    {if $phpVersionCheck}
+      <div class="actionsDiv">
+        <a href="{link Wizard:}">Continue...</a>
+      </div>
+    {else}
+      <div class="error">This application requires PHP in version {$phpVersion} or higher!</div>
+    {/if}
+
   </div>

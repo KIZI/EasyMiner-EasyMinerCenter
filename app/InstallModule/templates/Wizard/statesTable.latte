@@ -1,0 +1,24 @@
+{block content}
+  <div id="installer">
+
+    <h1>{$title}</h1>
+    <p n:ifcontent="$text">{$text}</p>
+
+    <table id="statesTable">
+      {foreach $states as $text=>$state}
+        <tr>
+          <td>{$text}</td>
+          {if $state}
+            <td class="stateOk">OK</td>
+          {else}
+            <td class="stateErr">error</td>
+          {/if}
+        </tr>
+      {/foreach}
+    </table>
+
+    <div class="actionsDiv">
+      <a href="{link this}">Reload...</a>
+    </div>
+
+  </div>
