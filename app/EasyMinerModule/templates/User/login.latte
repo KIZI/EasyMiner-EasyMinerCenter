@@ -22,9 +22,13 @@
       </div>
     {/form}
 
-    <div class="otherLogins">
-      <a n:href="facebookLogin-open!" class="facebookLogin button">{_'Log in using Facebook...'}</a>
-      <a n:href="googleLogin-open!" class="googleLogin button">{_'Log in using Google...'}</a>
+    <div class="otherLogins" n:if="(@$allowFacebook || @$allowGoogle)">
+      {if @$allowFacebook}
+        <a n:href="facebookLogin-open!" class="facebookLogin button">{_'Log in using Facebook...'}</a>
+      {/if}
+      {if @$allowGoogle}
+        <a n:href="googleLogin-open!" class="googleLogin button">{_'Log in using Google...'}</a>
+      {/if}
     </div>
   </div>
 

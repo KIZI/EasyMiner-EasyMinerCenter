@@ -140,6 +140,22 @@ class UserPresenter  extends BasePresenter{
     }
   }
 
+  /**
+   * View pro přihlášení uživatele
+   */
+  public function renderLogin() {
+    //kontrola podpory sociálních sítí
+
+    /** @var FacebookLoginDialog $facebookLogin */
+    $facebookLogin=$this->getComponent('facebookLogin');
+    $this->template->allowFacebook=(!empty($facebookLogin->facebook->config->appId));
+
+    /** @var GoogleLoginDialog $googleLogin */
+    $googleLogin=$this->getComponent('googleLogin');
+    $this->template->allowGoogle=(!empty($googleLogin->getGoogle()->getConfig()->clientId));
+  }
+
+
   public function actionRegister(){
     if ($this->user->isLoggedIn()){
       //pokud je uživatel už přihlášen, nedovolíme mu registrovat nový účet
