@@ -34,6 +34,12 @@ parameters:
                 contentOnly: true
         DRL:
             path: "associationRules2DRL/ar2drl.xslt"
+    miningDriverFactory:
+        driver_lm:
+            class: EasyMinerCenter\Model\Mining\LM\LMDriver
+            pooler: task
+        driver_r:
+            class: EasyMinerCenter\Model\Mining\LM\RDriver
 
 restful:
     convention: 'camelCase'

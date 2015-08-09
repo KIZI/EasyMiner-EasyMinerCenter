@@ -111,6 +111,10 @@
   text-transform: capitalize;
 }
 #installer form input[type="text"],
-#installer form input[type="password"] {
+#installer form input[type="password"],
+#installer form input[type="email"] {
   width: 400px;
+}
+#installer form .withSpace {
+  margin-bottom: 20px;
 }

@@ -25,6 +25,7 @@ class WizardPresenter extends Presenter {
     'dataMysql',//přístupy k databázi pro uživatelská data
     'logins',   //typy přihlašování
     'miners',   //zadání přístupů k dolovacím serverům
+    'details',  //zadání dalších parametrů/detailů
     'finish'    //zpráva o dokončení
   ];
 
@@ -123,21 +124,63 @@ class WizardPresenter extends Presenter {
    * Akce pro zadání způsobů přihlašování
    */
   public function actionLogins() {
-    //TODO
+    //naplnění výchozích parametrů
+    $configManager=$this->createConfigManager();
+    /** @var Form $form */
+    $form=$this->getComponent('loginsForm');
+
+    if(!empty($configManager->data['facebook'])) {
+      //set currently defined params
+      try{
+        $form->setDefaults([
+          'allow_facebook'=>1,
+          'facebookAppId'=>$configManager->data['facebook']['appId'],
+          'facebookAppSecret'=>$configManager->data['facebook']['appSecret']
+        ]);
+      }catch (\Exception $e){/*ignore error*/}
+    }
+
+    if(!empty($configManager->data['google'])) {
+      //set currently defined params
+      try{
+        $form->setDefaults([
+          'allow_google'=>1,
+          'googleClientId'=>$configManager->data['google']['clientId'],
+          'googleClientSecret'=>$configManager->data['google']['clientSecret']
+        ]);
+      }catch (\Exception $e){/*ignore error*/}
+    }
+
   }
 
   /**
    * Akce pro volbu podporovaných typů minerů
    */
   public function actionMiners() {
-    //TODO
+    //TODO actionMiners
   }
 
+  /**
+   * Akce pro zadání doplňujících parametrů
+   */
+  public function actionDetails() {
+    $configManager=$this->createConfigManager();
+    if(!empty($configManager->data['parameters']['mail_from'])) {
+      //set currently defined database connection params
+      try{
+        /** @var Form $form */
+        $form=$this->getComponent('detailsForm');
+        $form->setDefaults(['mail_from'=>$configManager->data['parameters']['mail_from']]);
+      }catch (\Exception $e){/*ignore error*/}
+    }
+    //TODO configure automatically filled-in params
+  }
+  
   /**
    * Akce pro ukončení průvodce - smazání cache, přesměrování
    */
   public function actionFinish() {
-    //TODO
+    //TODO actionFinish
   }
 
 
@@ -219,7 +262,7 @@ class WizardPresenter extends Presenter {
    */
   public function createComponentDataMysqlForm() {
     $form=new Form();
-    /*FIXME
+    /*FIXME createComponentDataMysqlForm
       _username: 'user*'
       _database: 'user*'
       username: root
@@ -269,6 +312,102 @@ class WizardPresenter extends Presenter {
     return $form;
   }
 
+  /**
+   * Formulář pro zadání údajů pro přihlašování přes sociální sítě
+   * @return Form
+   */
+  public function createComponentLoginsForm() {
+    $form=new Form();
+    $form->addSelect('allow_local','Allow local user accounts:',[1=>'yes'])
+      ->setAttribute('readonly')
+      ->setAttribute('class','withSpace')
+      ->setDisabled(true);
+    $allowFacebook=$form->addSelect('allow_facebook','Allow Facebook login:',[0=>'no',1=>'yes']);
+    $allowFacebook->addCondition(Form::EQUAL,1)
+      ->toggle('facebookAppId',true)
+      ->toggle('facebookAppSecret',true);
+    $form->addText('facebookAppId','Facebook App ID:')
+      ->setOption('id','facebookAppId')
+      ->addConditionOn($allowFacebook,Form::EQUAL,1)
+        ->setRequired('You have to input Facebook App ID!');
+    $form->addText('facebookAppSecret','Facebook Secret Key:',null,32)
+      ->setAttribute('class','withSpace')
+      ->setOption('id','facebookAppSecret')
+      ->addConditionOn($allowFacebook,Form::EQUAL,1)
+        ->setRequired('You have to input Facebook Secret Key!')
+        ->addRule(Form::LENGTH,'Secret Key length has to be %s chars.',32);
+
+    $allowGoogle=$form->addSelect('allow_google','Allow Google login:',[0=>'no',1=>'yes']);
+    $allowGoogle->addCondition(Form::EQUAL,1)
+      ->toggle('googleClientId',true)
+      ->toggle('googleClientSecret',true);
+    $form->addText('googleClientId','Google Client ID:')
+      ->setOption('id','googleClientId')
+      ->addConditionOn($allowGoogle,Form::EQUAL,1)
+        ->setRequired('You have to input Google Client ID!');
+    $form->addText('googleClientSecret','Google Secret Key:',null,24)
+      ->setOption('id','googleClientSecret')
+      ->addConditionOn($allowGoogle,Form::EQUAL,1)
+        ->setRequired('You have to input Google Secret Key!')
+        ->addRule(Form::LENGTH,'Secret Key length has to be %s chars.',24);;
+
+    $form->addSubmit('submit','Save & continue...')
+      ->onClick[]=function(SubmitButton $submitButton){
+        $values=$submitButton->form->getValues(true);
+        $configManager=$this->createConfigManager();
+        if ($values['allow_facebook']==1){
+          $configManager->data['facebook']=[
+            'appId'=>$values['facebookAppId'],
+            'appSecret'=>$values['facebookAppSecret']
+          ];
+        }else{
+          $configManager->data['facebook']=[
+            'appId'=>'',
+            'appSecret'=>'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+          ];
+        }
+        if ($values['allow_google']==1){
+          $configManager->data['google']=[
+            'clientId'=>$values['googleClientId'],
+            'clientSecret'=>$values['googleClientSecret']
+          ];
+        }else{
+          $configManager->data['google']=[
+            'clientId'=>'',
+            'clientSecret'=>'xxxxxxxxxxxxxxxxxxxxxxxx'
+          ];
+        }
+      };
+    return $form;
+  }
+
+  /**
+   * Formulář pro zadání údajů pro přístup k minerům
+   * @return Form
+   */
+  public function createComponentMinersForm() {
+    //FIXME createComponentMinersForm
+  }
+
+  /**
+   * Formulář pro zadání doplňujících parametrů
+   * @return Form
+   */
+  public function createComponentDetailsForm() {
+    $form = new Form();
+    $form->addText('mail_from','Send application e-mails from:')
+      ->setAttribute('placeholder','sender@server.tld')
+      ->setRequired(true)
+      ->addRule(Form::EMAIL,'Input valid e-mail address!');
+    $form->addSubmit('submit','Save & continue')->onClick[]=function(SubmitButton $submitButton){
+      //uložení e-mailu
+      $configManager=$this->createConfigManager();
+      $values=$submitButton->form->getValues(true);
+      $configManager->data['parameters']['mail_from']=$values['mail_from'];
+      $configManager->saveConfig();
+      $this->redirect($this->getNextStep('details'));
+    };
+  }
 
 
   /**

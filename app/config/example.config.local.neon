@@ -8,12 +8,10 @@ php:
 parameters:
     miningDriverFactory:
         driver_lm:
-            class:  EasyMinerCenter\Model\Mining\LM\LMDriver
-            pooler: task
             server:
         driver_r:
-            class:  EasyMinerCenter\Model\Mining\LM\RDriver
             server:
+            minerUrl:
             imports_directory: "absolutePath"
     mainDatabase:
         driver: mysqli
@@ -34,12 +32,6 @@ parameters:
             password:
             server: localhost
             allowFileImport: true
-        cassandra:
-            _username: 'user*'
-            _database: 'user*'
-            username:
-            password:
-            server: localhost
 
 facebook:
     appId: ""
