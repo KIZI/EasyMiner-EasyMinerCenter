@@ -2,6 +2,9 @@
 #   Soubor s konfigurací aplikace pro konkrétní server
 #
 
+php:
+	date.timezone: Europe/Prague
+
 parameters:
     miningDriverFactory:
         driver_lm:
@@ -12,7 +15,7 @@ parameters:
             class:  EasyMinerCenter\Model\Mining\LM\RDriver
             server:
             imports_directory: "absolutePath"
-    leanmapper:
+    mainDatabase:
         driver: mysqli
         host: localhost
         username: root
@@ -41,9 +44,7 @@ parameters:
 facebook:
     appId: ""
     appSecret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-    permissions: [email,public_profile]
 
 google:
     clientId: ""
     clientSecret: "xxxxxxxxxxxxxxxxxxxxxxxx"
-    returnUri: ':EasyMiner:User:oauthGoogle'(do=login-google-response)

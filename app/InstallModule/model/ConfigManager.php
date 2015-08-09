@@ -1,11 +1,32 @@
 <?php
 
 namespace EasyMinerCenter\InstallModule\Model;
+use Nette\Neon\Neon;
 
 /**
- * Class ConfigModel - tøída spravující lokální konfiguraci
+ * Class ConfigModel - tÅ™Ã­da spravujÃ­cÃ­ aktuÃ¡lnÃ­ konfiguraci aplikace
  * @package EasyMinerCenter\InstallModule\Model
  */
-class ConfigModel {
+class ConfigManager {
+  /** @var string $neonFileName */
+  private $neonFileName;
+  /** @var mixed $data - dekÃ³dovanÃ¡ data konfigurace */
+  public $data;
+
+  /**
+   * @param string $neonFileName
+   */
+  public function __construct($neonFileName){
+    $this->neonFileName=$neonFileName;
+    $this->data=Neon::decode(file_get_contents($neonFileName));
+  }
+
+  /**
+   * Funkce pro uloÅ¾enÃ­ konfigurace do souboru
+   */
+  public function saveConfig() {
+    $encodedData=Neon::encode($this->data,Neon::BLOCK);
+    file_put_contents($this->neonFileName,$encodedData);
+  }
 
 }

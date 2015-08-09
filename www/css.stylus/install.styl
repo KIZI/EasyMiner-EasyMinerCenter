@@ -1,0 +1,33 @@
+/**
+ *  Specifické styly pro instalátor (nepoužívají se v žádné jiné části aplikace)
+ */
+
+//import basic shared styles
+@import '../../submodules/EasyMiner-MiningUI/web/css.stylus/_mixins.styl'
+@import '_mixinsEMC.styl'
+
+#installer
+  mainBlock()
+  width 800px
+
+  .actions
+    text-align center
+    a
+      mainButton()
+      display inline-block
+
+  .statesTable
+    listTable()
+    width 100%
+    td.stateOk
+      color black
+      background #acdd4a
+    td.stateErr
+      color white
+      background maroon
+      text-transform capitalize
+
+  form
+    input[type="text"]
+    input[type="password"]
+      width 400px

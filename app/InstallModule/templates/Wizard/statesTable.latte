@@ -1,10 +1,14 @@
 {block content}
   <div id="installer">
-
-    <h1>{$title}</h1>
+    <h1>EasyMinerCenter Installer</h1>
+    <h2 n:inner-block="title">{$title}</h2>
     <p n:ifcontent="$text">{$text}</p>
 
-    <table id="statesTable">
+    <table class="statesTable">
+      <tr>
+        <th>Request</th>
+        <th>State</th>
+      </tr>
       {foreach $states as $text=>$state}
         <tr>
           <td>{$text}</td>
@@ -17,7 +21,7 @@
       {/foreach}
     </table>
 
-    <div class="actionsDiv">
+    <div class="actions">
       <a href="{link this}">Reload...</a>
     </div>
 

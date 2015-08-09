@@ -1,0 +1,116 @@
+/**
+ *  Specifické styly pro instalátor (nepoužívají se v žádné jiné části aplikace)
+ */
+#installer {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  margin: 10px auto;
+  width: 800px;
+}
+#installer > h1,
+#installer > h2 {
+  margin-top: 0;
+}
+#installer .actions {
+  text-align: center;
+}
+#installer .actions a {
+  background: #075783;
+  font-size: 14px;
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-align: center;
+  display: inline-block;
+  padding: 8px 13px;
+  background: #4c8e0e;
+  color: #fff;
+  border: 1px solid #4c8e0e;
+  text-align: center;
+  display: block;
+  margin: 15px auto;
+  font-size: 18.2px;
+  min-width: 150px;
+  display: inline-block;
+}
+#installer .actions a:hover,
+#installer .actions a:focus {
+  background: #2d83be;
+  color: #fff;
+  border: 1px solid #314e64;
+  text-decoration: none;
+}
+#installer .actions a:hover,
+#installer .actions a:focus {
+  background: #64ba12;
+  color: #fff;
+  border: 1px solid #4c8e0e;
+}
+#installer .statesTable {
+  background: #fff;
+  color: #434343;
+  border-spacing: 0;
+  margin: 20px 0;
+  width: 100%;
+}
+#installer .statesTable tr:first-child th {
+  border-top: 1px solid #075783;
+}
+#installer .statesTable th {
+  padding: 5px 8px;
+  background: #075783;
+  color: #fff;
+  text-align: left;
+  border: 1px solid #075783;
+  border-left: none;
+  border-top: none;
+}
+#installer .statesTable th:first-child {
+  border: 1px solid #075783;
+}
+#installer .statesTable th.empty {
+  background: #fff;
+}
+#installer .statesTable th.empty:first-child {
+  border-left: none;
+  border-top: none;
+}
+#installer .statesTable td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-top: none;
+}
+#installer .statesTable td:first-child {
+  border-left: 1px solid #ebebeb;
+}
+#installer .statesTable tr:nth-child(even) {
+  background: #fcfbff;
+}
+#installer .statesTable td.stateOk {
+  color: #000;
+  background: #acdd4a;
+}
+#installer .statesTable td.stateErr {
+  color: #fff;
+  background: #800000;
+  text-transform: capitalize;
+}
+#installer form input[type="text"],
+#installer form input[type="password"] {
+  width: 400px;
+}

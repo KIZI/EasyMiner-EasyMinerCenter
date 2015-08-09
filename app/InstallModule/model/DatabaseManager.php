@@ -3,11 +3,37 @@
 namespace EasyMinerCenter\InstallModule\Model;
 
 /**
- * Class DatabaseModel - model pro vytvoøení struktury databáze
+ * Class DatabaseModel - model pro vytvoÅ™enÃ­ struktury databÃ¡ze
  * @package EasyMinerCenter\InstallModule\Model
  */
-class DatabaseModel {
+class DatabaseManager {
+  /** @var  \DibiConnection $connection */
+  private $connection;
 
-  //TODO vytvoøení pøístupù
+  /**
+   * Konstruktur, kterÃ½ se zÃ¡roveÅˆ pÅ™ipojuje k databÃ¡zi
+   * @param array $config
+   * @throws \DibiException
+   */
+  public function __construct($config){
+    $this->connection = new \DibiConnection($config);
+  }
+
+  /**
+   * Funkce pro kontrolu, jestli jsme pÅ™ipojeni k databÃ¡zi
+   * @return bool
+   */
+  public function isConnected(){
+    return $this->connection->isConnected();
+  }
+
+  /**
+   * Funkce pro vytvoÅ™enÃ­ struktury databÃ¡ze z mysql.sql
+   * @throws \DibiException
+   * @throws \RuntimeException
+   */
+  public function createDatabase(){
+    $this->connection->loadFile(__DIR__.'/../data/mysql.sql');
+  }
 
 }
