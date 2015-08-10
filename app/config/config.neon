@@ -39,7 +39,7 @@ parameters:
             class: EasyMinerCenter\Model\Mining\LM\LMDriver
             pooler: task
         driver_r:
-            class: EasyMinerCenter\Model\Mining\LM\RDriver
+            class: EasyMinerCenter\Model\Mining\R\RDriver
 
 restful:
     convention: 'camelCase'

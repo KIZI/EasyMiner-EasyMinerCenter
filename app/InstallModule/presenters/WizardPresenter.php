@@ -16,17 +16,20 @@ use Nette\Neon\Neon;
  * @package EasyMinerCenter\InstallModule\Presenters
  */
 class WizardPresenter extends Presenter {
+  /** @var null|ConfigManager $configManager */
+  private $configManager=null;
   /** @var array $wizardSteps - pole s definicí jednotlivých kroků instalačního wizardu */
   private $wizardSteps=[
     'default',
-    'files',    //kontrola přístupů k souborům a adresářům
-    'timezone', //nastavení časové zóny
-    'database', //inicializace aplikační databáze
-    'dataMysql',//přístupy k databázi pro uživatelská data
-    'logins',   //typy přihlašování
-    'miners',   //zadání přístupů k dolovacím serverům
-    'details',  //zadání dalších parametrů/detailů
-    'finish'    //zpráva o dokončení
+    'files',        //kontrola přístupů k souborům a adresářům
+    'timezone',     //nastavení časové zóny
+    'database',     //inicializace aplikační databáze
+    'dataMysql',    //přístupy k databázi pro uživatelská data
+    'logins',       //typy přihlašování
+    'miners',       //zadání přístupů k dolovacím serverům
+    'details',      //zadání dalších parametrů/detailů
+    'setPassword',  //kontrola zadání přístupového hesla
+    'finish'        //zpráva o dokončení
   ];
 
   /**
@@ -74,9 +77,20 @@ class WizardPresenter extends Presenter {
   }
 
   /**
+   * Akce pro zadání přístupového hesla pro instalaci
+   * @param string $backlink
+   */
+  public function actionCheckPassword($backlink="") {
+    /** @var Form $form */
+    $form=$this->getComponent('checkPasswordForm');
+    $form->setDefaults(['backlink'=>$backlink]);
+  }
+  
+  /**
    * Akce pro nastavení vyžadované časové zóny
    */
   public function actionTimezone() {
+    $this->checkAccessRights();
     $configManager=$this->createConfigManager();
     if(!empty($configManager->data['php']['date.timezone'])) {
       $currentTimezone=$configManager->data['php']['date.timezone'];
@@ -94,6 +108,7 @@ class WizardPresenter extends Presenter {
  * Akce pro zadání přístupu k hlavní aplikační databázi
  */
   public function actionDatabase() {
+    $this->checkAccessRights();
     $configManager=$this->createConfigManager();
     if(!empty($configManager->data['parameters']['mainDatabase'])) {
       //set currently defined database connection params
@@ -109,6 +124,7 @@ class WizardPresenter extends Presenter {
    * Akce pro zadání přístupu k MySQL databázi pro uživatelská data
    */
   public function actionDataMysql() {
+    $this->checkAccessRights();
     $configManager=$this->createConfigManager();
     if(!empty($configManager->data['parameters']['databases']['mysql'])) {
       //set currently defined database connection params
@@ -124,6 +140,7 @@ class WizardPresenter extends Presenter {
    * Akce pro zadání způsobů přihlašování
    */
   public function actionLogins() {
+    $this->checkAccessRights();
     //naplnění výchozích parametrů
     $configManager=$this->createConfigManager();
     /** @var Form $form */
@@ -157,6 +174,7 @@ class WizardPresenter extends Presenter {
    * Akce pro volbu podporovaných typů minerů
    */
   public function actionMiners() {
+    $this->checkAccessRights();
     //TODO actionMiners
   }
 
@@ -164,6 +182,7 @@ class WizardPresenter extends Presenter {
    * Akce pro zadání doplňujících parametrů
    */
   public function actionDetails() {
+    $this->checkAccessRights();
     $configManager=$this->createConfigManager();
     if(!empty($configManager->data['parameters']['mail_from'])) {
       //set currently defined database connection params
@@ -387,6 +406,8 @@ class WizardPresenter extends Presenter {
    */
   public function createComponentMinersForm() {
     //FIXME createComponentMinersForm
+    $form=new Form();
+    return $form;
   }
 
   /**
@@ -407,8 +428,70 @@ class WizardPresenter extends Presenter {
       $configManager->saveConfig();
       $this->redirect($this->getNextStep('details'));
     };
+    return $form;
   }
 
+  /**
+   * Formulář pro zadání hesla pro opětovnou instalaci
+   * @return Form
+   */
+  public function createComponentSetPasswordForm() {
+    $form = new Form();
+    $password=$form->addPassword('password','Installation password:')
+      ->setRequired("You have to input installation password!");
+    $form->addPassword('rePassword','Installation password again:')
+      ->setRequired("You have to input installation password!")
+      ->addRule(Form::EQUAL,'Passwords does not match!',$password);
+    $form->addSubmit('submit','Save & continue')
+      ->onClick[]=function(SubmitButton $submitButton){
+        //uložení instalačního hesla
+        $values=$submitButton->form->getValues(true);
+        $configManager=$this->createConfigManager();
+        $configManager->saveInstallationPassword($values['password']);
+      };
+    return $form;
+  }
+
+  /**
+   * Formulář pro kontrolu přístupového instalačního hesla
+   * @return Form
+   */
+  public function createComponentCheckPasswordForm() {
+    $form=new Form();
+    $form->addHidden('backlink','');
+    $form->addPassword('password','Installation password')
+      ->setRequired('You have to input the installation password!');
+    $form->addSubmit('submit','OK')
+      ->onClick[]=function(SubmitButton $submitButton){
+        $values=$submitButton->form->getValues(true);
+        $configManager=$this->createConfigManager();
+        if ($configManager->checkInstallationPassword($values['password'])){
+          //heslo je správně
+          if (!empty($values['backlink'])){
+            $this->restoreRequest($values['backlink']);
+          }
+          $this->redirect($this->getNextStep('default'));
+        }else{
+          //heslo je chybně
+          $submitButton->form->addError('The installation password is invalid!');
+        }
+      };
+    return $form;
+  }
+
+  /**
+   * Funkce pro kontrolu, jestli je aktuální uživatel oprávněn pracovat s wizardem
+   */
+  private function checkAccessRights() {
+    $session=$this->getSession('InstallModule');
+    if (@$session->passwordChecked!=true){
+      $configManager=$this->createConfigManager();
+      if ($configManager->isSetInstallationPassword()){
+        //redirect na zadání hesla pro přístup k instalaci
+        $this->redirect('checkPassword', array('backlink' => $this->storeRequest()));
+      }
+    }
+  }
 
   /**
    * Funkce vracející URL dalšího kroku wizardu
@@ -422,9 +505,13 @@ class WizardPresenter extends Presenter {
   }
 
   /**
+   * Funkce vracející instanci config manageru
    * @return ConfigManager
    */
   private function createConfigManager() {
-    return new ConfigManager(FilesManager::getRootDirectory().'/app/config/config.local.neon');
+    if (!($this->configManager instanceof ConfigManager)){
+      $this->configManager=new ConfigManager(FilesManager::getRootDirectory().'/app/config/config.local.neon');
+    }
+    return $this->configManager;
   }
 }

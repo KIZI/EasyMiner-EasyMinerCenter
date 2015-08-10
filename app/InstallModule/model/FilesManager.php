@@ -3,7 +3,7 @@
 namespace EasyMinerCenter\InstallModule\Model;
 
 /**
- * Class FilesManager - tøída spravující soubory a složky pøi instalaci
+ * Class FilesManager - tÅ™Ã­da spravujÃ­cÃ­ soubory a sloÅ¾ky pÅ™i instalaci
  * @package EasyMinerCenter\InstallModule\Model
  */
 class FilesManager {
@@ -15,7 +15,7 @@ class FilesManager {
   }
 
   /**
-   * Funkce pro kontrolu zapisovatelnosti souboru - pokud neexistuje, pokusí se jej vytvoøit
+   * Funkce pro kontrolu zapisovatelnosti souboru - pokud neexistuje, pokusÃ­ se jej vytvoÅ™it
    * @param string $filename
    * @return bool
    */
@@ -25,13 +25,13 @@ class FilesManager {
       if (!@mkdir($filename,0777)){return false;}
     }
     if (!is_writable($filename)){
-      if (!chmod($filename,0777)){return false;}
+      if (!@chmod($filename,0777)){return false;}
     }
     return true;
   }
 
   /**
-   * Funkce pro kontrolu zapisovatelnosti souboru - pokud neexistuje, pokusí se jej vytvoøit
+   * Funkce pro kontrolu zapisovatelnosti souboru - pokud neexistuje, pokusÃ­ se jej vytvoÅ™it
    * @param string $filename
    * @return bool
    */

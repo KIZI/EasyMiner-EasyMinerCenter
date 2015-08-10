@@ -6,6 +6,10 @@ php:
 	date.timezone: Europe/Prague
 
 parameters:
+    install:
+        version: versionId
+        password: xxxxxxxxx
+
     miningDriverFactory:
         driver_lm:
             server:
