@@ -7,8 +7,8 @@ writable:
         - "/temp"
         - "/temp/fileImports"
         - "/temp/pmmlImports"
-        - "/temp/pmmlImports/lm"
-        - "/temp/pmmlImports/r"
+        importsLM: "/temp/pmmlImports/lm"
+        importsR: "/temp/pmmlImports/r"
         - "/www/images/users"
     files:
         config: "/app/config/config.local.neon"

@@ -1,0 +1,11 @@
+{block content}
+  <div id="installer">
+    <h1>EasyMinerCenter Installer</h1>
+    <h2 n:inner-block="title">Working database - MySQL</h2>
+    <p>Please configure the database server for the working data of the users.</p>
+    <p>For each user, there will be created a standalone database user and a database. All these user accounts and user databases will be prefixed with the given string.</p>
+    <p>For faster loading of the user data, you can allow the functionality "allow file import". For use of this feature, the user account of the users will been created with the "GRANT FILE" privileges.</p>
+
+    {control dataMysqlForm}
+
+  </div>

@@ -12,18 +12,18 @@ define('CREATE_CACHE_DIRECTORY_MESSAGE','Please create writable directory "temp/
 
 #region temp and cache directory
   if (!is_dir(TEMP_DIRECTORY)){
-    //pokus vytvoøit TEMP
+    //pokus vytvoÅ™it TEMP
     if (!mkdir(TEMP_DIRECTORY,0777)){
-      //nelze vytvoøit pøíslušný adresáø TEMP
+      //nelze vytvoÅ™it pÅ™Ã­sluÅ¡nÃ½ adresÃ¡Å™ TEMP
       exit(CREATE_TEMP_DIRECTORY_MESSAGE);
     }
   }
   if (!is_writable(TEMP_DIRECTORY) && !chmod(TEMP_DIRECTORY,0777)){
-    //adresáø TEMP není zapisovatelný a nelze zmìnit pøístupová práva
+    //adresÃ¡Å™ TEMP nenÃ­ zapisovatelnÃ½ a nelze zmÄ›nit pÅ™Ã­stupovÃ¡ prÃ¡va
     exit(CREATE_TEMP_DIRECTORY_MESSAGE);
   }
   if (file_exists(CACHE_DIRECTORY) && !is_writable(CACHE_DIRECTORY) && !chmod(CACHE_DIRECTORY,0777)){
-    //adresáø TEMP/CACHE není zapisovatelný a nelze zmìnit pøístupová práva
+    //adresÃ¡Å™ TEMP/CACHE nenÃ­ zapisovatelnÃ½ a nelze zmÄ›nit pÅ™Ã­stupovÃ¡ prÃ¡va
     exit(CREATE_CACHE_DIRECTORY_MESSAGE);
   }
 #endregion temp directory

@@ -96,7 +96,6 @@ class RDriver implements IMiningDriver{
       if (file_exists($this->getImportPmmlPath())){
         //ignore user abort (continue running this script)
         ignore_user_abort(true);
-        file_put_contents($this->getImportPmmlPath().'test','jo');
         //update task details
         $rulesCount=0;
         $this->fullParseRulesPMML(simplexml_load_file($this->getImportPmmlPath()),$rulesCount,true);
@@ -186,7 +185,7 @@ class RDriver implements IMiningDriver{
    * @throws \Exception
    */
   public function parseRulesPMML($pmml,&$rulesCount=null,$responseData){
-    if (is_dir($this->params['imports_directory'])){
+    if (is_dir($this->params['importsDirectory'])){
       file_put_contents($this->getImportPmmlPath(),$responseData);
       $this->basicParseRulesPMML($pmml,$rulesCount);
       return Task::STATE_SOLVED_HEADS;
@@ -233,7 +232,7 @@ class RDriver implements IMiningDriver{
       $rulesArr[]=$rule;
     }
     $this->rulesFacade->saveRulesHeads($rulesArr);
-    $this->rulesFacade->calculateMissingInterestMeasures($this->task,true);
+    $this->rulesFacade->calculateMissingInterestMeasures($this->task);
     return true;
   }
 
@@ -569,7 +568,7 @@ class RDriver implements IMiningDriver{
    * @return string
    */
   private function getImportPmmlPath(){
-    return $this->params['imports_directory'].'/'.$this->task->taskId.'.pmml';
+    return $this->params['importsDirectory'].'/'.$this->task->taskId.'.pmml';
   }
 
 

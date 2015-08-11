@@ -118,3 +118,7 @@
 #installer form .withSpace {
   margin-bottom: 20px;
 }
+#installer form .withSpace + span {
+  margin-top: -20px;
+  margin-bottom: 20px;
+}

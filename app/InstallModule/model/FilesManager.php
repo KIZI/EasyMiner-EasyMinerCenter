@@ -72,4 +72,19 @@ class FilesManager {
     return $resultArr;
   }
 
+  /**
+   * @param string $section = [writable]
+   * @param string $type = [files|directories]
+   * @param string $id
+   * @return string
+   */
+  public function getPath($section, $type, $id, $absolutePath=false) {
+    $path=$this->config[$section][$type][$id];
+    if (!empty($path) && $absolutePath){
+      return self::getRootDirectory().$path;
+    }else{
+      return $path;
+    }
+  }
+
 }

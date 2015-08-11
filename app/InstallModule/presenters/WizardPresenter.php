@@ -8,6 +8,7 @@ use EasyMinerCenter\InstallModule\Model\FilesManager;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\SubmitButton;
+use Nette\Forms\Controls\TextInput;
 use Nette\Neon\Neon;
 
 /**
@@ -43,7 +44,7 @@ class WizardPresenter extends Presenter {
    * Akce pro kontrolu přístupů ke složkám a souborům
    */
   public function actionFiles() {
-    $filesManager=new FilesManager(Neon::decode(file_get_contents(__DIR__.'/../data/files.neon')));
+    $filesManager=$this->createFilesManager();
     $writableDirectories=$filesManager->checkWritableDirectories();
     $writableFiles=$filesManager->checkWritableFiles();
     $stateError=false;
@@ -114,7 +115,7 @@ class WizardPresenter extends Presenter {
       //set currently defined database connection params
       try{
         /** @var Form $form */
-        $form=$this->getComponent('databaseForm');
+        $form=$this->getComponent('mainDatabaseForm');
         $form->setDefaults($configManager->data['parameters']['mainDatabase']);
       }catch (\Exception $e){/*ignore error*/}
     }
@@ -175,7 +176,30 @@ class WizardPresenter extends Presenter {
    */
   public function actionMiners() {
     $this->checkAccessRights();
-    //TODO actionMiners
+    $configManager=$this->createConfigManager();
+    if(!empty($configManager->data['parameters']['miningDriverFactory'])) {
+      /** @var array $configManagerValuesArr */
+      $configManagerValuesArr=$configManager->data['parameters']['miningDriverFactory'];
+      //set currently defined database connection params
+      try{
+        /** @var Form $form */
+        $form=$this->getComponent('minersForm');
+        $defaultsArr=[];
+        if (empty($configManagerValuesArr['driver_r'])){
+          $defaultsArr['allow_driverR']=0;
+        }else{
+          $defaultsArr['allow_driverR']=1;
+          $defaultsArr['driverRServer']=$configManagerValuesArr['driver_r']['server'].@$configManagerValuesArr['driver_r']['minerUrl'];
+        }
+        if (empty($configManagerValuesArr['driver_lm'])){
+          $defaultsArr['allow_driverLM']=0;
+        }else{
+          $defaultsArr['allow_driverLM']=1;
+          $defaultsArr['driverLMServer']=$configManagerValuesArr['driver_lm']['server'];
+        }
+        $form->setDefaults($defaultsArr);
+      }catch (\Exception $e){/*ignore error*/}
+    }
   }
 
   /**
@@ -231,14 +255,14 @@ class WizardPresenter extends Presenter {
    * Formulář pro zadání přístupů k databázi pro aplikační data
    * @return Form
    */
-  public function createComponentDatabaseForm() {
+  public function createComponentMainDatabaseForm() {
     $form=new Form();
     $form->addSelect('driver', 'Database type:', ['mysqli'=>'MySQL']);
     $form->addText('host', 'Server:')
       ->setRequired('Input the server address!');
-    $form->addText('username', 'DB username:')
+    $form->addText('username', 'Database username:')
       ->setRequired('Input the database username!');
-    $form->addPassword('password', 'DB password:');
+    $form->addText('password', 'Database password:');
     $form->addText('database', 'Database name:')
       ->setRequired('Input the name of a database for the application data!');
     $form->addSubmit('submit', 'Save & continue...')
@@ -281,27 +305,31 @@ class WizardPresenter extends Presenter {
    */
   public function createComponentDataMysqlForm() {
     $form=new Form();
-    /*FIXME createComponentDataMysqlForm
-      _username: 'user*'
-      _database: 'user*'
-      username: root
-      password:
-      server: localhost
-      allowFileImport: true
-    */
-
-    $form->addText('host', 'Server:')
+    $form->addText('server', 'Server:')
       ->setRequired('Input the server address!');
-    $form->addText('username', 'DB username:')
-      ->setRequired('Input the database username!');
-    $form->addPassword('password', 'DB password:');
-    $form->addText('database', 'Database name:')
-      ->setRequired('Input the name of a database for the application data!');
+    $form->addText('username', 'Database administrator username:')
+      ->setRequired('Input the database administrator username!');
+    $form->addText('password', 'Database administrator password:');
+    $form->addText('_username', 'Database users´ names mask:')
+      ->setRequired("You have to input the mask for names of the user accounts!")
+      ->setDefaultValue('emc_*')
+      ->addRule(Form::PATTERN,'The mask has to contain only lower case letters, numbers and _, has to start with a letter and has to contain the char *.','^[a-z_]+[a-z0-9_]*\*[a-z0-9_]*$')
+      ->addRule(Form::MAX_LENGTH,'The max length of username pattern is %s characters.',12);
+    $form->addText('_database', 'User databases name mask:')
+      ->setRequired("You have to input the mask for names of the user databases!")
+      ->setDefaultValue('emc_*')
+      ->addRule(Form::PATTERN,'The mask has to contain only lower case letters, numbers and _, has to start with a letter and has to contain the char *.','^[a-z_]+[a-z0-9_]*\*[a-z0-9_]*$')
+      ->addRule(Form::MAX_LENGTH,'The max length of username pattern is %s characters.',60);
+    $form->addSelect('allowFileImport','Allow file imports:',[
+      0=>'no',
+      1=>'yes',
+    ]);
+
     $form->addSubmit('submit', 'Save & continue...')
       ->onClick[]=function (SubmitButton $submitButton) {
       $form=$submitButton->form;
-      $databaseConfigArr=$form->getValues(true);
-      $error=false;
+      $values=$form->getValues(true);
+      /*TODO doplnění kontroly správnosti přístupových údajů
       try {
         $databaseManager=new DatabaseManager($databaseConfigArr);
         if(!$databaseManager->isConnected()) {
@@ -316,17 +344,22 @@ class WizardPresenter extends Presenter {
       }
       //create database
       try{
-        /** @noinspection PhpUndefinedVariableInspection */
         $databaseManager->createDatabase();
       }catch (\Exception $e){
         $form->addError('Database structure creation failed! Please check, if the database exists and if it is empty.');
         return;
       }
+      */
       //save config and redirect
       $configManager=$this->createConfigManager();
-      $configManager->data['parameters']['mainDatabase']=$databaseConfigArr;
+      if ($values['allowFileImport']){
+        $values['allowFileImport']=true;
+      }else{
+        $values['allowFileImport']=false;
+      }
+      $configManager->data['parameters']['databases']['mysql']=$values;
       $configManager->saveConfig();
-      $this->redirect($this->getNextStep('database'));
+      $this->redirect($this->getNextStep('dataMysql'));
     };
     return $form;
   }
@@ -396,6 +429,7 @@ class WizardPresenter extends Presenter {
             'clientSecret'=>'xxxxxxxxxxxxxxxxxxxxxxxx'
           ];
         }
+        $this->redirect($this->getNextStep('logins'));
       };
     return $form;
   }
@@ -405,8 +439,86 @@ class WizardPresenter extends Presenter {
    * @return Form
    */
   public function createComponentMinersForm() {
-    //FIXME createComponentMinersForm
     $form=new Form();
+
+    $allowDriverR=$form->addSelect('allow_driverR','Allow R backend:',[0=>'no',1=>'yes']);
+    $allowDriverR->addCondition(Form::EQUAL,1)
+      ->toggle('driverRServer',true);
+    $form->addText('driverRServer','R backend URL:')
+      ->setOption('id','driverRServer')
+      ->setAttribute('class','withSpace')
+      ->addConditionOn($allowDriverR,Form::EQUAL,1)
+        ->setRequired('You have to input the address of R backend!')
+        ->addRule(function(TextInput $textInput){
+          //TODO doplnění kontroly funkčnosti daného backendu
+          return true;
+        },'The R backend is not accessible! Please check the configuration.');
+
+    $allowDriverLM=$form->addSelect('allow_driverLM','Allow LISp-Miner backend (LM-Connect):',[0=>'no',1=>'yes']);
+    $allowDriverLM->addCondition(Form::EQUAL,1)
+      ->toggle('driverLMServer',true);
+    $form->addText('driverLMServer','LM-Connect backend URL:')
+      ->setOption('id','driverLMServer')
+      ->setAttribute('class','withSpace')
+      ->addConditionOn($allowDriverLM,Form::EQUAL,1)
+        ->setRequired('You have to input the address of LISp-Miner backend!')
+        ->addRule(function(TextInput $textInput){
+          //TODO doplnění kontroly funkčnosti daného backendu
+          return true;
+        },'The R backend is not accessible! Please check the configuration.');
+
+
+    $form->addSubmit('submit','Save & continue')
+      ->onClick[]=function(SubmitButton $submitButton){
+        $values = $submitButton->form->getValues(true);
+        $filesManager=$this->createFilesManager();
+        $configManager=$this->createConfigManager();
+
+        if (!($values['allow_driverLM']||$values['allow_driverR'])){
+          $submitButton->form->addError('You have to configure at least one data mining backend!');
+          return;
+        }
+
+        //region R backend
+        if ($values['allow_driverR']){
+          $urlArr=parse_url($values['driverRServer']);
+          if (function_exists('http_build_url')){
+            $serverUrl=http_build_url($urlArr,HTTP_URL_STRIP_PATH | HTTP_URL_STRIP_QUERY);
+            $minerPath=$urlArr['path'].(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
+          }else{
+            exit(var_dump($urlArr));
+          }
+
+          exit(var_dump($url));
+          exit(var_dump($urlArr));
+          return;
+          $configArr=[
+            'server'=>null,
+            'minerUrl'=>null,
+            'importsDirectory'=>$filesManager->getPath('writable','directories','importsR',true)
+          ];
+        }else{
+          $configArr=['server'=>''];
+        }
+        $configManager->data['miningDriverFactory']['driver_r']=$configArr;
+        //endregion R backend
+
+        //region LM backend
+        if ($values['allow_driverLM']){
+          $configArr=[
+            'server'=>$values['driverLMServer'],
+            'importsDirectory'=>$filesManager->getPath('writable','directories','importsLM',true)
+          ];
+        }else{
+          $configArr=['server'=>''];
+        }
+        $configManager->data['miningDriverFactory']['driver_lm']=$configArr;
+        //endregion LM backend
+
+        $configManager->saveConfig();
+        $this->redirect($this->getNextStep('miners'));
+      };
+
     return $form;
   }
 
@@ -513,5 +625,13 @@ class WizardPresenter extends Presenter {
       $this->configManager=new ConfigManager(FilesManager::getRootDirectory().'/app/config/config.local.neon');
     }
     return $this->configManager;
+  }
+
+  /**
+   * Funkce vracející instanci files manageru
+   * @return FilesManager
+   */
+  private function createFilesManager(){
+    return new FilesManager(Neon::decode(file_get_contents(__DIR__.'/../data/files.neon')));
   }
 }
