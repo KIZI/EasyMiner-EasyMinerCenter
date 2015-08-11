@@ -16,10 +16,33 @@
   position: relative;
   margin: 10px auto;
   width: 800px;
+  position: relative;
 }
 #installer > h1,
 #installer > h2 {
   margin-top: 0;
+}
+#installer #progress {
+  position: absolute;
+  top: 26px;
+  right: 20px;
+  width: 150px;
+  font-size: 70%;
+  color: #808080;
+  text-align: center;
+}
+#installer #progress div#progressGraph {
+  border: 1px solid #808080;
+  height: 10px;
+  width: 100%;
+  padding: 0;
+  margin: 4px 0;
+}
+#installer #progress div#progressGraph > div {
+  background: #4c8e0e;
+  height: 10px;
+  padding: 0;
+  margin: 0;
 }
 #installer .actions {
   text-align: center;
@@ -108,6 +131,11 @@
 #installer .statesTable td.stateErr {
   color: #fff;
   background: #800000;
+  text-transform: capitalize;
+}
+#installer .statesTable td.stateWarn {
+  color: #000;
+  background: #ffdeb5;
   text-transform: capitalize;
 }
 #installer form input[type="text"],

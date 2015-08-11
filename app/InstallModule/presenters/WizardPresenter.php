@@ -10,6 +10,7 @@ use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Neon\Neon;
+use Nette\Utils\Strings;
 
 /**
  * Class WizardPresenter
@@ -68,9 +69,6 @@ class WizardPresenter extends Presenter {
 
     if($stateError) {
       //vyskytla se chyba
-      $this->setView('statesTable');
-      $this->template->title='Writable files and directories';
-      $this->template->text='Following files and directories has to been created and writable. If you are not sure in user access credentials, please modify them to 777. The paths are written from the content root, where the EasyMinerCenter is located. In case of non-existing files, you can also make writable the appropriate directory and the file will be created automatically.';
       $this->template->states=$statesArr;
     } else {
       $this->redirect($this->getNextStep('files'));
@@ -111,13 +109,18 @@ class WizardPresenter extends Presenter {
   public function actionDatabase() {
     $this->checkAccessRights();
     $configManager=$this->createConfigManager();
+    /** @var Form $form */
+    $form=$this->getComponent('mainDatabaseForm');
+    /** @var SubmitButton $stornoButton */
+    $stornoButton=$form->getComponent('storno');
     if(!empty($configManager->data['parameters']['mainDatabase'])) {
       //set currently defined database connection params
       try{
-        /** @var Form $form */
-        $form=$this->getComponent('mainDatabaseForm');
         $form->setDefaults($configManager->data['parameters']['mainDatabase']);
+        $stornoButton->setDisabled(false)->setAttribute('class','');
       }catch (\Exception $e){/*ignore error*/}
+    }else{
+      $stornoButton->setDisabled(true);
     }
   }
 
@@ -168,7 +171,6 @@ class WizardPresenter extends Presenter {
         ]);
       }catch (\Exception $e){/*ignore error*/}
     }
-
   }
 
   /**
@@ -208,22 +210,32 @@ class WizardPresenter extends Presenter {
   public function actionDetails() {
     $this->checkAccessRights();
     $configManager=$this->createConfigManager();
-    if(!empty($configManager->data['parameters']['mail_from'])) {
+    if(!empty($configManager->data['parameters']['emailFrom'])) {
       //set currently defined database connection params
       try{
         /** @var Form $form */
         $form=$this->getComponent('detailsForm');
-        $form->setDefaults(['mail_from'=>$configManager->data['parameters']['mail_from']]);
+        $form->setDefaults(['emailFrom'=>$configManager->data['parameters']['emailFrom']]);
       }catch (\Exception $e){/*ignore error*/}
     }
-    //TODO configure automatically filled-in params
+    //nastavení automaticky vyplněných parametrů
+    $this->saveAutomaticParams($configManager);
   }
   
   /**
    * Akce pro ukončení průvodce - smazání cache, přesměrování
    */
   public function actionFinish() {
-    //TODO actionFinish
+    $this->checkAccessRights();
+    $filesManager=$this->createFilesManager();
+    try {
+      $filesManager->finallyOperations();
+    }catch (\Exception $e){
+      $this->flashMessage($e->getMessage(),'error');
+    }
+    $this->template->readonlyFiles=$filesManager->checkFinallyReadonlyFiles();
+    $this->template->installerLink='Default:';
+    $this->template->redirectLink=':EasyMiner:Homepage:';
   }
 
 
@@ -294,6 +306,26 @@ class WizardPresenter extends Presenter {
         $configManager=$this->createConfigManager();
         $configManager->data['parameters']['mainDatabase']=$databaseConfigArr;
         $configManager->saveConfig();
+        $this->redirect($this->getNextStep('database'));
+      };
+    $form->addSubmit('storno', 'Skip database creation')
+      ->setAttribute('class','hidden')
+      ->onClick[]=function(SubmitButton $submitButton){
+        $form=$submitButton->form;
+        $databaseConfigArr=$form->getValues(true);
+        $error=false;
+        try {
+          $databaseManager=new DatabaseManager($databaseConfigArr);
+          if(!$databaseManager->isConnected()) {
+            $error=true;
+          }
+        } catch(\Exception $e) {
+          $error=true;
+        }
+        if($error || empty($databaseManager)) {
+          $form->addError('Database connection failed! Please check, if the database exists and if it is accessible.');
+          return;
+        }
         $this->redirect($this->getNextStep('database'));
       };
     return $form;
@@ -484,23 +516,19 @@ class WizardPresenter extends Presenter {
           $urlArr=parse_url($values['driverRServer']);
           if (function_exists('http_build_url')){
             $serverUrl=http_build_url($urlArr,HTTP_URL_STRIP_PATH | HTTP_URL_STRIP_QUERY);
-            $minerPath=$urlArr['path'].(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
           }else{
-            exit(var_dump($urlArr));
+            $serverUrl=$urlArr['scheme'].'://'.$urlArr['host'].(!empty($urlArr['port'])?':'.$urlArr['port']:'');
           }
-
-          exit(var_dump($url));
-          exit(var_dump($urlArr));
-          return;
+          $minerPath=$urlArr['path'].(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
           $configArr=[
-            'server'=>null,
-            'minerUrl'=>null,
+            'server'=>$serverUrl,
+            'minerUrl'=>$minerPath,
             'importsDirectory'=>$filesManager->getPath('writable','directories','importsR',true)
           ];
         }else{
           $configArr=['server'=>''];
         }
-        $configManager->data['miningDriverFactory']['driver_r']=$configArr;
+        $configManager->data['parameters']['miningDriverFactory']['driver_r']=$configArr;
         //endregion R backend
 
         //region LM backend
@@ -512,7 +540,7 @@ class WizardPresenter extends Presenter {
         }else{
           $configArr=['server'=>''];
         }
-        $configManager->data['miningDriverFactory']['driver_lm']=$configArr;
+        $configManager->data['parameters']['miningDriverFactory']['driver_lm']=$configArr;
         //endregion LM backend
 
         $configManager->saveConfig();
@@ -528,15 +556,15 @@ class WizardPresenter extends Presenter {
    */
   public function createComponentDetailsForm() {
     $form = new Form();
-    $form->addText('mail_from','Send application e-mails from:')
+    $form->addText('emailFrom','Send application e-mails from:')
       ->setAttribute('placeholder','sender@server.tld')
-      ->setRequired(true)
+      ->setRequired("Input valid e-mail address!")
       ->addRule(Form::EMAIL,'Input valid e-mail address!');
     $form->addSubmit('submit','Save & continue')->onClick[]=function(SubmitButton $submitButton){
       //uložení e-mailu
       $configManager=$this->createConfigManager();
       $values=$submitButton->form->getValues(true);
-      $configManager->data['parameters']['mail_from']=$values['mail_from'];
+      $configManager->data['parameters']['emailFrom']=$values['emailFrom'];
       $configManager->saveConfig();
       $this->redirect($this->getNextStep('details'));
     };
@@ -560,6 +588,8 @@ class WizardPresenter extends Presenter {
         $values=$submitButton->form->getValues(true);
         $configManager=$this->createConfigManager();
         $configManager->saveInstallationPassword($values['password']);
+        $this->setInstallPasswordChecked(true);
+        $this->redirect($this->getNextStep('setPassword'));
       };
     return $form;
   }
@@ -579,6 +609,7 @@ class WizardPresenter extends Presenter {
         $configManager=$this->createConfigManager();
         if ($configManager->checkInstallationPassword($values['password'])){
           //heslo je správně
+          $this->setInstallPasswordChecked(true);
           if (!empty($values['backlink'])){
             $this->restoreRequest($values['backlink']);
           }
@@ -592,17 +623,90 @@ class WizardPresenter extends Presenter {
   }
 
   /**
+   * Funkce volaná před vykreslením šablony; předává do template info o aktuálním kroku průvodce
+   */
+  protected function beforeRender() {
+    parent::beforeRender();
+    $stepNumber=$this->getStepNumber($this->request->getParameter('action'));
+    if ($stepNumber>0){
+      $this->template->stepNumber=$stepNumber;
+      $this->template->stepsCount=$this->getStepsCount();
+    }
+  }
+
+  /**
    * Funkce pro kontrolu, jestli je aktuální uživatel oprávněn pracovat s wizardem
    */
   private function checkAccessRights() {
-    $session=$this->getSession('InstallModule');
-    if (@$session->passwordChecked!=true){
+    if (!$this->isInstallPasswordChecked()){
       $configManager=$this->createConfigManager();
       if ($configManager->isSetInstallationPassword()){
         //redirect na zadání hesla pro přístup k instalaci
         $this->redirect('checkPassword', array('backlink' => $this->storeRequest()));
+      }else{
+        $this->setInstallPasswordChecked(true);
       }
     }
+  }
+
+  /**
+   * Funkce pro kontrolu, zda již bylo zkontrolováno instalační heslo
+   * @return bool
+   */
+  private function isInstallPasswordChecked() {
+    $session=$this->getSession('InstallModule');
+    return (bool)$session->passwordChecked;
+  }
+
+  /**
+   * Funkce pro nastavení, zda již bylo zkontrolováno instalační heslo
+   * @param bool $isChecked
+   */
+  private function setInstallPasswordChecked($isChecked) {
+    $session=$this->getSession('InstallModule');
+    $session->passwordChecked=$isChecked;
+  }
+
+  /**
+   * Funkce pro
+   * @param ConfigManager $configManager
+   */
+  private function saveAutomaticParams(ConfigManager $configManager){
+    /** @var FilesManager $filesManager */
+    $filesManager=$this->createFilesManager();
+    $configManager->data['parameters']['csvImportsDirectory']=$filesManager->getPath('writable','directories','csvImports',true);
+    $configManager->data['parameters']['usersPhotosDirectory']=$filesManager->getPath('writable','directories','userPhotos',true);
+    //absolute URL to photos
+    $photosUrl=$filesManager->getPath('urls','directories','userPhotos',false);
+    $baseUrl=$this->getHttpRequest()->getUrl()->getBasePath();
+    if (Strings::endsWith($baseUrl,'/')){
+      $baseUrl=rtrim($baseUrl,'/');
+    }
+    $photosUrl=$baseUrl.$photosUrl;
+    unset($baseUrl);
+    $configManager->data['parameters']['usersPhotosUrl']=$photosUrl;
+    $configManager->saveConfig();
+  }
+
+  /**
+   * Funkce vracející číslo kroku průvodce (od 1 výš)
+   * @param string $step
+   * @return int
+   */
+  public function getStepNumber($step) {
+    $i=@array_search($step, $this->wizardSteps);
+    if ($i!==false){
+      return $i+1;
+    }
+    return 0;
+  }
+
+  /**
+   * Funkce vracející počet kroků průvodce
+   * @return int
+   */
+  private function getStepsCount() {
+    return count($this->wizardSteps);
   }
 
   /**
@@ -612,8 +716,7 @@ class WizardPresenter extends Presenter {
    * @return string
    */
   private function getNextStep($currentStep) {
-    $index=array_search($currentStep, $this->wizardSteps);
-    return $this->wizardSteps[$index+1];
+    return $this->wizardSteps[$this->getStepNumber($currentStep)];
   }
 
   /**

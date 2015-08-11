@@ -1,0 +1,8 @@
+{*Šablona pro znázornění postupu*}
+{if @$stepNumber>0}
+  {var $progress=round($stepNumber*100/$stepsCount)}
+  <div id="progress">
+    {$progress}%
+    <div id="progressGraph"><div style="width:{$progress}%;"></div></div>
+  </div>
+{/if}

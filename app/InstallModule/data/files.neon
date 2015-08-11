@@ -5,11 +5,20 @@ writable:
     directories:
         - "/log"
         - "/temp"
-        - "/temp/fileImports"
+        csvImports: "/temp/fileImports"
         - "/temp/pmmlImports"
         importsLM: "/temp/pmmlImports/lm"
         importsR: "/temp/pmmlImports/r"
-        - "/www/images/users"
+        userPhotos: "/www/images/users"
     files:
         config: "/app/config/config.local.neon"
 
+urls:
+    directories:
+        userPhotos: "/images/users"
+
+finally:
+    chmod:
+        444:
+            config: "/app/config/config.local.neon"
+            - "/app/config/config.neon"

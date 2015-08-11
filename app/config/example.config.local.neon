@@ -13,10 +13,11 @@ parameters:
     miningDriverFactory:
         driver_lm:
             server:
+            importsDirectory: "absolutePath"
         driver_r:
             server:
             minerUrl:
-            imports_directory: "absolutePath"
+            importsDirectory: "absolutePath"
     mainDatabase:
         driver: mysqli
         host: localhost
@@ -24,10 +25,10 @@ parameters:
         password:
         database:
         encoding: utf8
-    imports_directory: "absolutePath"
-    users_photos_directory: "absolutePath"
-    users_photos_url: "urlToPhotosDirectory"
-    mail_from: "stanislav.vojir@vse.cz"
+    csvImportsDirectory: "absolutePath"
+    usersPhotosDirectory: "absolutePath"
+    usersPhotosUrl: "urlToPhotosDirectory"
+    emailFrom: "stanislav.vojir@vse.cz"
     databases:
         mysql:
             _username: 'user*'

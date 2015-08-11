@@ -1,0 +1,31 @@
+{block installer}
+  <h1>EasyMinerCenter Installer</h1>
+  <h2 n:inner-block="title">Congratulations! Wizard finished...</h2>
+
+  <p>Dear user, the installation wizard has been finished successfully. For security reasons, the following files should be set as read-only (using chmod to 444).</p>
+
+  <table class="statesTable">
+    <tr>
+      <th>Request</th>
+      <th>State</th>
+    </tr>
+    {foreach $readonlyFiles as $file=>$state}
+      <tr>
+        <td>{$file}</td>
+        {if $state}
+          <td class="stateOk">OK</td>
+        {else}
+          <td class="stateWarn">not set</td>
+        {/if}
+      </tr>
+    {/foreach}
+  </table>
+  <br />
+  <p>
+    If you will need to change to configuration, you can re-initialize the installation wizard using the URL:<br />
+    <a href="{plink //$installerLink}">{plink //$installerLink}</a>
+  </p>
+  <br />
+  <div class="actions">
+    <a href="{plink $redirectLink}">OK, go to EasyMiner...</a>
+  </div>

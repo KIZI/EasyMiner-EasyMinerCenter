@@ -1,0 +1,25 @@
+{block installer}
+  <h1>EasyMinerCenter Installer</h1>
+  <h2 n:inner-block="title">Writable files and directories</h2>
+  <p>Following files and directories has to been created and writable. If you are not sure in user access credentials, please modify them to 777. The paths are written from the content root, where the EasyMinerCenter is located. In case of non-existing files, you can also make writable the appropriate directory and the file will be created automatically.</p>
+
+  <table class="statesTable">
+    <tr>
+      <th>Request</th>
+      <th>State</th>
+    </tr>
+    {foreach $states as $text=>$state}
+      <tr>
+        <td>{$text}</td>
+        {if $state}
+          <td class="stateOk">OK</td>
+        {else}
+          <td class="stateErr">error</td>
+        {/if}
+      </tr>
+    {/foreach}
+  </table>
+
+  <div class="actions">
+    <a href="{link this}">Reload...</a>
+  </div>

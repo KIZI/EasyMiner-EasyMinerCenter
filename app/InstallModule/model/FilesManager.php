@@ -33,12 +33,19 @@ class FilesManager {
   /**
    * Funkce pro kontrolu zapisovatelnosti souboru - pokud neexistuje, pokusí se jej vytvořit
    * @param string $filename
+   * @param bool $chmod = true
    * @return bool
    */
-  public static function checkWritableFile($filename) {
-    $filename=self::getRootDirectory().$filename;
-    $file=@fopen($filename,'a+');
-    if (!$file){return false;}
+  public static function checkWritableFile($filename,$chmod=true) {
+    $filenamePath=self::getRootDirectory().$filename;
+    $file=@fopen($filenamePath,'a+');
+    if (!$file){
+      if (file_exists($filenamePath) && $chmod){
+        @chmod($filenamePath,0666);
+        return self::checkWritableFile($filename);
+      }
+      return false;
+    }
     fclose($file);
     return true;
   }
@@ -85,6 +92,47 @@ class FilesManager {
     }else{
       return $path;
     }
+  }
+
+  /**
+   * Funkce pro provedení závěrečných operací
+   */
+  public function finallyOperations() {
+    //region chmod
+    if (!empty($this->config['finally']['chmod'])){
+      $chmodOperations=$this->config['finally']['chmod'];
+      foreach($chmodOperations as $userRights=>$filesArr){
+        if (!empty($filesArr)){
+          foreach($filesArr as $file){
+            try{
+              $filePath=self::getRootDirectory().$file;
+              @chmod($filePath,'0'.$userRights);
+            }catch (\Exception $e){/*chmod chybu ignorujeme...*/}
+          }
+        }
+      }
+    }
+    //endregion chmod
+  }
+
+  /**
+   * Funkce vracející pole souborů, které by měly být nastavené do režimu jen pro čtení s výsledkem jejich kontroly
+   * @return array
+   */
+  public function checkFinallyReadonlyFiles() {
+    $files=$this->config['finally']['chmod']['444'];
+    $resultArr=[];
+    if (!empty($files)){
+      foreach ($files as $file){
+        $state=!self::checkWritableFile($file,false);
+        if (!$state){
+          @chmod(self::getRootDirectory().$file,0444);
+          $state=!self::checkWritableFile($file,false);
+        }
+        $resultArr[$file]=$state;
+      }
+    }
+    return $resultArr;
   }
 
 }
