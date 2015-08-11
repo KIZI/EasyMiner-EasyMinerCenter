@@ -19,7 +19,11 @@ class ConfigManager {
    */
   public function __construct($neonFileName){
     $this->neonFileName=$neonFileName;
-    $this->data=Neon::decode(file_get_contents($neonFileName));
+    try{
+      $this->data=Neon::decode(file_get_contents($neonFileName));
+    }catch (\Exception $e){
+      $this->data=[];
+    }
   }
 
   /**
