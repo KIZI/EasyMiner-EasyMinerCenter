@@ -9,7 +9,6 @@ define('CACHE_DIRECTORY',TEMP_DIRECTORY.'/cache');
 define('CREATE_TEMP_DIRECTORY_MESSAGE','Please create writable directory "temp" in the root folder! After this operation, reload this page...');
 define('CREATE_CACHE_DIRECTORY_MESSAGE','Please create writable directory "temp/cache" in the root folder! After this operation, reload this page...');
 
-
 #region temp and cache directory
   if (!is_dir(TEMP_DIRECTORY)){
     //pokus vytvořit TEMP

@@ -9,11 +9,11 @@ use Nette\Application\Routers\Route;
 
 /**
  * Router factory for InstallModule
- * @author Stanislav Vojíø
+ * @author Stanislav VojÃ­Å™
  */
 class RouterFactory {
 
-  const BASE_PATH = "install";
+  const BASE_PATH = "install/";
 
 	/**
    * @param string $baseUrl = self::BASE_PATH

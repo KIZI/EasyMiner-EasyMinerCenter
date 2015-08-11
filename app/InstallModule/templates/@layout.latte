@@ -37,7 +37,7 @@
     <main>
       <div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
       {ifset installer}
-        <div id="installer" title="Installation progress">
+        <div id="installer">
           {include 'Wizard/progress.inc.latte'}
           {include installer}
         </div>

@@ -15,7 +15,7 @@ class ErrorPresenter extends Nette\Application\UI\Presenter {
    * @return void
    * @throws Nette\Application\AbortException
    */
-  public function renderDefault($exception) {
+  public function actionDefault($exception) {
     if ($exception instanceof Nette\Application\BadRequestException) {
       $code = $exception->getCode();
       // load template 403.latte or 404.latte or ... 4xx.latte

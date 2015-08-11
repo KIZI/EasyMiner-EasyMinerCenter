@@ -46,8 +46,6 @@ class RouterFactory {
     $restRouter[] = new Route(self::REST_MODULE_BASE_URL, ['presenter' => 'Homepage', 'action' => 'read']);
     #endregion
 
-//    $router[] = $installRouter = new RouteList('Install');
-//    $installRouter[] = new Route(self::INSTALL_MODULE_BASE_URL.'<presenter>/<action>', 'Default:default');
     $router[] = \EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter(self::INSTALL_MODULE_BASE_URL);
 
     //$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
