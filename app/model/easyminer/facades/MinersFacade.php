@@ -169,7 +169,7 @@ class MinersFacade {
    * @param Attribute|int $attribute
    */
   public function prepareAttribute($miner,$attribute){
-    if (!$miner instanceof Miner){//TODO na co??
+    if (!$miner instanceof Miner){
       $miner=$this->findMiner($miner);
     }
     if ($attribute instanceof Attribute){
@@ -207,6 +207,23 @@ class MinersFacade {
     $task->miner=$miner;
     $miningDriver=$this->getTaskMiningDriver($task);
     $miningDriver->checkMinerState();
+  }
+
+  /**
+   * Funkce vracející pole s identifikací dostupných minerů
+   * @return array
+   */
+  public function getAvailableMinerTypes() {
+    $minerTypes=Miner::getTypes();
+    $resultArr=[];
+    if (!empty($minerTypes)){
+      foreach($minerTypes as $minerType=>$minerTypeName){
+        if ($this->miningDriverFactory->getMinerUrl($minerType)!=''){
+          $resultArr[$minerType]=$minerTypeName;
+        }
+      }
+    }
+    return $resultArr;
   }
 
 }

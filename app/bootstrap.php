@@ -6,7 +6,7 @@ require APP_ROOT . '/../vendor/autoload.php';
 
 $configurator = new Nette\Configurator;
 
-$configurator->setDebugMode(false);
+$configurator->setDebugMode(true);
 
 $configurator->enableDebugger(APP_ROOT . '/../log');
 $configurator->setTempDirectory(APP_ROOT . '/../temp');

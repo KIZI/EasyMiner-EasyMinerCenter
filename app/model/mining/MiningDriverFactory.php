@@ -8,6 +8,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use Nette\ArgumentOutOfRangeException;
 use Nette\Object;
+use Nette\Utils\Strings;
 
 /**
  * Class MiningDriverFactory - třída zajišťující vytvoření odpovídajícího driveru pro dolování
@@ -18,6 +19,21 @@ class MiningDriverFactory extends Object{
 
   public function __construct($params){
     $this->params=$params;
+  }
+
+  /**
+   * Funkce vracející URL pro přístup ke zvolenému mineru
+   * @param string $minerType
+   * @return string
+   */
+  public function getMinerUrl($minerType) {
+    $url=@$this->params['driver_'.$minerType]['server'];
+    if(!empty($url)&&!empty($this->params['driver_'.$minerType]['minerUrl'])){
+      if (!Strings::endsWith($this->params['driver_'.$minerType]['server'],'/')){
+        $url.=ltrim($this->params['driver_'.$minerType]['minerUrl'],'/');
+      }
+    }
+    return $url;
   }
 
   /**

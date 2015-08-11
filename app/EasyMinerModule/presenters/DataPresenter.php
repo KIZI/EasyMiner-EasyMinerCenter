@@ -378,7 +378,13 @@ class DataPresenter extends BasePresenter{
         return true;
       },'Miner with this name already exists!');
 
-    $form->addSelect('type','Miner type:',Miner::getTypes())->setAttribute('class','normalWidth')->setDefaultValue(Miner::DEFAULT_TYPE);
+    $availableMinerTypes=$this->minersFacade->getAvailableMinerTypes();
+    if (empty($availableMinerTypes)){
+      throw new \Exception('No miner type found! Please check the configuration...');
+    }
+    $form->addSelect('type','Miner type:',$availableMinerTypes)
+      ->setAttribute('class','normalWidth')
+      ->setDefaultValue(Miner::DEFAULT_TYPE);
 
     $form->addSubmit('submit','Create miner...')->onClick[]=array($this,'newMinerFormSubmitted');
     $stornoButton=$form->addSubmit('storno','storno');
