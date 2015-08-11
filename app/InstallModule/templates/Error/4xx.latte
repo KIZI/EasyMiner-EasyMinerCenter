@@ -1,6 +1,6 @@
 {block content}
   <div id="errorPage">
-    <h1 n:block=title>Oops...</h1>
+    <h1 n:inner-block="title">Oops...</h1>
     <p>Your browser sent a request that this server could not understand or process.</p>
     {if $this->exception->getCode()>=400}
       <div class="errorCode">{$this->exception->getCode()}</div>
