@@ -37,6 +37,24 @@ class MiningDriverFactory extends Object{
   }
 
   /**
+   * Funkce pro kontrolu, jestli je funkční vzdálený server zajištující dolování
+   * @param string $minerType
+   * @param string $minerServerUrl=""
+   * @throws ArgumentOutOfRangeException
+   * @throws \Exception
+   * @return bool
+   */
+  public function checkMinerServerState($minerType, $minerServerUrl="") {
+    if (isset($this->params['driver_'.$minerType])){
+      /** @var IMiningDriver $driverClass */
+      $driverClass='\\'.$this->params['driver_'.$minerType]['class'];
+      if ($minerServerUrl==""){$minerServerUrl=$this->getMinerUrl($minerType);}
+      return $driverClass::checkMinerServerState($minerServerUrl);
+    }
+    throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
+  }
+
+  /**
    * @param Task $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade

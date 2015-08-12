@@ -5,6 +5,8 @@ namespace EasyMinerCenter\InstallModule\Presenters;
 use EasyMinerCenter\InstallModule\Model\ConfigManager;
 use EasyMinerCenter\InstallModule\Model\DatabaseManager;
 use EasyMinerCenter\InstallModule\Model\FilesManager;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\Mining\MiningDriverFactory;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\SubmitButton;
@@ -20,6 +22,8 @@ use Nette\Utils\Strings;
 class WizardPresenter extends Presenter {
   /** @var null|ConfigManager $configManager */
   private $configManager=null;
+  /** @var  MiningDriverFactory $miningDriverFactory */
+  private $miningDriverFactory;
   /** @var array $wizardSteps - pole s definicí jednotlivých kroků instalačního wizardu */
   private $wizardSteps=[
     'default',
@@ -482,8 +486,11 @@ class WizardPresenter extends Presenter {
       ->addConditionOn($allowDriverR,Form::EQUAL,1)
         ->setRequired('You have to input the address of R backend!')
         ->addRule(function(TextInput $textInput){
-          //TODO doplnění kontroly funkčnosti daného backendu
-          return true;
+          try{
+            return $this->miningDriverFactory->checkMinerServerState(Miner::TYPE_R,$textInput->value);
+          }catch (\Exception $e){
+            return false;
+          }
         },'The R backend is not accessible! Please check the configuration.');
 
     $allowDriverLM=$form->addSelect('allow_driverLM','Allow LISp-Miner backend (LM-Connect):',[0=>'no',1=>'yes']);
@@ -495,9 +502,12 @@ class WizardPresenter extends Presenter {
       ->addConditionOn($allowDriverLM,Form::EQUAL,1)
         ->setRequired('You have to input the address of LISp-Miner backend!')
         ->addRule(function(TextInput $textInput){
-          //TODO doplnění kontroly funkčnosti daného backendu
-          return true;
-        },'The R backend is not accessible! Please check the configuration.');
+          try{
+            return $this->miningDriverFactory->checkMinerServerState(Miner::TYPE_LM,$textInput->value);
+          }catch (\Exception $e){
+            return false;
+          }
+        },'The LISp-Miner backend is not accessible! Please check the configuration.');
 
 
     $form->addSubmit('submit','Save & continue')
@@ -519,7 +529,7 @@ class WizardPresenter extends Presenter {
           }else{
             $serverUrl=$urlArr['scheme'].'://'.$urlArr['host'].(!empty($urlArr['port'])?':'.$urlArr['port']:'');
           }
-          $minerPath=$urlArr['path'].(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
+          $minerPath=rtrim($urlArr['path'],'/').(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
           $configArr=[
             'server'=>$serverUrl,
             'minerUrl'=>$minerPath,
@@ -719,6 +729,7 @@ class WizardPresenter extends Presenter {
     return $this->wizardSteps[$this->getStepNumber($currentStep)];
   }
 
+  #region model constructors
   /**
    * Funkce vracející instanci config manageru
    * @return ConfigManager
@@ -737,4 +748,14 @@ class WizardPresenter extends Presenter {
   private function createFilesManager(){
     return new FilesManager(Neon::decode(file_get_contents(__DIR__.'/../data/files.neon')));
   }
+  #endregion model constructors
+
+  #region injections
+  /**
+   * @param MiningDriverFactory $miningDriverFactory
+   */
+  public function injectMiningDriverFactory(MiningDriverFactory $miningDriverFactory) {
+    $this->miningDriverFactory=$miningDriverFactory;
+  }
+  #endregion injections
 }

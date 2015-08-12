@@ -47,6 +47,14 @@ interface IMiningDriver {
   public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, $params = array());
 
   /**
+   * Funkce pro kontrolu, jestli je dostupný dolovací server
+   * @param string $serverUrl
+   * @throws \Exception
+   * @return bool
+   */
+  public static function checkMinerServerState($serverUrl);
+
+  /**
    * Funkce pro nastavení aktivní úlohy
    * @param Task $task
    */

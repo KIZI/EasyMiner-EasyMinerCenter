@@ -532,7 +532,7 @@ class LMDriver implements IMiningDriver{
 
     $url = $this->getRemoteMinerUrl().'/miners';
 
-    $curlRequest=$this->prepareNewCurlRequest($url);
+    $curlRequest=self::prepareNewCurlRequest($url);
     $response=$curlRequest->post($data);
 
     Debugger::fireLog($response);
@@ -564,7 +564,7 @@ class LMDriver implements IMiningDriver{
   private function unregisterRemoteMiner() {
     $url = $this->getRemoteMinerUrl()."/miners/".$this->getRemoteMinerId();
 
-    $curlRequest=$this->prepareNewCurlRequest($url);
+    $curlRequest=self::prepareNewCurlRequest($url);
     $response=$curlRequest->delete();
 
     return $this->parseResponse($response, "Miner unregistered/removed.");
@@ -588,7 +588,7 @@ class LMDriver implements IMiningDriver{
 
     $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId.'/DataDictionary';
 
-    $curlRequest=$this->prepareNewCurlRequest($url);
+    $curlRequest=self::prepareNewCurlRequest($url);
 
     $response = $curlRequest->put($dataDictionary);
     Debugger::fireLog($response, "Import executed");
@@ -617,7 +617,7 @@ class LMDriver implements IMiningDriver{
 
     Debugger::fireLog(array($url, $requestData), "getting DataDictionary");
 
-    $curlRequest=$this->prepareNewCurlRequest($url);
+    $curlRequest=self::prepareNewCurlRequest($url);
     $response=$curlRequest->get($requestData);
 
 
@@ -660,7 +660,7 @@ class LMDriver implements IMiningDriver{
       Debugger::fireLog("Making just export of task '{$task}' (no generation).");
       Debugger::fireLog(array('URL' => $url, 'GET' => $data, 'POST' => $query));
 
-      $curlRequest = $this->prepareNewCurlRequest($url);
+      $curlRequest = self::prepareNewCurlRequest($url);
       $response=$curlRequest->get($data);
     } else {
       $pooler = $this->getRemoteMinerPooler();
@@ -682,7 +682,7 @@ class LMDriver implements IMiningDriver{
           $url .= '/miners/'.$remoteMinerId.'/tasks/task';
       }
 
-      $curlRequest=$this->prepareNewCurlRequest($url);
+      $curlRequest=self::prepareNewCurlRequest($url);
       $curlRequest->getUrl()->appendQuery($options);
       //try{
         $response = $curlRequest->post($query);//FIXME
@@ -728,7 +728,7 @@ class LMDriver implements IMiningDriver{
         $url .= '/miners/'.$remoteMinerId.'/tasks/task/'.$taskName;
     }
 
-    $curlRequest=$this->prepareNewCurlRequest($url);
+    $curlRequest=self::prepareNewCurlRequest($url);
     $response=$curlRequest->put($requestXml->asXML());
 
     return $this->parseResponse($response);
@@ -746,7 +746,7 @@ class LMDriver implements IMiningDriver{
       }
       $url = $this->getRemoteMinerUrl().'/miners/'.$remoteMinerId;
 
-      $curlRequest=$this->prepareNewCurlRequest($url);
+      $curlRequest=self::prepareNewCurlRequest($url);
       $response=$curlRequest->get();
 
       Debugger::fireLog($response, "Test executed");
@@ -781,7 +781,7 @@ class LMDriver implements IMiningDriver{
    * @param $url
    * @return CurlRequest
    */
-  private function prepareNewCurlRequest($url){
+  private static function prepareNewCurlRequest($url){
     $curlRequest=new CurlRequest($url);
     $curlSender=new CurlSender();
     $curlSender->options['USERPWD']='test:test';//TODO LM credentials!!!
@@ -823,4 +823,19 @@ class LMDriver implements IMiningDriver{
   #endregion constructor
 
 
+  /**
+   * Funkce pro kontrolu, jestli je dostupný dolovací server
+   * @param string $serverUrl
+   * @throws \Exception
+   * @return bool
+   */
+  public static function checkMinerServerState($serverUrl) {
+    try{
+      $curlRequest=self::prepareNewCurlRequest($serverUrl.'/miners');
+      $response=$curlRequest->get();
+      return $response->isOk();
+    }catch (\Exception $e){
+      return false;
+    }
+  }
 }

@@ -1,6 +1,6 @@
 #Nette configuration file for InstallModule (no other dependencies required)
 #
-# Soubor s glob·lnÌ konfiguracÌ aplikace
+# Soubor s glob√°ln√≠ konfigurac√≠ aplikace
 #
 
 php:
@@ -18,5 +18,14 @@ nette:
 		expiration: 14 days
 		autoStart: yes
 
+parameters:
+    miningDriverFactory:
+        driver_lm:
+            class: EasyMinerCenter\Model\Mining\LM\LMDriver
+            pooler: task
+        driver_r:
+            class: EasyMinerCenter\Model\Mining\R\RDriver
+
 services:
 	routing.router: EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter()
+	- EasyMinerCenter\Model\Mining\MiningDriverFactory(%miningDriverFactory%)

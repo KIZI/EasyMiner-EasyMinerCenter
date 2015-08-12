@@ -57,7 +57,7 @@ class RDriver implements IMiningDriver{
     sendStartRequest:
     try{
       #region pracovní zjednodušený request
-      $response=$this->curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML());
+      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML());
       $taskState=$this->parseResponse($response);
     #endregion
     }catch (\Exception $e){
@@ -82,7 +82,7 @@ class RDriver implements IMiningDriver{
         sendStartRequest:
         try{
           #region zjištění stavu úlohy, případně import pravidel
-          $response=$this->curlRequestResponse($this->getRemoteServerUrl().$this->task->resultsUrl);
+          $response=self::curlRequestResponse($this->getRemoteServerUrl().$this->task->resultsUrl);
           return $this->parseResponse($response);
           #endregion
         }catch (\Exception $e){
@@ -539,7 +539,7 @@ class RDriver implements IMiningDriver{
    * @return string - response data
    * @throws \Exception - curl error
    */
-  private function curlRequestResponse($url,$postData=''){
+  private static function curlRequestResponse($url,$postData=''){
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -572,5 +572,16 @@ class RDriver implements IMiningDriver{
   }
 
 
-
+  /**
+   * Funkce pro kontrolu, jestli je dostupný dolovací server
+   *
+   * @param string $serverUrl
+   * @throws \Exception
+   * @return bool
+   */
+  public static function checkMinerServerState($serverUrl) {
+    $response=self::curlRequestResponse($serverUrl);
+    return !empty($response);
+    //TODO implementace kontroly dostupnosti serveru
+  }
 }

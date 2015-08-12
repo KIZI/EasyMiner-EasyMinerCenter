@@ -37,9 +37,10 @@ if (is_dir(LOG_DIRECTORY) && is_writable(LOG_DIRECTORY)){
 $configurator->setDebugMode(false);
 #endregion logging
 
-$configurator->createRobotLoader()
-	->addDirectory(APP_ROOT.'/InstallModule')
-	->register();
+$robotLoader=$configurator->createRobotLoader();
+$robotLoader->addDirectory(APP_ROOT.'/InstallModule');
+$robotLoader->addDirectory(APP_ROOT.'/model');
+$robotLoader->register();
 
 $configurator->addConfig(APP_ROOT.'/config/install.config.neon');
 
