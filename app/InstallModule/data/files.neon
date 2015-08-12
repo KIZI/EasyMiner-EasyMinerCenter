@@ -22,3 +22,6 @@ finally:
         444:
             config: "/app/config/config.local.neon"
             - "/app/config/config.neon"
+    clearDirectories:
+        - "/temp/cache"
+    delete:

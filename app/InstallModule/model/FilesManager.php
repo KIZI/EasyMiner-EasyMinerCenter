@@ -1,6 +1,8 @@
 <?php
 
 namespace EasyMinerCenter\InstallModule\Model;
+use Nette\Utils\FileSystem;
+use Nette\Utils\Finder;
 
 /**
  * Class FilesManager - třída spravující soubory a složky při instalaci
@@ -83,6 +85,7 @@ class FilesManager {
    * @param string $section = [writable]
    * @param string $type = [files|directories]
    * @param string $id
+   * @param bool $absolutePath=false
    * @return string
    */
   public function getPath($section, $type, $id, $absolutePath=false) {
@@ -98,7 +101,7 @@ class FilesManager {
    * Funkce pro provedení závěrečných operací
    */
   public function finallyOperations() {
-    //region chmod
+    #region chmod
     if (!empty($this->config['finally']['chmod'])){
       $chmodOperations=$this->config['finally']['chmod'];
       foreach($chmodOperations as $userRights=>$filesArr){
@@ -112,7 +115,33 @@ class FilesManager {
         }
       }
     }
-    //endregion chmod
+    #endregion chmod
+    #region delete
+    if (!empty($this->config['finally']['delete'])){
+      foreach ($this->config['finally']['delete'] as $file){
+        try{
+          FileSystem::delete(self::getRootDirectory().$file);
+        }catch (\Exception $e){/*ignore error*/}
+      }
+    }
+    #endregion delete
+    #region clear directories
+    if (!empty($this->config['finally']['clearDirectories'])){
+      foreach ($this->config['finally']['clearDirectories'] as $directory){
+        try{
+          $finderItems=Finder::find('*')->from(self::getRootDirectory().$directory);
+          if ($finderItems->count()>0){
+            foreach($finderItems as $item){
+              try{
+                /** @noinspection PhpUndefinedMethodInspection */
+                FileSystem::delete($item->getPathName());
+              }catch (\Exception $e){/*ignorujeme chybu*/}
+            }
+          }
+        }catch (\Exception $e){/*ignore error*/}
+      }
+    }
+    #endregion clear directories
   }
 
   /**
@@ -134,5 +163,4 @@ class FilesManager {
     }
     return $resultArr;
   }
-
 }
