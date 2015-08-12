@@ -1,6 +1,11 @@
 {block installer}
   <h1>EasyMinerCenter Installer</h1>
   <h2 n:inner-block="title">Social logins support</h2>
-  <p>This application support user authentication using social networks. For support of this feature, you have to generate applications - see the <a href="https://github.com/KIZI/EasyMiner-EasyMinerCenter/wiki/Installation">project wiki</a></p>
+  <p>This application support user authentication using social networks. For support of this feature, you have to generate applications - see the <a href="https://github.com/KIZI/EasyMiner-EasyMinerCenter/wiki/Installation-wizard#social-network-logins">project wiki</a></p>
+
+  <p>
+    If you will want to use the Google login, the back redirect URL is:<br />
+    <em>{@$googleLoginUrl}</em>
+  </p>
 
   {control loginsForm}

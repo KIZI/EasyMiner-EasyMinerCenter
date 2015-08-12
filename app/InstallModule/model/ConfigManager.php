@@ -32,7 +32,7 @@ class ConfigManager {
    * @return bool
    */
   public function checkInstallationPassword($password) {
-    $passwordHash='';
+    $passwordHash=$this->data['parameters']['install']['password'];
     if (Passwords::verify($password,$passwordHash)){
       if (Passwords::needsRehash($password)){
         $this->saveInstallationPassword($password);

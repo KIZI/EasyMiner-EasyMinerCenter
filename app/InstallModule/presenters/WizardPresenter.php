@@ -20,6 +20,7 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\InstallModule\Presenters
  */
 class WizardPresenter extends Presenter {
+  const GOOGLE_LOGIN_URL='em/user/oauth-google';
   /** @var null|ConfigManager $configManager */
   private $configManager=null;
   /** @var  MiningDriverFactory $miningDriverFactory */
@@ -175,6 +176,10 @@ class WizardPresenter extends Presenter {
         ]);
       }catch (\Exception $e){/*ignore error*/}
     }
+    $googleLoginUrl=$this->getHttpRequest()->getUrl()->getBaseUrl();
+    if (!Strings::endsWith($googleLoginUrl,'/')){$googleLoginUrl.='/';}
+    $googleLoginUrl.=self::GOOGLE_LOGIN_URL;
+    $this->template->googleLoginUrl=$googleLoginUrl;
   }
 
   /**
@@ -239,7 +244,7 @@ class WizardPresenter extends Presenter {
     }
     $this->template->readonlyFiles=$filesManager->checkFinallyReadonlyFiles();
     $this->template->installerLink='Default:';
-    $this->template->redirectLink=':EasyMiner:Homepage:';
+    $this->template->redirectLinkUrl=$this->getHttpRequest()->getUrl()->getBaseUrl();
   }
 
 
