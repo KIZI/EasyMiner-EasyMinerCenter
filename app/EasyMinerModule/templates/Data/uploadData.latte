@@ -1,41 +1,16 @@
-{* This is the welcome page, you can delete it *}
-
-{block head}
-  <script type="text/javascript">
-    previewPath={link Data:importCsvDataPreview};
-  </script>
-  <script type="text/javascript" src="{$basePath}/js/uploadData.js"></script>
-{/block}
+{* View for upload form *}
 
 {block content}
 
-  {ifset $importForm}
-    {if @$showPreview}
-      <div id="uploadDataPage">
-        <div class="config">
-          <h1>{_'Import config'}</h1>
-          {$importForm}
-        </div>
-        <div class="preview">
-          <h2>{_'Data preview'}</h2>
-          <div id="datasetPreviewLoading">{_'Reloading preview, please wait...'}</div>
-          <div id="datasetPreview"></div>
-        </div>
-      </div>
-    {else}
-      <div id="mainBlock">
-        <h1>{_'Import config'}</h1>
-        {$importForm}
-      </div>
-    {/if}
-  {else}
-    <div id="mainBlock">
-      <h1>{_'Upload dataset'}</h1>
-      <p>{_'Input CSV file, or ZIP archive with any CSV files...'}</p>
-      {control uploadForm}
-    </div>
-  {/ifset}
+  <div id="mainBlock">
+    <h1>{_'Upload dataset'}</h1>
+    <p>
+      {_'You can upload a CSV file, or a ZIP archive with any CSV files.'}
+      {if !empty($maxUploadSize)}
+        {_'Maximum upload size is:'} {$maxUploadSize|bytes}
+      {/if}
+    </p>
 
-{/block}
-
+    {control uploadForm}
+  </div>
 

@@ -225,6 +225,15 @@ class FileImportsFacade {
   }
 
   /**
+   * Funkce pro kontrolu, jestli existuje příslušný importovaný soubor
+   * @param string $filename
+   * @return bool
+   */
+  public function checkFileExists($filename) {
+    return file_exists($this->dataDirectory.'/'.$filename);
+  }
+
+  /**
    * @param string $filename
    * @param DbConnection $dbConnection
    * @param string $table
@@ -284,6 +293,44 @@ class FileImportsFacade {
     }
     CsvImport::closeCsv($csvFile);
     #endregion
+  }
+
+  /**
+   * Funkce vracející maximální velikost souboru, který lze uploadovat
+   * @return int
+   */
+  public function getMaximumFileUploadSize() {
+    return min(self::convertPHPSizeToBytes(ini_get('post_max_size')), self::convertPHPSizeToBytes(ini_get('upload_max_filesize')));
+  }
+
+  /**
+   * Funkce pro konverzi velikosti paměti udávané v PHP na číselné vyjádření v bytech
+   * @param string|int $sSize
+   * @return int
+   */
+  public static function convertPHPSizeToBytes($sSize){
+    if (is_numeric($sSize)){
+      return $sSize;
+    }
+    $sSuffix = substr($sSize, -1);
+    $iValue = substr($sSize, 0, -1);
+    switch(strtoupper($sSuffix)){
+      /** @noinspection PhpMissingBreakStatementInspection */
+      case 'P':
+        $iValue *= 1024;
+      /** @noinspection PhpMissingBreakStatementInspection */
+      case 'T':
+        $iValue *= 1024;
+      /** @noinspection PhpMissingBreakStatementInspection */
+      case 'G':
+        $iValue *= 1024;
+      /** @noinspection PhpMissingBreakStatementInspection */
+      case 'M':
+        $iValue *= 1024;
+      case 'K':
+        $iValue *= 1024;
+    }
+    return $iValue;
   }
 
 } 
