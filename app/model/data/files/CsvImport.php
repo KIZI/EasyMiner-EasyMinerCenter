@@ -11,6 +11,35 @@ use Nette\Utils\Strings;
 class CsvImport {
 
   /**
+   * Funkce vracející pole se seznamem možných null hodnot
+   * @return array
+   */
+  public static function getDefaultNullValuesArr() {
+    return [
+      ''=>'Empty string',
+      'NaN'=>'NaN',
+      'NULL'=>'NULL',
+      'N/A'=>'N/A',
+      'null'=>'null',
+      '-'=>'-',
+      '#REF!'=>'#REF!',
+      '#VALUE!'=>'#VALUE!',
+      '?'=>'?',
+      '#NULL!'=>'#NULL!',
+      '#NUM!'=>'#NUM!',
+      '#DIV/0'=>'#DIV/0',
+      'n/a'=>'n/a',
+      '#NAME?'=>'#NAME?',
+      'NIL'=>'NIL',
+      'nil'=>'nil',
+      'na'=>'na',
+      '#N/A'=>'#N/A',
+      'NA'=>'NA',
+      'none'=>'none'
+    ];
+  }
+
+  /**
    * Funkce pro změnu kódování souboru (ze zadaného kódování na UTF8)
    * @param string $filename
    * @param string $originalEncoding
@@ -40,19 +69,20 @@ class CsvImport {
    * Funkce vracející zvolený počet řádků z CSV souboru (ignoruje 1. řádek se záhlavím)
    * @param $filename
    * @param int $count = 10000
-   * @param string $delimitier = ','
+   * @param string $delimiter = ','
    * @param string $enclosure = '"'
    * @param string $escapeCharacter = '\\'
+   * @param string|null $nullValue = null
    * @param int $offset = 0
    * @return array
    */
-  public static function getRowsFromCSV($filename,$count=10000,$delimitier=',',$enclosure='"',$escapeCharacter='\\',$offset=0){
+  public static function getRowsFromCSV($filename,$count=10000,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=null,$offset=0){
     $file=fopen($filename,'r');
     if ($file===false){return null;}
     $counter=0;
     $outputArr=array();
-    if ($delimitier=='\t'){
-      $delimitier="\t";
+    if ($delimiter=='\t'){
+      $delimiter="\t";
     }
     while($offset>0){
       //přeskakujeme řádky, které nemají být importovány...
@@ -60,7 +90,15 @@ class CsvImport {
       $offset--;
     }
 
-    while (($counter<$count)&&($data=fgetcsv($file,null,$delimitier,$enclosure,$escapeCharacter))){
+    while (($counter<$count)&&($data=fgetcsv($file,null,$delimiter,$enclosure,$escapeCharacter))){
+      if ($nullValue!==null){
+        //ošetření null hodnot
+        foreach ($data as &$value) {
+          if($value==$nullValue) {
+            $value='';
+          }
+        }
+      }
       $outputArr[]=$data;
       $counter++;
     }
@@ -71,13 +109,13 @@ class CsvImport {
   /**
    * Funkce vracející počet řádků v CSV souboru
    * @param string $filename
-   * @param string $delimitier = ','
+   * @param string $delimiter = ','
    * @param string $enclosure  = '"'
    * @param string $escapeCharacter = '\\'
    * @return string[]
    */
-  public static function getColsNamesInCsv($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    $columnNames=self::getRowsFromCSV($filename,1,$delimitier,$enclosure,$escapeCharacter)[0];
+  public static function getColsNamesInCsv($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\'){
+    $columnNames=self::getRowsFromCSV($filename,1,$delimiter,$enclosure,$escapeCharacter,null,0)[0];
 
     for ($i=count($columnNames)-1;$i>=0;$i--){
       if (Strings::trim(Strings::fixEncoding($columnNames[$i]))==''){
@@ -91,13 +129,13 @@ class CsvImport {
   /**
    * Funkce vracející počet řádků v CSV souboru
    * @param string $filename
-   * @param string $delimitier = ','
+   * @param string $delimiter = ','
    * @param string $enclosure  = '"'
    * @param string $escapeCharacter = '\\'
    * @return int
    */
-  public static function getColsCountInCsv($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    return count(self::getColsNamesInCsv($filename,$delimitier,$enclosure,$escapeCharacter));
+  public static function getColsCountInCsv($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\'){
+    return count(self::getColsNamesInCsv($filename,$delimiter,$enclosure,$escapeCharacter));
   }
 
   /**
@@ -120,7 +158,7 @@ class CsvImport {
    * @param string $filename
    * @return string
    */
-  public static function getCSVDelimitier($filename){
+  public static function getCSVDelimiter($filename){
     $file=fopen($filename,'r');
     if ($file===false){return ',';}
     if ($row=fgets($file)){
@@ -169,13 +207,13 @@ class CsvImport {
   /**
    * Funkce vracející informace o datových sloupcích obsažených v CSV souboru
    * @param string $filename
-   * @param string $delimitier = ','
+   * @param string $delimiter = ','
    * @param string $enclosure  = '"'
    * @param string $escapeCharacter = '\\'
    * @return DbColumn[]
    */
-  public static function analyzeCSVColumns($filename, $delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    $columnNamesArr=self::getColsNamesInCsv($filename,$delimitier,$enclosure,$escapeCharacter);
+  public static function analyzeCSVColumns($filename, $delimiter=',',$enclosure='"',$escapeCharacter='\\'){
+    $columnNamesArr=self::getColsNamesInCsv($filename,$delimiter,$enclosure,$escapeCharacter);
 
     $columnNamesArr=self::sanitizeColumnNames($columnNamesArr);
 
@@ -192,7 +230,7 @@ class CsvImport {
     fgets($file);
     //kontrola všech řádků v souboru
     $rowsCount=0;
-    while (($data=fgetcsv($file,0,$delimitier,$enclosure,$escapeCharacter))&&($rowsCount<10000)){
+    while (($data=fgetcsv($file,0,$delimiter,$enclosure,$escapeCharacter))&&($rowsCount<10000)){
       //načten další řádek
       for ($i=0;$i<$columnsCount;$i++){
         $value=@$data[$i];
@@ -270,19 +308,28 @@ class CsvImport {
    * Funkce vracející zvolený počet řádků z CSV souboru (ignoruje 1. řádek se záhlavím)
    * @param resource $fileResource
    * @param int $count = 10000
-   * @param string $delimitier = ','
+   * @param string $delimiter = ','
    * @param string $enclosure = '"'
    * @param string $escapeCharacter = '\\'
+   * @param string|null $nullValue = null
    * @return array
    */
-  public static function getRowsFromOpenedCSVfile($fileResource,$count=10000,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
+  public static function getRowsFromOpenedCSVFile($fileResource,$count=10000,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=null){
     $counter=0;
     $outputArr=array();
-    if ($delimitier=='\t'){
-      $delimitier="\t";
+    if ($delimiter=='\t'){
+      $delimiter="\t";
     }
 
-    while (($counter<$count)&&($data=fgetcsv($fileResource,null,$delimitier,$enclosure,$escapeCharacter))){
+    while (($counter<$count)&&($data=fgetcsv($fileResource,null,$delimiter,$enclosure,$escapeCharacter))){
+      if ($nullValue!==null){
+        foreach ($data as &$value){
+          //ošetření null hodnot
+          if ($value==$nullValue){
+            $value=null;
+          }
+        }
+      }
       $outputArr[]=$data;
       $counter++;
     }

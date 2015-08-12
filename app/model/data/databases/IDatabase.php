@@ -156,11 +156,12 @@ interface IDatabase {
    * Funkce pro přímý import dat z CSV souboru
    * @param string $csvFileName
    * @param string[] $columnsNames
-   * @param string $delimitier
+   * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
+   * @param string|null $nullValue
    * @param int $offsetRows=0
    * @return bool
    */
-  public function importCsvFile($csvFileName,$columnsNames, $delimitier, $enclosure, $escapeCharacter, $offsetRows=0);
+  public function importCsvFile($csvFileName,$columnsNames, $delimiter, $enclosure, $escapeCharacter, $nullValue=null, $offsetRows=0);
 } 

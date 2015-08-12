@@ -163,7 +163,7 @@ class DatabasesFacade {
    * @return bool
    */
   private function checkDatabase($databaseProperty=self::FIRST_DB){
-    return ($this->$databaseProperty instanceof \PDO);//TODO ???
+    return ($this->$databaseProperty instanceof \PDO);
   }
 
   /**
@@ -330,17 +330,18 @@ class DatabasesFacade {
    * @param string $tableName
    * @param string[] $columnsNames
    * @param string $csvFileName
-   * @param string $delimitier=','
+   * @param string $delimiter=','
    * @param string $enclosure='"'
    * @param string $escapeCharacter='\\'
+   * @param string|null $nullValue = null
    * @param int $offsetRows = 0
    * @param string $databaseProperty
    * @return bool
    */
-  public function importCsvFile($tableName, $columnsNames, $csvFileName, $delimitier=',',$enclosure='"',$escapeCharacter='\\',$offsetRows=0,$databaseProperty=self::FIRST_DB){
+  public function importCsvFile($tableName, $columnsNames, $csvFileName, $delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=null,$offsetRows=0,$databaseProperty=self::FIRST_DB){
     /** @var IDatabase $database */
     $database=$this->$databaseProperty;
     $database->selectTable($tableName);
-    return $database->importCsvFile($csvFileName,$columnsNames, $delimitier, $enclosure, $escapeCharacter, $offsetRows);
+    return $database->importCsvFile($csvFileName,$columnsNames, $delimiter, $enclosure, $escapeCharacter, $nullValue, $offsetRows);
   }
 } 

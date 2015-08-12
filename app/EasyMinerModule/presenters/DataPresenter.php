@@ -51,12 +51,13 @@ class DataPresenter extends BasePresenter{
    * @param string $encoding
    * @param string $enclosure
    * @param string $escape
+   * @param string $nullValue="none"
    */
-  public function renderImportCsvDataPreview($file,$separator=',',$encoding='utf8',$enclosure='"',$escape='\\'){
+  public function renderImportCsvDataPreview($file,$separator=',',$encoding='utf8',$enclosure='"',$escape='\\',$nullValue="none"){
     $this->layout='blank';
     $this->fileImportsFacade->changeFileEncoding($file,$encoding);
     $this->template->colsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator,$enclosure,$escape);
-    $rows=$this->fileImportsFacade->getRowsFromCSV($file,20,$separator,$enclosure,$escape,0);
+    $rows=$this->fileImportsFacade->getRowsFromCSV($file,20,$separator,$enclosure,$escape,($nullValue=='none'?null:$nullValue),0);
     $rows[0]=CsvImport::sanitizeColumnNames($rows[0]);
     $this->template->rows=$rows;
   }
@@ -191,7 +192,7 @@ class DataPresenter extends BasePresenter{
     $form=$this->getComponent('importCsvForm');
     $defaultsArr=['file'=>$file,'type'=>$type,'table'=>$this->databasesFacade->prepareNewTableName($name,false)];
     //detekce pravděpodobného oddělovače
-    $separator=$this->fileImportsFacade->getCSVDelimitier($file);
+    $separator=$this->fileImportsFacade->getCSVDelimiter($file);
     $defaultsArr['separator']=$separator;
     //připojení k DB pro zjištění názvu tabulky, který zatím není obsazen (dle typu preferované databáze)
     $csvColumnsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator);
@@ -437,6 +438,7 @@ class DataPresenter extends BasePresenter{
       ','=>'Comma (,)',
       ';'=>'Semicolon (;)',
       '|'=>'Vertical line (|)',
+      '\t'=>'Tab (\t)'
     ))->setRequired()
       ->setAttribute('class','normalWidth');
 
@@ -451,31 +453,34 @@ class DataPresenter extends BasePresenter{
     $form->addHidden('type');
     $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
     $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
+    $nullValuesArr=CsvImport::getDefaultNullValuesArr();
+    $defaultNullValue='none';
+    foreach($nullValuesArr as $value=>$text){
+      $defaultNullValue=$value;
+      break;
+    }
+    $form->addSelect('nullValue','Null values:',array_merge(['none'=>'--none--'],$nullValuesArr))
+      ->setAttribute('title','This value will be imported as missing (null).')
+      ->setDefaultValue($defaultNullValue)
+      ->setAttribute('class','normalWidth');
     $form->addSubmit('submit','Import data into database...')
       ->onClick[]=function (SubmitButton $submitButton){
         /** @var Form $form */
         $form=$submitButton->form;
         $values=$form->getValues();
+        $nullValue=($values->nullValue=='none'?null:$values->nullValue);
         $user=$this->usersFacade->findUser($this->user->id);
-        #region params
-        $table=$values['table'];
-        $separator=$values["separator"];
-        $encoding=$values["encoding"];
-        $file=$values["file"];
-        $enclosure=$values["enclosure"];
-        $escape=$values["escape"];
-        #endregion
 
-        $colsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator,$enclosure,$escape);
+        $colsCount=$this->fileImportsFacade->getColsCountInCSV($values->file,$values->separator,$values->enclosure,$values->escape);
         $dbType=$this->databasesFacade->prefferedDatabaseType($colsCount);
         //připravení připojení k DB
         $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($user,$dbType);
-        $this->fileImportsFacade->importCsvFile($file,$datasource->getDbConnection(),$table,$encoding,$separator,$enclosure,$escape);
-        $datasource->dbTable=$table;
+        $this->fileImportsFacade->importCsvFile($values->file,$datasource->getDbConnection(),$values->table,$values->encoding,$values->separator,$values->enclosure,$values->escape,$nullValue);
+        $datasource->dbTable=$values->table;
         //uložíme datasource
         $this->datasourcesFacade->saveDatasource($datasource);
         //smažeme dočasné soubory...
-        $this->fileImportsFacade->deleteFile($file);
+        $this->fileImportsFacade->deleteFile($values->file);
 
         $this->redirect('Data:newMinerFromDatasource',array('datasource'=>$datasource->datasourceId));
       };

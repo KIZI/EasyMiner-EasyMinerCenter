@@ -156,14 +156,15 @@ class FileImportsFacade {
    * Funkce vracející data z CSV souboru
    * @param string $filename
    * @param int $count
-   * @param string $delimitier
+   * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
    * @param int $offset = 0 - počet řádek, které se mají na začátku souboru přeskočit...
+   * @param string|null $nullValue = null
    * @return array
    */
-  public function getRowsFromCSV($filename,$count=10000,$delimitier=',',$enclosure='"',$escapeCharacter='\\',$offset=0){
-    return CsvImport::getRowsFromCSV($this->getFilePath($filename),$count,$delimitier,$enclosure,$escapeCharacter,$offset);
+  public function getRowsFromCSV($filename,$count=10000,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=null,$offset=0){
+    return CsvImport::getRowsFromCSV($this->getFilePath($filename),$count,$delimiter,$enclosure,$escapeCharacter,$nullValue,$offset);
   }
 
   /**
@@ -178,25 +179,25 @@ class FileImportsFacade {
   /**
    * Funkce vracející počet sloupců v CSV souboru
    * @param string $filename
-   * @param string $delimitier
+   * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
    * @return int
    */
-  public function getColsCountInCSV($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    return CsvImport::getColsCountInCsv($this->getFilePath($filename),$delimitier,$enclosure,$escapeCharacter);
+  public function getColsCountInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\'){
+    return CsvImport::getColsCountInCsv($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter);
   }
 
   /**
    * Funkce vracející přehled sloupců v CSV souboru
    * @param string $filename
-   * @param string $delimitier
+   * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
    * @return \EasyMinerCenter\Model\Data\Entities\DbColumn[]
    */
-  public function getColsInCSV($filename,$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
-    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimitier,$enclosure,$escapeCharacter);
+  public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\'){
+    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter);
   }
 
   /**
@@ -204,8 +205,8 @@ class FileImportsFacade {
    * @param string $filename
    * @return string
    */
-  public function getCSVDelimitier($filename){
-    return CsvImport::getCSVDelimitier($this->getFilePath($filename));
+  public function getCSVDelimiter($filename){
+    return CsvImport::getCSVDelimiter($this->getFilePath($filename));
   }
 
   /**
@@ -234,19 +235,21 @@ class FileImportsFacade {
   }
 
   /**
+   * Funkce pro import CSV souboru
    * @param string $filename
    * @param DbConnection $dbConnection
    * @param string $table
    * @param string $encoding
-   * @param string $delimitier
+   * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
+   * @param string|null $nullValue=null
    * @throws ApplicationException
    */
-  public function importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimitier=',',$enclosure='"',$escapeCharacter='\\'){
+  public function importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=""){
     //připravení parametrů pro DB tabulku
     $this->changeFileEncoding($filename,$encoding);
-    $csvColumns=$this->getColsInCSV($filename,$delimitier,$enclosure,$escapeCharacter);
+    $csvColumns=$this->getColsInCSV($filename,$delimiter,$enclosure,$escapeCharacter);
 
     //otevření databáze a vytvoření DB tabulky
     $this->databasesFacade->openDatabase($dbConnection);
@@ -263,7 +266,7 @@ class FileImportsFacade {
 
     if (@$this->tryDirectFileImport[$dbConnection->type]){
       #region try direct import...
-      $result=$this->databasesFacade->importCsvFile($table,$colsNames,$this->getFilePath($filename),$delimitier,$enclosure,$escapeCharacter,1);
+      $result=$this->databasesFacade->importCsvFile($table,$colsNames,$this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter,$nullValue,1,DatabasesFacade::FIRST_DB);
       if ($result){
         return;
       }else{
@@ -274,16 +277,16 @@ class FileImportsFacade {
 
     #region postupný import pomocí samostatných dotazů
     $csvFile=CsvImport::openCsv($this->getFilePath($filename));
-    CsvImport::getRowsFromOpenedCSVfile($csvFile,1,$delimitier,$enclosure,$escapeCharacter);//přeskakujeme první řádek
+    CsvImport::getRowsFromOpenedCSVFile($csvFile,1,$delimiter,$enclosure,$escapeCharacter,$nullValue);//přeskakujeme první řádek
 
-    while($row=CsvImport::getRowsFromOpenedCSVfile($csvFile,1,$delimitier,$enclosure,$escapeCharacter)){
+    while($row=CsvImport::getRowsFromOpenedCSVFile($csvFile,1,$delimiter,$enclosure,$escapeCharacter,$nullValue)){
       if (isset($row[0])){
         $row=$row[0];//chceme jen jeden řádek
       }
       $insertArr=array();
       for ($i=0;$i<$colsCount;$i++){
         if (isset($row[$i])){
-          $insertArr[$colsNames[$i]]=($row[$i]!=''?$row[$i]:null);
+          $insertArr[$colsNames[$i]]=$row[$i];
         }else{
           $insertArr[$colsNames[$i]]=null;
         }
