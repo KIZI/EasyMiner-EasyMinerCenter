@@ -38,7 +38,7 @@
         {block headerLinks}
           {if ($user->loggedIn)}
             <a href="{link User:details}" id="headerUserLink" class="user">
-              <span class="img">{if !empty($user->identity->imageUrl)}<img src="{$basePath}{$user->identity->imageUrl}" alt="{$user->identity->name}" />{/if}</span>
+              <span class="img">{if !empty($user->identity->imageUrl)}<img src="{$user->identity->imageUrl}" alt="{$user->identity->name}" />{/if}</span>
               <span class="name">{$user->identity->name}</span>
             </a>
           {else}
@@ -58,7 +58,7 @@
     {*region headerMenus*}
     {if ($user->loggedIn)}
       <div id="headerUserMenu" class="headerMenu">
-        <span class="img" onclick="location.href={link User:details};">{if !empty($user->identity->imageUrl)}<img src="{$basePath}{$user->identity->imageUrl}" alt="{$user->identity->name}" />{/if}</span>
+        <span class="img" onclick="location.href={link User:details};">{if !empty($user->identity->imageUrl)}<img src="{$user->identity->imageUrl}" alt="{$user->identity->name}" />{/if}</span>
         <div class="name">{$user->identity->name}</div>
         <div>{$user->identity->email}</div>
         <div><a href="{link User:details}">{_'Show my profile'}</a></div>
