@@ -2,11 +2,9 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\EasyMinerModule\Components\IMetaAttributesSelectControlFactory;
-use EasyMinerCenter\EasyMinerModule\Components\MetaAttributesSelectControl;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
-use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Format;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
@@ -44,44 +42,6 @@ class DataPresenter extends BasePresenter{
   private $metaAttributesFacade;
   /** @var  IMetaAttributesSelectControlFactory $iMetaAttributesSelectControlFactory */
   private $iMetaAttributesSelectControlFactory;
-
-
-  /**
-   * Akce pro úpravu datasource a nastavení mapování datových sloupců na knowledge base
-   * @param int $datasource
-   * @param int|null $column
-   */
-  public function renderMapping($datasource,$column=null){
-    /** @var Datasource|int $datasource */
-    $datasource=$this->datasourcesFacade->findDatasource($datasource);
-    $this->checkDatasourceAccess($datasource);
-
-    $datasourceColumns=$datasource->datasourceColumns;
-    if (empty($datasourceColumns)){
-      $this->datasourcesFacade->reloadDatasourceColumns($datasource);
-      $datasourceColumns=$datasource->datasourceColumns;
-    }
-
-    if ($column){
-      //zkusíme najít konkrétní datasourceColumn
-      foreach ($datasourceColumns as $datasourceColumn){
-        if ($datasourceColumn->datasourceColumnId==$column){
-          $this->template->datasourceColumn=$datasourceColumn;
-          break;
-        }
-      }
-      if (empty($this->template->datasourceColumn)){
-        $this->flashMessage($this->translate('Requested data field not found!'),'error');
-      }else{
-        $this->databasesFacade->openDatabase($datasource->getDbConnection());
-        $this->template->datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$this->template->datasourceColumn->name);
-      }
-    }
-
-    $this->template->datasource=$datasource;
-    $this->template->datasourceColumns=$datasourceColumns;
-    $this->template->mappingFinished=$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true);
-  }
 
   /**
    * Akce pro vygenerování náhledu na data
@@ -255,7 +215,6 @@ class DataPresenter extends BasePresenter{
       $this->databasesFacade->openDatabase($metasource->getDbConnection());
       $this->template->attributeValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute);
     }catch (\Exception $e){
-      //TODO zobrazení přívětivé chyby
       throw new BadRequestException('Requested attribute not found!',500,$e);
     }
     if ($this->isAjax() || $mode=='component' || $mode=='iframe'){
@@ -352,6 +311,7 @@ class DataPresenter extends BasePresenter{
   #region componentNewMinerForm
   /**
    * @return Form
+   * @throws \Exception
    */
   public function createComponentNewMinerForm() {
     $form = new Form();
@@ -414,6 +374,7 @@ class DataPresenter extends BasePresenter{
 
   #region componentImportCsvForm
   /**
+   * Formulář pro import CSV souboru
    * @return Form
    */
   public function createComponentImportCsvForm(){
@@ -453,51 +414,48 @@ class DataPresenter extends BasePresenter{
     $form->addHidden('type');
     $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
     $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
-    $form->addSubmit('submit','Import data into database...')->onClick[]=array($this,'importCsvFormSubmitted');
-    $storno=$form->addSubmit('storno','storno');
-    $storno->setValidationScope(array());
-    $storno->onClick[]=function(SubmitButton $button)use($file){
-      /** @var DataPresenter $presenter */
-      $presenter=$button->form->getParent();
-      $this->fileImportsFacade->deleteFile($file->value);
-      $presenter->redirect('Data:newMiner');
-    };
+    $form->addSubmit('submit','Import data into database...')
+      ->onClick[]=function (SubmitButton $submitButton){
+        /** @var Form $form */
+        $form=$submitButton->form;
+        $values=$form->getValues();
+        $user=$this->usersFacade->findUser($this->user->id);
+        #region params
+        $table=$values['table'];
+        $separator=$values["separator"];
+        $encoding=$values["encoding"];
+        $file=$values["file"];
+        $enclosure=$values["enclosure"];
+        $escape=$values["escape"];
+        #endregion
+
+        $colsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator,$enclosure,$escape);
+        $dbType=$this->databasesFacade->prefferedDatabaseType($colsCount);
+        //připravení připojení k DB
+        $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($user,$dbType);
+        $this->fileImportsFacade->importCsvFile($file,$datasource->getDbConnection(),$table,$encoding,$separator,$enclosure,$escape);
+        $datasource->dbTable=$table;
+        //uložíme datasource
+        $this->datasourcesFacade->saveDatasource($datasource);
+        //smažeme dočasné soubory...
+        $this->fileImportsFacade->deleteFile($file);
+
+        $this->redirect('Data:newMinerFromDatasource',array('datasource'=>$datasource->datasourceId));
+      };
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $button)use($file){
+        /** @var DataPresenter $presenter */
+        $presenter=$button->form->getParent();
+        $this->fileImportsFacade->deleteFile($file->value);
+        $presenter->redirect('Data:newMiner');
+      };
     return $form;
-  }
-
-  public function importCsvFormSubmitted(SubmitButton $submitButton){
-    /** @var Form $form */
-    $form=$submitButton->form;
-    $values=$form->getValues();
-    $user=$this->usersFacade->findUser($this->user->id);
-    #region params
-    $table=$values['table'];
-    $separator=$values["separator"];
-    $encoding=$values["encoding"];
-    $file=$values["file"];
-    $enclosure=$values["enclosure"];
-    $escape=$values["escape"];
-    #endregion
-
-    $colsCount=$this->fileImportsFacade->getColsCountInCSV($file,$separator,$enclosure,$escape);
-    $dbType=$this->databasesFacade->prefferedDatabaseType($colsCount);
-    //připravení připojení k DB
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($user,$dbType);
-    $this->fileImportsFacade->importCsvFile($file,$datasource->getDbConnection(),$table,$encoding,$separator,$enclosure,$escape);
-    $datasource->dbTable=$table;
-    //uložíme datasource
-    $this->datasourcesFacade->saveDatasource($datasource);
-    //smažeme dočasné soubory...
-    $this->fileImportsFacade->deleteFile($file);
-
-    //FIXME Standa jiná přesměrovávací obrazovka...
-    //$this->redirect('Data:mapping',array('datasource'=>$datasource->datasourceId));
-    $this->redirect('Data:newMinerFromDatasource',array('datasource'=>$datasource->datasourceId));
   }
   #endregion importCsvForm
 
 
-  #region componentImportCsvForm
+  #region componentImportZipForm
   /**
    * @return Form
    */
@@ -531,7 +489,7 @@ class DataPresenter extends BasePresenter{
     };
     return $form;
   }
-  #endregion importCsvForm
+  #endregion componentImportZipForm
 
   #region confirmationDialog
   /**
@@ -542,7 +500,7 @@ class DataPresenter extends BasePresenter{
     $form=new \ConfirmationDialog($this->getSession('confirmationDialog'));
     $translator=$this->translator;
     $form->addConfirmer('deleteDatasourceColumn',array($this,'deleteDatasourceColumn'),
-      function($dialog,$params)use($translator){
+      function(/*$dialog,$params*/)use($translator){
         $html=Html::el('div');
         $html->setHtml('<h1>'.$translator->translate('Delete data field').'</h1><p>'.$translator->translate('Do your really want to delete this data field?').'</p>');
         return $html;
@@ -565,41 +523,6 @@ class DataPresenter extends BasePresenter{
     $this->redirect('mapping',array('datasource'=>$datasource));
   }
   #endregion confirmationDialog
-
-  #region selectMetaAttributeDialog
-  /**
-   * @return \EasyMinerCenter\EasyMinerModule\Components\MetaAttributesSelectControl
-   */
-  protected function createComponentSelectMetaAttributeDialog(){
-    /** @var MetaAttributesSelectControl $metaAttributesSelectControl */
-    $metaAttributesSelectControl=$this->iMetaAttributesSelectControlFactory->create();
-    $presenter=$this;
-    $metaAttributesSelectControl->onComponentShow[]=function()use(&$presenter){
-      $this->template->showSelectMetaAttributeDialog=true;
-    };
-    $metaAttributesSelectControl->onComponentHide[]=function()use(&$presenter){
-      $this->template->showSelectMetaAttributeDialog=false;
-    };
-    return $metaAttributesSelectControl;
-  }
-
-  /**
-   * Signál vracející přejmenovávací dialog
-   * @param int $datasource
-   * @param int $column
-   */
-  public function handleGetSelectMetaAttributeDialog($datasource,$column){
-    $this->template->showSelectMetaAttributeDialog=true;
-    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($datasource,$column);
-    /** @var MetaAttributesSelectControl $metaAttributesSelectControl */
-    $metaAttributesSelectControl=$this->getComponent('selectMetaAttributeDialog');
-    if ($this->presenter->isAjax()) {
-      $this->redrawControl('selectMetaAttributeDialog');
-    }
-  }
-
-  #endregion selectMetaAttributeDialog
-
 
   #region renameDatasourceColumnDialog
   protected function createComponentDatasourceColumnRenameDialog(){
