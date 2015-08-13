@@ -345,7 +345,7 @@ html.js .jshidden {
 }
 body {
   background: #2d83be url("../images/bg-body.jpg") center repeat;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-size: 16px;
   overflow-y: scroll;
   margin: 0;
@@ -442,7 +442,7 @@ h3 {
 a.button {
   background: #075783;
   font-size: 14px;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -462,7 +462,7 @@ a.button:focus {
 a.extButton {
   background: #075783;
   font-size: 14px;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -493,7 +493,7 @@ div.actions a,
 div.buttons a {
   background: #075783;
   font-size: 14px;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -515,7 +515,7 @@ div.buttons a:focus {
 div.bigButtons a {
   background: #075783;
   font-size: 14px;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -540,7 +540,7 @@ body > header {
   background: url("../images/bg-header.png") repeat-x scroll bottom #075783;
   height: 100px;
   min-width: 100%;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-size: 16px;
 }
 body > header div.content {
@@ -742,7 +742,7 @@ body > header .headerMenu#headerUserMenu div.actions {
 body > header .headerMenu#headerUserMenu div.actions a {
   background: #075783;
   font-size: 14px;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -859,7 +859,7 @@ body > footer div.content a:hover {
 form input,
 form select {
   padding: 10px 13px;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-size: 15px;
   border: 1px solid #ebebeb;
 }
@@ -894,7 +894,7 @@ form input[type="button"],
 form input[type="reset"] {
   background: #075783;
   font-size: 14px;
-  font-family: 'Arial', 'sans-serif';
+  font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-weight: normal;
   text-decoration: none;
   cursor: pointer;
@@ -1230,11 +1230,11 @@ div#preprocessingPage .formatValues span:last-child {
 }
 #newMinerPage {
   width: auto;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
+  display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+  display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+  display: -ms-flexbox /* TWEENER - IE 10 */;
+  display: -webkit-flex /* NEW - Chrome */;
+  display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
   -webkit-box-direction: normal;
   -moz-box-direction: normal;
   -webkit-box-orient: horizontal;
@@ -1281,11 +1281,11 @@ div#preprocessingPage .formatValues span:last-child {
   width: 1315px;
   padding-left: 10px;
   padding-right: 10px;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
+  display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+  display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+  display: -ms-flexbox /* TWEENER - IE 10 */;
+  display: -webkit-flex /* NEW - Chrome */;
+  display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
   -webkit-box-direction: normal;
   -moz-box-direction: normal;
   -webkit-box-orient: horizontal;
@@ -1298,9 +1298,9 @@ div#preprocessingPage .formatValues span:last-child {
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
   -webkit-align-content: stretch;
   -ms-flex-line-pack: stretch;
   align-content: stretch;
@@ -1334,11 +1334,12 @@ div#preprocessingPage .formatValues span:last-child {
   -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   padding: 20px;
   margin: 10px 10px 10px 0;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -webkit-flex: 1 1 auto;
-  -ms-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -webkit-box-flex: 0;
+  -moz-box-flex: 0;
+  -webkit-flex: 0 1 auto;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  overflow-y: auto;
   margin-right: 0;
 }
 #uploadDataPage div.preview > h1,
@@ -1420,11 +1421,11 @@ div#homePage #slogan > div > img {
 }
 div#homePage #actions {
   overflow: auto;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
+  display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+  display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+  display: -ms-flexbox /* TWEENER - IE 10 */;
+  display: -webkit-flex /* NEW - Chrome */;
+  display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
   -webkit-box-direction: normal;
   -moz-box-direction: normal;
   -webkit-box-orient: horizontal;
