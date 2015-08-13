@@ -10,6 +10,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use Drahak\Restful\Validation\IValidator;
 use Nette\Application\BadRequestException;
+use Nette\Utils\Strings;
 
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
@@ -294,7 +295,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
   #region akce pro manipulaci s pravidly v rulesetech
 
-    #region actionReadRules XXX
+    #region actionReadRules
     /**
      * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
      * @param int $id
@@ -304,6 +305,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   path="/rule-sets/{id}/rules",
      *   summary="List rules saved in the selected rule set",
      *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
      *     description="RuleSet ID",
@@ -313,18 +315,29 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   ),
      *   @SWG\Parameter(
      *     name="rel",
-     *     description="Vztah pravidel ke rule setu: positive|neutral|negative",
+     *     description="Relation between rule set and rules: ''|'all'|'positive'|'neutral'|'negative'",
      *     required=false,
      *     type="string",
-     *     enum={"","positive","negative","neutral"},
+     *     enum={"","all","positive","negative","neutral"},
      *     in="query"
      *   ),
-     *   @SWG\Response(response=200, description="List of rules"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="List of rules",
+     *     @SWG\Schema(
+     *       @SWG\Property(property="ruleset",ref="#/definitions/RuleSetResponse"),
+     *       @SWG\Property(
+     *         property="rules",
+     *         type="array",
+     *         @SWG\Items(ref="#/definitions/RuleWithRelationResponse")
+     *       )
+     *     )
+     *   ),
      *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
-     * TODO doplnit šablonu pro response
      */
     public function actionReadRules($id,$rel=""){
+      if ($rel="all"){$rel="";}else{$rel=Strings::lower($rel);}
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
       //připravení výstupu
@@ -341,7 +354,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
           $rule=$ruleSetRuleRelation->rule;
           $ruleDataArr=$rule->getBasicDataArr();
           $ruleDataArr['relation']=$ruleSetRuleRelation->relation;
-          $result['rule'][]=$ruleDataArr;
+          $result['rules'][$rule->ruleId]=$ruleDataArr;
         }
       }
       $this->resource=$result;
@@ -349,7 +362,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     }
     #endregion actionReadRules
 
-    #region actionCreateRules XXX
+    #region actionCreateRules
     /**
      * Akce pro přidání pravidel do rulesetu
      * @param int $id - ID rule setu
@@ -361,6 +374,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   path="/rule-sets/{id}/rules",
      *   summary="Add rules into the selected rule set",
      *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
      *     description="RuleSet ID",
@@ -372,7 +386,11 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     name="rules",
      *     description="IDs of rules (optinally multiple - separated with , or ;)",
      *     required=true,
-     *     type="string",
+     *     type="array",
+     *     @SWG\items(
+     *       type="integer"
+     *     ),
+     *     collectionFormat="csv",
      *     in="query"
      *   ),
      *   @SWG\Parameter(
@@ -383,7 +401,12 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     enum={"positive","negative","neutral"},
      *     in="query"
      *   ),
-     *   @SWG\Response(response=200, description="Rules have been successfully added to the rule set.", examples={{"state":"ok"}}),
+     *   @SWG\Response(
+     *     response=201,
+     *     description="Rules have been successfully added to the rule set.",
+     *     @SWG\Schema(ref="#/definitions/StatusResponse"),
+     *     examples={"code":201,"status":"OK"}
+     *   ),
      *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
      */
@@ -401,13 +424,12 @@ class RuleSetsPresenter extends BaseResourcePresenter{
           }catch (\Exception $e){continue;}
         }
       }
-
-      $this->resource=['state'=>'ok'];
+      $this->resource=['code'=>200,'status'=>'OK'];
       $this->sendResource();
     }
     #endregion actionCreateRules
 
-    #region actionDeleteRules XXX
+    #region actionDeleteRules
     /**
      * Akce pro odebrání pravidel z rulesetu
      * @param int $id
@@ -418,6 +440,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   path="/rule-sets/{id}/rules",
      *   summary="Remove rules from the selected rule set",
      *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
      *     description="RuleSet ID",
@@ -429,10 +452,18 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     name="rules",
      *     description="IDs of rules (optinally multiple - separated with , or ;)",
      *     required=true,
-     *     type="string",
+     *     type="array",
+     *     @SWG\items(
+     *       type="integer"
+     *     ),
+     *     collectionFormat="csv",
      *     in="query"
      *   ),
-     *   @SWG\Response(response=200, description="Rules have been removed from the rule set."),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Rules have been removed from the rule set.",
+     *     @SWG\Schema(ref="#/definitions/StatusResponse"),examples={"code":200,"status":"OK"}
+     *   ),
      *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
      */
@@ -452,7 +483,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       }
       $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
 
-      $this->resource=['state'=>'ok'];
+      $this->resource=['code'=>200,'status'=>'ok'];
       $this->sendResource();
     }
     #endregion actionDeleteRules
@@ -475,7 +506,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       $this->error('Requested rule set was not found.');
       return null;
     }
-    //TODO kontrola možnosti pracovat s daným rule setem $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //kontrola možnosti pracovat s daným rule setem
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->getCurrentUser()->userId);
     return $ruleSet;
   }
 
@@ -512,5 +544,18 @@ class RuleSetsPresenter extends BaseResourcePresenter{
  *   required={"name"},
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
  *   @SWG\Property(property="description",type="string",description="Description of the rule set")
+ * )
+ * @SWG\Definition(
+ *   definition="RuleWithRelationResponse",
+ *   title="Rule",
+ *   required={"id","text","relation"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule"),
+ *   @SWG\Property(property="text",type="string",description="Human-readable form of the rule"),
+ *   @SWG\Property(property="a",type="string",description="A value from the four field table"),
+ *   @SWG\Property(property="b",type="string",description="B value from the four field table"),
+ *   @SWG\Property(property="c",type="string",description="C value from the four field table"),
+ *   @SWG\Property(property="d",type="string",description="D value from the four field table"),
+ *   @SWG\Property(property="selected",type="string",enum={"0","1"},description="1, if the rule is in Rule Clipboard"),
+ *   @SWG\Property(property="relation",type="string",enum={"positive","neutral","negative"},description="Relation to the current rule set")
  * )
  */
