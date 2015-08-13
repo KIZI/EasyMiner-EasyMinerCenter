@@ -226,7 +226,6 @@ class UserPresenter  extends BasePresenter{
       try {
         $facebookMe = $fb->api('/me');
         $facebookUserId = $fb->getUser();
-
         $presenter->getUser()->login($presenter->usersFacade->authenticateUserFromFacebook($facebookUserId,$facebookMe));
 
         $presenter->flashMessageLoginSuccess('Facebook');

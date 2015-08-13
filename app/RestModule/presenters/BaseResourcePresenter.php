@@ -7,6 +7,9 @@ use Drahak\Restful\Application\UI\ResourcePresenter;
 use Drahak\Restful\Http\IInput;
 use Drahak\Restful\Validation\IDataProvider;
 use Nette\Application\Responses\TextResponse;
+use Nette\Security\AuthenticationException;
+use Nette\Security\IAuthenticator;
+use Nette\Security\IIdentity;
 
 /**
  * Class BaseResourcePresenter
@@ -27,7 +30,7 @@ use Nette\Application\Responses\TextResponse;
  * )
  *
  * @SWG\SecurityScheme(
- *   securityDefinition="api_key",
+ *   securityDefinition="apiKey",
  *   type="apiKey",
  *   in="query",
  *   name="key"
@@ -55,23 +58,33 @@ use Nette\Application\Responses\TextResponse;
 abstract class BaseResourcePresenter extends ResourcePresenter {
   /** @var  UsersFacade $usersFacade */
   protected $usersFacade;
-
+  /** @var IIdentity $identity = null */
+  protected $identity=null;
+  /** @var User $currentUser = null */
+  protected $currentUser=null;
 
   /**
+   * @throws AuthenticationException
+   * @throws \Drahak\Restful\Application\BadRequestException
+   * @throws \Exception
+   */
+  public function startup() {
+    parent::startup();
+    $key=@$this->getInput()->getData()['key'];
+    if (empty($key)) {
+      throw new AuthenticationException("You have to use API KEY!",IAuthenticator::FAILURE);
+    }else{
+      $this->identity=$this->usersFacade->authenticateUserByApiKey($key);
+    }
+  }
+
+    /**
    * Funkce vracející instanci aktuálně přihlášeného uživatele (buď dle přihlášení, nebo podle API KEY)
    * @return User
    */
   public function getCurrentUser(){
-    if ($this->user->isLoggedIn()){
-      try{
-        return $this->usersFacade->findUser($this->user->id);
-      }catch (\Exception $e){}
-    }
-
-    return null;
-    //TODO implementovat kontrolu dle API KEY
+    return $this->currentUser;
   }
-
 
   /**
    * Funkce pro odeslání XML odpovědi
