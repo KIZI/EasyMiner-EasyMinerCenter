@@ -13,9 +13,18 @@
     </ul>
 
     {if $user->id==$selectedUser->userId}
-      <a href="{link changePassword}" class="button">{if !empty($selectedUser->password)}{_'Change password'}{else}{_'Define password'}{/if}</a>
-      <a href="{link Data:newMiner}" class="button">{_'Show tasks list'}</a>
-      <a href="{link logout}" class="button">{_'Logout...'}</a>
+      <div class="actions">
+        <a href="{link changePassword}" >{if !empty($selectedUser->password)}{_'Change password'}{else}{_'Define password'}{/if}</a>
+        <a href="{link Data:newMiner}" >{_'Show tasks list'}</a>
+        <a href="{link logout}" >{_'Logout...'}</a>
+      </div>
+    {/if}
+
+    {if !empty($selectedUser->apiKey)}
+      <hr />
+      <h2>{_'API access'}</h2>
+      <p>{_'For using of REST API, you have to use the following API KEY:'}</p>
+      <p><strong>{$selectedUser->getEncodedApiKey()}</strong></p>
     {/if}
   </div>
 

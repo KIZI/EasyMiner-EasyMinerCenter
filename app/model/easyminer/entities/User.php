@@ -56,7 +56,7 @@ class User extends Entity{
    */
   public static function encodeUserApiKey($userId,$apiKey){
     $output=Strings::substring($apiKey,0,3);
-    $number=round(rand(1,100000)%15+1);
+    $number=round(rand(1,100000)%15+1);//TODO odebrat random (aby se API klíč neměnil...)
     $output.=dechex($number);
     $output.=Strings::substring($apiKey,3,$number);
     $output.=($userId+18039);
