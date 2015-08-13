@@ -24,7 +24,7 @@ class RuleSet extends Entity{
    */
   public function getDataArr(){
     return [
-      'rule_set_id'=>$this->ruleSetId,
+      'id'=>$this->ruleSetId,
       'name'=>$this->name,
       'description'=>$this->description,
       'rulesCount'=>$this->rulesCount

@@ -2,12 +2,14 @@
 
 namespace EasyMinerCenter\RestModule\Presenters;
 
+use Drahak\Restful\Validation\IField;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use Drahak\Restful\Validation\IValidator;
+use Nette\Application\BadRequestException;
 
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
@@ -20,17 +22,17 @@ class RuleSetsPresenter extends BaseResourcePresenter{
   private $ruleSetsFacade;
 
   #region akce pro manipulaci s rulesetem
-
     #region actionRead
     /**
      * Akce vracející detaily konkrétního rule setu
-     * @param int $id
+     * @param int|null $id=null
      * @throws \Nette\Application\BadRequestException
      * @SWG\Get(
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}",
      *   summary="Get details of the rule set",
      *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
      *     description="RuleSet ID",
@@ -46,7 +48,12 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
      */
-    public function actionRead($id){
+    public function actionRead($id=null){
+      if (empty($id)){
+        //pokud není zadáno ID, chceme vypsat seznam všech rule setů pro daného uživatele
+        $this->forward('list');
+        return;
+      }
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
       $this->resource=$ruleSet->getDataArr();
@@ -61,9 +68,10 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * @throws \Nette\Application\BadRequestException
      * @SWG\Delete(
      *   tags={"RuleSets"},
-     *   path="/users/{id}",
+     *   path="/rule-sets/{id}",
      *   summary="Remove rule set",
      *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
      *     description="RuleSet ID",
@@ -71,7 +79,11 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     type="integer",
      *     in="path"
      *   ),
-     *   @SWG\Response(response=200, description="Rule set deleted successfully."),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Rule set deleted successfully.",
+     *     @SWG\Schema(ref="#/definitions/StatusResponse")
+     *   ),
      *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
      */
@@ -80,7 +92,9 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
       //smazání
       if ($this->ruleSetsFacade->deleteRuleSet($ruleSet)){
-        $this->resource=['state'=>'ok'];
+        $this->resource=['code'=>200,'status'=>'OK'];
+      }else{
+        throw new BadRequestException();
       }
       $this->sendResource();
     }
@@ -94,6 +108,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   path="/rule-sets",
      *   summary="Create new rule set",
      *   security={{"apiKey":{}}},
+     *   produces={"application/json", "application/xml"},
+     *   consumes={"application/json", "application/xml"},
      *   @SWG\Parameter(
      *     description="RuleSet",
      *     name="ruleset",
@@ -106,16 +122,21 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     description="RuleSet created successfully, returns details of RuleSet.",
      *     @SWG\Schema(ref="#/definitions/RuleSetResponse")
      *   ),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Sent values are not acceptable!",
+     *     @SWG\Schema(ref="#/definitions/InputErrorResponse")
+     *   ),
      *   @SWG\Response(response=404,description="Requested RuleSet was not found.")
      * )
      */
     public function actionCreate(){
       //prepare RuleSet from input values
       $ruleSet=new RuleSet();
-      /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->name=$this->input->name;
-      /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->description=$this->input->description;
+      /** @var array $data */
+      $data=$this->input->getData();
+      $ruleSet->name=$data['name'];
+      $ruleSet->description=(!empty($data['description'])?$data['description']:'');
       $ruleSet->rulesCount=0;
       if ($user=$this->getCurrentUser()){
         $ruleSet->user=$user;
@@ -129,6 +150,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * Funkce pro kontrolu vstupů pro vytvoření nového uživatelského účtu
      */
     public function validateCreate() {
+      /** @var IField $fieldName */
       $fieldName=$this->input->field('name');
       $fieldName
         ->addRule(IValidator::MIN_LENGTH,'Minimal length of name is  %d characters!',3)
@@ -138,9 +160,10 @@ class RuleSetsPresenter extends BaseResourcePresenter{
         $fieldName->addRule(IValidator::CALLBACK,'RuleSet with this name already exists!',function($value)use($user){
           try{
             $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,null);
+            return true;
+          }catch (\Exception $e){
             return false;
-          }catch (\Exception $e){}
-          return true;
+          }
         });
       }
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
@@ -148,8 +171,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     #endregion actionCreate
 
     #region actionUpdate
-
     /**
+     * Akce pro update existujícího rule setu
      * @param int $id
      * @throws \Nette\Application\BadRequestException
      * @SWG\Put(
@@ -157,6 +180,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   path="/rule-sets/{id}",
      *   summary="Update existing rule set",
      *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
+     *   consumes={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
      *     description="RuleSet ID",
@@ -176,6 +201,11 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     description="Rule set details.",
      *     @SWG\Schema(ref="#/definitions/RuleSetResponse")
      *   ),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Sent values are not acceptable!",
+     *     @SWG\Schema(ref="#/definitions/InputErrorResponse")
+     *   ),
      *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
      */
@@ -183,12 +213,10 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       //prepare RuleSet from input values
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
-
+      $inputArr=$this->input->getData();
+      $ruleSet->name=$inputArr['name'];
       /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->name=$this->input->name;
-      /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->description=$this->input->description;
-      $ruleSet->rulesCount=0;
+      $ruleSet->description=(!empty($inputArr['description'])?$inputArr['description']:'');
       if ($user=$this->getCurrentUser()){
         $ruleSet->user=$user;
       }
@@ -210,52 +238,63 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       if ($user=$this->getCurrentUser()){
         $fieldName->addRule(IValidator::CALLBACK,'RuleSet with this name already exists!',function($value)use($user,$id){
           try{
-            /** @noinspection PhpUndefinedFieldInspection */
             $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,$id);
+            return true;
+          }catch (\Exception $e){
             return false;
-          }catch (\Exception $e){}
-          return true;
+          }
         });
       }
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
     }
     #endregion actionUpdate
 
-  #endregion akce pro manipulaci s rulesetem
-
-
-  /**
-   * Akce pro vypsání existujících rulesetů
-   * TODO description
-   */
-  public function actionList(){
-    //FIXME
-    $ruleSets=$this->ruleSetsFacade->findRuleSetsByUser($this->user->id);
-    $result=[];
-    if (empty($ruleSets)) {
-      //pokud není nalezen ani jeden RuleSet, jeden založíme...
-      $ruleSet=new RuleSet();
-      $user=$this->usersFacade->findUser($this->user->id);
-      $ruleSet->user=$user;
-      $ruleSet->name=$user->name;
-      $this->ruleSetsFacade->saveRuleSet($ruleSet);
-      $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
-    }else{
-      foreach ($ruleSets as $ruleSet){
+    #region actionList
+    /**
+     * Akce pro vypsání existujících rulesetů
+     * @SWG\Get(
+     *   tags={"RuleSets"},
+     *   path="/rule-sets",
+     *   summary="List rule sets for the current user",
+     *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
+     *   consumes={"application/json","application/xml"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="List of rule sets",
+     *     @SWG\Schema(
+     *       type="array",
+     *       @SWG\Items(ref="#/definitions/RuleSetResponse")
+     *     )
+     *   )
+     * )
+     */
+    public function actionList(){
+      $ruleSets=$this->ruleSetsFacade->findRuleSetsByUser($this->user->id);
+      $result=[];
+      if (empty($ruleSets)) {
+        //pokud není nalezen ani jeden RuleSet, jeden založíme...
+        $ruleSet=new RuleSet();
+        $user=$this->usersFacade->findUser($this->user->id);
+        $ruleSet->user=$user;
+        $ruleSet->name=$user->name;
+        $this->ruleSetsFacade->saveRuleSet($ruleSet);
         $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
+      }else{
+        foreach ($ruleSets as $ruleSet){
+          $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
+        }
       }
+      $this->resource=$result;
+      $this->sendResource();
     }
-    $this->sendJsonResponse($result);
-  }
-
-
-
-
+    #endregion actionList
   #endregion akce pro manipulaci s rulesetem
+
 
   #region akce pro manipulaci s pravidly v rulesetech
 
-    #region actionReadRules
+    #region actionReadRules XXX
     /**
      * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
      * @param int $id
@@ -274,10 +313,10 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   ),
      *   @SWG\Parameter(
      *     name="rel",
-     *     description="positive|neutral|negative",
+     *     description="Vztah pravidel ke rule setu: positive|neutral|negative",
      *     required=false,
      *     type="string",
-     *     enum={"positive","negative","neutral"},
+     *     enum={"","positive","negative","neutral"},
      *     in="query"
      *   ),
      *   @SWG\Response(response=200, description="List of rules"),
@@ -310,7 +349,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     }
     #endregion actionReadRules
 
-    #region actionCreateRules
+    #region actionCreateRules XXX
     /**
      * Akce pro přidání pravidel do rulesetu
      * @param int $id - ID rule setu
@@ -368,7 +407,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     }
     #endregion actionCreateRules
 
-    #region actionDeleteRules
+    #region actionDeleteRules XXX
     /**
      * Akce pro odebrání pravidel z rulesetu
      * @param int $id
@@ -428,7 +467,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
    * @return RuleSet
    * @throws \Nette\Application\BadRequestException
    */
-  private function findRuleSetWithCheckAccess($ruleSetId){//FIXME
+  private function findRuleSetWithCheckAccess($ruleSetId){
     try{
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleSetId);
@@ -436,7 +475,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       $this->error('Requested rule set was not found.');
       return null;
     }
-    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //TODO kontrola možnosti pracovat s daným rule setem $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     return $ruleSet;
   }
 
@@ -465,15 +504,13 @@ class RuleSetsPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule set"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
  *   @SWG\Property(property="description",type="string",description="Description of the rule set"),
- *   @SWG\Property(property="rulesCount",type="boolean",description="Count of rules in the rule set")
+ *   @SWG\Property(property="rulesCount",type="integer",description="Count of rules in the rule set")
  * )
  * @SWG\Definition(
  *   definition="RuleSetInput",
  *   title="RuleSet",
- *   required={"id","name"},
- *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule set"),
+ *   required={"name"},
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
  *   @SWG\Property(property="description",type="string",description="Description of the rule set")
  * )
- *
  */

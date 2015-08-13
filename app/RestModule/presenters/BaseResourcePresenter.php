@@ -92,3 +92,38 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   }
   #endregion
 }
+
+/**
+ * @SWG\Definition(
+ *   definition="StatusResponse",
+ *   title="Status",
+ *   required={"code","status"},
+ *   @SWG\Property(property="code", type="integer", description="Status code"),
+ *   @SWG\Property(property="status", type="string", description="Status string", enum={"OK","error"}),
+ *   @SWG\Property(property="message", type="string", description="User-friendly message")
+ * )
+ * @SWG\Definition(
+ *   definition="InputErrorResponse",
+ *   title="InputError",
+ *   required={"code","status"},
+ *   @SWG\Property(property="code", type="integer", description="Status code"),
+ *   @SWG\Property(property="status", type="string", description="Status string", enum={"OK","error"}),
+ *   @SWG\Property(property="message", type="string", description="User-friendly message"),
+ *   @SWG\Property(
+ *     property="errors",
+ *     type="array",
+ *     description="List of errors",
+ *     @SWG\Items(
+ *       ref="#/definitions/InputErrorItem"
+ *     )
+ *   )
+ * )
+ * @SWG\Definition(
+ *   definition="InputErrorItem",
+ *   title="InputErrorItem",
+ *   @SWG\Property(property="field", type="string"),
+ *   @SWG\Property(property="message", type="string"),
+ *   @SWG\Property(property="code", type="integer")
+ * )
+ *
+ */
