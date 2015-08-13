@@ -40,7 +40,7 @@ class SwaggerPresenter extends Presenter{
    * @return string
    */
   private function replaceJsonVariables($jsonString){
-    $link=$this->link('//Homepage:default');
+    $link=$this->link('//Default:default');
     $url=new Url($link);
     if (empty($url->host)){
       $url=$this->getHttpRequest()->getUrl()->hostUrl;
