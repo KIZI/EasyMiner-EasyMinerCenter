@@ -50,8 +50,9 @@ class SwaggerPresenter extends Presenter{
     }
     $hostUrl=(Strings::endsWith($url->getHost(),'/')?rtrim($url->getHost(),'/'):$url->getHost());
     $basePath=rtrim($url->getBasePath(),'/');
+
     $paramsArr=[
-      '%VERSION%'=>'1.0',//TODO dynamické doplnění verze
+      '%VERSION%'=>$this->getInstallVersion(),
       '%BASE_PATH%'=>$basePath,
       '%HOST%'=>$hostUrl
     ];
@@ -62,6 +63,15 @@ class SwaggerPresenter extends Presenter{
       $arrReplace[]=$value;
     }
     return str_replace($arrSearch,$arrReplace,$jsonString);
+  }
+
+  /**
+   * Funkce vracející informaci o verzi aplikace
+   * @return string
+   */
+  private function getInstallVersion() {
+    $installParameters=$this->context->getParameters();
+    return @$installParameters['install']['version'];
   }
 
   /**

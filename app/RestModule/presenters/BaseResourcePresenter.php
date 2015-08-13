@@ -23,9 +23,9 @@ use Nette\Security\IIdentity;
  *   @SWG\Info(
  *     title="EasyMinerCenter REST API",
  *     version="%VERSION%",
- *     description="API for access to EasyMinerCenter functionalities - authentication of users, management of data sources",
+ *     description="API for access to EasyMinerCenter functionalities - authentication of users, management of data sources. All resources are secured with the API key. Please append ?key=... to all your requests.",
  *     @SWG\Contact(name="Stanislav Vojíř",email="stanislav.vojir@vse.cz"),
- *     @SWG\License(name="BSD3")
+ *     @SWG\License(name="BSD3",url="http://opensource.org/licenses/BSD-3-Clause")
  *   )
  * )
  *

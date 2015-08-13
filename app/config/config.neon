@@ -24,6 +24,8 @@ extensions:
     ErrorPresenter: Joseki\Application\DI\ErrorPresenterExtension
 
 parameters:
+    install:
+        version: "2.1b"
     xmlTransformations:
         directory: "../submodules/EasyMiner-XML/transformations"
         guhaPMML:
