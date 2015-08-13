@@ -4,7 +4,6 @@ namespace EasyMinerCenter\RestModule\Presenters;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Drahak\Restful\Application\UI\ResourcePresenter;
-use Drahak\Restful\Application\UI\SecuredResourcePresenter;
 use Drahak\Restful\Http\IInput;
 use Drahak\Restful\Validation\IDataProvider;
 use Nette\Application\Responses\TextResponse;
@@ -14,22 +13,48 @@ use Nette\Application\Responses\TextResponse;
  * @package EasyMinerCenter\RestModule\Presenters
  * @property IInput|IDataProvider $input
  *
- * @SWG\Info(
- *   title="EasyMinerCenter REST API",
- *   description="Api for access to EasyMinerCenter functionalities - authentication of users, management of data sources",
- *   contact="stanislav.vojir@vse.cz",
- *   license="BSD3",
+ * @SWG\Swagger(
+ *   basePath="%BASE_PATH%",
+ *   host="%HOST%",
+ *   schemes={"http"},
+ *   @SWG\Info(
+ *     title="EasyMinerCenter REST API",
+ *     version="%VERSION%",
+ *     description="API for access to EasyMinerCenter functionalities - authentication of users, management of data sources",
+ *     @SWG\Contact(name="Stanislav Vojíř",email="stanislav.vojir@vse.cz"),
+ *     @SWG\License(name="BSD3")
+ *   )
  * )
  *
- * @SWG\Authorization(
+ * @SWG\SecurityScheme(
+ *   securityDefinition="api_key",
  *   type="apiKey",
- *   passAs="query",
- *   keyname="key"
+ *   in="query",
+ *   name="key"
  * )
+ *
+ *
+ * @SWG\Tag(
+ *   name="Auth",
+ *   description="Authentication of the user using API KEY"
+ * )
+ * @SWG\Tag(
+ *   name="Users",
+ *   description="Management of user accounts"
+ * )
+ * @SWG\Tag(
+ *   name="Rules",
+ *   description="Management of rules"
+ * )
+ * @SWG\Tag(
+ *   name="RuleSets",
+ *   description="Management of rule sets"
+ * )
+ *
  */
 abstract class BaseResourcePresenter extends ResourcePresenter {
   /** @var  UsersFacade $usersFacade */
-  private $usersFacade;
+  protected $usersFacade;
 
 
   /**
