@@ -288,6 +288,29 @@ class UsersFacade implements IAuthenticator{
   }
 
   /**
+   * Funkce pro autentifikaci uživatele pomocí API KEY
+   * @param string $apiKey
+   * @param User $user=null
+   * @throws AuthenticationException
+   * @return IIdentity
+   */
+  function authenticateUserByApiKey($apiKey, &$user=null) {
+    $apiKeyArr=User::decodeUserApiKey($apiKey);
+    try{
+      $user=$this->findUser($apiKeyArr['userId']);
+    }catch (\Exception $e){
+      throw new AuthenticationException('User account was not found.', self::IDENTITY_NOT_FOUND,$e);
+    }
+    if (!$user->active){
+      throw new AuthenticationException('User account is blocked.', self::NOT_APPROVED);
+    }
+    if ($user->apiKey!=$apiKeyArr['apiKey']){
+      throw new AuthenticationException('The API key is not valid.', self::IDENTITY_NOT_FOUND);
+    }
+    return $this->getUserIdentity($user);
+  }
+
+  /**
    * Funkce pro zaregistrování lokálního uživatelského účtu
    * @param array $params
    * @return User

@@ -41,9 +41,10 @@ class RouterFactory {
 
     #region router pro RestModule
     $router[] = $restRouter = new RouteList('Rest');
-    $restRouter[] = new Route(self::REST_MODULE_BASE_URL . 'auth[/<action=default>]', ['presenter' => 'Auth']);
+    $restRouter[] = new Route(self::REST_MODULE_BASE_URL . 'auth[/<action=read>]', ['presenter' => 'Auth']);
+    $restRouter[] = new Route(self::REST_MODULE_BASE_URL . 'swagger[/<action=ui>]', ['presenter' => 'Swagger']);
     $restRouter[] = new CrudRoute(self::REST_MODULE_BASE_URL . '<presenter>[/<id>[/<relation>[/<relationId>]]]', [], IResourceRouter::GET | IResourceRouter::POST | IResourceRouter::PUT | IResourceRouter::DELETE);
-    $restRouter[] = new Route(self::REST_MODULE_BASE_URL, ['presenter' => 'Homepage', 'action' => 'read']);
+    $restRouter[] = new Route(self::REST_MODULE_BASE_URL, ['presenter' => 'Default', 'action' => 'default']);
     #endregion
 
     $router[] = \EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter(self::INSTALL_MODULE_BASE_URL);

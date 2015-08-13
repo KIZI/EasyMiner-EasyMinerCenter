@@ -5,15 +5,13 @@ namespace EasyMinerCenter\RestModule\Presenters;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
-use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
-use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializer;
 use Drahak\Restful\Validation\IValidator;
-use Nette\Application\Responses\TextResponse;
+use Nette\NotImplementedException;
 
-/**
+/**FIXME swagger 2.0
  * Class RuleSetsPresenter - presenter pro práci s rulesety
  * @package EasyMinerCenter\KnowledgeBaseModule\Presenters
  */
@@ -22,8 +20,6 @@ class RulesPresenter extends BaseResourcePresenter{
   private $rulesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
-  /** @var  UsersFacade $usersFacade */
-  private $usersFacade;
 
   #region akce pro manipulaci s rulesetem
 
@@ -32,23 +28,25 @@ class RulesPresenter extends BaseResourcePresenter{
      * Akce vracející konkrétní pravidlo
      * @param int $id
      * @throws \Nette\Application\BadRequestException
-     * @SWG\Api(
+     * @SWG\Get(
+     *   tags={"Rules"},
      *   path="/rules/{id}",
-     *   @SWG\Operation(
-     *     method="GET",
-     *     summary="Get details of the rule",
-     *     authorizations="apiKey",
-     *     @SWG\Parameter(
-     *       name="id",
-     *       description="Rule ID",
-     *       required=true,
-     *       type="integer",
-     *       paramType="path",
-     *       allowMultiple=false
-     *     ),
-     *     type="RuleResponse",
-     *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
-     *   )
+     *   summary="Get details of the rule",
+     *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     description="Rule ID",
+     *     required=true,
+     *     type="integer",
+     *     in="path"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Rule details",
+     *     @SWG\Schema(ref="#/definitions/RuleResponse")
+     *   ),
+     *   @SWG\Response(response=404, description="Requested rule was not found.")
      * )
      */
     public function actionRead($id){
@@ -61,25 +59,28 @@ class RulesPresenter extends BaseResourcePresenter{
     #endregion actionRead
 
     #region actionCreate
-    /**FIXME
+    /**
      * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
-     * @SWG\Api(
-     *   path="/rule-sets",
-     *   @SWG\Operation(
-     *     method="POST",
-     *     summary="Create new rule set",
-     *     type="RuleSetResponse",
-     *     @SWG\Parameter(
-     *       description="RuleSet",
-     *       required=true,
-     *       type="RuleSetInput",
-     *       paramType="body"
-     *     ),
-     *     @SWG\ResponseMessages(
-     *       @SWG\ResponseMessage(code=201,message="RuleSet created successfully, returns details of RuleSet."),
-     *       @SWG\ResponseMessage(code=404,message="Requested RuleSet was not found.")
-     *     )
-     *   )
+     * @SWG\Post(
+     *   tags={"Rules"},
+     *   path="/rules",
+     *   summary="Create new rule set",
+     *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
+     *   consumes={"application/json","application/xml"},
+     *   @SWG\Parameter(
+     *     description="Rule",
+     *     name="rule",
+     *     required=true,
+     *     @SWG\Schema(ref="#/definitions/RuleInput"),
+     *     in="body"
+     *   ),
+     *   @SWG\Response(
+     *     response=201,
+     *     description="Rule created successfully, returns details of the Rule.",
+     *     @SWG\Schema(ref="#/definitions/RuleResponse")
+     *   ),
+     *   @SWG\Response(response=404,description="Requested RuleSet was not found.")
      * )
      */
     public function actionCreate(){
@@ -122,38 +123,44 @@ class RulesPresenter extends BaseResourcePresenter{
 
     #region actionUpdate
 
-    /**FIXME
+    /**
      * @param int $id
      * @throws \Nette\Application\BadRequestException
-     * @SWG\Api(
-     *   path="/rule-sets/{id}",
-     *   @SWG\Operation(
-     *     method="PUT",
-     *     summary="Update existing rule set",
-     *     authorizations="apiKey",
-     *     @SWG\Parameter(
-     *       name="id",
-     *       description="RuleSet ID",
-     *       required=true,
-     *       type="integer",
-     *       paramType="path",
-     *       allowMultiple=false
-     *     ),
-     *     @SWG\Parameter(
-     *       description="RuleSet",
-     *       required=true,
-     *       type="RuleSetInput",
-     *       paramType="body"
-     *     ),
-     *     type="RuleSetResponse",
-     *     @SWG\ResponseMessage(code=404, message="Requested rule set was not found.")
-     *   )
+     * @SWG\Put(
+     *   tags={"Rules"},
+     *   path="/rules/{id}",
+     *   summary="Update existing rule set",
+     *   security={{"apiKey":{}}},
+     *   produces={"application/json","application/xml"},
+     *   consumes={"application/json","application/xml"},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     description="RuleSet ID",
+     *     required=true,
+     *     type="integer",
+     *     in="path"
+     *   ),
+     *   @SWG\Parameter(
+     *     description="Rule",
+     *     name="rule",
+     *     required=true,
+     *     @SWG\Schema(ref="#/definitions/RuleInput"),
+     *     in="body"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Rule updated successfully. Returns details of the rule.",
+     *     @SWG\Schema(ref="#/definitions/RuleResponse")
+     *   ),
+     *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
      */
     public function actionUpdate($id){
       //prepare RuleSet from input values
+      //FIXME not implemented!
+      throw new NotImplementedException();
       /** @var RuleSet $ruleSet */
-      $ruleSet=$this->findRuleSetWithCheckAccess($id);
+      $ruleSet=$this->findRuleWithCheckAccess($id);
 
       /** @noinspection PhpUndefinedFieldInspection */
       $ruleSet->name=$this->input->name;
@@ -222,21 +229,23 @@ class RulesPresenter extends BaseResourcePresenter{
   #endregion injections
 }
 
-/**FIXME
- * @SWG\Model(
- *   id="RuleResponse",
- *   required="id",
- *   @SWG\Property(name="id",type="integer",description="Unique ID of the rule set"),
- *   @SWG\Property(name="name",type="string",description="Human-readable name of the rule set"),
- *   @SWG\Property(name="description",type="string",description="Description of the rule set"),
- *   @SWG\Property(name="rulesCount",type="boolean",description="Count of rules in the rule set")
+/** TODO zkontrolovat
+ * @SWG\Definition(
+ *   definition="RuleResponse",
+ *   title="Rule",
+ *   required={"id","name"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule set"),
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
+ *   @SWG\Property(property="description",type="string",description="Description of the rule set"),
+ *   @SWG\Property(property="rulesCount",type="boolean",description="Count of rules in the rule set")
  * )
- * @SWG\Model(
- *   id="RuleInput",
- *   required="id,name",
- *   @SWG\Property(name="id",type="integer",description="Unique ID of the rule set"),
- *   @SWG\Property(name="name",type="string",description="Human-readable name of the rule set"),
- *   @SWG\Property(name="description",type="string",description="Description of the rule set")
+ * @SWG\Definition(
+ *   definition="RuleInput",
+ *   title="Rule",
+ *   required={"id","name"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule set"),
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
+ *   @SWG\Property(property="description",type="string",description="Description of the rule set")
  * )
  *
  */

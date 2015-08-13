@@ -1,52 +1,36 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
 
-use EasyMinerCenter\Libs\StringsHelper;
-use EasyMinerCenter\Model\EasyMiner\Entities\User;
-use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
-use Nette\Application\UI\Presenter;
-
 /**
  * Class AuthPresenter
- * @package EasyMinerCenter\RestModule\Presenters
  *
- * @SWG\Resource(
- *   apiVersion="1.0.0",
- *   description="Authentication of the user using API KEY",
- *   basePath="BASE_PATH",
- *   resourcePath="/auth",
- *   produces="['application/json','application/xml']"
- * )
+ * @package EasyMinerCenter\RestModule\Presenters
  */
-class AuthPresenter extends Presenter {
+class AuthPresenter extends BaseResourcePresenter {
 
   /**
-   * @param string $key
-   * @SWG\Api(
+   * Akce pro ověření přihlášeného uživatele
+   * @SWG\Get(
+   *   tags={"Auth"},
    *   path="/auth",
-   *   @SWG\Operation(
-   *     method="GET",
-   *     summary="Authenticate current user",
-   *     authorizations={},
-   *     @SWG\Parameter(
-   *       name="key",
-   *       description="API KEY, which should be validated",
-   *       required=true,
-   *       type="string",
-   *       format="string",
-   *       paramType="query",
-   *       allowMultiple=false
-   *     ),
-   *     @SWG\ResponseMessage(code=400, message="Invalid ID supplied"),
-   *     @SWG\ResponseMessage(code=404, message="User not found")
+   *   summary="Authenticate current user",
+   *   produces={"application/json"},
+   *   security={{"apiKey":{}}},
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Successfully authenticated",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(
+   *     response=400,
+   *     description="Invalid ID supplied",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
    *   )
    * )
    */
-  public function actionDefault($key){
-
-    $this->terminate();
-    //$this->resource=['state'=>'ok'];
-    //$this->sendResource();
+  public function actionRead() {
+    $this->resource=['code'=>200,'status'=>'OK'];
+    $this->sendResource();
   }
 
 }
