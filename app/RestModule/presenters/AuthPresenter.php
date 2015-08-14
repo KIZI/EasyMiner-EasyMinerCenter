@@ -15,7 +15,7 @@ class AuthPresenter extends BaseResourcePresenter {
    *   path="/auth",
    *   summary="Authenticate current user",
    *   produces={"application/json","application/xml"},
-   *   security={{"apiKey":{}}},
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @SWG\Response(
    *     response=200,
    *     description="Successfully authenticated",

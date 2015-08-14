@@ -32,7 +32,7 @@ class RulesPresenter extends BaseResourcePresenter{
      *   tags={"Rules"},
      *   path="/rules/{id}",
      *   summary="Get details of the rule",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
@@ -65,7 +65,7 @@ class RulesPresenter extends BaseResourcePresenter{
      *   tags={"Rules"},
      *   path="/rules",
      *   summary="Create new rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   consumes={"application/json","application/xml"},
      *   @SWG\Parameter(
@@ -130,7 +130,7 @@ class RulesPresenter extends BaseResourcePresenter{
      *   tags={"Rules"},
      *   path="/rules/{id}",
      *   summary="Update existing rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   consumes={"application/json","application/xml"},
      *   @SWG\Parameter(

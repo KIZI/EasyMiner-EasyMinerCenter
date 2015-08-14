@@ -32,7 +32,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}",
      *   summary="Get details of the rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
@@ -71,7 +71,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}",
      *   summary="Remove rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
@@ -108,7 +108,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets",
      *   summary="Create new rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json", "application/xml"},
      *   consumes={"application/json", "application/xml"},
      *   @SWG\Parameter(
@@ -180,7 +180,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}",
      *   summary="Update existing rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   consumes={"application/json","application/xml"},
      *   @SWG\Parameter(
@@ -257,7 +257,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets",
      *   summary="List rule sets for the current user",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   consumes={"application/json","application/xml"},
      *   @SWG\Response(
@@ -305,7 +305,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}/rules",
      *   summary="List rules saved in the selected rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
@@ -377,7 +377,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}/rules",
      *   summary="Add rules into the selected rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",
@@ -443,7 +443,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}/rules",
      *   summary="Remove rules from the selected rule set",
-     *   security={{"apiKey":{}}},
+     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
      *   produces={"application/json","application/xml"},
      *   @SWG\Parameter(
      *     name="id",

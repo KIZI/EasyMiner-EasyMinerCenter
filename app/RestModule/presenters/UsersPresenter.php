@@ -24,7 +24,7 @@ class UsersPresenter extends BaseResourcePresenter {
    *   tags={"Users"},
    *   path="/users/{id}/apiKey",
    *   summary="Get API KEY for the selected user account",
-   *   security={{"apiKey":{}}},
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   produces={"text/plain"},
    *   @SWG\Parameter(
    *     name="id",
@@ -56,7 +56,7 @@ class UsersPresenter extends BaseResourcePresenter {
    *   tags={"Users"},
    *   path="/users/{id}",
    *   summary="Get details of the user account",
-   *   security={{"apiKey":{}}},
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   produces={"application/json","application/xml"},
    *   @SWG\Parameter(
    *     name="id",
@@ -94,7 +94,7 @@ class UsersPresenter extends BaseResourcePresenter {
    *   tags={"Users"},
    *   path="/users/{id}",
    *   summary="Remove user account",
-   *   security={{"apiKey":{}}},
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @-SWG\Parameter(
    *     name="id",
    *     description="User ID",
@@ -187,7 +187,7 @@ class UsersPresenter extends BaseResourcePresenter {
    *   tags={"Users"},
    *   path="/users/{id}",
    *   summary="Update existing user account",
-   *   security={{"apiKey":{}}},
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   consumes={"application/json","application/xml"},
    *   produces={"application/json","application/xml"},
    *   @SWG\Parameter(
