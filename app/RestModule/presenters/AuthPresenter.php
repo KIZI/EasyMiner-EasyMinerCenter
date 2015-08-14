@@ -14,23 +14,39 @@ class AuthPresenter extends BaseResourcePresenter {
    *   tags={"Auth"},
    *   path="/auth",
    *   summary="Authenticate current user",
-   *   produces={"application/json"},
+   *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}}},
    *   @SWG\Response(
    *     response=200,
    *     description="Successfully authenticated",
-   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *     @SWG\Schema(
+   *       required={"id","name"},
+   *       @SWG\Property(property="id",type="integer",description="Authenticated user ID"),
+   *       @SWG\Property(property="name",type="string",description="Authenticated user name"),
+   *       @SWG\Property(property="email",type="string",description="Authenticated user e-mail"),
+   *       @SWG\Property(
+   *         property="role",
+   *         type="array",
+   *         description="Authenticated user roles",
+   *         @SWG\Items(type="string")
+   *       ),
+   *     )
    *   ),
    *   @SWG\Response(
    *     response=400,
-   *     description="Invalid ID supplied",
+   *     description="Invalid API key supplied",
    *     @SWG\Schema(ref="#/definitions/StatusResponse")
    *   )
    * )
    */
   public function actionRead() {
-    $this->resource=['code'=>200,'status'=>'OK'];
+    $identity=$this->identity;
+    if (!empty($identity->data)){
+      $identityData=$identity->data;
+    }else{
+      $identityData=[];
+    }
+    $this->resource=['id'=>$identity->getId(),'name'=>@$identityData['name'],'email'=>@$identityData['email'],'role'=>$identity->getRoles()];
     $this->sendResource();
   }
-
 }
