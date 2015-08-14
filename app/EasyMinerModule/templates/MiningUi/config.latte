@@ -41,6 +41,13 @@ var Config = new Class({
   ruleClipboardAddToKnowledgeBaseUrl: {plink RuleClipboard:addRulesToRuleSet miner=>'__MINERID__',task=>'__TASKID__',ruleset=>'__RULESETID__',relation=>'__RELATION__'},
   ruleClipboardRemoveFromKnowledgeBaseUrl: {plink RuleClipboard:removeRulesFromRuleSet miner=>'__MINERID__',task=>'__TASKID__',ruleset=>'__RULESETID__'},
 
+  ruleClipboardExportLinks: {l}
+    guhaPmml:{l}text:"GUHA PMML",url:{plink Tasks:taskDetails miner=>'__MINERID__',task=>'__TASKID__'}{r},
+  {r},
+
+  knowledgeBaseExportLinks: {l}
+    drl:{l}text:"Drools DRL",url:{plink RuleSets:drl id=>'__RULESETID__'}{r}
+  {r},
 
   knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
   knowledgeBaseGetRuleSetsUrl: {plink RuleSets:list},
@@ -263,6 +270,24 @@ var Config = new Class({
   //endregion
   getTaskRenameUrl: function (taskId, newName) {
     return this.taskRenameUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__NAME__',newName);
+  },
+
+  getRuleClipboardExportLinks: function(taskId){
+    var links=this.ruleClipboardExportLinks;
+    for (var linkId in links){
+      var url=links[linkId].url;
+      links[linkId].url=url.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
+    }
+    return links;
+  },
+
+  getKnowledgeBaseExportLinks: function(rulesetId){
+    var links=this.knowledgeBaseExportLinks;
+    for (var linkId in links){
+      var url=links[linkId].url;
+      links[linkId].url=url.replace('__RULESETID__',rulesetId);
+    }
+    return links;
   },
 
   getPerPageOptions: function(){
