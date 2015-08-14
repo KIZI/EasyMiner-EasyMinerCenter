@@ -271,8 +271,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * )
      */
     public function actionList(){
-      $ruleSets=$this->ruleSetsFacade->findRuleSetsByUser($this->user->id);
       $result=[];
+      $ruleSets=$this->ruleSetsFacade->findRuleSetsByUser($this->getCurrentUser());
       if (empty($ruleSets)) {
         //pokud není nalezen ani jeden RuleSet, jeden založíme...
         $ruleSet=new RuleSet();
@@ -286,6 +286,9 @@ class RuleSetsPresenter extends BaseResourcePresenter{
           $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
         }
       }
+      //TODO test
+      $this->getXmlMapper()->setElements('rulesets','ruleset');
+      //XXX
       $this->resource=$result;
       $this->sendResource();
     }
@@ -349,14 +352,17 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       }else{
         $ruleSetRuleRelations=$ruleSet->ruleSetRuleRelations;
       }
+
+      $rulesArr=[];
       if (!empty($ruleSetRuleRelations)){
         foreach($ruleSetRuleRelations as $ruleSetRuleRelation){
           $rule=$ruleSetRuleRelation->rule;
           $ruleDataArr=$rule->getBasicDataArr();
           $ruleDataArr['relation']=$ruleSetRuleRelation->relation;
-          $result['rules'][$rule->ruleId]=$ruleDataArr;
+          $rulesArr[]=$ruleDataArr;
         }
       }
+      $result['rule']=$rulesArr;
       $this->resource=$result;
       $this->sendResource();
     }
@@ -509,6 +515,14 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     //kontrola možnosti pracovat s daným rule setem
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->getCurrentUser()->userId);
     return $ruleSet;
+  }
+
+  /**
+   * FIXME implement
+   * @return \EasyMinerCenter\RestModule\Model\Mappers\XmlMapper
+   */
+  public function getXmlMapper() {
+    return $this->context->getService("restful.xmlMapper");
   }
 
 

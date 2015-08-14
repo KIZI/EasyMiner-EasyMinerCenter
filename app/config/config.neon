@@ -62,6 +62,7 @@ services:
 	- EasyMinerCenter\RouterFactory
 	router: @EasyMinerCenter\RouterFactory::createRouter
 	translator: EasyMinerCenter\Model\BlankTranslator
+	restful.xmlMapper: EasyMinerCenter\RestModule\Model\Mappers\XmlMapper
 
 	- IZI\IZIConfig(%izi-ui%)
 

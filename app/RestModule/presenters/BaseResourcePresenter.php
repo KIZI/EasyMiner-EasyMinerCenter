@@ -74,7 +74,7 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
     if (empty($key)) {
       throw new AuthenticationException("You have to use API KEY!",IAuthenticator::FAILURE);
     }else{
-      $this->identity=$this->usersFacade->authenticateUserByApiKey($key);
+      $this->identity=$this->usersFacade->authenticateUserByApiKey($key,$this->currentUser);
     }
   }
 

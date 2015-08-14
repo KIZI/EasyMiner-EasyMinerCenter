@@ -26,7 +26,7 @@ class RuleSet extends Entity{
     return [
       'id'=>$this->ruleSetId,
       'name'=>$this->name,
-      'description'=>$this->description,
+      'description'=>(!empty($this->description)?$this->description:""),
       'rulesCount'=>$this->rulesCount
     ];
   }
