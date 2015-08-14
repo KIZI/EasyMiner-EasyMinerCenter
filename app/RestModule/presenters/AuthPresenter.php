@@ -46,6 +46,7 @@ class AuthPresenter extends BaseResourcePresenter {
     }else{
       $identityData=[];
     }
+    $this->setXmlMapperElements('user');
     $this->resource=['id'=>$identity->getId(),'name'=>@$identityData['name'],'email'=>@$identityData['email'],'role'=>$identity->getRoles()];
     $this->sendResource();
   }

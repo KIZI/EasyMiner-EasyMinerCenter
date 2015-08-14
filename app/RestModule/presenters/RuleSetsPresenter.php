@@ -280,15 +280,13 @@ class RuleSetsPresenter extends BaseResourcePresenter{
         $ruleSet->user=$user;
         $ruleSet->name=$user->name;
         $this->ruleSetsFacade->saveRuleSet($ruleSet);
-        $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
+        $result[]=$ruleSet->getDataArr();
       }else{
         foreach ($ruleSets as $ruleSet){
-          $result[$ruleSet->ruleSetId]=$ruleSet->getDataArr();
+          $result[]=$ruleSet->getDataArr();
         }
       }
-      //TODO test
-      $this->getXmlMapper()->setElements('rulesets','ruleset');
-      //XXX
+      $this->setXmlMapperElements('rulesets','ruleset');
       $this->resource=$result;
       $this->sendResource();
     }
@@ -516,15 +514,6 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->getCurrentUser()->userId);
     return $ruleSet;
   }
-
-  /**
-   * FIXME implement
-   * @return \EasyMinerCenter\RestModule\Model\Mappers\XmlMapper
-   */
-  public function getXmlMapper() {
-    return $this->context->getService("restful.xmlMapper");
-  }
-
 
   #region injections
   /**

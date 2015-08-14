@@ -6,6 +6,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Drahak\Restful\Application\UI\ResourcePresenter;
 use Drahak\Restful\Http\IInput;
 use Drahak\Restful\Validation\IDataProvider;
+use EasyMinerCenter\RestModule\Model\Mappers\XmlMapper;
 use Nette\Application\Responses\TextResponse;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IAuthenticator;
@@ -62,6 +63,8 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   protected $identity=null;
   /** @var User $currentUser = null */
   protected $currentUser=null;
+  /** @var XmlMapper $xmlMapper */
+  protected $xmlMapper=null;
 
   /**
    * @throws AuthenticationException
@@ -71,6 +74,10 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   public function startup() {
     parent::startup();
     $key=@$this->getInput()->getData()['key'];
+    if (empty($key)){
+      $authorizationHeader=$this->getHttpRequest()->getHeader('Authorization');
+      $key=(substr($authorizationHeader,0,7)=="ApiKey "?substr($authorizationHeader,7):null);
+    }
     if (empty($key)) {
       throw new AuthenticationException("You have to use API KEY!",IAuthenticator::FAILURE);
     }else{
@@ -96,12 +103,34 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
     $this->sendResponse(new TextResponse(($simpleXml instanceof \SimpleXMLElement?$simpleXml->asXML():$simpleXml)));
   }
 
+
+  /**
+   * Funkce pro nastavení specifikace XML elementů
+   * @param string $rootElement
+   * @param string $itemElement
+   */
+  protected function setXmlMapperElements($rootElement, $itemElement="") {
+    $this->xmlMapper->setRootElement($rootElement);
+    //TODO set namespace
+    if (!empty($itemElement)){
+      $this->xmlMapper->setItemElement($itemElement);
+    }
+  }
+
+
   #region injections
   /**
    * @param UsersFacade $usersFacade
    */
   public function injectUsersFacade(UsersFacade $usersFacade){
     $this->usersFacade=$usersFacade;
+  }
+
+  /**
+   * @param XmlMapper $xmlMapper
+   */
+  public function injectXmlMapper(XmlMapper $xmlMapper) {
+    $this->xmlMapper=$xmlMapper;
   }
   #endregion
 }

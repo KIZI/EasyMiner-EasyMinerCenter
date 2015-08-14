@@ -20,42 +20,37 @@ use Drahak\Restful\InvalidArgumentException;
  */
 class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
-  /** @internal */
   const ITEM_ELEMENT='item';
-  private $itemElement='item';
+  private $itemElement=self::ITEM_ELEMENT;
+  private $rootElement="root";
+  private $rootNamespace="";
 
   /** @var DOMDocument */
   private $xml;
 
-  /** @var null|string */
-  private $rootElement;
 
   /**
    * Funkce pro nastavení výchozích elementů
    *
    * @param string $rootElement
-   * @param string $itemElement
-   */
-  public function setElements($rootElement, $itemElement) {
-    $this->setRootElement($rootElement);
-    $this->setItemElement($itemElement);
-  }
-
-  /**
-   * Set XML root element
-   *
-   * @param string|null $rootElement
+   * @param string $rootNamespace=""
    * @return XmlMapper
    *
    * @throws InvalidArgumentException
    */
-  public function setRootElement($rootElement) {
+  public function setRootElement($rootElement, $rootNamespace="") {
     if(!is_string($rootElement) && $rootElement!==null) {
       throw new InvalidArgumentException('Root element must be of type string or null if disabled');
     }
     $this->rootElement=$rootElement;
+
+    if ($rootNamespace!=''){
+      $this->rootNamespace=$rootNamespace;
+    }
     return $this;
+
   }
+
 
   /**
    * Set XML item element
@@ -104,6 +99,9 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
     $this->xml->formatOutput=$prettyPrint;
     $this->xml->preserveWhiteSpace=$prettyPrint;
     $root=$this->xml->createElement($this->rootElement);
+    if (!empty($rootNamespace)){
+      $root->namespaceURI=$root;
+    }
     $this->xml->appendChild($root);
     $this->toXml($data, $root, $this->itemElement);
     return $this->xml->saveXML();
