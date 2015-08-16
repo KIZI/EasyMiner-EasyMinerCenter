@@ -43,6 +43,7 @@ class RouterFactory {
     $router[] = $restRouter = new RouteList('Rest');
     $restRouter[] = new Route(self::REST_MODULE_BASE_URL . 'auth[/<action=read>]', ['presenter' => 'Auth']);
     $restRouter[] = new Route(self::REST_MODULE_BASE_URL . 'swagger[/<action=ui>]', ['presenter' => 'Swagger']);
+    $restRouter[] = new CrudRoute(self::REST_MODULE_BASE_URL . 'databases/<dbType>[/<id>[/<relation>[/<relationId>]]]', ['presenter'=>'Databases'], IResourceRouter::GET | IResourceRouter::POST | IResourceRouter::PUT | IResourceRouter::DELETE);
     $restRouter[] = new CrudRoute(self::REST_MODULE_BASE_URL . '<presenter>[/<id>[/<relation>[/<relationId>]]]', [], IResourceRouter::GET | IResourceRouter::POST | IResourceRouter::PUT | IResourceRouter::DELETE);
     $restRouter[] = new Route(self::REST_MODULE_BASE_URL, ['presenter' => 'Default', 'action' => 'default']);
     #endregion
