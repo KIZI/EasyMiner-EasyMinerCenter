@@ -50,7 +50,11 @@
 
           <a id="headerAppsLink" href="#">{_'Menu'}</a>
           {if !empty($includeHelp)}
-            <a class="help"  id="headerHelpLink" href="#" onclick="helpRun('{$includeHelp|noescape}');">{_'Help'}</a>
+            {* //TODO přepsat na lepší konstrukci *}
+            <script type="text/javascript">
+              var help=new EMHelp({l}'dataDirectoryUrl':'/easyminercenter/_help/xml/','dataFile':'miningUI','lang':'en'{r});
+            </script>
+            <a class="help"  id="headerHelpLink" href="#" onclick="help.show();">{_'Help'}</a>
           {/if}
         {/block}
       </div>
