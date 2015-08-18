@@ -57,7 +57,7 @@ class WizardPresenter extends Presenter {
     $statesArr=[];
     if(!empty($writableDirectories)) {
       foreach($writableDirectories as $directory=>$state) {
-        $statesArr['Directory: .'.$directory]=$state;
+        $statesArr['Directory: '.(Strings::startsWith($directory,'/')?'.':'').$directory]=$state;
         if(!$state) {
           $stateError=true;
         }
@@ -65,7 +65,7 @@ class WizardPresenter extends Presenter {
     }
     if(!empty($writableFiles)) {
       foreach($writableFiles as $file=>$state) {
-        $statesArr['File: '.$file]=$state;
+        $statesArr['File: '.(Strings::startsWith($file,'/')?'.':'').$file]=$state;
         if(!$state) {
           $stateError=true;
         }

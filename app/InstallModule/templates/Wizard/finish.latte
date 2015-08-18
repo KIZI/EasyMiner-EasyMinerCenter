@@ -11,7 +11,7 @@
     </tr>
     {foreach $readonlyFiles as $file=>$state}
       <tr>
-        <td>{$file}</td>
+        <td>{if ($file[0]=='/')}.{/if}{$file}</td>
         {if $state}
           <td class="stateOk">OK</td>
         {else}

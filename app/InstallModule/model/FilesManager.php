@@ -44,7 +44,7 @@ class FilesManager {
     if (!$file){
       if (file_exists($filenamePath) && $chmod){
         @chmod($filenamePath,0666);
-        return self::checkWritableFile($filename);
+        return self::checkWritableFile($filename, false);
       }
       return false;
     }
