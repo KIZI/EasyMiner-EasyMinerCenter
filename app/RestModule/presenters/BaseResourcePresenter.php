@@ -24,7 +24,7 @@ use Nette\Security\IIdentity;
  *   @SWG\Info(
  *     title="EasyMinerCenter REST API",
  *     version="%VERSION%",
- *     description="API for access to EasyMinerCenter functionalities - authentication of users, management of data sources. All resources are secured with the API key. Please append ?key={yourKey} to all your requests. Alternatively, you can send the header 'Authorization: ApiKey {yourKey}'",
+ *     description="API for access to EasyMinerCenter functionalities - authentication of users, management of data sources. All resources are secured with the API key. Please append ?apiKey={yourKey} to all your requests. Alternatively, you can send the header 'Authorization: ApiKey {yourKey}'",
  *     @SWG\Contact(name="Stanislav Vojíř",email="stanislav.vojir@vse.cz"),
  *     @SWG\License(name="BSD3",url="http://opensource.org/licenses/BSD-3-Clause")
  *   )
@@ -34,7 +34,7 @@ use Nette\Security\IIdentity;
  *   securityDefinition="apiKey",
  *   type="apiKey",
  *   in="query",
- *   name="key"
+ *   name="apiKey"
  * )
  * @SWG\SecurityScheme(
  *   securityDefinition="apiKeyHeader",
@@ -79,15 +79,15 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
    */
   public function startup() {
     parent::startup();
-    $key=@$this->getInput()->getData()['key'];
-    if (empty($key)){
+    $apiKey=@$this->getInput()->getData()['apiKey'];
+    if (empty($apiKey)){
       $authorizationHeader=$this->getHttpRequest()->getHeader('Authorization');
-      $key=(substr($authorizationHeader,0,7)=="ApiKey "?substr($authorizationHeader,7):null);
+      $apiKey=(substr($authorizationHeader,0,7)=="ApiKey "?substr($authorizationHeader,7):null);
     }
-    if (empty($key)) {
+    if (empty($apiKey)) {
       throw new AuthenticationException("You have to use API KEY!",IAuthenticator::FAILURE);
     }else{
-      $this->identity=$this->usersFacade->authenticateUserByApiKey($key,$this->currentUser);
+      $this->identity=$this->usersFacade->authenticateUserByApiKey($apiKey,$this->currentUser);
     }
   }
 
