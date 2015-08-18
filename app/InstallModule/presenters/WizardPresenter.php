@@ -470,6 +470,7 @@ class WizardPresenter extends Presenter {
             'clientSecret'=>'xxxxxxxxxxxxxxxxxxxxxxxx'
           ];
         }
+        $configManager->saveConfig();
         $this->redirect($this->getNextStep('logins'));
       };
     return $form;
