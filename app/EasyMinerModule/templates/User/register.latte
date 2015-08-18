@@ -4,7 +4,7 @@
 
   <div id="loginPage">
     <h1 n:block=title>{_'EasyMiner sign up'}</h1>
-    <p>{_'You can register, or use your social-network account...'}</p>
+    <p n:if="(@$allowFacebook || @$allowGoogle)">{_'You can register, or use your social-network account...'}</p>
 
     {form registrationForm}
       <div>{label name /}{input name}<span class="error" n:ifcontent>{inputError name}</span></div>
@@ -17,9 +17,14 @@
       </div>
     {/form}
 
-    <div class="otherLogins">
-      <a n:href="facebookLogin-open!" class="facebookLogin button">{_'Log in using Facebook...'}</a>
-      <a n:href="googleLogin-open!" class="googleLogin button">{_'Log in using Google...'}</a>
+
+    <div class="otherLogins" n:if="(@$allowFacebook || @$allowGoogle)">
+      {if @$allowFacebook}
+        <a n:href="facebookLogin-open!" class="facebookLogin button">{_'Log in using Facebook...'}</a>
+      {/if}
+      {if @$allowGoogle}
+        <a n:href="googleLogin-open!" class="googleLogin button">{_'Log in using Google...'}</a>
+      {/if}
     </div>
   </div>
 

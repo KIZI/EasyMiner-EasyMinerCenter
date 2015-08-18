@@ -30,8 +30,12 @@ class UserPresenter  extends BasePresenter{
   /** @persistent */
   public $url;
 
+  /**
+   * Akce vracející json detaily o aktuálním uživateli
+   */
   public function actionInfo(){
     if ($identity=$this->getUser()->identity){
+      /** @noinspection PhpUndefinedFieldInspection */
       $this->sendJsonResponse(array(
         'name'=>$identity->name,
         'email'=>$identity->email,
@@ -87,6 +91,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
+   * Akce pro vyrenderování stránky pro obnovu zapomenutého hesla
    * @param int|null $id
    * @param string|null $user=null
    * @param string|null $code=null
@@ -145,7 +150,6 @@ class UserPresenter  extends BasePresenter{
    */
   public function renderLogin() {
     //kontrola podpory sociálních sítí
-
     /** @var FacebookLoginDialog $facebookLogin */
     $facebookLogin=$this->getComponent('facebookLogin');
     $this->template->allowFacebook=(!empty($facebookLogin->facebook->config->appId));
@@ -155,7 +159,9 @@ class UserPresenter  extends BasePresenter{
     $this->template->allowGoogle=(!empty($googleLogin->getGoogle()->getConfig()->clientId));
   }
 
-
+  /**
+   * Akce pro kontrolu nepřihlášeného uživatele před registrací
+   */
   public function actionRegister(){
     if ($this->user->isLoggedIn()){
       //pokud je uživatel už přihlášen, nedovolíme mu registrovat nový účet
@@ -164,6 +170,24 @@ class UserPresenter  extends BasePresenter{
     }
   }
 
+  /**
+   * View pro registraci uživatele
+   */
+  public function renderRegister() {
+    //kontrola podpory sociálních sítí
+    /** @var FacebookLoginDialog $facebookLogin */
+    $facebookLogin=$this->getComponent('facebookLogin');
+    $this->template->allowFacebook=(!empty($facebookLogin->facebook->config->appId));
+
+    /** @var GoogleLoginDialog $googleLogin */
+    $googleLogin=$this->getComponent('googleLogin');
+    $this->template->allowGoogle=(!empty($googleLogin->getGoogle()->getConfig()->clientId));
+  }
+
+  /**
+   * Registrační formulář
+   * @return Form
+   */
   protected function createComponentRegistrationForm(){
     $form = new Nette\Application\UI\Form();
     $presenter=$this;
@@ -196,17 +220,17 @@ class UserPresenter  extends BasePresenter{
       ->addRule(Nette\Forms\Form::FILLED,'You have to input your password!')
       ->addRule(Nette\Forms\Form::EQUAL,'Passwords do not match!',$password);
 
-    $form->addSubmit('submit', 'Sign up...')
-      ->setAttribute('class','button');
-
-    $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values) use ($presenter){
+    $submitButton=$form->addSubmit('submit', 'Sign up...');
+    $submitButton->setAttribute('class','button');
+    $submitButton->onClick[]=function(SubmitButton $submitButton){
+      $values=$submitButton->getForm(true)->getValues(true);
       try{
-        $presenter->usersFacade->registerUser($values);
+        $this->usersFacade->registerUser($values);
       }catch (Exception $e){
-        $presenter->flashMessage('Welcome! Your user account was successfully registered.');
+        $this->flashMessage('Welcome! Your user account was successfully registered.');
       }
-      $presenter->getUser()->login($values['email'],$values['password']);
-      $presenter->finalRedirect();
+      $this->getUser()->login($values['email'],$values['password']);
+      $this->finalRedirect();
     };
     return $form;
   }
