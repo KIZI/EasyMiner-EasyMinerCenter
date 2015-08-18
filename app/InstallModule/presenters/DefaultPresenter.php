@@ -13,7 +13,7 @@ use Nette\Utils\Json;
 class DefaultPresenter extends Presenter{
 
   /**
-   * Akce pro zobrazenÌ homepage instal·toru
+   * Akce pro zobrazen√≠ homepage instal√°toru
    */
   public function renderDefault(){
     //kontrola verze PHP
