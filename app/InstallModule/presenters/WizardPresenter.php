@@ -127,6 +127,9 @@ class WizardPresenter extends Presenter {
     }else{
       $stornoButton->setDisabled(true);
     }
+    if ($configManager->isSetInstallationPassword()){
+      $this->template->installed=true;
+    }
   }
 
   /**

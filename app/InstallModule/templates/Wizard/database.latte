@@ -1,5 +1,7 @@
 {block installer}
   <h1>EasyMinerCenter Installer</h1>
   <h2 n:inner-block="title">Database for the application data</h2>
+  <p>This database will be used for the application data (user accounts, results of data mining tasks etc.)</p>
+  <p n:if="$installed">If you have already installed this application and you do not want to change the main application database, you should skip the database creation!</p>
 
   {control mainDatabaseForm}
