@@ -57,7 +57,7 @@ class WizardPresenter extends Presenter {
     $statesArr=[];
     if(!empty($writableDirectories)) {
       foreach($writableDirectories as $directory=>$state) {
-        $statesArr['Directory: '.$directory]=$state;
+        $statesArr['Directory: .'.$directory]=$state;
         if(!$state) {
           $stateError=true;
         }
@@ -155,7 +155,7 @@ class WizardPresenter extends Presenter {
     /** @var Form $form */
     $form=$this->getComponent('loginsForm');
 
-    if(!empty($configManager->data['facebook'])) {
+    if(!empty($configManager->data['facebook']) && !empty($configManager->data['facebook']['appId'])) {
       //set currently defined params
       try{
         $form->setDefaults([
@@ -166,7 +166,7 @@ class WizardPresenter extends Presenter {
       }catch (\Exception $e){/*ignore error*/}
     }
 
-    if(!empty($configManager->data['google'])) {
+    if(!empty($configManager->data['google']) && !empty($configManager->data['google']['clientId'])) {
       //set currently defined params
       try{
         $form->setDefaults([
@@ -196,13 +196,13 @@ class WizardPresenter extends Presenter {
         /** @var Form $form */
         $form=$this->getComponent('minersForm');
         $defaultsArr=[];
-        if (empty($configManagerValuesArr['driver_r'])){
+        if (empty($configManagerValuesArr['driver_r']) || empty($configManagerValuesArr['driver_r']['server'])){
           $defaultsArr['allow_driverR']=0;
         }else{
           $defaultsArr['allow_driverR']=1;
           $defaultsArr['driverRServer']=$configManagerValuesArr['driver_r']['server'].@$configManagerValuesArr['driver_r']['minerUrl'];
         }
-        if (empty($configManagerValuesArr['driver_lm'])){
+        if (empty($configManagerValuesArr['driver_lm']) || empty($configManagerValuesArr['driver_lm']['server'])){
           $defaultsArr['allow_driverLM']=0;
         }else{
           $defaultsArr['allow_driverLM']=1;
