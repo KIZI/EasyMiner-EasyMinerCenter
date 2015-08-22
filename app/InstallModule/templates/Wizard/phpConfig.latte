@@ -1,0 +1,53 @@
+{block installer}
+  <h1>EasyMinerCenter Installer</h1>
+  <h2 n:inner-block="title">Server &amp; PHP config</h2>
+  <p>The following configuration requirements have to be passed. If you do not know, how to set up this configuration, please see the <a href="https://github.com/KIZI/EasyMiner-EasyMinerCenter/wiki/Server-configuration">project wiki</a></p>
+
+  <table class="statesTable">
+    <tr>
+      <th>Request</th>
+      <th>State</th>
+    </tr>
+    {foreach $resultsArr as $type=>$results}
+      {foreach $results as $result}
+        <tr>
+          <td>
+            {$result['title']}
+            {if !$result['passed']}
+              <div class="description">{$result['description']|noescape}</div>
+            {/if}
+          </td>
+          {if $result['passed']}
+            <td class="stateOk">
+              {if !empty($result['message'])}
+                {$result['message']}
+              {else}
+                OK
+              {/if}
+            </td>
+          {else}
+            <td n:class="$result['required']?stateErr:stateWarn">
+              {if !empty($result['errorMessage'])}
+                {$result['errorMessage']}
+              {elseif !empty($result['message'])}
+                {$result['message']}
+              {else}
+                Error
+              {/if}
+            </td>
+          {/if}
+        </tr>
+      {/foreach}
+    {/foreach}
+  </table>
+
+  <div class="actions">
+    {if $resultsArrCheck==\EasyMinerCenter\InstallModule\Model\PhpConfigManager::STATE_ALL_OK}
+      <a href="{$continueUrl}">Continue...</a>
+    {elseif $resultsArrCheck!=\EasyMinerCenter\InstallModule\Model\PhpConfigManager::STATE_ERRORS}
+      <a href="{link this}">Reload...</a>
+      <a href="{$continueUrl}">Continue...</a>
+    {else}
+      <a href="{link this}">Reload...</a>
+    {/if}
+  </div>

@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\InstallModule\Presenters;
 
 use EasyMinerCenter\InstallModule\Model\FilesManager;
+use EasyMinerCenter\InstallModule\Model\PhpConfigManager;
 use Nette\Application\UI\Presenter;
 use Nette\Utils\Json;
 
@@ -17,11 +18,9 @@ class DefaultPresenter extends Presenter{
    */
   public function renderDefault(){
     //kontrola verze PHP
-    $composerConfig=Json::decode(file_get_contents(FilesManager::getRootDirectory().'/composer.json'),Json::FORCE_ARRAY);
-    $phpVersion=$composerConfig['require']['php'];
-    $phpVersion=ltrim($phpVersion,'>=~ ');
-    $this->template->phpVersion=$phpVersion;
-    $this->template->phpVersionCheck=version_compare(PHP_VERSION,$phpVersion,'>=');
+    $phpMinVersion=PhpConfigManager::getPhpMinVersion();
+    $this->template->phpVersion=$phpMinVersion;
+    $this->template->phpVersionCheck=PhpConfigManager::checkPhpMinVersion($phpMinVersion);
   }
 
 }

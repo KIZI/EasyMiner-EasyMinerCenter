@@ -5,6 +5,7 @@ namespace EasyMinerCenter\InstallModule\Presenters;
 use EasyMinerCenter\InstallModule\Model\ConfigManager;
 use EasyMinerCenter\InstallModule\Model\DatabaseManager;
 use EasyMinerCenter\InstallModule\Model\FilesManager;
+use EasyMinerCenter\InstallModule\Model\PhpConfigManager;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\Mining\MiningDriverFactory;
 use Nette\Application\UI\Form;
@@ -28,6 +29,7 @@ class WizardPresenter extends Presenter {
   /** @var array $wizardSteps - pole s definicí jednotlivých kroků instalačního wizardu */
   private $wizardSteps=[
     'default',
+    'phpConfig',    //kontrola nastavení PHP (dostupnosti potřebných funkcí atp.)
     'files',        //kontrola přístupů k souborům a adresářům
     'timezone',     //nastavení časové zóny
     'database',     //inicializace aplikační databáze
@@ -44,6 +46,18 @@ class WizardPresenter extends Presenter {
    */
   public function actionDefault() {
     $this->redirect($this->getNextStep('default'));
+  }
+
+  public function actionPhpConfig() {
+    $resultsArr=PhpConfigManager::getTestResultsArr();
+    $resultsArrCheck=PhpConfigManager::checkTestResultsArrState($resultsArr);
+    if ($resultsArrCheck==PhpConfigManager::STATE_ALL_OK){
+      //pokud jsou všechny direktivy v pořádku, provedeme přesměrování
+      $this->redirect($this->getNextStep('phpConfig'));
+    }
+    $this->template->resultsArrCheck=$resultsArrCheck;
+    $this->template->resultsArr=$resultsArr;
+    $this->template->continueUrl=$this->getNextStep('phpConfig');
   }
 
   /**
