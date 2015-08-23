@@ -40,6 +40,7 @@ class MinersPresenter extends BaseResourcePresenter{
    * )
    */
   public function actionRead($id=null){
+    $this->setXmlMapperElements('miner');
     if (empty($id)){$this->forward('list');return;}
     $miner=$this->findMinerWithCheckAccess($id);
     $this->resource=$miner->getDataArr();
@@ -68,6 +69,7 @@ class MinersPresenter extends BaseResourcePresenter{
    * )
    */
   public function actionList() {
+    $this->setXmlMapperElements('miners','miner');
     $currentUser=$this->getCurrentUser();
     $miners=$this->minersFacade->findMinersByUser($currentUser);
     $result=[];
@@ -83,6 +85,69 @@ class MinersPresenter extends BaseResourcePresenter{
     $this->resource=$result;
     $this->sendResource();
   }
+
+  /**
+   * Akce vracející seznam úloh asociovaných s vybraným minerem
+   * @param $id
+   * @throws BadRequestException
+   *
+   * @SWG\Get(
+   *   tags={"Miners"},
+   *   path="/miners/{id}/tasks",
+   *   summary="Get list of tasks in the selected miner",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Miner ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="List of tasks",
+   *     @SWG\Schema(
+   *       @SWG\Property(property="miner",ref="#/definitions/MinerBasicResponse"),
+   *       @SWG\Property(
+   *         property="task",
+   *         type="array",
+   *         @SWG\Items(ref="#/definitions/TaskBasicResponse")
+   *       )
+   *     )
+   *   ),
+   *   @SWG\Response(response=404, description="Requested miner was not found.")
+   * )
+   */
+  public function actionReadTasks($id) {
+    $this->setXmlMapperElements('miner');
+    if (empty($id)){$this->forward('list');return;}
+    $miner=$this->findMinerWithCheckAccess($id);
+
+    $result=[
+      'miner'=>[
+        'id'=>$miner->minerId,
+        'name'=>$miner->name,
+        'type'=>$miner->type
+      ],
+      'task'=>[]
+    ];
+    $tasks=$miner->tasks;
+    if (!empty($tasks)){
+      foreach ($tasks as $task){
+        $result['task'][]=[
+          'id'=>$task->taskId,
+          'name'=>$task->name,
+          'state'=>$task->state,
+          'rulesCount'=>$task->rulesCount
+        ];
+      }
+    }
+    $this->resource=$result;
+    $this->sendResource();
+  }
+
+
 
 
   /**
@@ -101,7 +166,6 @@ class MinersPresenter extends BaseResourcePresenter{
     $this->minersFacade->checkMinerAccess($miner,$this->getCurrentUser());
     return $miner;
   }
-
 
   #region injections
   /**
@@ -134,5 +198,14 @@ class MinersPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the miner"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the miner"),
  *   @SWG\Property(property="type",type="string",description="Miner type",enum={"r","lm"})
+ * )
+ * @SWG\Definition(
+ *   definition="TaskBasicResponse",
+ *   title="TaskBasicInfo",
+ *   required={"id","name","state"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
+ *   @SWG\Property(property="state",type="string",description="State of the task"),
+ *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules")
  * )
  */

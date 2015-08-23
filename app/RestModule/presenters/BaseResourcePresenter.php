@@ -53,6 +53,10 @@ use Nette\Security\IIdentity;
  *   description="Management of user databases"
  * )
  * @SWG\Tag(
+ *   name="Miners",
+ *   description="Management of miners"
+ * )
+ * @SWG\Tag(
  *   name="Users",
  *   description="Management of user accounts"
  * )
