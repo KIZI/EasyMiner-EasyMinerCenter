@@ -552,7 +552,7 @@ class WizardPresenter extends Presenter {
           }else{
             $serverUrl=$urlArr['scheme'].'://'.$urlArr['host'].(!empty($urlArr['port'])?':'.$urlArr['port']:'');
           }
-          $minerPath=rtrim($urlArr['path'],'/').(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
+          $minerPath=(!empty($urlArr['path'])?rtrim($urlArr['path'],'/'):'').(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
           $configArr=[
             'server'=>$serverUrl,
             'minerUrl'=>$minerPath,

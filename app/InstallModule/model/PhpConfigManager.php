@@ -175,6 +175,20 @@ class PhpConfigManager {
       'description' => 'Multibyte String extension is required.',
     ];
     $tests[] = [
+      'title' => 'MCrypt extension',
+      'type' => self::TEST_TYPE_EXTENSIONS,
+      'required' => true,
+      'passed' => extension_loaded('mcrypt') && function_exists('mcrypt_get_iv_size'),
+      'description' => 'MCrypt extension is required.',
+    ];/*
+    $tests[] = [
+      'title' => 'Internalization (INTL) extension',
+      'type' => self::TEST_TYPE_EXTENSIONS,
+      'required' => true,
+      'passed' => extension_loaded('intl'),
+      'description' => 'INTL extension is required.',
+    ];*/
+    $tests[] = [
       'title' => 'Multibyte String function overloading',
       'type' => self::TEST_TYPE_EXTENSIONS,
       'required' => true,
