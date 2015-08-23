@@ -127,8 +127,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     response=422,
      *     description="Sent values are not acceptable!",
      *     @SWG\Schema(ref="#/definitions/InputErrorResponse")
-     *   ),
-     *   @SWG\Response(response=404,description="Requested RuleSet was not found.")
+     *   )
      * )
      */
     public function actionCreate(){
