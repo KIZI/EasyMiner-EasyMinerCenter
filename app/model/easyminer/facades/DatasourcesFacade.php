@@ -347,4 +347,20 @@ class DatasourcesFacade {
 
     return $output;
   }
+
+  /**
+   * Funkce pro kontrolu, jestli je daný uživatel oprávněn přistupovat ke zvolenému mineru
+   * @param Datasource|int $datasource
+   * @param User|int $user
+   * @return bool
+   */
+  public function checkDatasourceAccess($datasource, $user) {
+    if (!($datasource instanceof Datasource)){
+      $datasource=$this->findDatasource($datasource);
+    }
+    if ($user instanceof User){
+      $user=$user->userId;
+    }
+    return $datasource->user->userId=$user;
+  }
 } 

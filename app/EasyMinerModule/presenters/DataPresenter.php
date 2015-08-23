@@ -98,6 +98,7 @@ class DataPresenter extends BasePresenter{
     $this->checkDatasourceAccess($datasource);
 
     //kontrola, jestli je daný datový zdroj namapován na knowledge base
+    //TODO refaktorovat... (zároveň je v MinersPresenteru v REST modulu)
     if (!$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true)){
       foreach ($datasource->datasourceColumns as $datasourceColumn){
         if (empty($datasourceColumn->format)){
