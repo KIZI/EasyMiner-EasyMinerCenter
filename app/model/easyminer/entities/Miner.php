@@ -18,8 +18,8 @@ use Nette\Utils\Json;
  * @property Metasource|null $metasource m:hasOne(metasource_id:) - zdroj předzpracovaných dat v DB
  * @property RuleSet|null $ruleSet m:hasOne(rule_set_id:)
  * @property-read string $attributesTable
- * @property Nette\Utils\DateTime|null $created = null
- * @property Nette\Utils\DateTime|null $lastOpened = null
+ * @property \DateTime|null $created = null
+ * @property \DateTime|null $lastOpened = null
  * @property string $config
  * @property-read Task[] $tasks m:belongsToMany
  */
@@ -107,5 +107,24 @@ class Miner extends Entity{
     $config=$this->getConfig();
     $config['ext']=$externalConfig;
     $this->setConfig($config);
+  }
+
+  /**
+   * Funkce vracející data mineru v podobě pole
+   * @return array
+   */
+  public function getDataArr(){
+    $rowData=$this->getRowData();
+    return [
+      'id'=>$this->minerId,
+      'name'=>$this->name,
+      'type'=>$this->type,
+      'datasourceId'=>$rowData['datasource_id'],
+      'metasourceId'=>$rowData['metasource_id'],
+      'ruleSetId'=>$rowData['rule_set_id'],
+      'config'=>$this->getConfig(),
+      'created'=>$this->created,
+      'lastOpened'=>$this->lastOpened
+    ];
   }
 }

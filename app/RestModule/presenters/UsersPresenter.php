@@ -9,7 +9,7 @@ use Drahak\Restful\Validation\IValidator;
 use Nette\Application\Responses\TextResponse;
 use Nette\NotImplementedException;
 
-/**FIXME swagger 2.0
+/**
  * Class UsersPresenter - RESTFUL presenter for management of users
  * @package EasyMinerCenter\RestModule\Presenters
  *

@@ -49,6 +49,10 @@ use Nette\Security\IIdentity;
  *   description="Authentication of the user using API KEY"
  * )
  * @SWG\Tag(
+ *   name="Databases",
+ *   description="Management of user databases"
+ * )
+ * @SWG\Tag(
  *   name="Users",
  *   description="Management of user accounts"
  * )
@@ -60,7 +64,10 @@ use Nette\Security\IIdentity;
  *   name="RuleSets",
  *   description="Management of rule sets"
  * )
- *
+ * @SWG\Tag(
+ *   name="Tasks",
+ *   description="Management of data mining tasks"
+ * )
  */
 abstract class BaseResourcePresenter extends ResourcePresenter {
   /** @var  UsersFacade $usersFacade */
