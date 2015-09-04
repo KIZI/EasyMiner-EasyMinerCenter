@@ -24,7 +24,7 @@ class TasksPresenter extends BaseResourcePresenter {
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
 
-
+  #region actionReadPmml
   /**
    * Akce vracející PMML data konkrétní úlohy
    * @param $id
@@ -78,6 +78,105 @@ class TasksPresenter extends BaseResourcePresenter {
     $pmmlSerializer->appendRules();
     return $pmmlSerializer->getPmml();
   }
+  #endregion
+
+  #region actionRead
+  /**
+   * Akce vracející detaily konkrétní úlohy
+   * @param $id
+   * @throws BadRequestException
+   * @SWG\Get(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}",
+   *   summary="Get task details",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Task ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Task details",
+   *     @SWG\Schema(ref="#/definitions/TaskResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found."),
+   *   @SWG\Response(response=500, description="Task has not been solved.")
+   * )
+   */
+  public function actionRead($id){
+    $task=$this->findTaskWithCheckAccess($id);
+    if ($task->state!=Task::STATE_SOLVED){
+      throw new InvalidStateException("Task has not been solved!");
+    }
+    $this->resource=$task->getDataArr(true);
+    $this->sendResource();
+  }
+  #endregion
+
+
+  public function actionPost() {
+    //FIXME implement
+  }
+
+
+  #region actionReadRules
+  /**
+   * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
+   * @param int $id
+   * @SWG\Get(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}/rules",
+   *   summary="List rules founded using the selected task",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Task ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="List of rules",
+   *     @SWG\Schema(
+   *       @SWG\Property(property="task",ref="#/definitions/TaskSimpleResponse"),
+   *       @SWG\Property(
+   *         property="rules",
+   *         type="array",
+   *         @SWG\Items(ref="#/definitions/TaskRuleResponse")
+   *       )
+   *     )
+   *   ),
+   *   @SWG\Response(response=404, description="Requested rule set was not found.")
+   * )
+   */
+  public function actionReadRules($id){
+    $task=$this->findTaskWithCheckAccess($id);
+    if ($task->state!=Task::STATE_SOLVED){
+      throw new InvalidStateException("Task has not been solved!");
+    }
+    $result=[
+      'task'=>$task->getDataArr(),
+      'rules'=>[]
+    ];
+    if ($task->rulesCount>0){
+      $rules=$task->rules;
+      if (!empty($rules)){
+        foreach($rules as $rule){
+          $result['rules'][]=$rule->getBasicDataArr();
+        }
+      }
+    }
+    $this->resource=$result;
+    $this->sendResource();
+  }
+  #endregion actionReadRules
+
 
 
   /**
@@ -121,3 +220,118 @@ class TasksPresenter extends BaseResourcePresenter {
   }
   #endregion injections
 }
+
+
+/**
+ * @SWG\Definition(
+ *   definition="TaskSimpleResponse",
+ *   title="TaskSimpleDetails",
+ *   required={"id","miner","type","name","state","rulesCount"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
+ *   @SWG\Property(property="miner",type="integer",description="ID of the associated miner"),
+ *   @SWG\Property(property="type",type="integer",description="Type of the miner"),
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
+ *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted","solved_heads"}),
+ *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules")
+ * )
+ * @SWG\Definition(
+ *   definition="TaskResponse",
+ *   title="Task",
+ *   required={"id","miner","type","name","state","rulesCount"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
+ *   @SWG\Property(property="miner",type="integer",description="ID of the associated miner"),
+ *   @SWG\Property(property="type",type="integer",description="Type of the miner"),
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
+ *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted","solved_heads"}),
+ *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
+ *   @SWG\Property(
+ *     property="taskSettings",
+ *     description="Structured configuration of the task settings",
+ *     @SWG\Property(property="limitHits",type="integer",description="Limit count of rules"),
+ *     @SWG\Property(
+ *       property="rule0",
+ *       description="Rule pattern",
+ *       @SWG\Property(property="antecedent",description="Antecedent pattern",ref="#/definitions/CedentDetailsResponse"),
+ *       @SWG\Property(property="IMs",type="array",@SWG\Items(ref="#/definitions/TaskIMResponse")),
+ *       @SWG\Property(property="succedent",description="Consequent pattern",ref="#/definitions/CedentDetailsResponse")
+ *     ),
+ *     @SWG\Property(property="strict",type="boolean",description="Strict require attributes in the pattern")
+ *   )
+ * )
+ *
+ * @SWG\Definition(
+ *   definition="TaskIMResponse",
+ *   title="IM",
+ *   @SWG\Property(property="name",type="string"),
+ *   @SWG\Property(property="localizedName",type="string"),
+ *   @SWG\Property(property="thresholdType",type="string"),
+ *   @SWG\Property(property="compareType",type="string"),
+ *   @SWG\Property(
+ *     property="fields",
+ *     type="array",
+ *     @SWG\Items(ref="#/definitions/TaskConfigFieldDetails")
+ *   ),
+ *   @SWG\Property(property="threshold",type="number"),
+ *   @SWG\Property(property="alpha",type="number"),
+ * )
+ * @SWG\Definition(
+ *   definition="TaskConfigFieldDetails",
+ *   title="FieldDetails",
+ *   required={"name","value"},
+ *   @SWG\Property(property="name",type="string"),
+ *   @SWG\Property(property="value",type="number")
+ * )
+ * @SWG\Definition(
+ *   definition="CedentDetailsResponse",
+ *   title="CedentDetails",
+ *   @SWG\Property(property="type",type="string"),
+ *   @SWG\Property(
+ *     property="connective",
+ *     @SWG\Property(property="id",type="integer"),
+ *     @SWG\Property(property="name",type="string"),
+ *     @SWG\Property(property="type",type="string"),
+ *   ),
+ *   @SWG\Property(property="level",type="integer"),
+ *   @SWG\Property(property="children",type="array",
+ *     @SWG\Items(ref="#/definitions/TaskSettingsAttributeDetails")
+ *   ),
+ * )
+ * @SWG\Definition(
+ *   definition="TaskSettingsAttributeDetails",
+ *   title="AttributeDetails",
+ *   @SWG\Property(property="name",type="string"),
+ *   @SWG\Property(property="category",type="string"),
+ *   @SWG\Property(property="ref",type="string"),
+ *   @SWG\Property(
+ *     property="fields",
+ *     type="array",
+ *     @SWG\Items(ref="#/definitions/TaskConfigFieldDetails")
+ *   ),
+ *   @SWG\Property(property="sign",type="string",enum={"positive"}),
+ * )
+ *
+ * @SWG\Definition(
+ *   definition="TaskRuleResponse",
+ *   title="Rule",
+ *   required={"id","text"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule"),
+ *   @SWG\Property(property="text",type="string",description="Human-readable form of the rule"),
+ *   @SWG\Property(property="a",type="string",description="A value from the four field table"),
+ *   @SWG\Property(property="b",type="string",description="B value from the four field table"),
+ *   @SWG\Property(property="c",type="string",description="C value from the four field table"),
+ *   @SWG\Property(property="d",type="string",description="D value from the four field table"),
+ *   @SWG\Property(property="selected",type="string",enum={"0","1"},description="1, if the rule is in Rule Clipboard"),
+ * )
+ *
+ *
+ * @SWG\Definition(
+ *   definition="TaskSimpleInput",
+ *   title="TaskSimpleConfig",
+ *   required={"miner","name","simpleSettings"},
+ *   @SWG\Property(property="miner",type="integer",description="ID of the miner for this task"),
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
+ *   @SWG\Property(property="simpleSettings",type="string",description="Description of the rule set")
+ * )
+ * TODO konfigurace simpleSettings
+ *
+ */

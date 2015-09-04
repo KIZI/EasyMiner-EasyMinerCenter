@@ -28,6 +28,49 @@ class Task extends Entity{
   const STATE_FAILED='failed';
   const STATE_INTERRUPTED='interrupted';
 
+
+  /**
+   * Funkce vracející základní data v podobě pole
+   * @param bool $includeSettings = false - pokud true, je do pole vloženo kompletní zadání úlohy
+   * @return array
+   */
+  public function getDataArr($includeSettings=false){
+    $result=[
+      'id'=>$this->taskId,
+      'uuid'=>$this->taskUuid,
+      'miner'=>$this->miner->minerId,
+      'name'=>$this->name,
+      'type'=>$this->type,
+      'state'=>$this->state,
+      'rulesCount'=>$this->rulesCount,
+    ];
+    if ($includeSettings){
+      $result['settings']=$this->getTaskSettings();
+    }
+    return $result;
+  }
+
+  /**
+   * Funkce vracející pole s nastaveními této úlohy
+   * @return array
+   * @throws \Nette\Utils\JsonException
+   */
+  public function getTaskSettings() {
+    return Json::decode($this->taskSettingsJson,Json::FORCE_ARRAY);
+  }
+
+  /**
+   * Funkce pro přiřazení nastavení úlohy
+   * @param array|string|object $settings
+   * @throws \Nette\Utils\JsonException
+   */
+  public function setTaskSettings($settings) {
+    if (!empty($settings) && is_array($settings) || is_object($settings)){
+      $settings=Json::encode($settings);
+    }
+    $this->taskSettingsJson=$settings;
+  }
+
   /**
    * @return TaskState
    */
