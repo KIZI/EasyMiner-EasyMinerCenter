@@ -27,7 +27,7 @@ class TasksPresenter extends BaseResourcePresenter {
   #region actionReadPmml
   /**
    * Akce vracející PMML data konkrétní úlohy
-   * @param $id
+   * @param int $id
    * @throws BadRequestException
    * @SWG\Get(
    *   tags={"Tasks"},
@@ -83,7 +83,7 @@ class TasksPresenter extends BaseResourcePresenter {
   #region actionRead
   /**
    * Akce vracející detaily konkrétní úlohy
-   * @param $id
+   * @param int $id
    * @throws BadRequestException
    * @SWG\Get(
    *   tags={"Tasks"},
@@ -103,24 +103,103 @@ class TasksPresenter extends BaseResourcePresenter {
    *     description="Task details",
    *     @SWG\Schema(ref="#/definitions/TaskResponse")
    *   ),
-   *   @SWG\Response(response=404, description="Requested task was not found."),
-   *   @SWG\Response(response=500, description="Task has not been solved.")
+   *   @SWG\Response(response=404, description="Requested task was not found.")
    * )
    */
   public function actionRead($id){
     $task=$this->findTaskWithCheckAccess($id);
-    if ($task->state!=Task::STATE_SOLVED){
-      throw new InvalidStateException("Task has not been solved!");
-    }
     $this->resource=$task->getDataArr(true);
     $this->sendResource();
   }
   #endregion
 
-
+  /**
+   * Akce pro zadání úlohy...
+   */
   public function actionPost() {
     //FIXME implement
   }
+
+  #region actionStart/actionStop
+  /**
+   * Akce pro spuštění dolování konkrétní úlohy
+   * @param int $id
+   * @SWG\Get(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}/start",
+   *   summary="Start the solving of the data mining task",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Task ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Task state",
+   *     @SWG\Schema(
+   *       ref="#/definitions/TaskSimpleResponse"
+   *     )
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found.")
+   * )
+   */
+  public function actionReadStart($id) {
+    $task=$this->findTaskWithCheckAccess($id);
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+    if ($task->state==Task::STATE_NEW){
+      //runTask
+      $taskState=$miningDriver->startMining();
+    }else{
+      //check task state
+      $taskState=$miningDriver->checkTaskState();
+    }
+    $this->tasksFacade->updateTaskState($task,$taskState);
+    //send task simple details
+    $this->resource=$task->getDataArr(false);
+    $this->sendResource();
+  }
+
+  /**
+   * Akce pro zastavení dolování konkrétní úlohy
+   * @param int $id
+   * @SWG\Get(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}/stop",
+   *   summary="Stop the solving of the data mining task",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Task ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Task state",
+   *     @SWG\Schema(
+   *       ref="#/definitions/TaskSimpleResponse"
+   *     )
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found.")
+   * )
+   */
+  public function actionReadStop($id) {
+    $task=$this->findTaskWithCheckAccess($id);
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+    //stop the run
+    $taskState=$miningDriver->stopMining();
+    $this->tasksFacade->updateTaskState($task,$taskState);
+    //send task simple details
+    $this->resource=$task->getDataArr(false);
+    $this->sendResource();
+  }
+  #endregion actionStart/actionStop
 
 
   #region actionReadRules
@@ -152,7 +231,8 @@ class TasksPresenter extends BaseResourcePresenter {
    *       )
    *     )
    *   ),
-   *   @SWG\Response(response=404, description="Requested rule set was not found.")
+   *   @SWG\Response(response=404, description="Requested task was not found."),
+   *   @SWG\Response(response=500, description="Task has not been solved.")
    * )
    */
   public function actionReadRules($id){
@@ -330,7 +410,7 @@ class TasksPresenter extends BaseResourcePresenter {
  *   required={"miner","name","simpleSettings"},
  *   @SWG\Property(property="miner",type="integer",description="ID of the miner for this task"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
- *   @SWG\Property(property="simpleSettings",type="string",description="Description of the rule set")
+ *   @SWG\Property(property="simpleSettings",type="string",description="Task configuration")
  * )
  * TODO konfigurace simpleSettings
  *
