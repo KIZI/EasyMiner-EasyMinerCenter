@@ -4,6 +4,7 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 use Drahak\Restful\InvalidStateException;
 use Drahak\Restful\NotImplementedException;
+use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
@@ -163,16 +164,40 @@ class TasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionSimple() {
-    exit('actionSimple');
     //FIXME implement
+    exit('actionSimple');
   }
 
   /**
    * Funkce pro validaci jednoduchého zadání úlohy
    */
   public function validateSimple() {
-    exit('validateSimple');
-    //FIXME implement
+    $this->input->field('miner')->addRule(IValidator::CALLBACK,'You cannot use the given miner, or the miner has not been found!',function($value) {
+      try {
+        $miner=$this->minersFacade->findMiner($value);
+        if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
+          throw new \Exception('You are not authorized to use the selected miner!');
+        }
+        return true;
+      } catch(\Exception $e) {
+        return false;
+      }
+    });
+    $this->input->field('name')->addRule(IValidator::REQUIRED,'You have to input the task name!');
+    $this->input->field('limitHits')
+      ->addRule(IValidator::INTEGER,'Max rules count (limitHits) has to be positive integer!')
+      ->addRule(IValidator::RANGE,'Max rules count (limitHits) has to be positive integer!',[1,null]);
+    //kontrola strukturovaných vstupů
+    $inputData=$this->input->getData();
+    $this->input->field('IMs')
+      ->addRule(IValidator::REQUIRED,'You have to input interest measure thresholds!')
+      ->addRule(IValidator::CALLBACK,'Invalid structure of interest measure thresholds!',function()use($inputData){
+        $fieldInputData=$inputData['IMs'];
+        if (empty($fieldInputData)){return false;}
+        //TODO kontrola podporovaných měr zajímavosti
+        return true;
+      });
+    //TODO kontrola struktury antecedentu a consequentu
   }
   #endregion actionSimple
 
