@@ -89,7 +89,7 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
    * @throws \Exception
    */
   public function startup() {
-    parent::startup();
+    //kontrola přihlášeného uživatele
     $apiKey=@$this->getInput()->getData()['apiKey'];
     if (empty($apiKey)){
       $authorizationHeader=$this->getHttpRequest()->getHeader('Authorization');
@@ -100,6 +100,8 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
     }else{
       $this->identity=$this->usersFacade->authenticateUserByApiKey($apiKey,$this->currentUser);
     }
+    //spuštění výchozí startup() akce
+    parent::startup();
   }
 
     /**

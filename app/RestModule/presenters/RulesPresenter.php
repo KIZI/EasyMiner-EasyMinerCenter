@@ -112,9 +112,9 @@ class RulesPresenter extends BaseResourcePresenter{
         $fieldName->addRule(IValidator::CALLBACK,'RuleSet with this name already exists!',function($value)use($user){
           try{
             $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,null);
-            return false;
+            return true;
           }catch (\Exception $e){}
-          return true;
+          return false;
         });
       }
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
@@ -190,9 +190,9 @@ class RulesPresenter extends BaseResourcePresenter{
           try{
             /** @noinspection PhpUndefinedFieldInspection */
             $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,$id);
-            return false;
+            return true;
           }catch (\Exception $e){}
-          return true;
+          return false;
         });
       }
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);

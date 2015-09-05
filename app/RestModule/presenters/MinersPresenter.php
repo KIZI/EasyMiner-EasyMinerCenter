@@ -222,7 +222,7 @@ class MinersPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Funkce pro kontrolu vstupů pro vytvoření nového uživatelského účtu
+   * Funkce pro kontrolu vstupů pro vytvoření nového mineru
    */
   public function validateCreate() {
     $currentUser=$this->getCurrentUser();
