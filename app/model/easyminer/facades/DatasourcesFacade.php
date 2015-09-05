@@ -361,6 +361,6 @@ class DatasourcesFacade {
     if ($user instanceof User){
       $user=$user->userId;
     }
-    return $datasource->user->userId=$user;
+    return $datasource->user->userId==$user;
   }
 } 

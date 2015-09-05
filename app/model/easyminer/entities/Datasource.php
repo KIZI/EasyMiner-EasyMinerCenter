@@ -32,6 +32,27 @@ class Datasource extends Entity{
   }
 
   /**
+   * Funkce vracející parametry datového zdroje v podobě pole
+   * @param bool $includePassword = false
+   * @return array
+   */
+  public function getDataArr($includePassword=false){
+    $result = [
+      'id'=>$this->datasourceId,
+      'type'=>$this->type,
+      'dbServer'=>$this->dbServer,
+      'dbPort'=>$this->dbPort,
+      'dbUsername'=>$this->dbUsername,
+      'dbName'=>$this->dbName,
+      'dbTable'=>$this->dbTable
+    ];
+    if ($includePassword){
+      $result['dbPassword']=$this->getDbPassword();
+    }
+    return $result;
+  }
+
+  /**
    * @return DbConnection
    */
   public function getDbConnection(){
