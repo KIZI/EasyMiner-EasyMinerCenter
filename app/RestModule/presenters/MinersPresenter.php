@@ -71,7 +71,7 @@ class MinersPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Funkce vracející seznam minerů aktuálně přihlášeného uživatele
+   * Akce vracející seznam minerů aktuálně přihlášeného uživatele
    * @SWG\Get(
    *   tags={"Miners"},
    *   path="/miners",
@@ -87,8 +87,7 @@ class MinersPresenter extends BaseResourcePresenter{
    *         ref="#/definitions/MinerBasicResponse"
    *       )
    *     )
-   *   ),
-   *   @SWG\Response(response=404, description="Requested miner was not found.")
+   *   )
    * )
    */
   public function actionList() {
