@@ -4,6 +4,7 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 use Drahak\Restful\InvalidStateException;
 use Drahak\Restful\NotImplementedException;
+use Drahak\Restful\Security\UnauthorizedRequestException;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
@@ -164,8 +165,16 @@ class TasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionSimple() {
-    //FIXME implement
-    exit('actionSimple');
+    $inputData=$this->input->getData();
+    $miner=$this->minersFacade->findMiner($inputData['miner']);
+    if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
+      throw new UnauthorizedRequestException('You are not authorized to use the selected miner!');
+    }
+    $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
+    $this->tasksFacade->saveTask($task);
+    //send task details
+    $this->resource=$task->getDataArr(true);
+    $this->sendResource();
   }
 
   /**
@@ -194,10 +203,10 @@ class TasksPresenter extends BaseResourcePresenter {
       ->addRule(IValidator::CALLBACK,'Invalid structure of interest measure thresholds!',function()use($inputData){
         $fieldInputData=$inputData['IMs'];
         if (empty($fieldInputData)){return false;}
-        //TODO kontrola podporovaných měr zajímavosti
         return true;
       });
-    //TODO kontrola struktury antecedentu a consequentu
+    $this->input->field('consequent')
+      ->addRule(IValidator::REQUIRED,'You have to input interest the structure of consequent!');
   }
   #endregion actionSimple
 

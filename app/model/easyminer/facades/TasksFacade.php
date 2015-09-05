@@ -98,4 +98,150 @@ class TasksFacade {
     return $task;
   }
 
+  /**
+   * Funkce pro připravení úlohy na základě jednoduchého pole s konfigurací (například přes API)
+   *
+*@param Miner $miner
+   * @param array $settingsArr
+   * @param Task|null $updateTask=null
+   * @return Task
+   * @throws \InvalidArgumentException
+   */
+  public function prepareSimpleTask(Miner $miner, $settingsArr, Task $updateTask=null) {
+    //prepare apropriate task...
+    if ($updateTask instanceof Task){
+      $task = $updateTask;
+      if ($task->miner->minerId != $miner->minerId){
+        throw new \InvalidArgumentException('Invalid combination of miner and task!');
+      }
+    }else{
+      $task = new Task();
+    }
+    //prepare task settings from $settings
+    $taskUuid=uniqid();
+    if (isset($settingsArr['succedent'])&&!isset($settingsArr['consequent'])){
+      $settingsArr['consequent']=$settingsArr['succedent'];
+    }
+    $taskSettings=[
+      'limitHits'=>max(1, @$settingsArr['limitHits']),
+      'rule0'=>[
+        'id'=>0,
+        'groupFields'=>true,
+        'antecedent'=>[
+          'type'=>'cedent',
+          'connective'=>[
+            'id'=> 2,
+            'name'=>'AND',
+            'type'=>'and'
+          ],
+          'level'=>1,
+          'children'=>$this->prepareSimpleTaskAttributesArr(@$settingsArr['antecedent'])
+        ],
+        'IMs'=>$this->prepareSimpleTaskIMsArr(@$settingsArr['IMs']),
+        'specialIMs'=>[],
+        'succedent'=>[
+          'type'=>'cedent',
+          'connective'=>[
+            'id'=> 2,
+            'name'=>'AND',
+            'type'=>'and'
+          ],
+          'level'=>1,
+          'children'=>$this->prepareSimpleTaskAttributesArr($settingsArr['consequent'])
+        ]
+      ],
+      'rules'=>1,
+      'debug'=>false,
+      'strict'=>false,
+      'taskMode'=>'task',
+      'taskName'=>$settingsArr['name'],
+      'taskId'=>$taskUuid
+    ];
+
+    //configure task object
+    $task->miner=$miner;
+    $task->type=$miner->type;
+    $task->name=$settingsArr['name'];
+    $task->taskUuid=$taskUuid;
+    $task->state=Task::STATE_NEW;
+    $task->setTaskSettings($taskSettings);
+  }
+
+  /**
+   * Funkce pro připravení struktury nastavení měr zajímavosti v nastavení úlohy dle pole s jednoduchou konfigurací
+   * @param array $IMsSettingsArr
+   * @return array
+   */
+  private function prepareSimpleTaskIMsArr($IMsSettingsArr) {
+    $result=[];
+    if (empty($IMsSettingsArr)){return $result;}
+    foreach($IMsSettingsArr as $IMSettings){
+      if (!in_array($IMSettings['name'],['FUI','AAD','LIFT','SUPP'])){
+        throw new \InvalidArgumentException('Unsupported interest measure: '.$IMSettings['name']);
+      }
+      $result[]=[
+        'name'=> $IMSettings['name'],
+        'localizedName'=>$IMSettings['name'],//TODO opravit na lokalizovaný název
+        'thresholdType'=>'% of all',
+        'compareType'=>'Greater than or equal',
+        'fields'=>[
+          [
+            'name'=>'threshold',
+            'value'=>$IMSettings['value']
+          ],
+          'threshold'=>$IMSettings['value'],
+          'alpha'=>0
+        ]
+      ];
+    }
+    return $result;
+  }
+
+  /**
+   * Funkce pro připravení struktury cedentu v nastavení úlohy dle pole s jednoduchou konfigurací
+   * @param array $attributesSettingsArr
+   * @return array
+   */
+  private function prepareSimpleTaskAttributesArr($attributesSettingsArr) {
+    $result=[];
+    if (empty($attributesSettingsArr)){return $result;}
+    //připravíme strukturu pro jednotlivé atributy
+    foreach($attributesSettingsArr as $attributeSetting){
+      if (!empty($attributeSetting['fixedValue'])){
+        //fixed value => ONE CATEGORY
+        $result[]=[
+          'name'=>@$attributeSetting['attribute'],
+          'category'=>'One category',
+          'ref'=>@$attributeSetting['attribute'],
+          'fields'=>[
+            [
+              'name'=>'category',
+              'value'=>$attributeSetting['fixedValue']
+            ]
+          ],
+          'sign'=>'positive'
+        ];
+      }else{
+        //* => SUBSET 1-1
+        $result[]=[
+          'name'=>@$attributeSetting['attribute'],
+          'category'=>'Subset',
+          'ref'=>@$attributeSetting['attribute'],
+          'fields'=>[
+            [
+              'name'=>'minLength',
+              'value'=>1
+            ],
+            [
+              'name'=>'maxLength',
+              'value'=>1
+            ]
+          ],
+          'sign'=>'positive'
+        ];
+      }
+    }
+    return $result;
+  }
+
 }
