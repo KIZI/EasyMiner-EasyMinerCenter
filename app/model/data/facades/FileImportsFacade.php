@@ -336,4 +336,14 @@ class FileImportsFacade {
     return $iValue;
   }
 
+  /**
+   * @param string $filename
+   * @return string
+   */
+  public static function sanitizeFileNameForImport($filename){
+    $filenameArr=pathinfo($filename);
+    $result=trim(Strings::webalize($filenameArr['filename']));
+    return str_replace(['.','-'], ['_','_'], $result);
+  }
+
 } 

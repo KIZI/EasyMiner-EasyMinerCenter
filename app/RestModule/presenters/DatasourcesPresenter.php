@@ -1,9 +1,14 @@
 <?php
 
 namespace EasyMinerCenter\RestModule\Presenters;
+use Drahak\Restful\Validation\IValidator;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use Nette\Application\BadRequestException;
+use Nette\Http\FileUpload;
+use Nette\Utils\FileSystem;
 
 /**
  * Class DatasourcesPresenter - presenter pro práci s datovými zdroji
@@ -13,6 +18,10 @@ class DatasourcesPresenter extends BaseResourcePresenter{
 
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
+  /** @var  FileImportsFacade $fileImportsFacade */
+  private $fileImportsFacade;
+  /** @var  DatabasesFacade $databasesFacade */
+  private $databasesFacade;
 
   /**
    * Akce pro import CSV souboru (případně komprimovaného v ZIP archívu)
@@ -20,22 +29,72 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *   tags={"Datasources"},
    *   path="/datasources",
    *   summary="Create new datasource using uploaded file",
+   *   consumes={"text/csv"},
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   @SWG\Parameter(
+   *     name="dbTable",
+   *     description="Table name (if empty, will be auto-generated)",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="separator",
+   *     description="Columns separator",
+   *     required=true,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="encoding",
+   *     description="File encoding",
+   *     required=true,
+   *     type="string",
+   *     in="query",
+   *     enum={"utf8","cp1250","iso-8859-1"}
+   *   ),
+   *   @SWG\Parameter(
+   *     name="enclosure",
+   *     description="Enclosure character",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="escape",
+   *     description="Escape character",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="nullValue",
+   *     description="Null value",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="dbType",
+   *     description="Database type",
+   *     required=true,
+   *     type="string",
+   *     enum={"mysql"},
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="file",
+   *     description="CSV file",
+   *     required=true,
+   *     type="file",
+   *     in="formData"
+   *   ),
    *   @SWG\Response(
    *     response=200,
-   *     description="Successfully authenticated",
+   *     description="Datasource details",
    *     @SWG\Schema(
-   *       required={"id","name"},
-   *       @SWG\Property(property="id",type="integer",description="Authenticated user ID"),
-   *       @SWG\Property(property="name",type="string",description="Authenticated user name"),
-   *       @SWG\Property(property="email",type="string",description="Authenticated user e-mail"),
-   *       @SWG\Property(
-   *         property="role",
-   *         type="array",
-   *         description="Authenticated user roles",
-   *         @SWG\Items(type="string")
-   *       ),
+   *       ref="#/definitions/DatasourceWithColumnsResponse"
    *     )
    *   ),
    *   @SWG\Response(
@@ -44,16 +103,87 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *     @SWG\Schema(ref="#/definitions/StatusResponse")
    *   )
    * )
+   * @throws \InvalidArgumentException
    */
   public function actionCreate() {
-    //TODO implementovat import CSV jako nový datasource
+    #region move uploaded file
+    /** @var FileUpload $file */
+    $file=$this->request->files['file'];
+    //detekce typu souboru
+    $fileType=$this->fileImportsFacade->detectFileType($file->getName());
+    if ($fileType==FileImportsFacade::FILE_TYPE_UNKNOWN){
+      //jedná se o nepodporovaný typ souboru
+      try{
+        FileSystem::delete($this->fileImportsFacade->getTempFilename());
+      }catch (\Exception $e){}
+      throw new \InvalidArgumentException('The uploaded file is not in supported format!');
+    }
+    //move file
+    $filename=$this->fileImportsFacade->getTempFilename();
+    $file->move($this->fileImportsFacade->getFilePath($filename));
+    //pokus o automatickou extrakci souboru
+    if ($fileType==FileImportsFacade::FILE_TYPE_ZIP){
+      $fileType=$this->fileImportsFacade->tryAutoUnzipFile($filename);
+      if ($fileType!=FileImportsFacade::FILE_TYPE_CSV){
+        try{
+          FileSystem::delete($this->fileImportsFacade->getFilePath($filename));
+        }catch (\Exception $e){}
+        throw new \InvalidArgumentException('The uploaded ZIP file has to contain only one CSV file!');
+      }
+    }
+    #endregion move uploaded file
 
+    /** @var array $inputData */
+    $inputData=$this->input->getData();
+    //prepare default values
+    if (empty($inputData['dbTable'])){
+      $inputData['dbTable']=FileImportsFacade::sanitizeFileNameForImport($file->sanitizedName);
+    }else{
+      $inputData['dbTable']=FileImportsFacade::sanitizeFileNameForImport($inputData['dbTable']);
+    }
+    if (empty($inputData['enclosure'])){
+      $inputData['enclosure']='"';
+    }
+    if (empty($inputData['escape'])){
+      $inputData['escape']='\\';
+    }
+    if (empty($inputData['nullValue'])){
+      $inputData['nullValue']='';
+    }
 
-
-
+    //prepare new datasource
+    /** @var Datasource $datasource */
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->getCurrentUser(),$inputData['dbType']);
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    $inputData['dbTable']=$this->databasesFacade->prepareNewTableName($inputData['dbTable']);
+    $this->fileImportsFacade->importCsvFile($filename,$datasource->getDbConnection(),$inputData['dbTable'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
+    $this->datasourcesFacade->saveDatasource($datasource);
+    //send response
+    $this->actionRead($datasource->datasourceId);
   }
 
+  /**
+   * Funkce pro validaci vstupních hodnot
+   * @throws \Drahak\Restful\Application\BadRequestException
+   */
+  public function validateCreate() {
+    $this->input->field('dbType')
+      ->addRule(IValidator::REQUIRED,'You have to select database type!');
+    $this->input->field('separator')
+      ->addRule(IValidator::REQUIRED,'Separator character is required!')
+      ->addRule(IValidator::LENGTH,'Separator has to be one character!',[1,1]);
+    $this->input->field('encoding')
+      ->addRule(IValidator::REQUIRED,'You have to select file encoding!');
+    $this->input->field('enclosure')
+      ->addRule(IValidator::MAX_LENGTH,'Separator has to be one character!',1);
+    $this->input->field('escape')
+      ->addRule(IValidator::MAX_LENGTH,'Separator has to be one character!',1);
+    if (empty($this->request->files['file'])){
+      throw new \Drahak\Restful\Application\BadRequestException('You have to upload a file!');
+    }
+  }
 
+  #region actionRead/actionList
   /**
    * @param int|null $id=null
    * @throws BadRequestException
@@ -72,7 +202,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *   ),
    *   @SWG\Response(
    *     response=200,
-   *     description="Datasource basic details",
+   *     description="Datasource details",
    *     @SWG\Schema(
    *       ref="#/definitions/DatasourceWithColumnsResponse"
    *     )
@@ -133,7 +263,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $this->resource=$result;
     $this->sendResource();
   }
-
+  #endregion actionRead/actionList
 
   /**
    * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
@@ -161,6 +291,18 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade) {
     $this->datasourcesFacade=$datasourcesFacade;
+  }
+  /**
+   * @param FileImportsFacade $fileImportsFacade
+   */
+  public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade) {
+    $this->fileImportsFacade=$fileImportsFacade;
+  }
+  /**
+   * @param DatabasesFacade $databasesFacade
+   */
+  public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
+    $this->databasesFacade=$databasesFacade;
   }
   #endregion injections
 }

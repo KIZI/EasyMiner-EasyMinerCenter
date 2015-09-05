@@ -331,7 +331,7 @@ class DataPresenter extends BasePresenter{
         }
         #endregion pokus o automatickou extrakci souboru
         #region výběr akce dle typu souboru
-        $this->redirect('Data:uploadData',array('file'=>$filename,'type'=>$fileType,'name'=>$this->sanitizeFileNameForImport($file->getName())));
+        $this->redirect('Data:uploadData',array('file'=>$filename,'type'=>$fileType,'name'=>FileImportsFacade::sanitizeFileNameForImport($file->getName())));
         #endregion výběr akce dle typu souboru
       };
     $form->addSubmit('storno','storno')
@@ -517,7 +517,7 @@ class DataPresenter extends BasePresenter{
       }
       $compressedFileName=@$zipFilesList[$values->unzipFile];
       $this->fileImportsFacade->uncompressFileFromZipArchive($values->file,$values->unzipFile);
-      $this->redirect('Data:uploadData',['file'=>$values->file,'type'=>$this->fileImportsFacade->detectFileType($compressedFileName),'name'=>$this->sanitizeFileNameForImport($compressedFileName)]);
+      $this->redirect('Data:uploadData',['file'=>$values->file,'type'=>$this->fileImportsFacade->detectFileType($compressedFileName),'name'=>FileImportsFacade::sanitizeFileNameForImport($compressedFileName)]);
     };
     $form->addSubmit('storno','storno')
       ->setValidationScope(array())
@@ -692,15 +692,5 @@ class DataPresenter extends BasePresenter{
       $this->flashMessage('For using of EasyMiner, you have to log in...','error');
       $this->redirect('User:login');
     }
-  }
-
-  /**
-   * @param string $filename
-   * @return string
-   */
-  private static function sanitizeFileNameForImport($filename){
-    $filenameArr=pathinfo($filename);
-    $result=trim(Strings::webalize($filenameArr['filename']));
-    return str_replace(['.','-'], ['_','_'], $result);
   }
 }
