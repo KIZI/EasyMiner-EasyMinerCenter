@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\RestModule\Presenters;
 
 use Drahak\Restful\InvalidStateException;
+use Drahak\Restful\NotImplementedException;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
@@ -113,12 +114,67 @@ class TasksPresenter extends BaseResourcePresenter {
   }
   #endregion
 
+  #region actionSimple
   /**
-   * Akce pro zadání úlohy...
+   * Akce pro zadání nové úlohy...
+   * @throws NotImplementedException
    */
-  public function actionPost() {
+  public function actionCreate($id=null) {
+    //FIXME implement
+    if ($id=='simple'){
+      $this->forward('simple');
+    }
+    //TODO implementovat podporu zadání komplexní úlohy
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Funkce pro validaci zadání nové úlohy
+   * @param null|string $id=null (pokud $id=="simple", dojde k přesměrování na funkci validateSimple)
+   * @throws NotImplementedException
+   */
+  public function validateCreate($id=null) {
+    if ($id=='simple'){$this->forward('simple');return;}
+    //TODO implementovat podporu zadání komplexní úlohy
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Akce pro zadání nové úlohy s jednoduchou konfigurací
+   * @SWG\Post(
+   *   tags={"Tasks"},
+   *   path="/tasks/simple",
+   *   summary="Create new simple configured task",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     description="SimpleTask",
+   *     name="task",
+   *     required=true,
+   *     @SWG\Schema(ref="#/definitions/TaskSimpleInput"),
+   *     in="body"
+   *   ),
+   *   @SWG\Response(
+   *     response=201,
+   *     description="Task created",
+   *     @SWG\Schema(ref="#/definitions/TaskResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found.")
+   * )
+   */
+  public function actionSimple() {
+    exit('actionSimple');
     //FIXME implement
   }
+
+  /**
+   * Funkce pro validaci jednoduchého zadání úlohy
+   */
+  public function validateSimple() {
+    exit('validateSimple');
+    //FIXME implement
+  }
+  #endregion actionSimple
 
   #region actionStart/actionStop
   /**
@@ -200,7 +256,6 @@ class TasksPresenter extends BaseResourcePresenter {
     $this->sendResource();
   }
   #endregion actionStart/actionStop
-
 
   #region actionReadRules
   /**
@@ -407,11 +462,32 @@ class TasksPresenter extends BaseResourcePresenter {
  * @SWG\Definition(
  *   definition="TaskSimpleInput",
  *   title="TaskSimpleConfig",
- *   required={"miner","name","simpleSettings"},
+ *   required={"miner","name","consequent","IMs"},
  *   @SWG\Property(property="miner",type="integer",description="ID of the miner for this task"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
- *   @SWG\Property(property="simpleSettings",type="string",description="Task configuration")
+ *   @SWG\Property(property="antecedent",description="Antecedent configuration",ref="#/definitions/CedentSimpleInput"),
+ *   @SWG\Property(property="consequent",description="Consequent configuration",ref="#/definitions/CedentSimpleInput"),
+ *   @SWG\Property(property="IMs",description="Interest measure thresholds",type="array",
+ *     @SWG\Items(ref="#/definitions/IMSimpleInput")
+ *   ),
+ *   @SWG\Property(property="limitHits",type="integer",description="Limit of requested rules count")
  * )
- * TODO konfigurace simpleSettings
+ * @SWG\Definition(
+ *   definition="CedentSimpleInput",
+ *   type="array",
+ *   @SWG\Items(ref="#/definitions/AttributeSimpleInput")
+ * )
+ * @SWG\Definition(
+ *   definition="AttributeSimpleInput",
+ *   required={"name"},
+ *   @SWG\Property(property="attribute",type="string",description="Attribute name"),
+ *   @SWG\Property(property="fixedValue",type="string",description="Fixed attribute value (optional,leave empty, if *)")
+ * )
+ * @SWG\Definition(
+ *   definition="IMSimpleInput",
+ *   required={"name"},
+ *   @SWG\Property(property="name",type="string"),
+ *   @SWG\Property(property="value",type="number"),
+ * )
  *
  */
