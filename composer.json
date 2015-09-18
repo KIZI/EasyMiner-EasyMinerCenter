@@ -14,10 +14,16 @@
 			"homepage": "http://vojir.net"
 		}
 	],
+	"repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/vojir/LeanMapper.git"
+		}
+	],
 	"require": {
 		"php": ">= 5.3.7",
 		"nette/nette": "~2.3.0",
-		"tharos/leanmapper": "v2.2.0",
+		"tharos/leanmapper": "dev-patch-1",
 		"kdyby/facebook": "v1.2.0@stable",
 		"kdyby/google": "dev-master",
 		"srigi/nette-confirmationdialog": "1.0.1",
