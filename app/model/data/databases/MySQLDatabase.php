@@ -296,13 +296,13 @@ class MySQLDatabase implements IDatabase{
     $result=new DbColumnValuesStatistic($this->getColumn($name));
     if ($result->dataType==DbColumn::TYPE_STRING){
       //u řetězce vracíme jen info o počtu řádků
-      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount from `'.$this->tableName.'`);');
+      $select=$this->db->prepare('SELECT count('.$name.') as `rowsCount` from `'.$this->tableName.'`);');
       $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
       $result->rowsCount=$selectResult['rowsCount'];
     }else{
       //u čísel vracíme info o min, max a avg
-      $select=$this->db->prepare('SELECT count('.$name.') as rowsCount,min('.$name.') as minValue,max('.$name.') as maxValue, avg('.$name.') as avgValue from `'.$this->tableName.'`;');
+      $select=$this->db->prepare('SELECT count('.$name.') as `rowsCount`,min('.$name.') as `minValue`,max('.$name.') as `maxValue`, avg('.$name.') as `avgValue` from `'.$this->tableName.'`;');
       $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
       $result->rowsCount=$selectResult['rowsCount'];
