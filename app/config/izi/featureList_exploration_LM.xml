@@ -137,8 +137,9 @@
             </Validation>
           </Field>
         </Type>
+        <!--
         <Type>
-          <Name>LIFT</Name><!-- TODO dodělat popis... -->
+          <Name>LIFT</Name>
           <Default>false</Default>
           <LocalizedName lang="en">Lift</LocalizedName>
           <LocalizedName lang="cs">Lift</LocalizedName>
@@ -159,6 +160,7 @@
             </Validation>
           </Field>
         </Type>
+        -->
 				<Type>
 					<Name>BAD</Name>
                     <Default>false</Default>

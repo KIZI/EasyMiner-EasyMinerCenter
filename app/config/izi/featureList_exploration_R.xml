@@ -78,7 +78,7 @@
           <LocalizedName lang="cs">Lift</LocalizedName>
           <ThresholdType>% of all</ThresholdType>
           <CompareType>Greater than or equal</CompareType>
-          <Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of perecent  higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
+          <Explanation lang="en">The percentage of instances satisfying the consequent must be a specified number of percent times higher if the antecedent is specified than is the total percentage of instances satisfying the consequent.
           </Explanation>
           <Calculation>((a*(a+b+c+d))/((a+b)*(a+c)))</Calculation>
           <Field>
