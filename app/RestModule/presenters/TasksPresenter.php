@@ -239,7 +239,7 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function actionReadStart($id) {
     $task=$this->findTaskWithCheckAccess($id);
-    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task, $this->currentUser);
     if ($task->state==Task::STATE_NEW){
       //runTask
       $taskState=$miningDriver->startMining();
@@ -281,7 +281,7 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function actionReadStop($id) {
     $task=$this->findTaskWithCheckAccess($id);
-    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->currentUser);
     //stop the run
     $taskState=$miningDriver->stopMining();
     $this->tasksFacade->updateTaskState($task,$taskState);

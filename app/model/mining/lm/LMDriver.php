@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
@@ -34,6 +35,8 @@ class LMDriver implements IMiningDriver{
   private $rulesFacade;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
+  /** @var User $user */
+  private $user;
   /** LISp-Miner šablona pro export informací o stavu úlohy a počtu nalezených pravidel */
   const TASK_STATE_LM_TEMPLATE=null;//TODO
   /** LISp-Miner šablona pro export pravidel */
@@ -148,7 +151,7 @@ class LMDriver implements IMiningDriver{
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
    * @throws \Exception
    */
-  public function checkMinerState(){
+  public function checkMinerState(User $user=null){
     $minerConfig=$this->miner->getConfig();
     if ($metasource=$this->miner->metasource){
       if (empty($metasource->attributes)){//miner budeme kontrolovat jen v situaci, kdy máme alespoň jeden atribut... (do té doby to nemá smysl)
@@ -801,13 +804,15 @@ class LMDriver implements IMiningDriver{
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
+   * @param User $user
    * @param array $params
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
     $this->rulesFacade=$rulesFacade;
+    $this->user=$user;
   }
 
   /**

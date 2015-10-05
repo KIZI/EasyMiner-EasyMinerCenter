@@ -6,6 +6,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
@@ -22,6 +23,8 @@ class TasksPresenter  extends BasePresenter{
   private $tasksFacade;
   /** @var DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var  UsersFacade $usersFacade */
+  private $usersFacade;
   /** @var XmlTransformator $xmlTransformator */
   private $xmlTransformator;
 
@@ -51,12 +54,12 @@ class TasksPresenter  extends BasePresenter{
       }
       $task->taskSettingsJson=$data;
       $this->tasksFacade->saveTask($task);
-      $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
       $taskState=$miningDriver->startMining();
       #endregion
     }else{
       #region zjištění stavu již existující úlohy
-      $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
       $this->session->close();
       $taskState=$miningDriver->checkTaskState();
       #endregion
@@ -77,7 +80,7 @@ class TasksPresenter  extends BasePresenter{
     $this->checkMinerAccess($miner);
 
 
-    $miningDriver=$this->minersFacade->getTaskMiningDriver($task);
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
     $taskState=$miningDriver->stopMining();
 
     $this->tasksFacade->updateTaskState($task,$taskState);
@@ -213,6 +216,19 @@ class TasksPresenter  extends BasePresenter{
     return $pmmlSerializer->getPmml();
   }
 
+
+  /**
+   * @return \EasyMinerCenter\Model\EasyMiner\Entities\User|null
+   */
+  private function getCurrentUser(){
+    try{
+      return $this->usersFacade->findUser($this->user->id);
+    }catch (\Exception $e){
+      /*ignore error (uživatel nemusí být přihlášen)*/
+    }
+    return null;
+  }
+
   #region injections
   /**
    * @param RulesFacade $rulesFacade
@@ -239,6 +255,13 @@ class TasksPresenter  extends BasePresenter{
     $this->xmlTransformator=$xmlTransformator;
     //nastaven basePath
     $this->xmlTransformator->setBasePath($this->template->basePath);
+  }
+
+  /**
+   * @param UsersFacade $usersFacade
+   */
+  public function injectUsersFacade(UsersFacade $usersFacade) {
+    $this->usersFacade=$usersFacade;
   }
   #endregion
 } 

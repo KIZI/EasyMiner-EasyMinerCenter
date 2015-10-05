@@ -251,7 +251,7 @@ class AttributesPresenter extends BasePresenter{
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->minersFacade->checkMinerMetasource($miner);
 
-    $this->minersFacade->checkMinerState($miner);
+    $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
     $this->template->miner=$miner;
     $this->template->metasource=$miner->metasource;
@@ -495,7 +495,7 @@ class AttributesPresenter extends BasePresenter{
       $attribute->preprocessing=$preprocessing;
       $this->minersFacade->prepareAttribute($miner,$attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner);
+      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
       $this->redirect('reloadUI');
       #endregion vytvoření preprocessingu
@@ -674,7 +674,7 @@ class AttributesPresenter extends BasePresenter{
       $attribute->preprocessing=$preprocessing;
       $this->minersFacade->prepareAttribute($miner,$attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner);
+      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
       $this->redirect('reloadUI');
       #endregion vytvoření preprocessingu
@@ -887,7 +887,7 @@ class AttributesPresenter extends BasePresenter{
       $attribute->preprocessing=$preprocessing;
       $this->minersFacade->prepareAttribute($miner,$attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner);
+      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
       $this->redirect('reloadUI');
       #endregion vytvoření preprocessingu
@@ -943,7 +943,7 @@ class AttributesPresenter extends BasePresenter{
       $attribute->preprocessing=$this->metaAttributesFacade->findPreprocessing($values->preprocessing);
       $this->minersFacade->prepareAttribute($miner,$attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner);
+      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
       $this->redirect('reloadUI');
     };
@@ -1075,6 +1075,18 @@ class AttributesPresenter extends BasePresenter{
     }while(in_array($preprocessingName,$existingPreprocessingsNames));
     #endregion
     return $preprocessingName;
+  }
+
+  /**
+   * @return \EasyMinerCenter\Model\EasyMiner\Entities\User|null
+   */
+  private function getCurrentUser(){
+    try{
+      return $this->usersFacade->findUser($this->user->id);
+    }catch (\Exception $e){
+      /*ignore error (uživatel nemusí být přihlášen)*/
+    }
+    return null;
   }
 
   #region injections

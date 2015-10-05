@@ -105,9 +105,10 @@ class MinersFacade {
 
   /**
    * @param Miner|int $miner
+   * @param User $user;
    * @return int
    */
-  public function deleteMiner($miner){
+  public function deleteMiner($miner, User $user){
     if (!($miner instanceof Miner)){
       $miner=$this->findMiner($miner);
     }
@@ -115,13 +116,13 @@ class MinersFacade {
     //u samotného driveru
     $task=new Task();
     $task->miner=$miner;
-    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade);
+    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade,$user);
     $miningDriver->deleteMiner();
-    //u jednotlivých úlog
+    //u jednotlivých úloh
     $tasks=$miner->tasks;
     if (!empty($tasks)){
       foreach ($tasks as $task){
-        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade);
+        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade,$user);
         $miningDriver->deleteMiner();
       }
     }
@@ -185,28 +186,30 @@ class MinersFacade {
 
   /**
    * @param Task|int $task
+   * @param User $user
    * @return \EasyMinerCenter\Model\Mining\IMiningDriver
    */
-  public function getTaskMiningDriver($task){
+  public function getTaskMiningDriver($task, User $user){
     if (!$task instanceof Task){
       $task=$this->tasksFacade->findTask($task);
     }
-    return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade);
+    return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade,$user);
   }
 
   /**
    * Funkce pro kontrolu stavu konkrétního mineru (jestli jsou nadefinované všechny atributy atd.
    * @param Miner|int $miner
+   * @param User $user
    */
-  public function checkMinerState($miner){
+  public function checkMinerState($miner,User $user){
     if (!$miner instanceof Miner){
       $miner=$this->findMiner($miner);
     }
     $task=new Task();
     $task->type=$miner->type;
     $task->miner=$miner;
-    $miningDriver=$this->getTaskMiningDriver($task);
-    $miningDriver->checkMinerState();
+    $miningDriver=$this->getTaskMiningDriver($task, $user);
+    $miningDriver->checkMinerState($user);
   }
 
   /**

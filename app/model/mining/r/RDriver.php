@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Entities\Value;
 use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
@@ -17,6 +18,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
+use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
 
 class RDriver implements IMiningDriver{
@@ -34,6 +36,10 @@ class RDriver implements IMiningDriver{
   private $metaAttributesFacade;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
+  /** @var  User $user */
+  private $user;
+  /** @var  string $apiKey - API KEY pro konktrétního uživatele */
+  private $apiKey;
 
   #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
   const MAX_MINING_REQUESTS=5;
@@ -57,7 +63,7 @@ class RDriver implements IMiningDriver{
     sendStartRequest:
     try{
       #region pracovní zjednodušený request
-      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML());
+      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),$this->getApiKey());
       $taskState=$this->parseResponse($response);
     #endregion
     }catch (\Exception $e){
@@ -82,7 +88,7 @@ class RDriver implements IMiningDriver{
         sendStartRequest:
         try{
           #region zjištění stavu úlohy, případně import pravidel
-          $response=self::curlRequestResponse($this->getRemoteServerUrl().$this->task->resultsUrl);
+          $response=self::curlRequestResponse($this->getRemoteServerUrl().$this->task->resultsUrl,'',$this->getApiKey());
           return $this->parseResponse($response);
           #endregion
         }catch (\Exception $e){
@@ -132,7 +138,7 @@ class RDriver implements IMiningDriver{
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
    * @throws \Exception
    */
-  public function checkMinerState(){
+  public function checkMinerState(User $user){
     return true;
   }
 
@@ -513,12 +519,14 @@ class RDriver implements IMiningDriver{
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param $params = array()
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
     $this->rulesFacade=$rulesFacade;
     $this->metaAttributesFacade=$metaAttributesFacade;
+    $this->user=$user;
+    $this->setApiKey($user->getEncodedApiKey());
   }
 
   /**
@@ -535,17 +543,23 @@ class RDriver implements IMiningDriver{
 
   /**
    * @param string $url
-   * @param string $postData
+   * @param string $postData = ''
+   * @param string $apiKey = ''
    * @return string - response data
    * @throws \Exception - curl error
    */
-  private static function curlRequestResponse($url,$postData=''){
+  private static function curlRequestResponse($url, $postData='', $apiKey=''){
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch,CURLOPT_MAXREDIRS,0);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    $headersArr=array('Content-Type: application/xml; charset=utf-8');
+    $headersArr=[
+      'Content-Type: application/xml; charset=utf-8'
+    ];
+    if (!empty($apiKey)){
+      $headersArr[]='Authorization: ApiKey '.$apiKey;
+    }
     if ($postData!=''){
       curl_setopt($ch,CURLOPT_POST,true);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -571,6 +585,25 @@ class RDriver implements IMiningDriver{
     return $this->params['importsDirectory'].'/'.$this->task->taskId.'.pmml';
   }
 
+  /**
+   * Funkce nastavující API klíč
+   * @param string $apiKey
+   */
+  public function setApiKey($apiKey){
+    $this->apiKey=$apiKey;
+  }
+
+  /**
+   * Funkce vracející nastavený API klíč
+   * @return string
+   * @throws InvalidArgumentException
+   */
+  private function getApiKey(){
+    if (empty($this->apiKey)){
+      throw new InvalidArgumentException("Missing API KEY!");
+    }
+    return $this->apiKey;
+  }
 
   /**
    * Funkce pro kontrolu, jestli je dostupný dolovací server

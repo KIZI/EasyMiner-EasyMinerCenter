@@ -4,6 +4,7 @@ namespace EasyMinerCenter\Model\Mining;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
@@ -42,9 +43,10 @@ interface IMiningDriver {
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
+   * @param User $user
    * @param array $params = array() - parametry výchozí konfigurace
    */
-  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, $params = array());
+  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, $params = array());
 
   /**
    * Funkce pro kontrolu, jestli je dostupný dolovací server
@@ -63,7 +65,7 @@ interface IMiningDriver {
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
    */
-  public function checkMinerState();
+  public function checkMinerState(User $user);
 
   /**
    * Funkce volaná před smazáním konkrétního mineru
