@@ -42,7 +42,13 @@ var Config = new Class({
   ruleClipboardRemoveFromKnowledgeBaseUrl: {plink RuleClipboard:removeRulesFromRuleSet miner=>'__MINERID__',task=>'__TASKID__',ruleset=>'__RULESETID__'},
 
   ruleClipboardExportLinks: {l}
+    guhaPmml:{l}text:"Task details (GUHA PMML)",url:{plink Tasks:taskPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
+    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
+  {r},
+
+  discoveredRulesExportLinks: {l}
     guhaPmml:{l}text:"GUHA PMML",url:{plink Tasks:taskPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
+    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
   {r},
 
   knowledgeBaseExportLinks: {l}
@@ -274,6 +280,15 @@ var Config = new Class({
 
   getRuleClipboardExportLinks: function(taskId){
     var links=this.ruleClipboardExportLinks;
+    for (var linkId in links){
+      var url=links[linkId].url;
+      links[linkId].url=url.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
+    }
+    return links;
+  },
+
+  getDiscoveredRulesExportLinks: function(taskId){
+    var links=this.discoveredRulesExportLinks;
     for (var linkId in links){
       var url=links[linkId].url;
       links[linkId].url=url.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);

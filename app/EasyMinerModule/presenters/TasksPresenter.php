@@ -136,7 +136,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * Akce pro vygenerování detailů úlohy ve formátu PMML
    * @param $miner
    * @param $task
    * @throws \Exception
@@ -148,6 +148,19 @@ class TasksPresenter  extends BasePresenter{
     $this->checkMinerAccess($miner);
     //vygenerování a odeslání PMML
     $pmml=$this->prepareTaskPmml($task);
+    $this->sendXmlResponse($pmml);
+  }
+
+  /**
+   * Akce pro vygenerování zadání úlohy ve formátu PMML
+   * @param $miner
+   * @param $task
+   */
+  public function renderTaskSettingPMML($miner,$task) {
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+    $pmml=$this->prepareTaskSettingPmml($task);
     $this->sendXmlResponse($pmml);
   }
 
@@ -201,10 +214,11 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * @param $task
-   * @return \SimpleXMLElement
+   * Funkce inicializující PmmlSerializer za využití konfigurace úlohy
+   * @param Task $task
+   * @return GuhaPmmlSerializer
    */
-  private function prepareTaskPmml(Task $task){
+  private function initPmmlSerializer(Task $task) {
     /** @var Metasource $metasource */
     $metasource=$task->miner->metasource;
     $this->databasesFacade->openDatabase($metasource->getDbConnection());
@@ -212,6 +226,26 @@ class TasksPresenter  extends BasePresenter{
     $pmmlSerializer->appendTaskSettings();
     $pmmlSerializer->appendDataDictionary();
     $pmmlSerializer->appendTransformationDictionary();
+    return $pmmlSerializer;
+  }
+
+  /**
+   * Funkce vracející PMML konfiguraci úlohy
+   * @param Task $task
+   * @return \SimpleXMLElement
+   */
+  private function prepareTaskSettingPmml(Task $task) {
+    $pmmlSerializer=$this->initPmmlSerializer($task);
+    return $pmmlSerializer->getPmml();
+  }
+
+  /**
+   * Funkce vracející kompletní PMML export úlohy
+   * @param Task $task
+   * @return \SimpleXMLElement
+   */
+  private function prepareTaskPmml(Task $task){
+    $pmmlSerializer=$this->initPmmlSerializer($task);
     $pmmlSerializer->appendRules();
     return $pmmlSerializer->getPmml();
   }
