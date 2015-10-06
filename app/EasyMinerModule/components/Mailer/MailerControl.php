@@ -30,7 +30,7 @@ class MailerControl extends Control{
    */
   public function sendMailForgottenPassword(UserForgottenPassword $userForgottenPassword){
     $mailMessage=$this->prepareMailMessage('ForgottenPassword',['userForgottenPassword'=>$userForgottenPassword]);
-    $mailMessage->addTo('stanislav.vojir@gmail.com');
+    $mailMessage->addTo($userForgottenPassword->user->email);
     try {
       $this->mailer->send($mailMessage);
     }catch (\Exception $e){
