@@ -8,6 +8,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 
 /**
  * Class IMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
@@ -44,9 +45,10 @@ interface IMiningDriver {
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param User $user
+   * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
    * @param array $params = array() - parametry výchozí konfigurace
    */
-  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, $params = array());
+  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array());
 
   /**
    * Funkce pro kontrolu, jestli je dostupný dolovací server

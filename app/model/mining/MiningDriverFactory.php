@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use Nette\ArgumentOutOfRangeException;
 use Nette\Object;
 use Nette\Utils\Strings;
@@ -17,9 +18,12 @@ use Nette\Utils\Strings;
  */
 class MiningDriverFactory extends Object{
   private $params;
+  /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
+  private $guhaPmmlSerializerFactory;
 
-  public function __construct($params){
+  public function __construct($params, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory){
     $this->params=$params;
+    $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
   }
 
   /**
@@ -67,7 +71,7 @@ class MiningDriverFactory extends Object{
   public function getDriverInstance(Task $task ,MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user){
     if (isset($this->params['driver_'.$task->type])){
       $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
-      return new $driverClass($task, $minersFacade, $rulesFacade, $metaAttributesFacade, $user, $this->params['driver_'.$task->type]);
+      return new $driverClass($task, $minersFacade, $rulesFacade, $metaAttributesFacade, $user, $this->guhaPmmlSerializerFactory, $this->params['driver_'.$task->type]);
     }
     throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
   }

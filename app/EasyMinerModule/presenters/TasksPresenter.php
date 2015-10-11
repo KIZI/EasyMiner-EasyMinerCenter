@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Utils\Json;
 
@@ -27,6 +28,8 @@ class TasksPresenter  extends BasePresenter{
   private $usersFacade;
   /** @var XmlTransformator $xmlTransformator */
   private $xmlTransformator;
+  /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
+  private $guhaPmmlSerializerFactory;
 
   /**
    * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
@@ -222,10 +225,7 @@ class TasksPresenter  extends BasePresenter{
     /** @var Metasource $metasource */
     $metasource=$task->miner->metasource;
     $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    $pmmlSerializer=new GuhaPmmlSerializer($task,null,$this->databasesFacade);
-    $pmmlSerializer->appendTaskSettings();
-    $pmmlSerializer->appendDataDictionary();
-    $pmmlSerializer->appendTransformationDictionary();
+    $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($task,null,$this->databasesFacade,true);
     return $pmmlSerializer;
   }
 
@@ -296,6 +296,13 @@ class TasksPresenter  extends BasePresenter{
    */
   public function injectUsersFacade(UsersFacade $usersFacade) {
     $this->usersFacade=$usersFacade;
+  }
+
+  /**
+   * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
+   */
+  public function injectGuhaPmmlSerializerFactory(GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory) {
+    $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
   }
   #endregion
 } 

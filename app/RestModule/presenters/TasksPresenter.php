@@ -12,7 +12,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
-use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use Nette\Application\BadRequestException;
 
 /**
@@ -26,6 +26,8 @@ class TasksPresenter extends BaseResourcePresenter {
   private $minersFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
+  private $guhaPmmlSerializerFactory;
 
   #region actionReadPmml
   /**
@@ -70,14 +72,10 @@ class TasksPresenter extends BaseResourcePresenter {
    * @return \SimpleXMLElement
    */
   private function prepareTaskPmml(Task $task){
-    //TODO refaktorovat - zároveň je totožná konstrukce použita v TaskPresenteru v modulu EasyMiner
     /** @var Metasource $metasource */
     $metasource=$task->miner->metasource;
     $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    $pmmlSerializer=new GuhaPmmlSerializer($task,null,$this->databasesFacade);
-    $pmmlSerializer->appendTaskSettings();
-    $pmmlSerializer->appendDataDictionary();
-    $pmmlSerializer->appendTransformationDictionary();
+    $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($task,null,$this->databasesFacade,true);
     $pmmlSerializer->appendRules();
     return $pmmlSerializer->getPmml();
   }
@@ -386,6 +384,12 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
     $this->databasesFacade=$databasesFacade;
+  }
+  /**
+   * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
+   */
+  public function injectGuhaPmmlSerializerFactory(GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory) {
+    $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
   }
   #endregion injections
 }

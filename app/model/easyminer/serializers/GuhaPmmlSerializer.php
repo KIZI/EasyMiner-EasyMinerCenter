@@ -23,6 +23,8 @@ class GuhaPmmlSerializer {
   private $task;
   /** @var  Miner $miner */
   private $miner;
+  /** @var string $appVersion */
+  public $appVersion='';
 
   const PMML_XMLNS='http://www.dmg.org/PMML-4_0';
 
@@ -55,13 +57,16 @@ class GuhaPmmlSerializer {
 
   /**
    * @param Task $task
-   * @param \SimpleXMLElement|string|null $pmml = null
+   * @param \SimpleXMLElement|null $pmml
+   * @param DatabasesFacade|null $databasesFacade
+   * @param string $appVersion=''
    */
-  public function __construct(Task $task, $pmml = null, $databasesFacade=null){
+  public function __construct(Task $task, $pmml = null, $databasesFacade=null, $appVersion=''){
     if ($task instanceof Task){
       $this->task=$task;
       $this->miner=$task->miner;
     }
+    $this->appVersion=$appVersion;
     if (!empty($pmml)){
       if ($pmml instanceof \SimpleXMLElement){
         $this->pmml=$pmml;
@@ -72,6 +77,8 @@ class GuhaPmmlSerializer {
     if (!$pmml instanceof \SimpleXMLElement){
       $this->prepareBlankPmml();
     }
+
+    $this->appendTaskInfo();
 
     $this->databasesFacade=$databasesFacade;
 
@@ -96,22 +103,47 @@ class GuhaPmmlSerializer {
   }
 
   /**
+   * Funkce pro nastavení základních informací o úloze, ke které je vytvářena serializace
+   */
+  private function appendTaskInfo() {
+    /** @var \SimpleXMLElement $headerXml */
+    $headerXml=$this->pmml->Header;
+    if ($this->task->type==Miner::TYPE_LM){
+      //lispminer
+      $this->setExtensionElement($headerXml,'subsystem','4ft-Miner');
+      $this->setExtensionElement($headerXml,'module','LMConnect');
+    }elseif($this->task->type==Miner::TYPE_R){
+      //R
+      $this->setExtensionElement($headerXml,'subsystem','R');
+      $this->setExtensionElement($headerXml,'module','Apriori-R');
+    }else{
+      //other
+      $this->setExtensionElement($headerXml,'subsystem',$this->task->type);
+      $this->setExtensionElement($headerXml,'module',$this->task->type);
+    }
+    //základní informace o autorovi a timestamp
+    $this->setExtensionElement($headerXml,'author',(!empty($this->miner->user)?$this->miner->user->name:''));
+    $headerXml->Timestamp=date('Y-m-d H:i:s').' GMT '.str_replace(['+','-'],['+ ','- '],date('P'));
+    $applicationXml=$headerXml->Application;
+    $applicationXml['name']='EasyMiner';
+    $applicationXml['version']=$this->appVersion;
+  }
+
+  /**
    * Funkce připravující prázdný PMML dokument
    */
-  private function prepareBlankPmml(){//TODO doplnění informací o modulu a subsystému a o aktuální verzi systému
+  private function prepareBlankPmml(){
     $this->pmml = simplexml_load_string('<'.'?xml version="1.0" encoding="UTF-8"?>
       <'.'?oxygen SCHSchema="http://easyminer.eu/schemas/GUHARestr0_1.sch"?>
       <PMML xmlns="'.self::PMML_XMLNS.'" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://easyminer.eu/schemas/PMML4.0+GUHA0.1.xsd">
-        <Header copyright="Copyright (c) KIZI UEP">
-
-          <Extension name="author" value="'.(!empty($this->miner->user)?$this->miner->user->name:'').'"/>
-          <Extension name="subsystem" value="4ft-Miner"/>
-          <Extension name="module" value="4ftResult.exe"/>
+        <Header copyright="Copyright (c) KIZI UEP, '.date('Y').'">
+          <Extension name="author" value=""/>
+          <Extension name="subsystem" value=""/>
+          <Extension name="module" value=""/>
           <Extension name="format" value="4ftMiner.Task"/>
           <Extension name="dataset" value="" />
-          <Application name="EasyMiner" version="2.0 '.date('Y').'"/>
-          <Annotation/>
-          <Timestamp>20.11.2014 17:01:45</Timestamp>
+          <Application name="EasyMiner" version=""/>
+          <Timestamp></Timestamp>
         </Header>
         <DataDictionary/>
         <TransformationDictionary/>
@@ -136,18 +168,72 @@ class GuhaPmmlSerializer {
 
   /**
    * Funkce pro přidání tagu <Extension name="..." value="..." />
-   * @param \SimpleXMLElement &$simpleXmlElement
+   *
+   * @param \SimpleXMLElement &$parentSimpleXmlElement
    * @param string $extensionName
    * @param string $extensionValue
    * @param string|null $extensionExtender
    */
-  private function addExtensionElement(&$simpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null){
-    $extensionElement=$simpleXmlElement->addChild('Extension');
-    $extensionElement->addAttribute('name',$extensionName);
-    $extensionElement->addAttribute('value',$extensionValue);
-    if ($extensionExtender!==null){
-      $extensionElement->addAttribute('extender',$extensionExtender);
+  private function addExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
+    if ($groupExtensions && count($parentSimpleXmlElement->Extension)>0){
+      $siblinkElement = $parentSimpleXmlElement->Extension[0];
+      $siblinkElementDom=dom_import_simplexml($siblinkElement);
+      //připravení elementu pro připojení
+      $extensionElement=new \SimpleXMLElement('<Extension />');
+      $extensionElement->addAttribute('name',$extensionName);
+      $extensionElement->addAttribute('value',$extensionValue);
+      if ($extensionExtender!==null){
+        $extensionElement->addAttribute('extender',$extensionExtender);
+      }
+      $extensionElementDom = $siblinkElementDom->ownerDocument->importNode(dom_import_simplexml($extensionElement), true);
+      $siblinkElementDom->parentNode->insertBefore($extensionElementDom, $siblinkElementDom);
+    }else{
+      $extensionElement=$parentSimpleXmlElement->addChild('Extension');
+      $extensionElement->addAttribute('name',$extensionName);
+      $extensionElement->addAttribute('value',$extensionValue);
+      if ($extensionExtender!==null){
+        $extensionElement->addAttribute('extender',$extensionExtender);
+      }
     }
+  }
+
+  /**
+   * @param \SimpleXMLElement $parentSimpleXmlElement
+   * @param string $extensionName
+   * @param string $extensionValue
+   * @param string|null $extensionExtender = null
+   * @param bool $groupExtensions = true
+   */
+  private function setExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
+    if ($extensionElement=$this->getExtensionElement($parentSimpleXmlElement,$extensionName)){
+      //existuje příslušný element Extension
+      $extensionElement['name']=$extensionName;
+      $extensionElement['value']=$extensionValue;
+      if ($extensionExtender!=''){
+        $extensionElement['extender']=$extensionExtender;
+      }else{
+        unset($extensionExtender['extender']);
+      }
+    }else{
+      $this->addExtensionElement($parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender,$groupExtensions);
+    }
+  }
+
+  /**
+   * Funkce vracející konkrétní extension
+   * @param \SimpleXMLElement $parentSimpleXmlElement
+   * @param string $extensionName
+   * @return \SimpleXMLElement|null
+   */
+  private function getExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement, $extensionName){
+    if (count($parentSimpleXmlElement->Extension)>0){
+      foreach($parentSimpleXmlElement->Extension as $extension){
+        if (@$extension['name']==$extensionName){
+          return $extension;
+        }
+      }
+    }
+    return null;
   }
 
   /**

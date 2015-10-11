@@ -13,7 +13,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
-use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Kdyby\Curl\CurlSender;
@@ -33,6 +33,8 @@ class LMDriver implements IMiningDriver{
   private $minersFacade;
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
+  /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
+  private $guhaPmmlSerializerFactory;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
   /** @var User $user */
@@ -51,7 +53,7 @@ class LMDriver implements IMiningDriver{
    * @return TaskState
    */
   public function startMining() {
-    $pmmlSerializer=new GuhaPmmlSerializer($this->task);
+    $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($this->task);
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
     //import úlohy a spuštění dolování...
@@ -117,7 +119,7 @@ class LMDriver implements IMiningDriver{
     throw new \Exception('Task state cannot be parsed - UNKNOWN FORMAT!');
   }
 
-  /**
+  /**XXX
    * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
 
   public function importResults(){
@@ -807,11 +809,12 @@ class LMDriver implements IMiningDriver{
    * @param User $user
    * @param array $params
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
     $this->rulesFacade=$rulesFacade;
+    $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
     $this->user=$user;
   }
 
