@@ -405,7 +405,7 @@ class XmlSerializer {
     $ruleSetRuleRelations=$ruleSet->ruleSetRuleRelations;
     if (count($ruleSetRuleRelations)){
       foreach ($ruleSetRuleRelations as $ruleSetRuleRelation){
-        $this->blankRuleAsXml($ruleItem,$ruleSetXml);
+        $this->blankRuleAsXml($ruleSetRuleRelation->rule,$ruleSetXml);
       }
     }
     return $ruleSetXml;
