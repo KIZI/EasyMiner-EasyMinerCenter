@@ -139,6 +139,29 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
+   * Akce pro přejmenování úlohy v DB
+   * @param int $miner
+   * @param string $task
+   * @param string $rulesOrder
+   * @throws \Nette\Application\ForbiddenRequestException
+   * @throws \Exception
+   */
+  public function actionRulesOrder($miner,$task,$rulesOrder=''){
+    $task=$this->tasksFacade->findTaskByUuid($miner,$task);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+    if ($rulesOrder!=''){
+      //je zadané nové pořadí pravidel...
+      try{
+        $task->setRulesOrder($rulesOrder);
+      }catch (\Exception $e){
+        throw new \Exception($this->translator->translate('Rules order was not saved!'));
+      }
+    }
+    $this->sendJsonResponse(['task'=>$task->taskId,'rulesOrder'=>$rulesOrder]);
+  }
+
+  /**
    * Akce pro vygenerování detailů úlohy ve formátu PMML
    * @param $miner
    * @param $task

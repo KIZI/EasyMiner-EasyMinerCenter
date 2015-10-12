@@ -135,7 +135,7 @@ class RuleSetsFacade {
    * @param null|int $limit
    * @return Rule[]
    */
-  public function findRulesByRuleSet($ruleSet,$order,$offset=null,$limit=null){
+  public function findRulesByRuleSet($ruleSet,$order,$offset=null,$limit=null){//TODO order...
     return $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet,$order,$offset,$limit);
   }
   

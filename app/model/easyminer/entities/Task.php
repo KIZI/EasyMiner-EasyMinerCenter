@@ -12,6 +12,7 @@ use Nette\Utils\Json;
  * @property string $type m:Enum(Miner::TYPE_*)
  * @property int $rulesInRuleClipboardCount = 0
  * @property int $rulesCount = 0
+ * @property string $rulesOrder = 'default'
  * @property string $name = ''
  * @property Miner $miner m:hasOne
  * @property string $state m:Enum(self::STATE_*)
@@ -43,6 +44,7 @@ class Task extends Entity{
       'type'=>$this->type,
       'state'=>$this->state,
       'rulesCount'=>$this->rulesCount,
+      'rulesOrder'=>$this->rulesOrder
     ];
     if ($includeSettings){
       $result['settings']=$this->getTaskSettings();
@@ -94,5 +96,35 @@ class Task extends Entity{
       }
     }
     return $result;
+  }
+
+  /**
+   * @param string $rulesOrder
+   */
+  public function setRulesOrder($rulesOrder){
+    $rulesOrder=strtolower($rulesOrder);
+    $IMsArr=$this->getInterestMeasures();
+    $supportedIM=false;
+    foreach($IMsArr as $im){
+      if (strtolower($im)==$rulesOrder){
+        $supportedIM=true;
+        break;
+      }
+    }
+    if ($rulesOrder=='default'){
+      $supportedIM=true;
+    }
+    if ($supportedIM){
+      $this->row->rules_order=$rulesOrder;
+    }else{
+      throw new \InvalidArgumentException('Unsupported interest measure!');
+    }
+  }
+
+  /**
+   * @return string
+   */
+  public function getRulesOrder() {
+    return $this->row->rules_order;
   }
 } 

@@ -35,7 +35,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     if (!empty($tasks)){
       foreach ($tasks as $task){
         if ($task->rulesInRuleClipboardCount>0){
-          $result[$task->taskUuid]=array('task_id'=>$task->taskId,'name'=>$task->name,'rules'=>$task->rulesCount,'rule_clipboard_rules'=>$task->rulesInRuleClipboardCount);
+          $result[$task->taskUuid]=array('task_id'=>$task->taskId,'name'=>$task->name,'rules'=>$task->rulesCount,'rule_clipboard_rules'=>$task->rulesInRuleClipboardCount,'rules_order'=>$task->rulesOrder);
         }
       }
     }
@@ -55,15 +55,25 @@ class RuleClipboardPresenter  extends BasePresenter{
    * Akce vracející pravidla pro vykreslení v easymineru
    * @param int $miner
    * @param string $task
-   * @param $offset
-   * @param $limit
-   * @param $order
+   * @param int $offset=0
+   * @param int $limit=25
+   * @param string $order = ''
    */
-  public function actionGetRules($miner,$task,$offset=0,$limit=25,$order='id'){
+  public function actionGetRules($miner,$task,$offset=0,$limit=25,$order=''){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
+
+    if ($order!='' && strtolower($order)!=$task->rulesOrder){
+      try{
+        $task->setRulesOrder($order);
+        $this->tasksFacade->saveTask($task);
+      }catch (\Exception $e){
+        /*ignore error...*/
+        $order=$task->rulesOrder;
+      }
+    }
 
     $rules=$this->rulesFacade->findRulesByTask($task,$order,$offset,$limit,true);
     $rulesArr=array();
@@ -72,7 +82,7 @@ class RuleClipboardPresenter  extends BasePresenter{
         $rulesArr[$rule->ruleId]=array('text'=>$rule->text,'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
       }
     }
-    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
+    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>$task->getInterestMeasures(),'rulesOrder'=>$task->rulesOrder),'rules'=>$rulesArr));
   }
 
   /**

@@ -27,6 +27,7 @@ var Config = new Class({
   startMiningUrl: {plink Tasks:startMining miner=>'__MINERID__',task=>'__TASKID__'},
   stopMiningUrl: {plink Tasks:stopMining miner=>'__MINERID__',task=>'__TASKID__'},
   taskRenameUrl: {plink Tasks:renameTask miner=>'__MINERID__',task=>'__TASKID__',name=>'__NAME__'},
+  taskRulesOrderUrl: {plink Tasks:rulesOrder miner=>'__MINERID__',task=>'__TASKID__',rulesOrder=>'__ORDER__'},
 
   minerGetConfigParamUrl: {plink Miners:getConfig miner=>'__MINERID__',property=>'__PROPERTY__'},
   minerSetConfigParamUrl: {plink Miners:setConfig miner=>'__MINERID__',property=>'__PROPERTY__',value=>'__VALUE__'},
@@ -276,6 +277,10 @@ var Config = new Class({
   //endregion
   getTaskRenameUrl: function (taskId, newName) {
     return this.taskRenameUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__NAME__',newName);
+  },
+
+  getTaskRuleOrderUrl: function(taskId, rulesOrder){
+    return this.taskRulesOrderUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__ORDER__',rulesOrder);
   },
 
   getRuleClipboardExportLinks: function(taskId){

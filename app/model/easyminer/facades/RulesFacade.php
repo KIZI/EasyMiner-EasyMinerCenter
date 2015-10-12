@@ -44,6 +44,7 @@ class RulesFacade {
 
   private function getRulesOrderFormula($order){
     $formulasArr=[
+      'default'=>'',
       'fui'=>'confidence DESC',
       'confidence'=>'confidence DESC',
       'supp'=>'support DESC',
@@ -77,6 +78,9 @@ class RulesFacade {
       $task=$task->taskId;
     }
     $params=array('task_id'=>$task);
+    if (empty($order)&&(!empty($task->rulesOrder))){
+      $order=$task->rulesOrder;
+    }
     if (!empty($order)){
       $params['order']=$this->getRulesOrderFormula($order);
     }

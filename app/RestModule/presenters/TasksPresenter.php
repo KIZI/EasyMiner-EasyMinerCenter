@@ -365,6 +365,82 @@ class TasksPresenter extends BaseResourcePresenter {
     return $task;
   }
 
+  #region actionUpdate
+  /**
+   * Akce pro zadání nové úlohy s jednoduchou konfigurací
+   * @SWG\Put(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}",
+   *   summary="Update task details",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     description="TaskBasicInfo",
+   *     name="details",
+   *     required=true,
+   *     @SWG\Schema(ref="#/definitions/TaskBasicUpdateInput"),
+   *     in="body"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Task updated",
+   *     @SWG\Schema(ref="#/definitions/TaskResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found.")
+   * )
+   */
+  public function actionUpdate() {
+    //TODO implementovat
+    throw new \Nette\NotImplementedException();
+    //XXX
+    $inputData=$this->input->getData();
+    $miner=$this->minersFacade->findMiner($inputData['miner']);
+    if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
+      throw new UnauthorizedRequestException('You are not authorized to use the selected miner!');
+    }
+    $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
+    $this->tasksFacade->saveTask($task);
+    //send task details
+    $this->resource=$task->getDataArr(true);
+    $this->sendResource();
+  }
+
+  /**
+   * Funkce pro validaci jednoduchého zadání úlohy
+   */
+  public function validateUpdate() {
+    //TODO implementovat
+    throw new \Nette\NotImplementedException();
+    //XXX
+    $this->input->field('miner')->addRule(IValidator::CALLBACK,'You cannot use the given miner, or the miner has not been found!',function($value) {
+      try {
+        $miner=$this->minersFacade->findMiner($value);
+        if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
+          throw new \Exception('You are not authorized to use the selected miner!');
+        }
+        return true;
+      } catch(\Exception $e) {
+        return false;
+      }
+    });
+    $this->input->field('name')->addRule(IValidator::REQUIRED,'You have to input the task name!');
+    $this->input->field('limitHits')
+      ->addRule(IValidator::INTEGER,'Max rules count (limitHits) has to be positive integer!')
+      ->addRule(IValidator::RANGE,'Max rules count (limitHits) has to be positive integer!',[1,null]);
+    //kontrola strukturovaných vstupů
+    $inputData=$this->input->getData();
+    $this->input->field('IMs')
+      ->addRule(IValidator::REQUIRED,'You have to input interest measure thresholds!')
+      ->addRule(IValidator::CALLBACK,'Invalid structure of interest measure thresholds!',function()use($inputData){
+        $fieldInputData=$inputData['IMs'];
+        if (empty($fieldInputData)){return false;}
+        return true;
+      });
+    $this->input->field('consequent')
+      ->addRule(IValidator::REQUIRED,'You have to input interest the structure of consequent!');
+  }
+  #endregion actionUpdate
+
 
   #region injections
   /**
@@ -405,7 +481,8 @@ class TasksPresenter extends BaseResourcePresenter {
  *   @SWG\Property(property="type",type="integer",description="Type of the miner"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
  *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted","solved_heads"}),
- *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules")
+ *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
+ *   @SWG\Property(property="rulesOrder",type="string",description="Rules order")
  * )
  * @SWG\Definition(
  *   definition="TaskResponse",
@@ -417,6 +494,7 @@ class TasksPresenter extends BaseResourcePresenter {
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
  *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted","solved_heads"}),
  *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
+ *   @SWG\Property(property="rulesOrder",type="string",description="Rules order"),
  *   @SWG\Property(
  *     property="taskSettings",
  *     description="Structured configuration of the task settings",
@@ -509,6 +587,13 @@ class TasksPresenter extends BaseResourcePresenter {
  *     @SWG\Items(ref="#/definitions/IMSimpleInput")
  *   ),
  *   @SWG\Property(property="limitHits",type="integer",description="Limit of requested rules count")
+ * )
+ * @SWG\Definition(
+ *   definition="TaskBasicUpdateInput",
+ *   title="TaskBasicUpdate",
+ *   required={"name","rulesOrder"},
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
+ *   @SWG\Property(property="rulesOrder",type="string",description="Rules order (IM name)")
  * )
  * @SWG\Definition(
  *   definition="CedentSimpleInput",

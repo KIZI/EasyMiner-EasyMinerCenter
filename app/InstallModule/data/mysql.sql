@@ -352,7 +352,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   `state` enum('new','in_progress','solved','failed','interrupted','solved_heads') COLLATE utf8_czech_ci NOT NULL DEFAULT 'new',
   `rules_count` int(11) NOT NULL DEFAULT '0',
   `rules_in_rule_clipboard_count` int(11) NOT NULL DEFAULT '0',
-  `rules_order` varchar(4) COLLATE utf8_czech_ci NOT NULL COMMENT 'Identitikace míry zajímavosti, podle které mají být pravidla řazena',
+  `rules_order` varchar(4) COLLATE utf8_czech_ci NOT NULL DEFAULT 'default' COMMENT 'Identitikace míry zajímavosti, podle které mají být pravidla řazena',
   `results_url` varchar(100) COLLATE utf8_czech_ci DEFAULT NULL COMMENT 'URL pro vyzvednutí výsledků úlohy',
   `task_settings_json` text COLLATE utf8_czech_ci NOT NULL,
   PRIMARY KEY (`task_id`),
