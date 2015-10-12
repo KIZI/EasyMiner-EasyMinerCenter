@@ -35,7 +35,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     if (!empty($tasks)){
       foreach ($tasks as $task){
         if ($task->rulesInRuleClipboardCount>0){
-          $result[$task->taskUuid]=array('task_id'=>$task->taskId,'name'=>$task->name,'rules'=>$task->rulesCount,'rule_clipboard_rules'=>$task->rulesInRuleClipboardCount,'rules_order'=>$task->rulesOrder);
+          $result[$task->taskUuid]=array('task_id'=>$task->taskId,'name'=>$task->name,'rules'=>$task->rulesCount,'rule_clipboard_rules'=>$task->rulesInRuleClipboardCount,'rules_order'=>strtoupper($task->rulesOrder));
         }
       }
     }
@@ -82,7 +82,7 @@ class RuleClipboardPresenter  extends BasePresenter{
         $rulesArr[$rule->ruleId]=array('text'=>$rule->text,'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
       }
     }
-    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>$task->getInterestMeasures(),'rulesOrder'=>$task->rulesOrder),'rules'=>$rulesArr));
+    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>$task->getInterestMeasures(),'rulesOrder'=>strtoupper($task->rulesOrder)),'rules'=>$rulesArr));
   }
 
   /**
