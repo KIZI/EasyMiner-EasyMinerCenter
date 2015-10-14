@@ -90,7 +90,7 @@ class RDriver implements IMiningDriver{
         sendStartRequest:
         try{
           #region zjištění stavu úlohy, případně import pravidel
-          $response=self::curlRequestResponse($this->getRemoteServerUrl().$this->task->resultsUrl,'',$this->getApiKey());
+          $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/'.$this->task->resultsUrl,'',$this->getApiKey());
           return $this->parseResponse($response);
           #endregion
         }catch (\Exception $e){
@@ -149,7 +149,8 @@ class RDriver implements IMiningDriver{
    * @return string
    */
   private function getRemoteMinerUrl(){
-    return $this->getRemoteServerUrl().@$this->params['minerUrl'];
+    $minerUrl=trim(@$this->params['minerUrl'],'/');
+    return $this->getRemoteServerUrl().($minerUrl!=''?'/'.$minerUrl:'');
   }
 
   /**
@@ -157,7 +158,7 @@ class RDriver implements IMiningDriver{
    * @return string
    */
   private function getRemoteServerUrl(){
-    return @$this->params['server'];
+    return rtrim(@$this->params['server']);
   }
 
   /**
