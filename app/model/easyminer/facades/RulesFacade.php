@@ -44,7 +44,7 @@ class RulesFacade {
 
   private function getRulesOrderFormula($order){
     $formulasArr=[
-      'default'=>'',
+      'default'=>'rule_id',
       'fui'=>'confidence DESC',
       'confidence'=>'confidence DESC',
       'supp'=>'support DESC',
