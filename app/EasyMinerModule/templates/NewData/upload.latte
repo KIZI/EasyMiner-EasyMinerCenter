@@ -1,0 +1,25 @@
+{* View for upload form *}
+{block scripts}
+  {include parent}
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/FileUploader.js"></script>
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/Data/upload.js"></script>
+{/block}
+{block content}
+
+  <div id="mainBlock">
+    <h1>{_'Upload dataset'}</h1>
+    <p>
+      {_'You can upload a CSV file, or a ZIP archive with any CSV files.'}
+      {if !empty($maxUploadSize)}
+        {_'Maximum upload size is:'} {$maxUploadSize|bytes}
+      {/if}
+    </p>
+
+    <form>
+      <input type="file" id="fileInput"/>
+      <input type="button" onclick="test();return false;"/>
+    </form>
+
+    {*control uploadForm*}
+  </div>
+
