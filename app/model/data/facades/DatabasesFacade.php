@@ -84,6 +84,9 @@ class DatabasesFacade {
     }else{
       $dbColumnsCount=count($dbColumns);
     }
+    //FIXME
+    return self::DB_TYPE_MYSQL;
+
     if ($dbColumnsCount>self::MYSQL_COLUMNS_MAX_COUNT){
       return self::DB_TYPE_CASSANDRA;
     }else{
