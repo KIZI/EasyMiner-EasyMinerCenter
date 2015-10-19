@@ -10,6 +10,7 @@ var FileUploader=function(params){
   var apiKey='';
   var dataServiceUrl='';
   var inputElementId='';
+
   /**
    * @type {number} maxFileSize=100MB Maximální velikost uploadovaných souborů
    */
@@ -278,16 +279,20 @@ var FileUploader=function(params){
     self.onShowMessage(text, type);
   };
 
+  this.setDataServiceUrl=function(url){
+    dataServiceUrl=url;
+    if(dataServiceUrl.substring(dataServiceUrl.length-1)!='/'){
+      dataServiceUrl+='/';
+    }
+  };
+
   /**
    * Inicializační funkce pro nastavení potřebných parametrů
    * @param {object} [params]
    */
   this.init=function(params){
     if (params.dataServiceUrl!=null){
-      dataServiceUrl=params.dataServiceUrl;
-      if(dataServiceUrl.substring(dataServiceUrl.length-1)!='/'){
-        dataServiceUrl+='/';
-      }
+      this.setDataServiceUrl(params.dataServiceUrl);
     }
     if (params.apiKey!=null){
       apiKey=params.apiKey;

@@ -23,6 +23,8 @@ class FileImportsFacade {
   const FILE_TYPE_ZIP='Zip';
   const FILE_TYPE_CSV='Csv';
   const FILE_TYPE_UNKNOWN='';
+  /*počet řádků, které mají být analyzovány pro určení datových typů v CSV souboru*/
+  const CSV_ANALYZE_ROWS=100;
 
   public function __construct($dataDirectory, $databases, DatabasesFacade $databasesFacade){
     $this->dataDirectory=$dataDirectory;
@@ -194,10 +196,11 @@ class FileImportsFacade {
    * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
+   * @param int $analyzeRowsCount = max(self::CSV_ANALYZE_ROWS,given value)
    * @return \EasyMinerCenter\Model\Data\Entities\DbColumn[]
    */
-  public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\'){
-    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter);
+  public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=self::CSV_ANALYZE_ROWS){
+    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter,max($analyzeRowsCount,self::CSV_ANALYZE_ROWS));
   }
 
   /**

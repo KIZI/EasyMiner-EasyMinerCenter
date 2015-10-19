@@ -1,25 +1,45 @@
 {* View for upload form *}
 {block scripts}
   {include parent}
-  <script type="text/javascript" src="{$basePath}/js/EasyMiner/FileUploader.js"></script>
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/Data/FileUploader.js"></script>
   <script type="text/javascript" src="{$basePath}/js/EasyMiner/Data/upload.js"></script>
+  <script type="text/javascript">
+    var apiKey={$apiKey};
+    var dataServiceUrl={$dataServiceUrl};
+  </script>
 {/block}
 {block content}
+  <noscript>
+    {*TODO error message...*}
+    <div id="mainBlock">
+      <h1>Enable javascript!</h1>
+      <p>For upload of your data set, it is required to have javascript support.</p>
+    </div>
+  </noscript>
 
-  <div id="mainBlock">
-    <h1>{_'Upload dataset'}</h1>
+  <div id="uploadFileBlock">
+    <h1>{_'Upload dataset - select file'}</h1>
     <p>
-      {_'You can upload a CSV file, or a ZIP archive with any CSV files.'}
-      {if !empty($maxUploadSize)}
-        {_'Maximum upload size is:'} {$maxUploadSize|bytes}
-      {/if}
+      {_'You can upload a CSV file (optionally packed in a ZIP archive).'}
     </p>
-
-    <form>
-      <input type="file" id="fileInput"/>
-      <input type="button" onclick="test();return false;"/>
-    </form>
-
-    {*control uploadForm*}
+    {control uploadForm}
   </div>
 
+  <div id="uploadConfigBlock">
+    <h1>{_'Upload dataset - configure upload'}</h1>
+    {control uploadConfigForm}
+    <div id="uploadConfigPreviewBlock">{*prostor pro zobrazení náhledu na celou tabulku*}</div>
+  </div>
+
+  <div id="uploadColumnsBlock">
+    <h1>{_'Upload dataset - configure columns'}</h1>
+    <form>
+      <div id="uploadColumnsListBlock">{*prostor pro dynamické doplnění přehledu sloupců*}</div>
+      <input type="submit" id="uploadAllSubmit" value="{_'Finish upload...'}" />
+    </form>
+  </div>
+
+  <div id="uploadProgressBar">
+    <h1>{_'Uploading dataset...'}</h1>
+    <div class="progressBar"></div>
+  </div>
