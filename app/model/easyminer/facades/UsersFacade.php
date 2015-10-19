@@ -356,7 +356,7 @@ class UsersFacade implements IAuthenticator{
       }
     }
     */
-    return new Identity($user->userId,$rolesArr,array('name'=>$user->name,'email'=>$user->email,'imageUrl'=>$imageUrl));
+    return new Identity($user->userId,$rolesArr,array('name'=>$user->name,'email'=>$user->email,'imageUrl'=>$imageUrl,'apiKey'=>$user->getEncodedApiKey()));
   }
 
   /**
