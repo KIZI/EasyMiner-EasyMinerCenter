@@ -86,7 +86,7 @@ class CsvImport {
     }
     while($offset>0){
       //přeskakujeme řádky, které nemají být importovány...
-      fgets($file,null);
+      fgets($file);
       $offset--;
     }
 

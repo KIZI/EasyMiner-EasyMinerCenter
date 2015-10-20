@@ -238,6 +238,17 @@ class FileImportsFacade {
   }
 
   /**
+   * Funkce pro uložení obsahu dočasného souboru (s nově vygenerovaným dočasným názvem)
+   * @param string $fileContent
+   * @return string
+   */
+  public function saveTempFile($fileContent){
+    $filename=$this->getTempFilename();
+    file_put_contents($this->getFilePath($filename),$fileContent);
+    return $filename;
+  }
+
+  /**
    * Funkce pro import CSV souboru
    * @param string $filename
    * @param DbConnection $dbConnection

@@ -33,11 +33,13 @@ class NewDataPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
    */
   public function actionPreviewData($file,$delimiter='',$encoding='utf-8',$enclosure='"',$escapeCharacter='\\',$nullValue='',$locale='en',$rowsCount=20) {
     //TODO detekce locale... (podle desetinné tečky/čárky...)
-    $filename='/*FIXME*/'/*FIXME*/;
     if ($delimiter==''){
       //detekce výchozího separátoru
-      $delimiter=$this->fileImportsFacade->getCSVDelimiter($filename);
+      $delimiter=$this->fileImportsFacade->getCSVDelimiter($file);
     }
+    //změna kódování souboru
+    $this->fileImportsFacade->changeFileEncoding($file,$encoding);
+    //připravení výstupního pole s daty
     $resultArr=[
       'config'=>[
         'delimiter'=>$delimiter,
@@ -52,18 +54,26 @@ class NewDataPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
       'data'=>[]
     ];
     //načtení informací o datových sloupcích
-    $columns=$this->fileImportsFacade->getColsInCSV($filename,$delimiter,$enclosure,$escapeCharacter,$rowsCount+1);
+    $columns=$this->fileImportsFacade->getColsInCSV($file,$delimiter,$enclosure,$escapeCharacter,$rowsCount+1);
     if (empty($columns)){
       throw new BadRequestException('No columns detected!');
     }
     foreach($columns as $column) {
       $resultArr['columnNames'][]=$column->name;
-      $resultArr['dataTypes'][]=$column->dataType;
+      $resultArr['dataTypes'][]=($column->dataType==DbColumn::TYPE_STRING?'nominal':'numerical');
     }
     //načtení potřebných řádků...
-    $resultArr['data']=$this->fileImportsFacade->getRowsFromCSV($filename,$rowsCount,$delimiter,$enclosure,$escapeCharacter,$nullValue,1);
+    $resultArr['data']=$this->fileImportsFacade->getRowsFromCSV($file,$rowsCount,$delimiter,$enclosure,$escapeCharacter,$nullValue,1);
     //odeslání kompletní odpovědi...
     $this->sendJsonResponse($resultArr);
+  }
+
+  public function actionUploadPreview() {
+    $previewRawData=$this->getHttpRequest()->getRawBody();
+    //TODO inicializace uploadu pomocí datové služby...
+
+    $filename=$this->fileImportsFacade->saveTempFile($previewRawData);
+    $this->sendJsonResponse(['file'=>$filename]);
   }
 
 
@@ -74,17 +84,12 @@ class NewDataPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
       ->setRequired('Je nutné vybrat soubor pro import!')
 //      ->addRule(Form::MAX_FILE_SIZE,'Nahrávaný soubor je příliš velký',$this->fileImportsFacade->getMaximumFileUploadSize())
     ;
+    $form->addHidden('dbType','limited');//FIXME výběr vhodných typů DB
     //přidání submit tlačítek
     $form->addSubmit('submit','Configure upload...')
       ->onClick[]=function(){
       //nepodporujeme upload bez javascriptové konfigurace
       $this->flashMessage('For file upload using UI, you have to enable the javascript code!','error');
-      $this->redirect('newMiner');
-    };
-    $form->addSubmit('storno','storno')
-      ->setValidationScope([])
-      ->onClick[]=function(){
-      //bylo využito tlačítko storno
       $this->redirect('newMiner');
     };
     return $form;
@@ -121,8 +126,10 @@ class NewDataPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
       'iso-8859-1'=>'ISO 8859-1',
     ])->setRequired();
 
-    $form->addText('enclosure','Enclosure:',1,1)->setDefaultValue('"');
-    $form->addText('escape','Escape:',1,1)->setDefaultValue('\\');
+    $form->addText('enclosure','Enclosure:',1,1)
+      ->setDefaultValue('"');
+    $form->addText('escape','Escape:',1,1)
+      ->setDefaultValue('\\');
     $nullValuesArr=CsvImport::getDefaultNullValuesArr();//XXX check
     $defaultNullValue='none';
     foreach($nullValuesArr as $value=>$text){
@@ -139,12 +146,6 @@ class NewDataPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
       ->onClick[]=function(){
       //nepodporujeme upload bez javascriptové konfigurace
       $this->flashMessage('For file upload using UI, you have to enable the javascript code!','error');
-      $this->redirect('newMiner');
-    };
-    $form->addSubmit('storno','storno')
-      ->setValidationScope([])
-      ->onClick[]=function(){
-      //bylo využito tlačítko storno
       $this->redirect('newMiner');
     };
     return $form;

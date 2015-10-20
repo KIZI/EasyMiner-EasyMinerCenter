@@ -6,6 +6,8 @@
   <script type="text/javascript">
     var apiKey={$apiKey};
     var dataServiceUrl={$dataServiceUrl};
+    var previewUrl={link previewData file=>'__FILE__',delimiter=>'__DELIMITER__',encoding=>'__ENCODING__',enclosure=>'__ENCLOSURE__',escapeCharacter=>'__ESCAPE_CHARACTER__',nullValue=>'__NULL_VALUE__',locale=>'__LOCALE__'};
+    var uploadPreviewDataUrl={link uploadPreview};
   </script>
 {/block}
 {block content}
@@ -17,7 +19,7 @@
     </div>
   </noscript>
 
-  <div id="uploadFileBlock">
+  <div id="uploadFormBlock">
     <h1>{_'Upload dataset - select file'}</h1>
     <p>
       {_'You can upload a CSV file (optionally packed in a ZIP archive).'}
@@ -39,7 +41,7 @@
     </form>
   </div>
 
-  <div id="uploadProgressBar">
+  <div id="uploadProgressBlock">
     <h1>{_'Uploading dataset...'}</h1>
     <div class="progressBar"></div>
   </div>
