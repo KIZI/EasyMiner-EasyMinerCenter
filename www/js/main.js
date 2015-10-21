@@ -142,7 +142,9 @@ $(document).ready(function($){
   $("body").append('<div id="loadingOverlay"></div>');
   //připojení funkce pro odchycení custom eventu afterSubmit
   $('form:not(.ajax)').on("afterSubmit",function(){
-    $("body").addClass("slowLoading");
+    if(!$(this).hasClass('ajax')){
+      $("body").addClass("slowLoading");
+    }
   });
 });
 
