@@ -21,8 +21,8 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\RestModule\Presenters
  */
 class MinersPresenter extends BaseResourcePresenter{
-  /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
+  use MinersFacadeTrait;
+
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */
@@ -294,31 +294,7 @@ class MinersPresenter extends BaseResourcePresenter{
     }
   }
 
-
-  /**
-   * @param int $minerId
-   * @return null|Miner
-   * @throws \Nette\Application\BadRequestException
-   */
-  private function findMinerWithCheckAccess($minerId){
-    try{
-      /** @var Miner $miner */
-      $miner=$this->minersFacade->findMiner($minerId);
-    }catch (EntityNotFoundException $e){
-      $this->error('Requested miner was not found.');
-      return null;
-    }
-    $this->minersFacade->checkMinerAccess($miner,$this->getCurrentUser());
-    return $miner;
-  }
-
   #region injections
-  /**
-   * @param MinersFacade $minersFacade
-   */
-  public function injectMinersFacade(MinersFacade $minersFacade){
-    $this->minersFacade=$minersFacade;
-  }
   /**
    * @param DatasourcesFacade $datasourcesFacade
    */

@@ -20,10 +20,10 @@ use Nette\Application\BadRequestException;
  * @package EasyMinerCenter\RestModule\Presenters
  */
 class TasksPresenter extends BaseResourcePresenter {
+  use MinersFacadeTrait;
+
   /** @var  TasksFacade $tasksFacade */
   private $tasksFacade;
-  /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
   /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
@@ -164,10 +164,8 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function actionSimple() {
     $inputData=$this->input->getData();
-    $miner=$this->minersFacade->findMiner($inputData['miner']);
-    if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
-      throw new UnauthorizedRequestException('You are not authorized to use the selected miner!');
-    }
+    $miner=$this->findMinerWithCheckAccess($inputData['miner']);
+
     $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
     $this->tasksFacade->saveTask($task);
     //send task details
@@ -181,10 +179,7 @@ class TasksPresenter extends BaseResourcePresenter {
   public function validateSimple() {
     $this->input->field('miner')->addRule(IValidator::CALLBACK,'You cannot use the given miner, or the miner has not been found!',function($value) {
       try {
-        $miner=$this->minersFacade->findMiner($value);
-        if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
-          throw new \Exception('You are not authorized to use the selected miner!');
-        }
+        $miner=$this->findMinerWithCheckAccess($value);
         return true;
       } catch(\Exception $e) {
         return false;
@@ -394,10 +389,7 @@ class TasksPresenter extends BaseResourcePresenter {
     throw new \Nette\NotImplementedException();
     //XXX
     $inputData=$this->input->getData();
-    $miner=$this->minersFacade->findMiner($inputData['miner']);
-    if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
-      throw new UnauthorizedRequestException('You are not authorized to use the selected miner!');
-    }
+    $miner=$this->findMinerWithCheckAccess($inputData['miner']);
     $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
     $this->tasksFacade->saveTask($task);
     //send task details
@@ -414,10 +406,7 @@ class TasksPresenter extends BaseResourcePresenter {
     //XXX
     $this->input->field('miner')->addRule(IValidator::CALLBACK,'You cannot use the given miner, or the miner has not been found!',function($value) {
       try {
-        $miner=$this->minersFacade->findMiner($value);
-        if(!$this->minersFacade->checkMinerAccess($miner, $this->getCurrentUser())) {
-          throw new \Exception('You are not authorized to use the selected miner!');
-        }
+        $miner=$this->findMinerWithCheckAccess($value);
         return true;
       } catch(\Exception $e) {
         return false;
