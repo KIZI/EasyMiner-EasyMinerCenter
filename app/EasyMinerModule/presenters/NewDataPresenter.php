@@ -2,14 +2,20 @@
 /*XXX pracovní nová verze presenteru!*/
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-
 use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 
-class NewDataPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
+/**
+ * Class NewDataPresenter
+ * @author Stanislav Vojíř
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ */
+class NewDataPresenter extends BasePresenter{
+  use ResponsesTrait;
+
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
 
