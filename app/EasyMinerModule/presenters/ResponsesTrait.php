@@ -1,13 +1,19 @@
 <?php
-
-namespace EasyMinerCenter\Presenters;
-
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\IResponse;
 use Nette\Http\Response;
 use Nette\Utils\Json;
 
-class BaseRestPresenter extends BasePresenter{
+/**
+ * Trait ResponsesTrait
+ * @author Stanislav Vojíř
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ *
+ * @method getHttpResponse()
+ * @method sendResponse(\Nette\Application\IResponse $response)
+ */
+trait ResponsesTrait {
   /**
    * Funkce pro odeslání odpovědi informující o nulovém obsahu
    */
@@ -23,6 +29,7 @@ class BaseRestPresenter extends BasePresenter{
   protected function sendTextResponse($text='',$code=IResponse::S200_OK){
     $response=new Response();
     $response->code=$code;
+    /** @var IResponse $httpResponse */
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('text/plain','UTF-8');
     $this->sendResponse(new TextResponse($text));
@@ -33,6 +40,7 @@ class BaseRestPresenter extends BasePresenter{
    * @param \SimpleXMLElement|string $simpleXml
    */
   protected function sendXmlResponse($simpleXml){
+    /** @var IResponse $httpResponse */
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('application/xml','UTF-8');
     $this->sendResponse(new TextResponse(($simpleXml instanceof \SimpleXMLElement?$simpleXml->asXML():$simpleXml)));
@@ -43,8 +51,9 @@ class BaseRestPresenter extends BasePresenter{
    * @param array|object|string $data
    */
   protected function sendJsonResponse($data){
+    /** @var IResponse $httpResponse */
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('application/json','UTF-8');
     $this->sendResponse(new TextResponse((is_string($data)?$data:Json::encode($data))));
   }
-} 
+}

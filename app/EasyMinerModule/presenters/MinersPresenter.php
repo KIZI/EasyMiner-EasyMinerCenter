@@ -1,18 +1,18 @@
 <?php
-/**
- * User: Stanislav Vojíř
- * Date: 31. 7. 2015
- * Time: 12:14
- */
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
-use EasyMinerCenter\Presenters\BaseRestPresenter;
 use Nette\Application\ForbiddenRequestException;
 
+/**
+ * Class MinersPresenter
+ * @author Stanislav Vojíř
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ */
 class MinersPresenter extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
 
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;

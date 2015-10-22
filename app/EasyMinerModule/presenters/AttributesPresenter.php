@@ -24,7 +24,13 @@ use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Utils\Strings;
 
+/**
+ * Class AttributesPresenter
+ * @author Stanislav Vojíř
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ */
 class AttributesPresenter extends BasePresenter{
+  use MinersFacadeTrait;
 
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;

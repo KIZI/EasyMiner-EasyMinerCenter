@@ -1,9 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
-use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
-use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
@@ -11,6 +9,8 @@ use Nette\Application\ForbiddenRequestException;
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class RulesPresenter  extends BasePresenter{
+  use MinersFacadeTrait;
+
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
 

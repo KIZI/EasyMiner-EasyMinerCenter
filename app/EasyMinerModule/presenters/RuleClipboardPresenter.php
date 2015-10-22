@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
+
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
@@ -11,9 +12,13 @@ use Nette\Application\ForbiddenRequestException;
 
 /**
  * Class RuleClipboardPresenter - presenter pro práci s Rule clipboard v rámci EasyMineru
+ * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class RuleClipboardPresenter  extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
+
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var  TasksFacade $tasksFacade */
@@ -147,7 +152,7 @@ class RuleClipboardPresenter  extends BasePresenter{
   public function actionRemoveAllRules($miner,$task,$returnRules=''){
     $this->checkMinerAccess($miner);
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
+    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));//TODO IDčka???
     //označení všech pravidel patřících do dané úlohy
     $this->rulesFacade->changeAllTaskRulesClipboardState($task,false);
     $this->tasksFacade->checkTaskInRuleClipoard($task);

@@ -14,9 +14,13 @@ use Nette\Utils\Strings;
 
 /**
  * Class MiningUiPresenter - presenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
+ * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class MiningUiPresenter extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
+
   private $lang='en';//TODO předávání jazyka rozhraní
   /** @var  IZIConfig $config */
   private $config;

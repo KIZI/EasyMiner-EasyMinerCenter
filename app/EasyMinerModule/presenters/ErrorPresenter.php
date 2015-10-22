@@ -2,13 +2,13 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-use Nette,
-	EasyMinerCenter\Model,
-	Tracy\Debugger;
-
+use Nette;
+use	Tracy\Debugger;
 
 /**
- * Error presenter.
+ * Class ErrorPresenter - presenter pro ošetření chyb
+ * @author Stanislav Vojíř
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class ErrorPresenter extends BasePresenter
 {

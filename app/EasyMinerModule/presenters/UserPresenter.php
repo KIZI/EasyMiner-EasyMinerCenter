@@ -18,6 +18,8 @@ use Nette\Forms\Controls\TextInput;
 use Nette\Security\Passwords;
 
 class UserPresenter  extends BasePresenter{
+  use ResponsesTrait;
+
   /** @var Facebook $facebook*/
   private $facebook;
   /** @var  Google $google */

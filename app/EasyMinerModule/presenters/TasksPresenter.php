@@ -18,6 +18,9 @@ use Nette\Utils\Json;
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class TasksPresenter  extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
+
   /** @var RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var TasksFacade $tasksFacade */

@@ -15,7 +15,9 @@ use Nette\InvalidArgumentException;
  * Class RuleSetsPresenter - presenter pro práci s rulesety
  * @package EasyMinerCenter\KnowledgeBaseModule\Presenters
  */
-class RuleSetsPresenter extends \EasyMinerCenter\Presenters\BaseRestPresenter{
+class RuleSetsPresenter extends BasePresenter{
+  use ResponsesTrait;
+
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */

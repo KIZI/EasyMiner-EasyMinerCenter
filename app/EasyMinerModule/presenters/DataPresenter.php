@@ -27,9 +27,11 @@ use Nette\Utils\Strings;
 
 /**
  * Class DataPresenter - presenter pro práci s daty (import, zobrazování, smazání...)
+ * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class DataPresenter extends BasePresenter{
+  use MinersFacadeTrait;
 
   /** @var DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;

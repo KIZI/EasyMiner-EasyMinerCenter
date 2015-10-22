@@ -16,10 +16,4 @@ class HomepagePresenter extends BasePresenter{
 
   }
 
-  public function actionTest() {
-    $miner=$this->minersFacade->findMiner(18/*17*/);
-    //TODO testování
-    var_dump($this->user->isAllowed($miner,'edit'));
-    $this->terminate();
-  }
 }
