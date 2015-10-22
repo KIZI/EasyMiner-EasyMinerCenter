@@ -10,12 +10,13 @@ use Nette\Utils\Json;
  * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  *
- * @method getHttpResponse()
+ * @method IResponse getHttpResponse()
  * @method sendResponse(\Nette\Application\IResponse $response)
  */
 trait ResponsesTrait {
   /**
    * Funkce pro odeslání odpovědi informující o nulovém obsahu
+   * @param string $text=''
    */
   protected function sendNoContentResponse($text=''){
     $response=new Response();
@@ -25,11 +26,12 @@ trait ResponsesTrait {
 
   /**
    * Funkce pro odeslání odpovědi informující o nulovém obsahu
+   * @param string $text=''
+   * @param int $code=200
    */
   protected function sendTextResponse($text='',$code=IResponse::S200_OK){
     $response=new Response();
     $response->code=$code;
-    /** @var IResponse $httpResponse */
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('text/plain','UTF-8');
     $this->sendResponse(new TextResponse($text));
@@ -40,7 +42,6 @@ trait ResponsesTrait {
    * @param \SimpleXMLElement|string $simpleXml
    */
   protected function sendXmlResponse($simpleXml){
-    /** @var IResponse $httpResponse */
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('application/xml','UTF-8');
     $this->sendResponse(new TextResponse(($simpleXml instanceof \SimpleXMLElement?$simpleXml->asXML():$simpleXml)));
@@ -51,7 +52,6 @@ trait ResponsesTrait {
    * @param array|object|string $data
    */
   protected function sendJsonResponse($data){
-    /** @var IResponse $httpResponse */
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('application/json','UTF-8');
     $this->sendResponse(new TextResponse((is_string($data)?$data:Json::encode($data))));

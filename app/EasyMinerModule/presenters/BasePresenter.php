@@ -7,32 +7,9 @@ use Nette\Application\UI\Presenter;
 /**
  * Class BasePresenter
  * @package EasyMinerCenter\EasyMinerModule\Presenters
- * @property-read \Nette\Bridges\ApplicationLatte\Template|\stdClass $template
+ * @property \Nette\Bridges\ApplicationLatte\Template|\stdClass $template
  */
 abstract class BasePresenter extends Presenter{//BaseRestPresenter
-
-  protected function checkDatasourceAccess($datasource){
-    return true;
-    //TODO kontrola, jesli má aktuální uživatel právo přistupovat k datovému zdroji
-  }
-
-
-  /**
-   * Metoda volaná při spuštění presenteru, v rámci které je řešeno oprávnění přístupu ke zvolenému zdroji
-   */
-  protected function startup() {
-    $user=$this->getUser();
-    $action=$this->request->parameters['action']?$this->request->parameters['action']:'';
-    if (!$user->isAllowed($this->request->presenterName,$action)){
-      if ($user->isLoggedIn()){
-        throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access the required resource!'));
-      }else{
-        $this->flashMessage('For access to the required resource, you have to log in!','warn');
-        $this->redirect('User:login',['backlink'=>$this->storeRequest()]);
-      }
-    }
-    parent::startup();
-  }
 
   #region translator
   /** @var  \Nette\Localization\ITranslator $translator */
@@ -62,5 +39,24 @@ abstract class BasePresenter extends Presenter{//BaseRestPresenter
   }
 
   #endregion translator
+
+  #region ACL
+  /**
+   * Metoda volaná při spuštění presenteru, v rámci které je řešeno oprávnění přístupu ke zvolenému zdroji
+   */
+  protected function startup() {
+    $user=$this->getUser();
+    $action=$this->request->parameters['action']?$this->request->parameters['action']:'';
+    if (!$user->isAllowed($this->request->presenterName,$action)){
+      if ($user->isLoggedIn()){
+        throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access the required resource!'));
+      }else{
+        $this->flashMessage('For access to the required resource, you have to log in!','warn');
+        $this->redirect('User:login',['backlink'=>$this->storeRequest()]);
+      }
+    }
+    parent::startup();
+  }
+  #endregion ACL
 
 } 

@@ -98,8 +98,8 @@ services:
 			- addResource('EasyMiner:Miners')
 			- allow('authenticated','EasyMiner:Miners')
 
-			- addResource('EasyMiner:MiningUI')
-			- allow('authenticated','EasyMiner:MiningUI')
+			- addResource('EasyMiner:MiningUi')
+			- allow('authenticated','EasyMiner:MiningUi')
 
 			- addResource('EasyMiner:RuleClipboard')
 			- allow('authenticated','EasyMiner:RuleClipboard')

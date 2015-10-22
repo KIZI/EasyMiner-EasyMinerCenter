@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
@@ -26,6 +27,7 @@ class RulesPresenter  extends BasePresenter{
    * @param int $miner
    * @param string $task
    * @param string $rule
+   * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
   public function renderRuleDetails($miner,$task,$rule){

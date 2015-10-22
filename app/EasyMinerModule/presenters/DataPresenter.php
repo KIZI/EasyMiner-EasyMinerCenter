@@ -70,13 +70,7 @@ class DataPresenter extends BasePresenter{
    * @throws BadRequestException
    */
   public function actionOpenMiner($id){
-    try{
-      $miner=$this->minersFacade->findMiner($id);
-    }catch (\Exception $e){
-      throw new BadRequestException($this->translate('Requested miner not found!'),404,$e);
-    }
-
-    $this->checkMinerAccess($miner);
+    $miner=$this->findMinerWithCheckAccess($id);
 
     //zaktualizujeme info o posledním otevření mineru
     $miner->lastOpened=new DateTime();
@@ -235,8 +229,7 @@ class DataPresenter extends BasePresenter{
    * @param int $id
    */
   public function renderDeleteMiner($id){
-    $miner=$this->minersFacade->findMiner($id);
-    $this->checkMinerAccess($miner);
+    $miner=$this->findMinerWithCheckAccess($id);
     //TODO
   }
 
@@ -276,8 +269,7 @@ class DataPresenter extends BasePresenter{
    */
   public function renderColumnHistogram($datasource=null, $miner=null ,$columnName, $mode='default'){
     if ($miner){
-      $miner=$this->minersFacade->findMiner($miner);
-      $this->checkMinerAccess($miner);
+      $miner=$this->findMinerWithCheckAccess($miner);
       $datasource=$miner->datasource;
     }elseif($datasource){
       $datasource=$this->datasourcesFacade->findDatasource($datasource);
@@ -642,6 +634,12 @@ class DataPresenter extends BasePresenter{
   }
 
   #endregion renameDatasourceColumnDialog
+
+
+  protected function checkDatasourceAccess($datasource){
+    return true;
+    //TODO kontrola, jesli má aktuální uživatel právo přistupovat k datovému zdroji
+  }
 
   #region injections
   /**
