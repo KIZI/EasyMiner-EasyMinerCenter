@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
+use Nette\Security\IRole;
 use Nette\Utils\DateTime;
 use Nette\Utils\Strings;
 

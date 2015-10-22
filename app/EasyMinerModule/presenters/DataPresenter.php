@@ -684,13 +684,4 @@ class DataPresenter extends BasePresenter{
     $this->metaAttributesFacade=$metaAttributesFacade;
   }
   #endregion
-
-
-  public function startup(){
-    parent::startup();
-    if (!$this->user->isLoggedIn()){
-      $this->flashMessage('For using of EasyMiner, you have to log in...','error');
-      $this->redirect('User:login');
-    }
-  }
 }

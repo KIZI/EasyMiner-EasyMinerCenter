@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
+use EasyMinerCenter\Model\EasyMiner\Authorizators\IOwnerResource;
 use LeanMapper\Entity;
 use Nette;
 use Nette\Utils\Json;
@@ -23,7 +24,7 @@ use Nette\Utils\Json;
  * @property string $config
  * @property-read Task[] $tasks m:belongsToMany
  */
-class Miner extends Entity{
+class Miner extends Entity implements IOwnerResource{
   const TYPE_LM='lm';
   const TYPE_R='r';
   const DEFAULT_TYPE='r';
@@ -126,5 +127,25 @@ class Miner extends Entity{
       'created'=>$this->created,
       'lastOpened'=>$this->lastOpened
     ];
+  }
+
+  /**
+   * Funkce vracející ID vlastníka (uživatele)
+   * @return int
+   */
+  function getUserId() {
+    if (!empty($this->user)){
+      return $this->user->userId;
+    }else{
+      return null;
+    }
+  }
+
+  /**
+   * Returns a string identifier of the Resource.
+   * @return string
+   */
+  function getResourceId() {
+    return 'ENTITY:Miner';
   }
 }

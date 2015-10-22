@@ -4,6 +4,7 @@ namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 
 use EasyMinerCenter\Libs\StringsHelper;
+use EasyMinerCenter\Model\EasyMiner\Authorizators\OwnerRole;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Entities\UserForgottenPassword;
 use EasyMinerCenter\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository;
@@ -344,7 +345,7 @@ class UsersFacade implements IAuthenticator{
       throw new AuthenticationException('User account is blocked.', self::INVALID_CREDENTIAL);
     }
 
-    $rolesArr=array('authenticated');
+    $rolesArr=['authenticated',new OwnerRole($user->userId)];
 
     $imageUrl=$this->getUserImageUrl($user);
 

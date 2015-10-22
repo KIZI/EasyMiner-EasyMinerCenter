@@ -1,12 +1,5 @@
 <?php
-/**
- * User: Stanislav Vojíř
- * Date: 22.9.14
- * Time: 18:08
- */
-
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
-
 
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
@@ -29,6 +22,7 @@ abstract class BasePresenter extends BaseRestPresenter{
     }
     return true;
   }
+
 
   /**
    * Funkce vracející instanci zvoleného mineru po kontrole, jestli má uživatel právo k němu přistupovat
@@ -60,4 +54,22 @@ abstract class BasePresenter extends BaseRestPresenter{
   public function injectMinersFacade(MinersFacade $minersFacade){
     $this->minersFacade=$minersFacade;
   }
+
+  /**
+   * Metoda volaná při spuštění presenteru, v rámci které je řešeno oprávnění přístupu ke zvolenému zdroji
+   */
+  protected function startup() {
+    $user=$this->getUser();
+    $action=$this->request->parameters['action']?$this->request->parameters['action']:'';
+    if (!$user->isAllowed($this->request->presenterName,$action)){
+      if ($user->isLoggedIn()){
+        throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access the required resource!'));
+      }else{
+        $this->flashMessage('For access to the required resource, you have to log in!','warn');
+        $this->redirect('User:login',['backlink'=>$this->storeRequest()]);
+      }
+    }
+    parent::startup();
+  }
+
 } 

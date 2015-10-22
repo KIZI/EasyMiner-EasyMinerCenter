@@ -63,6 +63,60 @@ services:
 	router: @EasyMinerCenter\RouterFactory::createRouter
 	translator: EasyMinerCenter\Model\BlankTranslator
 	restful.xmlMapper: EasyMinerCenter\RestModule\Model\Mappers\XmlMapper
+	authorizator:
+		class: EasyMinerCenter\Model\EasyMiner\Authorizators\AclPermission
+		setup:
+			- addRole('guest')
+			- addRole('authenticated','guest')
+			- addRole('admin','authenticated')
+			- addRole('owner')
+
+			- addResource('ENTITY:Miner')
+			- allow('owner','ENTITY:Miner')
+
+			- addResource('ENTITY:RuleSet')
+			- allow('owner','ENTITY:RuleSet')
+
+			- addResource('EasyMiner:Attributes')
+			- allow('authenticated','EasyMiner:Attributes')
+
+			- addResource('EasyMiner:Bre')
+			- allow('authenticated','EasyMiner:Bre')
+
+			- addResource('EasyMiner:Cron')
+			- allow('guest','EasyMiner:Cron')
+
+			- addResource('EasyMiner:Data')
+			- allow('authenticated','EasyMiner:Data')
+
+			- addResource('EasyMiner:Error')
+			- allow('guest','EasyMiner:Error')
+
+			- addResource('EasyMiner:Homepage')
+			- allow('guest','EasyMiner:Homepage')
+
+			- addResource('EasyMiner:Miners')
+			- allow('authenticated','EasyMiner:Miners')
+
+			- addResource('EasyMiner:MiningUI')
+			- allow('authenticated','EasyMiner:MiningUI')
+
+			- addResource('EasyMiner:RuleClipboard')
+			- allow('authenticated','EasyMiner:RuleClipboard')
+
+			- addResource('EasyMiner:RuleSets')
+			- allow('authenticated','EasyMiner:RuleSets')
+
+			- addResource('EasyMiner:Rules')
+			- allow('authenticated','EasyMiner:Rules')
+
+			- addResource('EasyMiner:Tasks')
+			- allow('authenticated','EasyMiner:Tasks')
+
+			- addResource('EasyMiner:User')
+			- allow('guest','EasyMiner:User','login')
+			- allow('guest','EasyMiner:User','register')
+			- allow('authenticated','EasyMiner:User')
 
 	- IZI\IZIConfig(%izi-ui%)
 
