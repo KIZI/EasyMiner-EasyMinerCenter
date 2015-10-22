@@ -1,18 +1,19 @@
 <?php
-/**
- * User: Stanislav Vojíř
- * Date: 31. 7. 2015
- * Time: 12:14
- */
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
-use EasyMinerCenter\Presenters\BaseRestPresenter;
+use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 
+/**
+ * Class MinersPresenter
+ * @author Stanislav Vojíř
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ */
 class MinersPresenter extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
 
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
@@ -21,14 +22,11 @@ class MinersPresenter extends BasePresenter{
    * Akce pro přiřazení rule setu ke zvolenému mineru
    * @param int $miner
    * @param int $ruleSet
+   * @throws BadRequestException
    * @throws ForbiddenRequestException
-   * @throws \Exception
    */
   public function actionSetRuleSet($miner, $ruleSet){
-    $miner=$this->minersFacade->findMiner($miner);
-    if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
-      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
-    }
+    $miner=$this->findMinerWithCheckAccess($miner);
     $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleSet);
     $miner->ruleSet=$ruleSet;
     $this->minersFacade->saveMiner($miner);
@@ -40,13 +38,11 @@ class MinersPresenter extends BasePresenter{
    * @param int $miner
    * @param string $property
    * @param string $value
+   * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
   public function actionSetConfig($miner,$property,$value){
-    $miner=$this->minersFacade->findMiner($miner);
-    if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
-      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
-    }
+    $miner=$this->findMinerWithCheckAccess($miner);
     $minerConfig=$miner->getExternalConfig();
     $minerConfig[$property]=$value;
     $miner->setExternalConfig($minerConfig);
@@ -58,13 +54,11 @@ class MinersPresenter extends BasePresenter{
    * Funkce vracející detaily nastavení zvoleného mineru
    * @param int $miner
    * @param string $property=""
+   * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
   public function actionGetConfig($miner, $property=""){
-    $miner=$this->minersFacade->findMiner($miner);
-    if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
-      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
-    }
+    $miner=$this->findMinerWithCheckAccess($miner);
     $config=$miner->getExternalConfig();
     if ($property!=''){
       if (!empty($config[$property])){

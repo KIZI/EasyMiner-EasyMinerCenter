@@ -1,63 +1,62 @@
 <?php
-/**
- * User: Stanislav Vojíř
- * Date: 22.9.14
- * Time: 18:08
- */
-
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-
-use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
-use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
-use EasyMinerCenter\Presenters\BaseRestPresenter;
-use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
+use Nette\Application\UI\Presenter;
 
-abstract class BasePresenter extends BaseRestPresenter{
-  /** @var  MinersFacade $minersFacade */
-  protected $minersFacade;
+/**
+ * Class BasePresenter
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @property \Nette\Bridges\ApplicationLatte\Template|\stdClass $template
+ */
+abstract class BasePresenter extends Presenter{//BaseRestPresenter
 
-  /**
-   * @param Miner|int $miner
-   * @throws ForbiddenRequestException
-   * @return bool
-   */
-  protected function checkMinerAccess($miner){
-    if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
-      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
-    }
-    return true;
+  #region translator
+  /** @var  \Nette\Localization\ITranslator $translator */
+  protected  $translator;
+
+  protected function beforeRender(){
+    /** @noinspection PhpUndefinedMethodInspection */
+    $this->template->setTranslator($this->translator);
+  }
+
+  public function injectTranslator(\Nette\Localization\ITranslator $translator){
+    $this->translator=$translator;
   }
 
   /**
-   * Funkce vracející instanci zvoleného mineru po kontrole, jestli má uživatel právo k němu přistupovat
-   * @param int|Miner $miner
-   * @return Miner
-   * @throws BadRequestException
-   * @throws ForbiddenRequestException
+   * Funkce pro překlad pomocí výchozího translatoru
+   * @param string $message
+   * @param null|int $count
+   * @return string
    */
-  protected function findMinerWithCheckAccess($miner){
-    if (!($miner instanceof Miner)){
-      try{
-        $miner=$this->minersFacade->findMiner($miner);
-      }catch (\Exception $e){
-        throw new BadRequestException('Requested miner not specified!', 404, $e);
+  public function translate($message, $count=null){
+    return $this->translator->translate($message,$count);
+  }
+
+  public function getTranslator(){
+    return $this->translator;
+  }
+
+  #endregion translator
+
+  #region ACL
+  /**
+   * Metoda volaná při spuštění presenteru, v rámci které je řešeno oprávnění přístupu ke zvolenému zdroji
+   */
+  protected function startup() {
+    $user=$this->getUser();
+    $action=$this->request->parameters['action']?$this->request->parameters['action']:'';
+    if (!$user->isAllowed($this->request->presenterName,$action)){
+      if ($user->isLoggedIn()){
+        throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access the required resource!'));
+      }else{
+        $this->flashMessage('For access to the required resource, you have to log in!','warn');
+        $this->redirect('User:login',['backlink'=>$this->storeRequest()]);
       }
     }
-    $this->checkMinerAccess($miner);
-    return $miner;
+    parent::startup();
   }
+  #endregion ACL
 
-  protected function checkDatasourceAccess($datasource){
-    return true;
-    //TODO kontrola, jesli má aktuální uživatel právo přistupovat k datovému zdroji
-  }
-
-  /**
-   * @param MinersFacade $minersFacade
-   */
-  public function injectMinersFacade(MinersFacade $minersFacade){
-    $this->minersFacade=$minersFacade;
-  }
 } 

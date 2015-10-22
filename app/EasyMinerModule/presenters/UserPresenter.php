@@ -18,6 +18,8 @@ use Nette\Forms\Controls\TextInput;
 use Nette\Security\Passwords;
 
 class UserPresenter  extends BasePresenter{
+  use ResponsesTrait;
+
   /** @var Facebook $facebook*/
   private $facebook;
   /** @var  Google $google */
@@ -28,7 +30,7 @@ class UserPresenter  extends BasePresenter{
   private $mailerControlFactory;
 
   /** @persistent */
-  public $url;
+  public $backlink;
 
   /**
    * Akce vracející json detaily o aktuálním uživateli
@@ -132,7 +134,8 @@ class UserPresenter  extends BasePresenter{
    */
   public function actionLogout(){
     $this->getUser()->logout(true);
-    $this->redirect('login');
+    $this->flashMessage('You have been logged out successfully.');
+    $this->redirect('Homepage:default');
   }
 
   /**
@@ -310,7 +313,6 @@ class UserPresenter  extends BasePresenter{
       ->setAttribute('class','button');
 
     // call method signInFormSucceeded() on success
-    $presenter=$this;
     $form->onSuccess[] = function(Nette\Application\UI\Form $form,$values){
       if ($values->remember) {
         $this->getUser()->setExpiration('14 days', false, true);
@@ -335,22 +337,33 @@ class UserPresenter  extends BasePresenter{
    * Funkce pro finální přesměrování po přihlášení
    */
   protected function finalRedirect(){
-    if (!empty($this->url)){
-      $url=$this->url;
-      $this->url='';
-      $this->redirectUrl($url);
-    }else{
+    if (!empty($this->backlink)){
+      //obnovení původního požadavku
+      $this->restoreRequest($this->backlink);
+    }
+    //pokud nebyl nalezen původní požadavek, provedeme přesměrování
+    if ($this->user->isAllowed('EasyMiner:Data','newMiner')){
       $this->redirect('Data:NewMiner');
+    }else{
+      $this->redirect('Homepage');
     }
   }
 
+  /**
+   * Zobrazení flash zprávy po úspěšném přihlášení
+   * @param string $service=''
+   */
   protected function flashMessageLoginSuccess($service=''){
     $this->flashMessage('Welcome to EasyMiner system! You are successfully logged in.','info');
   }
+
+  /**
+   * Zobrazení flash zprávy při neúspěšném přihlášení
+   * @param string $service
+   */
   protected function flashMessageLoginFailed($service){
     $this->flashMessage('Login using '.$service.' failed.');
   }
-
 
   /**
    * Formulář pro změnu hesla

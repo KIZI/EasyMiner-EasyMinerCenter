@@ -11,6 +11,8 @@ use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
+use Nette\Application\BadRequestException;
+use Nette\Application\ForbiddenRequestException;
 use Nette\Utils\Json;
 
 /**
@@ -18,6 +20,9 @@ use Nette\Utils\Json;
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class TasksPresenter  extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
+
   /** @var RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var TasksFacade $tasksFacade */
@@ -36,13 +41,14 @@ class TasksPresenter  extends BasePresenter{
    * @param string $miner
    * @param string $task
    * @param string $data
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function actionStartMining($miner,$task,$data){
     $taskUuid=$task;
     /****************************************************************************************************************/
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    $miner=$this->minersFacade->findMiner($miner);
-    $this->checkMinerAccess($miner);
+    $miner=$this->findMinerWithCheckAccess($miner);
     //nalezení či připravení úlohy...
     $task=$this->tasksFacade->prepareTaskWithUuid($miner,$taskUuid);
     if ($task->state=='new'){
@@ -75,6 +81,8 @@ class TasksPresenter  extends BasePresenter{
    * Akce pro zastavení dolování
    * @param string $miner
    * @param string $task
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function actionStopMining($miner,$task){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
@@ -98,6 +106,8 @@ class TasksPresenter  extends BasePresenter{
    * @param $offset
    * @param $limit
    * @param $order
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function actionGetRules($miner,$task,$offset=0,$limit=25,$order='rule_id'){
     if ($order==''){
@@ -124,8 +134,9 @@ class TasksPresenter  extends BasePresenter{
    * @param int $miner
    * @param string $task
    * @param string $name
-   * @throws \Nette\Application\ForbiddenRequestException
    * @throws \Exception
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function actionRenameTask($miner,$task,$name){
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
@@ -143,7 +154,8 @@ class TasksPresenter  extends BasePresenter{
    * @param int $miner
    * @param string $task
    * @param string $rulesOrder
-   * @throws \Nette\Application\ForbiddenRequestException
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    * @throws \Exception
    */
   public function actionRulesOrder($miner,$task,$rulesOrder=''){
@@ -166,7 +178,8 @@ class TasksPresenter  extends BasePresenter{
    * @param $miner
    * @param $task
    * @throws \Exception
-   * @throws \Nette\Application\ForbiddenRequestException
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function renderTaskPMML($miner,$task){
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
@@ -181,6 +194,8 @@ class TasksPresenter  extends BasePresenter{
    * Akce pro vygenerování zadání úlohy ve formátu PMML
    * @param $miner
    * @param $task
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function renderTaskSettingPMML($miner,$task) {
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
@@ -195,7 +210,8 @@ class TasksPresenter  extends BasePresenter{
    * @param $miner
    * @param $task
    * @throws \Exception
-   * @throws \Nette\Application\ForbiddenRequestException
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function renderTaskXML($miner,$task){
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
@@ -211,7 +227,8 @@ class TasksPresenter  extends BasePresenter{
    * @param $miner
    * @param $task
    * @throws \Exception
-   * @throws \Nette\Application\ForbiddenRequestException
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function renderTaskDRL($miner,$task){
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
@@ -228,7 +245,8 @@ class TasksPresenter  extends BasePresenter{
    * @param string $miner
    * @param string $task
    * @throws \Exception
-   * @throws \Nette\Application\ForbiddenRequestException
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function renderTaskDetails($miner,$task){
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);

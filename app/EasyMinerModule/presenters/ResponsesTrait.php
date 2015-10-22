@@ -1,15 +1,22 @@
 <?php
-
-namespace EasyMinerCenter\Presenters;
-
+namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\IResponse;
 use Nette\Http\Response;
 use Nette\Utils\Json;
 
-class BaseRestPresenter extends BasePresenter{
+/**
+ * Trait ResponsesTrait
+ * @author Stanislav Vojíř
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ *
+ * @method IResponse getHttpResponse()
+ * @method sendResponse(\Nette\Application\IResponse $response)
+ */
+trait ResponsesTrait {
   /**
    * Funkce pro odeslání odpovědi informující o nulovém obsahu
+   * @param string $text=''
    */
   protected function sendNoContentResponse($text=''){
     $response=new Response();
@@ -19,6 +26,8 @@ class BaseRestPresenter extends BasePresenter{
 
   /**
    * Funkce pro odeslání odpovědi informující o nulovém obsahu
+   * @param string $text=''
+   * @param int $code=200
    */
   protected function sendTextResponse($text='',$code=IResponse::S200_OK){
     $response=new Response();
@@ -49,4 +58,4 @@ class BaseRestPresenter extends BasePresenter{
     $httpResponse->setCode($code);
     $this->sendResponse(new TextResponse((is_string($data)?$data:Json::encode($data))));
   }
-} 
+}

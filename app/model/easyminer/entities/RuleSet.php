@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
+use EasyMinerCenter\Model\EasyMiner\Authorizators\IOwnerResource;
 use LeanMapper\Entity;
 use LeanMapper\Filtering;
 use LeanMapper\Fluent;
@@ -16,7 +17,7 @@ use LeanMapper\Fluent;
  * @property User $user m:hasOne
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
  */
-class RuleSet extends Entity{
+class RuleSet extends Entity implements IOwnerResource{
 
   /**
    * Funkce vracející základní data v podobě pole
@@ -66,4 +67,23 @@ class RuleSet extends Entity{
     return $ruleSetRuleRelations;
   }
 
-} 
+  /**
+   * Funkce vracející ID vlastníka (uživatele)
+   * @return int
+   */
+  function getUserId() {
+    if (!empty($this->user)){
+      return $this->user->userId;
+    }else{
+      return null;
+    }
+  }
+
+  /**
+   * Returns a string identifier of the Resource.
+   * @return string
+   */
+  function getResourceId() {
+    return 'ENTITY:Miner';
+  }
+}

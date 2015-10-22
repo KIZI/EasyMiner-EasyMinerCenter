@@ -1,19 +1,25 @@
 <?php
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
+
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
+use Nette\Application\BadRequestException;
 use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
  * Class RuleClipboardPresenter - presenter pro práci s Rule clipboard v rámci EasyMineru
+ * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class RuleClipboardPresenter  extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
+
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var  TasksFacade $tasksFacade */
@@ -27,8 +33,7 @@ class RuleClipboardPresenter  extends BasePresenter{
    */
   public function actionGetTasks($miner){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    $miner=$this->minersFacade->findMiner($miner);
-    $this->checkMinerAccess($miner);
+    $miner=$this->findMinerWithCheckAccess($miner);
 
     $tasks=$miner->tasks;
     $result=array();
@@ -58,6 +63,8 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param int $offset=0
    * @param int $limit=25
    * @param string $order = ''
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
    */
   public function actionGetRules($miner,$task,$offset=0,$limit=25,$order=''){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
@@ -142,12 +149,13 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param int $miner
    * @param string $task
    * @param string $returnRules='' - IDčka oddělená čárkami, případně jedno ID
+   * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
   public function actionRemoveAllRules($miner,$task,$returnRules=''){
     $this->checkMinerAccess($miner);
     $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
+    $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));//TODO IDčka???
     //označení všech pravidel patřících do dané úlohy
     $this->rulesFacade->changeAllTaskRulesClipboardState($task,false);
     $this->tasksFacade->checkTaskInRuleClipoard($task);
@@ -176,6 +184,7 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param string $task
    * @param int|string $rules
    * @param bool $inRuleClipboard
+   * @throws BadRequestException
    * @throws ForbiddenRequestException
    * @return Rule[]
    */
@@ -216,7 +225,7 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param string $relation
    * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
    * @throws ForbiddenRequestException
-   * @throws \Nette\Application\BadRequestException
+   * @throws BadRequestException
    */
   public function actionAddRulesToRuleSet($miner,$task,$ruleset,$relation=RuleSetRuleRelation::RELATION_POSITIVE,$returnRules=''){
     //načtení dané úlohy a zkontrolování přístupu k mineru
@@ -258,7 +267,7 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param string $relation
    * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
    * @throws ForbiddenRequestException
-   * @throws \Nette\Application\BadRequestException
+   * @throws BadRequestException
    */
   public function actionRemoveRulesFromRuleSet($miner,$task,$ruleset,$returnRules=''){
     //načtení dané úlohy a zkontrolování přístupu k mineru

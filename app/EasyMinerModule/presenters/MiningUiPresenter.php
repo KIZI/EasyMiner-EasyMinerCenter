@@ -14,9 +14,13 @@ use Nette\Utils\Strings;
 
 /**
  * Class MiningUiPresenter - presenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
+ * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  */
 class MiningUiPresenter extends BasePresenter{
+  use MinersFacadeTrait;
+  use ResponsesTrait;
+
   private $lang='en';//TODO předávání jazyka rozhraní
   /** @var  IZIConfig $config */
   private $config;
@@ -41,10 +45,7 @@ class MiningUiPresenter extends BasePresenter{
     //------------------------------------------------------------------------------------------------------------------
     $minerType=Miner::DEFAULT_TYPE;
     if ($miner){
-      $miner=$this->minersFacade->findMiner($miner);
-      if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
-        throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
-      }
+      $miner=$this->findMinerWithCheckAccess($miner);
       $minerType=$miner->type;
     }
     $FLPathElement='FLPath_'.Strings::upper($minerType);
@@ -101,12 +102,7 @@ class MiningUiPresenter extends BasePresenter{
       $miner=$id_dm;
     }
 
-    $miner=$this->minersFacade->findMiner($miner);
-    /*FIXME
-    if (!$this->minersFacade->checkMinerAccess($miner,$this->user->id)){
-      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected miner data!'));
-    }
-    $minerType=$miner->type;*/
+    $miner=$this->findMinerWithCheckAccess($miner);
     $this->template->miner=$miner;
 
     $this->template->javascriptFiles= MiningUIIntegration::$javascriptFiles;

@@ -2,10 +2,8 @@
 
 namespace EasyMinerCenter\InstallModule\Presenters;
 
-use EasyMinerCenter\InstallModule\Model\FilesManager;
 use EasyMinerCenter\InstallModule\Model\PhpConfigManager;
 use Nette\Application\UI\Presenter;
-use Nette\Utils\Json;
 
 /**
  * Class DefaultPresenter
