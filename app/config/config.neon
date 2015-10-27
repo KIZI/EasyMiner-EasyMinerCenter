@@ -89,6 +89,9 @@ services:
 			- addResource('EasyMiner:Data')
 			- allow('authenticated','EasyMiner:Data')
 
+			- addResource('EasyMiner:NewData')
+			- allow('authenticated','EasyMiner:NewData')
+
 			- addResource('EasyMiner:Error')
 			- allow('guest','EasyMiner:Error')
 
