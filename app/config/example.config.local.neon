@@ -37,6 +37,16 @@ parameters:
             password:
             server: localhost
             allowFileImport: true
+        dbs_limited:
+            _username: 'user*'
+            _database: 'user*'
+            username: root
+            password:
+            server: localhost
+        dbs_unlimited:
+            _username: 'user*'
+            _database: 'user*'
+            server: localhost
 
 facebook:
     appId: ""

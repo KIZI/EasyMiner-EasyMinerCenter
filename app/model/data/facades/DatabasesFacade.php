@@ -22,16 +22,22 @@ class DatabasesFacade {
 
   const MYSQL_COLUMNS_MAX_COUNT=50;
   const DB_TYPE_MYSQL='mysql';
-  const DB_TYPE_CASSANDRA='cassandra';
+  const DB_TYPE_DBS_LIMITED='dbs_limited';
+  const DB_TYPE_DBS_UNLIMITED='dbs_unlimited';
   const DB_CLASS_MYSQL='\EasyMinerCenter\Model\Data\Databases\MySQLDatabase';
-  const DB_CLASS_CASSANDRA='\EasyMinerCenter\Model\Data\Databases\CassandraDatabase';
+  const DB_CLASS_DATA_SERVICE='\EasyMinerCenter\Model\Data\Databases\MySQLDatabase';
+  //TODO doplnění nových ovladačů pro přístup k datové službě
 
   /**
    * Funkce vracející přehled podporovaných typů databází
    * @return string[]
    */
   public static function getDatabaseTypes(){
-    return array(self::DB_TYPE_MYSQL,self::DB_TYPE_CASSANDRA);
+    return [
+      self::DB_TYPE_MYSQL,
+      self::DB_TYPE_DBS_LIMITED,
+      self::DB_TYPE_DBS_UNLIMITED
+    ];
   }
 
   /**
@@ -65,9 +71,9 @@ class DatabasesFacade {
     if ($dbConnection->type==self::DB_TYPE_MYSQL){
       /** @var IDatabase|string $class */
       $class=self::DB_CLASS_MYSQL;
-    }elseif($dbConnection->type==self::DB_TYPE_CASSANDRA){
+    }elseif ($dbConnection->type==self::DB_TYPE_DBS_LIMITED){
       /** @var IDatabase|string $class */
-      $class=self::DB_TYPE_CASSANDRA;
+      $class=self::DB_CLASS_DATA_SERVICE;
     }else{
       throw new ApplicationException('Unknown database type!');
     }
@@ -88,7 +94,7 @@ class DatabasesFacade {
     return self::DB_TYPE_MYSQL;
 
     if ($dbColumnsCount>self::MYSQL_COLUMNS_MAX_COUNT){
-      return self::DB_TYPE_CASSANDRA;
+      ////FIXME... return self::DB_TYPE_CASSANDRA;
     }else{
       return self::DB_TYPE_MYSQL;
     }
