@@ -1,8 +1,6 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
-use Nette\Application\BadRequestException;
 
 /**
  * Class DatabasesPresenter
@@ -20,7 +18,7 @@ class DatabasesPresenter extends BaseResourcePresenter {
    * @SWG\Get(
    *   tags={"Databases"},
    *   path="/databases/{dbType}",
-   *   summary="Get user access credentials for MySQL",
+   *   summary="Get user access credentials for MySQL and other databases",
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @SWG\Parameter(

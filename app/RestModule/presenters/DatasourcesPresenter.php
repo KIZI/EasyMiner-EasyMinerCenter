@@ -23,10 +23,12 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
 
+
+  #region OLD METHODS
   /**
    * Akce pro import CSV souboru (případně komprimovaného v ZIP archívu)
    * @SWG\Post(
-   *   tags={"Datasources"},
+   *   tags={"DatasourcesOLD"},
    *   path="/datasources",
    *   summary="Create new datasource using uploaded file",
    *   consumes={"text/csv"},
@@ -188,7 +190,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    * @param int|null $id=null
    * @throws BadRequestException
    * @SWG\Get(
-   *   tags={"Datasources"},
+   *   tags={"DatasourcesOLD"},
    *   path="/datasources/{id}",
    *   summary="Get data source basic details",
    *   produces={"application/json","application/xml"},
@@ -220,7 +222,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
       $this->forward('list');return;
     }
     $datasource=$this->findDatasourceWithCheckAccess($id);
-    $result=$datasource->getDataArr();
+    $result=$datasource->getFullDataArr();
     if (!empty($datasource->datasourceColumns)){
       foreach($datasource->datasourceColumns as $column){
         $result['column'][]=['name'=>$column->name,'type'=>$column->type];
@@ -230,6 +232,10 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $this->sendResource();
   }
 
+  #endregion
+  #endregion
+
+  #region actionRead/actionList
   /**
    * Akce vracející seznam datových zdrojů pro aktuálního uživatele
    * @SWG\Get(
@@ -313,13 +319,11 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   title="DatasourceBasicInfo",
  *   required={"id","type","dbServer","dbUsername","dbName","dbTable"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
- *   @SWG\Property(property="type",type="string",description="Type of the used database"),
- *   @SWG\Property(property="dbServer",type="string",description="Database server"),
- *   @SWG\Property(property="dbPort",type="integer",description="Database port"),
- *   @SWG\Property(property="dbUsername",type="string",description="Database user name"),
- *   @SWG\Property(property="dbName",type="string",description="Name of the database"),
- *   @SWG\Property(property="dbTable",type="string",description="Name of the database table"),
+ *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"mysql","limited","unlimited"}),
+ *   @SWG\Property(property="name",type="string")
  * )
+ *
+ * TODO UPDATE OLD DEFINITIONS
  * @SWG\Definition(
  *   definition="DatasourceWithColumnsResponse",
  *   title="DatasourceBasicInfo",

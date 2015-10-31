@@ -24,6 +24,14 @@ class Preprocessing extends Entity{
   const NEW_PREPROCESSING_EACHONE_NAME="Each value - one bin";
 
   /**
+   * Funkce vracející seznam speciálních typů preprocessingu
+   * @return string[]
+   */
+  public static function getSpecialTypes() {
+    return [self::SPECIALTYPE_EACHONE];
+  }
+
+  /**
    * Funkce vracející Value nebo ValuesBin
    * @param string $valueName
    * @return Value|ValuesBin|null
