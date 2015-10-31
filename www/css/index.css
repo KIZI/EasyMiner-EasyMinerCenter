@@ -1125,7 +1125,7 @@ div#preprocessingPage .valuesBin.show .interval {
   padding: 5px 10px;
   font-weight: bold;
 }
-div#preprocessingPage .formatValues {
+div#preprocessingPage div.formatValues {
   margin: 10px 0;
   padding: 10px;
   color: #808080;
@@ -1140,6 +1140,48 @@ div#preprocessingPage .formatValues span {
 }
 div#preprocessingPage .formatValues span:last-child {
   border-right: none;
+}
+div#preprocessingPage table.attributesListTable {
+  background: #fff;
+  color: #434343;
+  border-spacing: 0;
+  margin: 20px 0;
+  width: 100%;
+}
+div#preprocessingPage table.attributesListTable tr:first-child th {
+  border-top: 1px solid #075783;
+}
+div#preprocessingPage table.attributesListTable th {
+  padding: 5px 8px;
+  background: #075783;
+  color: #fff;
+  text-align: left;
+  border: 1px solid #075783;
+  border-left: none;
+  border-top: none;
+}
+div#preprocessingPage table.attributesListTable th:first-child {
+  border: 1px solid #075783;
+}
+div#preprocessingPage table.attributesListTable th.empty {
+  background: #fff;
+}
+div#preprocessingPage table.attributesListTable th.empty:first-child {
+  border-left: none;
+  border-top: none;
+}
+div#preprocessingPage table.attributesListTable td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-top: none;
+}
+div#preprocessingPage table.attributesListTable td:first-child {
+  border-left: 1px solid #ebebeb;
+}
+div#preprocessingPage table.attributesListTable tr:nth-child(even) {
+  background: #fcfbff;
 }
 #loginPage {
   color: #434343;

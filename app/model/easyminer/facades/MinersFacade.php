@@ -1,6 +1,7 @@
 <?php
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
+use EasyMinerCenter\Libs\StringsHelper;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
@@ -182,6 +183,30 @@ class MinersFacade {
     }
     $this->preprocessingDriver->generateAttribute($attribute);
     //TODO nechat mining driver zkontrolovat existenci všech atributů
+  }
+
+  /**
+   * Funkce pro připravení nového názvu atributu (takového, který se zatím v seznamu atributů nevyskytuje)
+   * @param $miner
+   * @param $newAttributeName
+   * @return string
+   */
+  public function prepareNewAttributeName($miner,$newAttributeName) {
+    $existingAttributeNames=[];
+    $attributes=$miner->metasource->attributes;
+    if (!empty($attributes)){
+      foreach($attributes as $attribute){
+        $existingAttributeNames[]=$attribute->name;
+      }
+    }
+    $newAttributeNameBase=StringsHelper::prepareSafeName($newAttributeName);
+    $newAttributeName=$newAttributeNameBase;
+    $i=2;
+    while(in_array($newAttributeName,$existingAttributeNames)){
+      $newAttributeName=$newAttributeNameBase.'_'.$i;
+      $i++;
+    }
+    return $newAttributeName;
   }
 
   /**
