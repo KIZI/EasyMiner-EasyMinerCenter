@@ -23,6 +23,7 @@ var Config = new Class({
   showAttributeHistogramUrl: {plink Data:attributeHistogram miner=>'__MINERID__',attribute=>'__ATTRIBUTE__',mode=>'iframe'},
   showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',columnName=>'__COLUMNNAME__',mode=>'iframe'},
   addAttributeUrl: {plink Attributes:addAttribute miner=>'__MINERID__',columnName=>'__COLUMNNAME__',mode=>'iframe'},
+  addAttributesUrl: {plink Attributes:addAttributes miner=>'__MINERID__',columnNames=>'__COLUMNNAME__',mode=>'iframe'},
   getRulesUrl: {plink Tasks:getRules miner=>'__MINERID__',task=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
   startMiningUrl: {plink Tasks:startMining miner=>'__MINERID__',task=>'__TASKID__'},
   stopMiningUrl: {plink Tasks:stopMining miner=>'__MINERID__',task=>'__TASKID__'},
@@ -106,6 +107,10 @@ var Config = new Class({
 
   getAddAttributeURL: function (fieldName) {
     return  this.addAttributeUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNNAME__',fieldName);
+  },
+
+  getAddAttributesURL: function (fieldNames) {
+    return  this.addAttributesUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNNAME__',fieldNames.join(','));
   },
 
   getShowHistogramURL: function (name, type) {

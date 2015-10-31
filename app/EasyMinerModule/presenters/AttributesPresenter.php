@@ -278,6 +278,20 @@ class AttributesPresenter extends BasePresenter{
   }
 
 
+  /**
+   * Akce pro hromadné předzpracování většího množství atributů
+   * @param int $miner
+   * @param int[]|null $columns=null
+   * @param string[]|null $columnNames=null
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
+   */
+  public function renderAddAttributes($miner, $columns=null, $columnNames=null) {
+    //FIXME implementovat hromadné předzpracování většího množství atributů...
+    echo 'NOT IMPLEMENTED';
+    $this->terminate();
+  }
+
 
   /**
    * Funkce pro načtení příslušného DatasourceColumn, případně vrácení chyby
