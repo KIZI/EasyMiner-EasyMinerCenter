@@ -64,7 +64,11 @@ class AttributesPresenter extends BaseResourcePresenter {
     $miner=$this->findMinerWithCheckAccess(@$inputData['miner']);
     $this->minersFacade->checkMinerMetasource($miner);
     try{
-      $datasourceColumn=$this->datasourcesFacade->findDatasourceColumnByName($miner->datasource,@$inputData['columnName']);
+      if (!empty($inputData['column'])){
+        $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,@$inputData['column']);
+      }else{
+        $datasourceColumn=$this->datasourcesFacade->findDatasourceColumnByName($miner->datasource,@$inputData['columnName']);
+      }
     }catch (\Exception $e){
       throw new InvalidArgumentException("Datasource columns was not found: ".@$inputData['columnName']);
     }
@@ -96,8 +100,10 @@ class AttributesPresenter extends BaseResourcePresenter {
   public function validateCreate() {
     $this->input->field('miner')
       ->addRule(IValidator::REQUIRED,'You have to select miner ID!');
-    $this->input->field('columnName')
-      ->addRule(IValidator::REQUIRED,'You have to input column name!');
+    $this->input->field('columnName')->addRule(IValidator::CALLBACK,'You have to input column name or ID!',function(){
+      $inputData=$this->input->getData();
+      return (@$inputData['columnName']!="" || $inputData['column']>0);
+    });
     $this->input->field('name')
       ->addRule(IValidator::REQUIRED,'You have to input attribute name!');
     $this->input->field('preprocessing')
@@ -173,7 +179,7 @@ class AttributesPresenter extends BaseResourcePresenter {
  * @SWG\Definition(
  *   definition="NewAttributeInput",
  *   title="New attribute",
- *   required={"miner","name","columnName"},
+ *   required={"miner","name"},
  *   @SWG\Property(
  *     property="miner",
  *     description="Miner ID",
@@ -183,6 +189,11 @@ class AttributesPresenter extends BaseResourcePresenter {
  *     property="name",
  *     description="New attribute name",
  *     type="string"
+ *   ),
+ *   @SWG\Property(
+ *     property="column",
+ *     description="Datasource column ID",
+ *     type="integer"
  *   ),
  *   @SWG\Property(
  *     property="columnName",

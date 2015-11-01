@@ -59,6 +59,7 @@ class RDriver implements IMiningDriver{
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
     $pmml=$taskSettingsSerializer->getPmml();
+    //TODO doplnit kontrolu na nezbytné zadání confidence a supportu
     //import úlohy a spuštění dolování...
     //exit($pmml->asXML());
     $numRequests=1;
@@ -494,6 +495,10 @@ class RDriver implements IMiningDriver{
           //jde o informaci o tom, že je nutné na odpověď dál čekat
           $this->task->state=Task::STATE_IN_PROGRESS;
           $resultUrl=(string)$body->miner->{'result-url'};
+          if (Strings::startsWith($resultUrl,'/api/v1')){//FIXME remove
+            $resultUrl=substr($resultUrl,8);
+          }
+
           if ($resultUrl=='' && $this->task->resultUrl!=''){
             $resultUrl=$this->task->resultUrl;
           }

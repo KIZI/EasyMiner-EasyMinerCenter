@@ -4,7 +4,6 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 use Drahak\Restful\InvalidStateException;
 use Drahak\Restful\NotImplementedException;
-use Drahak\Restful\Security\UnauthorizedRequestException;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
@@ -159,13 +158,12 @@ class TasksPresenter extends BaseResourcePresenter {
    *     description="Task created",
    *     @SWG\Schema(ref="#/definitions/TaskResponse")
    *   ),
-   *   @SWG\Response(response=404, description="Requested task was not found.")
+   *   @SWG\Response(response=404, description="Requested miner was not found.")
    * )
    */
   public function actionSimple() {
     $inputData=$this->input->getData();
     $miner=$this->findMinerWithCheckAccess($inputData['miner']);
-
     $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
     $this->tasksFacade->saveTask($task);
     //send task details
@@ -192,14 +190,13 @@ class TasksPresenter extends BaseResourcePresenter {
     //kontrola strukturovaných vstupů
     $inputData=$this->input->getData();
     $this->input->field('IMs')
-      ->addRule(IValidator::REQUIRED,'You have to input interest measure thresholds!')
-      ->addRule(IValidator::CALLBACK,'Invalid structure of interest measure thresholds!',function()use($inputData){
-        $fieldInputData=$inputData['IMs'];
-        if (empty($fieldInputData)){return false;}
-        return true;
+      ->addRule(IValidator::CALLBACK,'You have to input interest measure thresholds!',function($value){
+        return count($value)>0;
       });
     $this->input->field('consequent')
-      ->addRule(IValidator::REQUIRED,'You have to input interest the structure of consequent!');
+      ->addRule(IValidator::CALLBACK,'You have to input the structure of consequent!',function($value){
+        return (count($value)>0);
+      });
   }
   #endregion actionSimple
 
