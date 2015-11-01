@@ -320,6 +320,17 @@ class DatabasesFacade {
   }
 
   /**
+   * Funkce vracející jednotlivé řádky z databáze
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array
+   */
+  public function getRows($tableName,$limitStart=0,$limitCount=0,$databaseProperty=self::FIRST_DB){
+    $this->$databaseProperty->selectTable($tableName);
+    return $this->$databaseProperty->getRows('',null,$limitStart,$limitCount);
+  }
+
+  /**
    * Funkce umožňující promazání tabulky
    * @param string $tableName
    * @param string $databaseProperty

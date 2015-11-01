@@ -166,3 +166,5 @@ services:
 
 	- EasyMinerCenter\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
 	- EasyMinerCenter\EasyMinerModule\Components\MailerControlFactory(%emailFrom%)
+
+	- EasyMinerCenter\Model\Scoring\ModelTesterScoring("http://br-dev.lmcloud.vse.cz:8080/DroolsModelTester_web/rest/")
