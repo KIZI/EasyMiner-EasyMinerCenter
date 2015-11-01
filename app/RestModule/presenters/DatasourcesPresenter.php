@@ -23,19 +23,17 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
 
-
-  #region OLD METHODS
   /**
    * Akce pro import CSV souboru (případně komprimovaného v ZIP archívu)
    * @SWG\Post(
-   *   tags={"DatasourcesOLD"},
+   *   tags={"Datasources"},
    *   path="/datasources",
    *   summary="Create new datasource using uploaded file",
    *   consumes={"text/csv"},
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @SWG\Parameter(
-   *     name="dbTable",
+   *     name="name",
    *     description="Table name (if empty, will be auto-generated)",
    *     required=false,
    *     type="string",
@@ -78,11 +76,11 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *     in="query"
    *   ),
    *   @SWG\Parameter(
-   *     name="dbType",
+   *     name="type",
    *     description="Database type",
    *     required=true,
    *     type="string",
-   *     enum={"mysql"},
+   *     enum={"mysql","limited","unlimited"},
    *     in="query"
    *   ),
    *   @SWG\Parameter(
@@ -138,10 +136,10 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     /** @var array $inputData */
     $inputData=$this->input->getData();
     //prepare default values
-    if (empty($inputData['dbTable'])){
-      $inputData['dbTable']=FileImportsFacade::sanitizeFileNameForImport($file->sanitizedName);
+    if (empty($inputData['name'])){
+      $inputData['name']=FileImportsFacade::sanitizeFileNameForImport($file->sanitizedName);
     }else{
-      $inputData['dbTable']=FileImportsFacade::sanitizeFileNameForImport($inputData['dbTable']);
+      $inputData['name']=FileImportsFacade::sanitizeFileNameForImport($inputData['name']);
     }
     if (empty($inputData['enclosure'])){
       $inputData['enclosure']='"';
@@ -155,10 +153,11 @@ class DatasourcesPresenter extends BaseResourcePresenter{
 
     //prepare new datasource
     /** @var Datasource $datasource */
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->getCurrentUser(),$inputData['dbType']);
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->getCurrentUser(),$inputData['type']);
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    $inputData['dbTable']=$this->databasesFacade->prepareNewTableName($inputData['dbTable']);
-    $this->fileImportsFacade->importCsvFile($filename,$datasource->getDbConnection(),$inputData['dbTable'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
+    $inputData['name']=$this->databasesFacade->prepareNewTableName($inputData['name']);
+    $datasource->dbTable=$inputData['name'];
+    $this->fileImportsFacade->importCsvFile($filename,$datasource->getDbConnection(),$inputData['name'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
     $this->datasourcesFacade->saveDatasource($datasource);
     //send response
     $this->actionRead($datasource->datasourceId);
@@ -169,7 +168,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
-    $this->input->field('dbType')
+    $this->input->field('type')
       ->addRule(IValidator::REQUIRED,'You have to select database type!');
     $this->input->field('separator')
       ->addRule(IValidator::REQUIRED,'Separator character is required!')
@@ -190,7 +189,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    * @param int|null $id=null
    * @throws BadRequestException
    * @SWG\Get(
-   *   tags={"DatasourcesOLD"},
+   *   tags={"Datasources"},
    *   path="/datasources/{id}",
    *   summary="Get data source basic details",
    *   produces={"application/json","application/xml"},
@@ -222,7 +221,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
       $this->forward('list');return;
     }
     $datasource=$this->findDatasourceWithCheckAccess($id);
-    $result=$datasource->getFullDataArr();
+    $result=$datasource->getDataArr();
     if (!empty($datasource->datasourceColumns)){
       foreach($datasource->datasourceColumns as $column){
         $result['column'][]=['name'=>$column->name,'type'=>$column->type];
@@ -232,10 +231,6 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $this->sendResource();
   }
 
-  #endregion
-  #endregion
-
-  #region actionRead/actionList
   /**
    * Akce vracející seznam datových zdrojů pro aktuálního uživatele
    * @SWG\Get(
@@ -322,19 +317,13 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"mysql","limited","unlimited"}),
  *   @SWG\Property(property="name",type="string")
  * )
- *
- * TODO UPDATE OLD DEFINITIONS
  * @SWG\Definition(
  *   definition="DatasourceWithColumnsResponse",
  *   title="DatasourceBasicInfo",
  *   required={"id","type","dbServer","dbUsername","dbName","dbTable"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
  *   @SWG\Property(property="type",type="string",description="Type of the used database"),
- *   @SWG\Property(property="dbServer",type="string",description="Database server"),
- *   @SWG\Property(property="dbPort",type="integer",description="Database port"),
- *   @SWG\Property(property="dbUsername",type="string",description="Database user name"),
- *   @SWG\Property(property="dbName",type="string",description="Name of the database"),
- *   @SWG\Property(property="dbTable",type="string",description="Name of the database table"),
+ *   @SWG\Property(property="name",type="string",description="Name of the database table"),
  *   @SWG\Property(property="column",type="array",
  *     @SWG\Items(ref="#/definitions/ColumnBasicInfoResponse")
  *   )
