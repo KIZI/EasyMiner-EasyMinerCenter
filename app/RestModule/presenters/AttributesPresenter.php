@@ -1,5 +1,6 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
+use Drahak\Restful\InvalidArgumentException;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
@@ -32,47 +33,19 @@ class AttributesPresenter extends BaseResourcePresenter {
    *   tags={"Attributes"},
    *   path="/attributes",
    *   summary="Create new attribute using defined preprocessing",
+   *   consumes={"application/json","application/xml"},
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @SWG\Parameter(
-   *     name="miner",
-   *     description="Miner ID",
+   *     description="New attribute",
+   *     name="body",
    *     required=true,
-   *     type="integer",
-   *     in="query"
-   *   ),
-   *   @SWG\Parameter(
-   *     name="name",
-   *     description="New attribute name",
-   *     required=true,
-   *     type="string",
-   *     in="query"
-   *   ),
-   *   @SWG\Parameter(
-   *     name="columnName",
-   *     description="Datasource column name",
-   *     required=true,
-   *     type="string",
-   *     in="query"
-   *   ),
-   *   @SWG\Parameter(
-   *     name="preprocessing",
-   *     description="Preprocessing ID",
-   *     required=false,
-   *     type="integer",
-   *     in="query"
-   *   ),
-   *   @SWG\Parameter(
-   *     name="specialPreprocessing",
-   *     description="Type of special preprocessing",
-   *     required=false,
-   *     type="string",
-   *     in="query",
-   *     enum={"eachOne"}
+   *     @SWG\Schema(ref="#/definitions/NewAttributeInput"),
+   *     in="body"
    *   ),
    *   @SWG\Response(
-   *     response=200,
-   *     description="Attribute details",
+   *     response=201,
+   *     description="Attribute created",
    *     @SWG\Schema(
    *       ref="#/definitions/AttributeResponse"
    *     )
@@ -90,7 +63,12 @@ class AttributesPresenter extends BaseResourcePresenter {
     $inputData=$this->input->getData();
     $miner=$this->findMinerWithCheckAccess(@$inputData['miner']);
     $this->minersFacade->checkMinerMetasource($miner);
-    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumnByName($miner->datasource,@$inputData['columnName']);
+    try{
+      $datasourceColumn=$this->datasourcesFacade->findDatasourceColumnByName($miner->datasource,@$inputData['columnName']);
+    }catch (\Exception $e){
+      throw new InvalidArgumentException("Datasource columns was not found: ".@$inputData['columnName']);
+    }
+
     //vytvoření nového atributu
     $attribute=new Attribute();
     $attribute->name=$this->minersFacade->prepareNewAttributeName($miner,$inputData['name']);
@@ -190,6 +168,37 @@ class AttributesPresenter extends BaseResourcePresenter {
  *     @SWG\Property(property="name",type="string",description="Name of datasource column"),
  *     @SWG\Property(property="type",type="string",description="Type of datasource column"),
  *     @SWG\Property(property="format",type="integer",description="ID of format")
+ *   )
+ * )
+ * @SWG\Definition(
+ *   definition="NewAttributeInput",
+ *   title="New attribute",
+ *   required={"miner","name","columnName"},
+ *   @SWG\Property(
+ *     property="miner",
+ *     description="Miner ID",
+ *     type="integer",
+ *   ),
+ *   @SWG\Property(
+ *     property="name",
+ *     description="New attribute name",
+ *     type="string"
+ *   ),
+ *   @SWG\Property(
+ *     property="columnName",
+ *     description="Datasource column name",
+ *     type="string"
+ *   ),
+ *   @SWG\Property(
+ *     property="preprocessing",
+ *     description="Preprocessing ID",
+ *     type="integer"
+ *   ),
+ *   @SWG\Property(
+ *     property="specialPreprocessing",
+ *     description="Type of special preprocessing",
+ *     type="string",
+ *     enum={"eachOne"}
  *   )
  * )
  */
