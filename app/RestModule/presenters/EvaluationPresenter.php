@@ -47,21 +47,21 @@ class EvaluationPresenter extends BaseResourcePresenter {
    *     description="Task ID",
    *     required=false,
    *     type="integer",
-   *     in="path"
+   *     in="query"
    *   ),
    *   @SWG\Parameter(
    *     name="ruleSet",
    *     description="Rule set ID",
    *     required=false,
    *     type="integer",
-   *     in="path"
+   *     in="query"
    *   ),
    *   @SWG\Parameter(
    *     name="datasource",
    *     description="Datasource ID",
    *     required=true,
    *     type="integer",
-   *     in="path"
+   *     in="query"
    *   ),
    *   @SWG\Response(
    *     response=200,
