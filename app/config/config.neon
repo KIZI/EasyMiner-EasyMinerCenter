@@ -44,7 +44,7 @@ parameters:
             class: EasyMinerCenter\Model\Mining\R\RDriver
     scorerDriverFactory:
         driver_modelTester:
-            class: EasyMinerCenter\Model\Scoring\ModelTesterScorer
+            class: EasyMinerCenter\Model\Scoring\ModelTester\ModelTesterScorer
             server: "http://br-dev.lmcloud.vse.cz:8080/DroolsModelTester_web/rest/"
 
 restful:

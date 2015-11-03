@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\Model\Scoring;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use Nette\ArgumentOutOfRangeException;
+use Nette\NotImplementedException;
 
 /**
  * Class ScorerDriverFactory
@@ -36,6 +37,22 @@ class ScorerDriverFactory {
     }
     $driverClass='\\'.$this->params['driver_'.$scorerType]['class'];
     return new $driverClass($driverConfigParams['server'], $this->databasesFacade);
+  }
+
+  /**
+   * Funkce vracející výchozí driver (respektive první, u kterého je nalezena konfigurace)
+   * @return IScorerDriver
+   * @throws NotImplementedException
+   */
+  public function getDefaultScorerInstance(){//TODO doplnit možnost vybrání výchozího driveru
+    if (!empty($this->params)){
+      foreach($this->params as $driverId=>$params){
+        if (!empty($params['server'])){
+          return $this->getScorerInstance(substr($driverId,7));
+        }
+      }
+    }
+    throw new NotImplementedException('No configured scorer driver found!');
   }
 
 }

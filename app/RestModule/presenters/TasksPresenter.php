@@ -5,11 +5,10 @@ namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\InvalidStateException;
 use Drahak\Restful\NotImplementedException;
 use Drahak\Restful\Validation\IValidator;
-use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
-use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use Nette\Application\BadRequestException;
@@ -19,10 +18,8 @@ use Nette\Application\BadRequestException;
  * @package EasyMinerCenter\RestModule\Presenters
  */
 class TasksPresenter extends BaseResourcePresenter {
-  use MinersFacadeTrait;
+  use TasksFacadeTrait;
 
-  /** @var  TasksFacade $tasksFacade */
-  private $tasksFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
   /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
@@ -324,6 +321,7 @@ class TasksPresenter extends BaseResourcePresenter {
       'rules'=>[]
     ];
     if ($task->rulesCount>0){
+      /** @var Rule[] $rules */
       $rules=$task->rules;
       if (!empty($rules)){
         foreach($rules as $rule){
@@ -335,27 +333,6 @@ class TasksPresenter extends BaseResourcePresenter {
     $this->sendResource();
   }
   #endregion actionReadRules
-
-
-
-  /**
-   * Funkce pro nalezení úlohy dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným pravidlem
-   *
-   * @param int $taskId
-   * @return Task
-   * @throws \Nette\Application\BadRequestException
-   */
-  private function findTaskWithCheckAccess($taskId){
-    try{
-      /** @var Task $task */
-      $task=$this->tasksFacade->findTask($taskId);
-    }catch (EntityNotFoundException $e){
-      $this->error('Requested task was not found.');
-      return null;
-    }
-    $this->minersFacade->checkMinerAccess($task->miner,$this->getCurrentUser());
-    return $task;
-  }
 
   #region actionUpdate
   /**
@@ -429,18 +406,6 @@ class TasksPresenter extends BaseResourcePresenter {
 
 
   #region injections
-  /**
-   * @param TasksFacade $tasksFacade
-   */
-  public function injectTasksFacade(TasksFacade $tasksFacade) {
-    $this->tasksFacade=$tasksFacade;
-  }
-  /**
-   * @param MinersFacade $minersFacade
-   */
-  public function injectMinersFacade(MinersFacade $minersFacade) {
-    $this->minersFacade=$minersFacade;
-  }
   /**
    * @param DatabasesFacade $databasesFacade
    */

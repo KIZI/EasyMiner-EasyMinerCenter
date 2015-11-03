@@ -1,5 +1,5 @@
 <?php
-namespace EasyMinerCenter\Model\Scoring;
+namespace EasyMinerCenter\Model\Scoring\ModelTester;
 
 
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
@@ -7,6 +7,8 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
+use EasyMinerCenter\Model\Scoring\IScorerDriver;
+use EasyMinerCenter\Model\Scoring\ScoringResult;
 use Nette\NotImplementedException;
 
 class ModelTesterScorer implements IScorerDriver{
