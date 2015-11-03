@@ -77,18 +77,16 @@ class EvaluationPresenter extends BaseResourcePresenter {
    *   )
    * )
    *
-   * @param int|null $task =null
-   * @param int|null $ruleSet =null
-   * @param int $datasource
    * @throws BadRequestException
    * @throws NotImplementedException
    */
-  public function actionClassification($task=null, $ruleSet=null, $datasource) {
+  public function actionClassification() {
     $this->setXmlMapperElements('classification');
+    $inputData=$this->getInput()->getData();
     /** @var IScorerDriver $scorerDriver */
     $scorerDriver=$this->scorerDriverFactory->getDefaultScorerInstance();
     try{
-      $datasource=$this->datasourcesFacade->findDatasource($datasource);
+      $datasource=$this->datasourcesFacade->findDatasource(@$inputData['datasource']);
       if (!$this->datasourcesFacade->checkDatasourceAccess($datasource,$this->getCurrentUser())){
         throw new \Exception();
       }
@@ -96,12 +94,12 @@ class EvaluationPresenter extends BaseResourcePresenter {
       throw new BadRequestException("Requested data source was not found!");
     }
 
-    if (!empty($task)){
-      $task=$this->findTaskWithCheckAccess($task);
+    if (!empty($inputData['task'])){
+      $task=$this->findTaskWithCheckAccess($inputData['task']);
       $result=$scorerDriver->evaluateTask($task,$datasource)->getDataArr();
       $result['task']=$task->getDataArr(false);
-    }elseif(!empty($ruleSet)){
-      $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleSet);
+    }elseif(!empty($inputData['ruleSet'])){
+      $ruleSet=$this->ruleSetsFacade->findRuleSet($inputData['ruleSet']);
       //TODO kontrola oprávnění k rule setu
       $result=$scorerDriver->evaluateRuleSet($ruleSet,$datasource)->getDataArr();
       $result['ruleSet']=$ruleSet->getDataArr();
