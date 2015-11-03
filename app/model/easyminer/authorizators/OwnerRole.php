@@ -8,7 +8,7 @@ use Nette\Security\IRole;
  * Class OwnerRole - třída pro správu oprávnění k vlastním zdrojům uživatelů
  * @package EasyMinerCenter\Model\EasyMiner\Authorizators;
  */
-class OwnerRole implements IRole{//TODO dočasný test!
+class OwnerRole implements IRole{
   private $userId;
   const OWNER_ROLE_ID='owner';
 
@@ -31,5 +31,12 @@ class OwnerRole implements IRole{//TODO dočasný test!
    */
   public function getUserId() {
     return $this->userId;
+  }
+
+  /**
+   * @return string
+   */
+  public function __toString() {
+    return 'owner:'.$this->userId;
   }
 }
