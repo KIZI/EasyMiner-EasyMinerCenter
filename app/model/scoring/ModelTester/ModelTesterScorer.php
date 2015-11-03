@@ -43,42 +43,15 @@ class ModelTesterScorer implements IScorerDriver{
     $testedRowsCount=0;
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
-      $csv=$this->prepareCsvFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST);
+      $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST);
+
       //TODO otestování položek...
     }
 
     // TODO sestavení výsledků jednotlivých testování...
   }
 
-  /**
-   * Funkce pro in-memory sestavení CSV souboru z vybraných řádků v DB
-   * @param string $dbTable
-   * @param int $limitStart
-   * @param int $limitCount
-   * @return string
-   */
-  private function prepareCsvFromDatabaseRows($dbTable,$limitStart,$limitCount){
-    $rows=$this->databasesFacade->getRows($dbTable,$limitStart,$limitCount);
-    $csv='';
-    if (!empty($rows)){
-      #region sestavení CSV
-      $fd = fopen('php://temp/maxmemory:1048576', 'w');
-      if($fd === FALSE) {
-        die('Failed to open temporary file');
-      }
 
-      fputcsv($fd, array_keys($rows[0]));
-      foreach($rows as $row) {
-        fputcsv($fd, array_values($row));
-      }
-
-      rewind($fd);
-      $csv = stream_get_contents($fd);
-      fclose($fd);
-      #endregion sestavení CSV
-    }
-    return $csv;
-  }
 
   /**
    * @param RuleSet $ruleSet
@@ -88,5 +61,44 @@ class ModelTesterScorer implements IScorerDriver{
   public function evaluateRuleSet(RuleSet $ruleSet, Datasource $testingDatasource) {
     // TODO: Implement evaluareRuleSet() method.
     throw new NotImplementedException();
+  }
+
+
+
+  /**
+   * @param string $url
+   * @param string $postData = ''
+   * @param string $apiKey = ''
+   * @return string - response data
+   * @throws \Exception - curl error
+   */
+  private static function curlRequestResponse($url, $postData='', $apiKey=''){
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch,CURLOPT_MAXREDIRS,0);
+    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
+    $headersArr=[
+      'Content-Type: application/xml; charset=utf-8'
+    ];
+    if (!empty($apiKey)){
+      $headersArr[]='Authorization: ApiKey '.$apiKey;
+    }
+    if ($postData!=''){
+      curl_setopt($ch,CURLOPT_POST,true);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+      $headersArr[]='Content-length: '.strlen($postData);
+    }
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArr);
+
+    $responseData = curl_exec($ch);
+    if(curl_errno($ch)){
+      $exception=curl_error($ch);
+      curl_close($ch);
+      throw new \Exception($exception);
+    }
+    curl_close($ch);
+    return $responseData;
   }
 }

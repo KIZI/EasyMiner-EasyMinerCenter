@@ -364,4 +364,36 @@ class DatabasesFacade {
     $database->selectTable($tableName);
     return $database->importCsvFile($csvFileName,$columnsNames, $delimiter, $enclosure, $escapeCharacter, $nullValue, $offsetRows);
   }
+
+
+  /**
+   * Funkce pro in-memory sestavení CSV souboru z vybraných řádků v DB
+   * @param string $dbTable
+   * @param int $offset
+   * @param int $limit
+   * @param string $databaseProperty=self::FIRST_DB
+   * @return string
+   */
+  public function prepareCsvFromDatabaseRows($dbTable,$offset,$limit,$databaseProperty=self::FIRST_DB){
+    $rows=$this->getRows($dbTable,$offset,$limit,$databaseProperty);
+    $csv='';
+    if (!empty($rows)){
+      #region sestavení CSV
+      $fd = fopen('php://temp/maxmemory:10048576', 'w');//TODO zvětšení maximální velikosti souboru...
+      if($fd === FALSE) {
+        die('Failed to open temporary file');
+      }
+
+      fputcsv($fd, array_keys($rows[0]));
+      foreach($rows as $row) {
+        fputcsv($fd, array_values($row));
+      }
+
+      rewind($fd);
+      $csv = stream_get_contents($fd);
+      fclose($fd);
+      #endregion sestavení CSV
+    }
+    return $csv;
+  }
 } 

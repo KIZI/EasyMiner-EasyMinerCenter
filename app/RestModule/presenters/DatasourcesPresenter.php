@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use Nette\Application\BadRequestException;
+use Nette\Application\Responses\TextResponse;
 use Nette\Http\FileUpload;
 use Nette\Utils\FileSystem;
 
@@ -265,6 +266,61 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $this->sendResource();
   }
   #endregion actionRead/actionList
+
+  #region actionRead/actionList
+  /**
+   * @param int|null $id=null
+   * @throws BadRequestException
+   * @SWG\Get(
+   *   tags={"Datasources"},
+   *   path="/datasources/{id}/csv",
+   *   summary="Get data source rows as CSV",
+   *   produces={"text/csv"},
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Datasource ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="offset",
+   *     description="Skip rows",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="limit",
+   *     description="Result rows count",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="CSV"
+   *   ),
+   *   @SWG\Response(
+   *     response=400,
+   *     description="Invalid API key supplied",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested datasource was not found.")
+   * )
+   */
+  public function actionReadCsv($id) {
+    $datasource=$this->findDatasourceWithCheckAccess($id);
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    $inputData=$this->getInput()->getData();
+    $offset=@$inputData['offset'];
+    $limit=(@$inputData['limit']>0?$inputData['limit']:10000);
+    $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($datasource->dbTable,$offset,$limit);
+    $httpResponse=$this->getHttpResponse();
+    $httpResponse->setContentType('text/csv','UTF-8');
+    $this->sendResponse(new TextResponse($csv));
+  }
 
   /**
    * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
