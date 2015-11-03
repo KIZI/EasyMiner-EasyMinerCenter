@@ -1,5 +1,6 @@
 <?php
 namespace EasyMinerCenter\Model\Scoring;
+use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
@@ -8,7 +9,13 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Task;
  * Interface IScoringDriver - rozhraní driveru pro evaluační službu
  * @package EasyMinerCenter\Model\Scoring
  */
-interface IScoringDriver {
+interface IScorerDriver {
+
+  /**
+   * @param $serverUrl
+   * @param DatabasesFacade $databasesFacade
+   */
+  public function __construct($serverUrl, DatabasesFacade $databasesFacade);
 
   /**
    * @param Task $task
@@ -22,6 +29,6 @@ interface IScoringDriver {
    * @param Datasource $testingDatasource
    * @return ScoringResult
    */
-  public function evaluareRuleSet(RuleSet $ruleSet, Datasource $testingDatasource);
+  public function evaluateRuleSet(RuleSet $ruleSet, Datasource $testingDatasource);
 
 }

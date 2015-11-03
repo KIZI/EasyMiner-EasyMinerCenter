@@ -9,7 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use Nette\NotImplementedException;
 
-class ModelTesterScoring implements IScoringDriver{
+class ModelTesterScorer implements IScorerDriver{
   /** @var  string $serverUrl */
   private $serverUrl;
   /** @var DatabasesFacade $databasesFacade */
@@ -83,7 +83,7 @@ class ModelTesterScoring implements IScoringDriver{
    * @param Datasource $testingDatasource
    * @return ScoringResult
    */
-  public function evaluareRuleSet(RuleSet $ruleSet, Datasource $testingDatasource) {
+  public function evaluateRuleSet(RuleSet $ruleSet, Datasource $testingDatasource) {
     // TODO: Implement evaluareRuleSet() method.
     throw new NotImplementedException();
   }

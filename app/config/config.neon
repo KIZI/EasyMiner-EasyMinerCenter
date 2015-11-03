@@ -42,6 +42,10 @@ parameters:
             pooler: task
         driver_r:
             class: EasyMinerCenter\Model\Mining\R\RDriver
+    scorerDriverFactory:
+        driver_modelTester:
+            class: EasyMinerCenter\Model\Scoring\ModelTesterScorer
+            server: "http://br-dev.lmcloud.vse.cz:8080/DroolsModelTester_web/rest/"
 
 restful:
     convention: 'camelCase'
@@ -167,4 +171,4 @@ services:
 	- EasyMinerCenter\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
 	- EasyMinerCenter\EasyMinerModule\Components\MailerControlFactory(%emailFrom%)
 
-	- EasyMinerCenter\Model\Scoring\ModelTesterScoring("http://br-dev.lmcloud.vse.cz:8080/DroolsModelTester_web/rest/")
+	- EasyMinerCenter\Model\Scoring\ScorerDriverFactory(%scorerDriverFactory%)

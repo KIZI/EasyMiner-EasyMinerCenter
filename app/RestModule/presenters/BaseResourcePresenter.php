@@ -57,8 +57,8 @@ use Nette\Security\IIdentity;
  *   description="Management of attributes"
  * )
  * @SWG\Tag(
- *   name="DatasourcesOLD",
- *   description="Old methods for datasources"
+ *   name="Evaluation",
+ *   description="Methods for model evaluation/scoring"
  * )
  * @SWG\Tag(
  *   name="Datasources",
