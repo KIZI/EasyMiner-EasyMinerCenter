@@ -298,6 +298,20 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *     type="integer",
    *     in="query"
    *   ),
+   *   @SWG\Parameter(
+   *     name="separator",
+   *     description="Columns separator",
+   *     required=true,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="enclosure",
+   *     description="Enclosure character",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
    *   @SWG\Response(
    *     response=200,
    *     description="CSV"
@@ -316,7 +330,9 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $inputData=$this->getInput()->getData();
     $offset=@$inputData['offset'];
     $limit=(@$inputData['limit']>0?$inputData['limit']:10000);
-    $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($datasource->dbTable,$offset,$limit);
+    $separator=(@$inputData['separator']!=''?$inputData['separator']:';');
+    $enclosure=(@$inputData['enclosure']!=''?$inputData['enclosure']:'"');
+    $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($datasource->dbTable,$offset,$limit,$separator,$enclosure);
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('text/csv','UTF-8');
     $this->sendResponse(new TextResponse($csv));

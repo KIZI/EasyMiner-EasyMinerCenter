@@ -371,12 +371,17 @@ class DatabasesFacade {
    * @param string $dbTable
    * @param int $offset
    * @param int $limit
+   * @param string $delimiter=';'
+   * @param string $enclosure='"'
    * @param string $databaseProperty=self::FIRST_DB
    * @return string
    */
-  public function prepareCsvFromDatabaseRows($dbTable,$offset,$limit,$databaseProperty=self::FIRST_DB){
+  public function prepareCsvFromDatabaseRows($dbTable,$offset,$limit,$delimiter=';',$enclosure='"',$databaseProperty=self::FIRST_DB){
     $rows=$this->getRows($dbTable,$offset,$limit,$databaseProperty);
     $csv='';
+    $delimiter=';';
+    $enclosure='\\';
+
     if (!empty($rows)){
       #region sestavení CSV
       $fd = fopen('php://temp/maxmemory:10048576', 'w');//TODO zvětšení maximální velikosti souboru...
@@ -384,9 +389,9 @@ class DatabasesFacade {
         die('Failed to open temporary file');
       }
 
-      fputcsv($fd, array_keys($rows[0]));
+      fputcsv($fd, array_keys($rows[0]),$delimiter,$enclosure);
       foreach($rows as $row) {
-        fputcsv($fd, array_values($row));
+        fputcsv($fd, array_values($row),$delimiter,$enclosure);
       }
 
       rewind($fd);
