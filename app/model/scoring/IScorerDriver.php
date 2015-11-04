@@ -14,8 +14,9 @@ interface IScorerDriver {
   /**
    * @param $serverUrl
    * @param DatabasesFacade $databasesFacade
+   * @param array|null $params=null
    */
-  public function __construct($serverUrl, DatabasesFacade $databasesFacade);
+  public function __construct($serverUrl, DatabasesFacade $databasesFacade, $params=null);
 
   /**
    * @param Task $task

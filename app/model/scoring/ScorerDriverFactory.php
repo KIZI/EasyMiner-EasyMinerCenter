@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\Scoring;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use Nette\Application\LinkGenerator;
 use Nette\ArgumentOutOfRangeException;
 use Nette\NotImplementedException;
 
@@ -36,7 +37,8 @@ class ScorerDriverFactory {
       throw new ArgumentOutOfRangeException('Requested scorer driver was not found!');
     }
     $driverClass='\\'.$this->params['driver_'.$scorerType]['class'];
-    return new $driverClass($driverConfigParams['server'], $this->databasesFacade);
+    $result=new $driverClass($driverConfigParams['server'], $this->databasesFacade,$driverConfigParams);
+    return $result;
   }
 
   /**

@@ -46,6 +46,7 @@ parameters:
         driver_modelTester:
             class: EasyMinerCenter\Model\Scoring\ModelTester\ModelTesterScorer
             server: "http://br-dev.lmcloud.vse.cz:8080/DroolsModelTester_web/rest/"
+            tempDirectory: "/var/www/easyminercenter/www/temp"
 
 restful:
     convention: 'camelCase'
