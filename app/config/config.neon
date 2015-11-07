@@ -121,6 +121,8 @@ services:
 			- addResource('EasyMiner:User')
 			- allow('guest','EasyMiner:User','login')
 			- allow('guest','EasyMiner:User','register')
+			- allow('guest','EasyMiner:User','oauthGoogle')
+			- allow('guest','EasyMiner:User','oauthFacebook')
 			- allow('authenticated','EasyMiner:User')
 
 	- IZI\IZIConfig(%izi-ui%)
