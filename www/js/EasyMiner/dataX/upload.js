@@ -6,6 +6,8 @@
 var DataUpload=function(){
   this.fileInputElement=null;
   this.jqElements={
+    flashMessages: null,
+
     uploadFormBlock:    null,
     uploadConfigBlock:  null,
     uploadConfigPreviewBlock: null,
@@ -82,6 +84,8 @@ var DataUpload=function(){
    * Funkce pro inicializaci konfigurace uploadu
    */
   this.showUploadConfigBlock=function(){
+    //skrytí případných flash zpráv
+    this.jqElements.flashMessages.hide();
     //zobrazení potřebných bloků
     this.jqElements.uploadFormBlock.hide();
     this.jqElements.uploadColumnsBlock.hide();
@@ -95,7 +99,7 @@ var DataUpload=function(){
   this.showColumnsConfigBlock=function(){
     //připravení položek příslušného formuláře...
     var listBlock=this.jqElements.uploadColumnsListBlock;
-    var listBlockTable=$('<table><tr><th>'+'Column name'+'</th><th>'+'Data type'+'</th><th>'+'Values'+'</th></tr></table>');
+    var listBlockTable=$('<table><tr><th>'+'Column name'+'</th><th>'+'Data type'+'</th><th>'+'Values from first rows...'+'</th></tr></table>');
     for (var i in columnNames){
       //položka konkrétního sloupce
       var columnDetailsTr=$('<tr></tr>');
@@ -108,14 +112,15 @@ var DataUpload=function(){
       //náhled hodnot
       var previewedRows=0;
       var previewData=[];
+      var valuesTdDiv=$('<div></div>');
+      valuesTd.append(valuesTdDiv);
       for (var row in previewRows){
         if (previewedRows>10){break;}
         var rowData=previewRows[row];
         if (rowData.hasOwnProperty(i)){
-          previewData.push(rowData[i]);
+          valuesTdDiv.append($('<span></span>').text(rowData[i]));
         }
       }
-      valuesTd.text(previewData.join(" | "));
       columnDetailsTr.append(valuesTd);
       listBlockTable.append(columnDetailsTr);
     }
@@ -255,7 +260,7 @@ var DataUpload=function(){
           //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
           //FIXME zpráva o chybě...
         }
-       });
+      });
     };
     fileReader.onerror=function(){
       //FIXME zpráva o chybě při přístupu k souboru...
@@ -364,6 +369,7 @@ $(document).ready(function(){
   var uploadConfigBlock=$('#uploadConfigBlock');
   var uploadProgressBlock=$('#uploadProgressBlock');
   dataUpload.fileInputElement=uploadFormBlock.find('form input[type="file"]').get(0);
+  $('form').addClass('ajax');
 
   dataUpload.jqElements={
     uploadFormBlock:    uploadFormBlock,
@@ -384,7 +390,9 @@ $(document).ready(function(){
     nullValueInput: uploadConfigBlock.find('[name="nullValue"]'),
     encodingInput: uploadConfigBlock.find('[name="encoding"]'),
     enclosureInput: uploadConfigBlock.find('[name="enclosure"]'),
-    localeInput: uploadConfigBlock.find('[name="locale"]')
+    localeInput: uploadConfigBlock.find('[name="locale"]'),
+
+    flashMessages: $('.flash')
   };
 
   dataUpload.dataServiceUrl=dataServiceUrl;
