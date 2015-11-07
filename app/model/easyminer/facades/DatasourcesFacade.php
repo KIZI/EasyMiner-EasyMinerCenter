@@ -35,6 +35,9 @@ class DatasourcesFacade {
     $this->datasourcesRepository = $datasourcesRepository;
     $this->datasourceColumnsRepository = $datasourceColumnsRepository;
     $this->databasesConfig = $databasesConfig;
+    if (!empty($this->databasesConfig['mysql']) && empty($this->databasesConfig['dbs_limited'])){
+      $this->databasesConfig['dbs_limited']=$this->databasesConfig['mysql'];
+    }
     $this->databasesFacade = $databasesFacade;
   }
 
@@ -204,6 +207,7 @@ class DatasourcesFacade {
    * @return Datasource
    */
   public function prepareNewDatasourceForUser(User $user,$dbType){
+
     $datasource=new Datasource();
     if (!in_array($dbType,$this->databasesFacade->getDatabaseTypes()) || !isset($this->databasesConfig[$dbType])){
       throw new BadRequestException('Unsupported type of database!',500);
@@ -222,6 +226,9 @@ class DatasourcesFacade {
 
     $dbConnection=$datasource->getDbConnection();
 
+    if ($dbType==DatabasesFacade::DB_TYPE_DBS_UNLIMITED){return $datasource;}
+
+    //TODO tato kontrola by neměla být prováděna při každém requestu...
     try{
       $this->databasesFacade->openDatabase($dbConnection);
     }catch (\Exception $e){

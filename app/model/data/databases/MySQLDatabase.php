@@ -105,11 +105,11 @@ class MySQLDatabase implements IDatabase{
     if ($where!=''){
       $sql.=' WHERE '.$where;
     }
-    if ($limitStart!=0){
-      $sql.=' LIMIT '.$limitStart;
-    }
     if ($limitCount!=0){
-      $sql.=' OFFSET '.$limitCount;
+      $sql.=' LIMIT '.$limitCount;
+    }
+    if ($limitStart!=0){
+      $sql.=' OFFSET '.$limitStart;
     }
     $query=$this->db->prepare($sql);
     $query->execute($whereParams);

@@ -8,6 +8,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Format;
 use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\Value;
 use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
@@ -22,6 +23,7 @@ use Nette\Application\UI\Form;
 use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
+use Nette\NotImplementedException;
 use Nette\Utils\Strings;
 
 /**
@@ -278,6 +280,97 @@ class AttributesPresenter extends BasePresenter{
   }
 
 
+  /**
+   * Akce pro hromadné předzpracování většího množství atributů
+   * @param int $miner
+   * @param int[]|null $columns=null
+   * @param string[]|null $columnNames=null
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
+   */
+  public function renderAddAttributes($miner, $columns=null, $columnNames=null) {
+    /** @var Miner $miner */
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+
+    $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
+
+    $this->template->miner=$miner;
+    $this->template->metasource=$miner->metasource;
+    /** @var DatasourceColumn[] $datasourceColumns */
+    $datasourceColumns=[];
+
+    if (trim(@$columns,' ,;')!=''){
+      //zpracováváme sloupce dle jejich ID
+      $columns=explode(',',str_replace(';',',',$columns));
+      if (!empty($columns)){
+        foreach($columns as $column){
+          $datasourceColumns[]=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,$column);
+        }
+      }
+    }elseif(trim(@$columnNames,' ,;')!=''){
+      //zpracováváme sloupce dle jejich jména
+      $columnNames=explode(',',str_replace(';',',',$columnNames));
+      if (!empty($columnNames)){
+        foreach($columnNames as $columnName){
+          $datasourceColumns[]=$this->datasourcesFacade->findDatasourceColumnByName($miner->datasource,$columnName);
+        }
+      }
+    }
+    if (empty($datasourceColumns)){
+      throw new BadRequestException('No data columns found.');
+    }
+    $datasourceColumnsIds=[];
+    foreach($datasourceColumns as $datasourceColumn){
+      $datasourceColumnsIds[]=$datasourceColumn->datasourceColumnId;
+    }
+    $this->template->datasourceColumns=$datasourceColumns;
+    $this->template->datasourceColumnsIds=implode(',',$datasourceColumnsIds);
+    $this->template->miner=$miner;
+    //TODO kontrola, jestli je možné nabídnout další typy preprocessingu...
+  }
+
+  /**
+   * @param int $miner
+   * @param int[]|int|string $columns
+   * @param $type
+   */
+  public function actionPreprocessAttributes($miner,$columns,$type) {
+    if (is_string($columns)){
+      $columns=explode(',',str_replace(';',',',trim($columns,' ;,')));
+    }
+    /** @var Miner $miner */
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+
+    if ($type==Preprocessing::SPECIALTYPE_EACHONE){
+      #region preprocessing eachOne
+      foreach($columns as $column){
+        $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+        $this->template->datasourceColumn=$datasourceColumn;
+        $format=$datasourceColumn->format;
+        $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
+        //připravíme příslušný atribut
+        $attribute=new Attribute();
+
+        $attribute->metasource=$miner->metasource;
+        $attribute->datasourceColumn=$datasourceColumn;
+        $attribute->name=$this->minersFacade->prepareNewAttributeName($miner,$datasourceColumn->name);
+        $attribute->type=$attribute->datasourceColumn->type;
+        $attribute->preprocessing=$preprocessing;
+        $this->minersFacade->prepareAttribute($miner,$attribute);
+        $this->metasourcesFacade->saveAttribute($attribute);
+      }
+      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
+      #endregion
+    }else{
+      throw new NotImplementedException();
+    }
+
+    //TODO předzpracování příslušných atributů...
+    $this->redirect('reloadUI');
+  }
+  
 
   /**
    * Funkce pro načtení příslušného DatasourceColumn, případně vrácení chyby

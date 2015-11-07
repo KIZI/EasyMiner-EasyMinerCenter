@@ -1,8 +1,6 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
-use Nette\Application\BadRequestException;
 
 /**
  * Class DatabasesPresenter
@@ -19,10 +17,18 @@ class DatabasesPresenter extends BaseResourcePresenter {
    * Akce pro ověření přihlášeného uživatele
    * @SWG\Get(
    *   tags={"Databases"},
-   *   path="/databases/mysql",
-   *   summary="Get user access credentials for MySQL",
+   *   path="/databases/{dbType}",
+   *   summary="Get user access credentials for MySQL and other databases",
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   @SWG\Parameter(
+   *     name="dbType",
+   *     description="Type of database",
+   *     required=true,
+   *     type="string",
+   *     in="path",
+   *     enum={"limited","unlimited","mysql"}
+   *   ),
    *   @SWG\Response(
    *     response=200,
    *     description="Connection params",
@@ -43,11 +49,14 @@ class DatabasesPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionRead($dbType) {
-    if ($dbType!='mysql'){
-      throw new BadRequestException("Bad database type!");
-    }
     $this->setXmlMapperElements('database');
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->currentUser,DatabasesFacade::DB_TYPE_MYSQL);
+    $dbType=strtolower($dbType);
+    if ($dbType=='limited'||$dbType=='unlimited'){
+      $dbType='dbs_'.$dbType;
+    }
+    //připravení informací o datovém zdroji pro konkrétního uživatele...
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->currentUser,$dbType);
+
     $arr=[
       'server'=>$datasource->dbServer,
       'username'=>$datasource->dbUsername,

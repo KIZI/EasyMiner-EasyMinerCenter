@@ -11,6 +11,19 @@ class StringsHelper {
   const PASSWORDS_SALT='zruiopwkjhgfdsayexcvbnqtm';
 
   /**
+   * Funkce pro připravení bezpečného jména pro atributy, data fields atd.
+   * @param $string
+   * @return string
+   */
+  public static function prepareSafeName($string) {
+    $string=str_replace('-','_',Strings::webalize($string,true));
+    while(strpos($string,'__')>0){
+      $string=str_replace('__','_',$string);
+    }
+    return trim($string,'_');
+  }
+
+  /**
    * Funkce pro naplnění řetězce pomocí parametrů
    * @param string $string
    * @param array $params

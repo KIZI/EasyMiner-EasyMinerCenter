@@ -4,13 +4,11 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 use Drahak\Restful\InvalidStateException;
 use Drahak\Restful\NotImplementedException;
-use Drahak\Restful\Security\UnauthorizedRequestException;
 use Drahak\Restful\Validation\IValidator;
-use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
-use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use Nette\Application\BadRequestException;
@@ -20,10 +18,8 @@ use Nette\Application\BadRequestException;
  * @package EasyMinerCenter\RestModule\Presenters
  */
 class TasksPresenter extends BaseResourcePresenter {
-  use MinersFacadeTrait;
+  use TasksFacadeTrait;
 
-  /** @var  TasksFacade $tasksFacade */
-  private $tasksFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
   /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
@@ -159,13 +155,12 @@ class TasksPresenter extends BaseResourcePresenter {
    *     description="Task created",
    *     @SWG\Schema(ref="#/definitions/TaskResponse")
    *   ),
-   *   @SWG\Response(response=404, description="Requested task was not found.")
+   *   @SWG\Response(response=404, description="Requested miner was not found.")
    * )
    */
   public function actionSimple() {
     $inputData=$this->input->getData();
     $miner=$this->findMinerWithCheckAccess($inputData['miner']);
-
     $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
     $this->tasksFacade->saveTask($task);
     //send task details
@@ -192,14 +187,13 @@ class TasksPresenter extends BaseResourcePresenter {
     //kontrola strukturovaných vstupů
     $inputData=$this->input->getData();
     $this->input->field('IMs')
-      ->addRule(IValidator::REQUIRED,'You have to input interest measure thresholds!')
-      ->addRule(IValidator::CALLBACK,'Invalid structure of interest measure thresholds!',function()use($inputData){
-        $fieldInputData=$inputData['IMs'];
-        if (empty($fieldInputData)){return false;}
-        return true;
+      ->addRule(IValidator::CALLBACK,'You have to input interest measure thresholds!',function($value){
+        return count($value)>0;
       });
     $this->input->field('consequent')
-      ->addRule(IValidator::REQUIRED,'You have to input interest the structure of consequent!');
+      ->addRule(IValidator::CALLBACK,'You have to input the structure of consequent!',function($value){
+        return (count($value)>0);
+      });
   }
   #endregion actionSimple
 
@@ -327,6 +321,7 @@ class TasksPresenter extends BaseResourcePresenter {
       'rules'=>[]
     ];
     if ($task->rulesCount>0){
+      /** @var Rule[] $rules */
       $rules=$task->rules;
       if (!empty($rules)){
         foreach($rules as $rule){
@@ -338,27 +333,6 @@ class TasksPresenter extends BaseResourcePresenter {
     $this->sendResource();
   }
   #endregion actionReadRules
-
-
-
-  /**
-   * Funkce pro nalezení úlohy dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným pravidlem
-   *
-   * @param int $taskId
-   * @return Task
-   * @throws \Nette\Application\BadRequestException
-   */
-  private function findTaskWithCheckAccess($taskId){
-    try{
-      /** @var Task $task */
-      $task=$this->tasksFacade->findTask($taskId);
-    }catch (EntityNotFoundException $e){
-      $this->error('Requested task was not found.');
-      return null;
-    }
-    $this->minersFacade->checkMinerAccess($task->miner,$this->getCurrentUser());
-    return $task;
-  }
 
   #region actionUpdate
   /**
@@ -432,18 +406,6 @@ class TasksPresenter extends BaseResourcePresenter {
 
 
   #region injections
-  /**
-   * @param TasksFacade $tasksFacade
-   */
-  public function injectTasksFacade(TasksFacade $tasksFacade) {
-    $this->tasksFacade=$tasksFacade;
-  }
-  /**
-   * @param MinersFacade $minersFacade
-   */
-  public function injectMinersFacade(MinersFacade $minersFacade) {
-    $this->minersFacade=$minersFacade;
-  }
   /**
    * @param DatabasesFacade $databasesFacade
    */

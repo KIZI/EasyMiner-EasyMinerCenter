@@ -27,29 +27,21 @@ class Datasource extends Entity{
   public static function getTypes(){
     return array(
       'mysql'=>'MySQL',
-      'cassandra'=>'Cassandra DB'
+      'limited'=>'Data service limited',
+      'unlimited'=>'Data service unlimited',
     );
   }
 
   /**
-   * Funkce vracející parametry datového zdroje v podobě pole
-   * @param bool $includePassword = false
+   * Funkce vracející základní parametry datového zdroje
    * @return array
    */
-  public function getDataArr($includePassword=false){
-    $result = [
+  public function getDataArr(){
+    return [
       'id'=>$this->datasourceId,
       'type'=>$this->type,
-      'dbServer'=>$this->dbServer,
-      'dbPort'=>$this->dbPort,
-      'dbUsername'=>$this->dbUsername,
-      'dbName'=>$this->dbName,
-      'dbTable'=>$this->dbTable
+      'name'=>$this->dbTable
     ];
-    if ($includePassword){
-      $result['dbPassword']=$this->getDbPassword();
-    }
-    return $result;
   }
 
   /**

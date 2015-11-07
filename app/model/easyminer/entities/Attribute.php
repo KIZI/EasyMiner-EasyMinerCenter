@@ -17,4 +17,17 @@ class Attribute extends Entity{
   const TYPE_STRING='string';
   const TYPE_INTEGER='int';
   const TYPE_FLOAT='float';
+
+  /**
+   * Funkce vracející přehled základních dat
+   * @return array
+   */
+  public function getDataArr() {
+    return [
+      'id'=>$this->attributeId,
+      'name'=>$this->name,
+      'preprocessing'=>$this->preprocessing->preprocessingId,
+      'column'=>$this->datasourceColumn->getDataArr()
+    ];
+  }
 } 

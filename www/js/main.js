@@ -146,6 +146,9 @@ $(document).ready(function($){
       $("body").addClass("slowLoading");
     }
   });
+  $('a.slowLoading').click(function(){
+    $("body").addClass("slowLoading");
+  });
 });
 
 /*endregion long running forms*/

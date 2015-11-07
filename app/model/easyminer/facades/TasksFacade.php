@@ -165,6 +165,7 @@ class TasksFacade {
     $task->taskUuid=$taskUuid;
     $task->state=Task::STATE_NEW;
     $task->setTaskSettings($taskSettings);
+    return $task;
   }
 
   /**
@@ -188,10 +189,10 @@ class TasksFacade {
           [
             'name'=>'threshold',
             'value'=>$IMSettings['value']
-          ],
-          'threshold'=>$IMSettings['value'],
-          'alpha'=>0
-        ]
+          ]
+        ],
+        'threshold'=>$IMSettings['value'],
+        'alpha'=>0
       ];
     }
     return $result;

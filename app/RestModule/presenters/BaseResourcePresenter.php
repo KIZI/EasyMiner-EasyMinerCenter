@@ -50,7 +50,15 @@ use Nette\Security\IIdentity;
  * )
  * @SWG\Tag(
  *   name="Databases",
- *   description="Management of user databases"
+ *   description="Access to user databases"
+ * )
+ * @SWG\Tag(
+ *   name="Attributes",
+ *   description="Management of attributes"
+ * )
+ * @SWG\Tag(
+ *   name="Evaluation",
+ *   description="Methods for model evaluation/scoring"
  * )
  * @SWG\Tag(
  *   name="Datasources",

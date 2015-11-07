@@ -1,0 +1,41 @@
+{block content}
+
+  <div id="preprocessingPage">
+
+    <h1>{_'New attributes from data fields:'}</h1>
+    <table class="attributesListTable">
+      <tr>
+        <th scope="col">{_'Data field'}</th>
+        <th scope="col">{_'Type'}</th>
+        <th scope="col">{_'Values'}</th>
+      </tr>
+      {foreach $datasourceColumns as $datasourceColumn}
+        <tr>
+          <td><strong>{$datasourceColumn->name}</strong></td>
+          <td>{$datasourceColumn->type}</td>
+          <td class="formatValues">
+            {foreach $datasourceColumn->format->values as $value}
+              <span>{$value}</span>
+              {if $iterator->getCounter() >= 5}
+                ...
+                {breakIf true}
+              {/if}
+            {/foreach}
+            {foreach $datasourceColumn->format->intervals as $interval}
+              <span>{$interval}</span>
+            {/foreach}
+          </td>
+        </tr>
+      {/foreach}
+    </table>
+
+    <h2>{_'New preprocessing'}</h2>
+    <div class="actionsDiv bigButtons">
+      <a href="{link preprocessAttributes miner=>$miner->minerId,columns=>$datasourceColumnsIds,type=>'eachOne'}" class="slowLoading">{_'Each value - one bin'}</a>
+    </div>
+
+  </div>
+
+{/block}
+
+

@@ -22,16 +22,22 @@ class DatabasesFacade {
 
   const MYSQL_COLUMNS_MAX_COUNT=50;
   const DB_TYPE_MYSQL='mysql';
-  const DB_TYPE_CASSANDRA='cassandra';
+  const DB_TYPE_DBS_LIMITED='dbs_limited';
+  const DB_TYPE_DBS_UNLIMITED='dbs_unlimited';
   const DB_CLASS_MYSQL='\EasyMinerCenter\Model\Data\Databases\MySQLDatabase';
-  const DB_CLASS_CASSANDRA='\EasyMinerCenter\Model\Data\Databases\CassandraDatabase';
+  const DB_CLASS_DATA_SERVICE='\EasyMinerCenter\Model\Data\Databases\MySQLDatabase';
+  //TODO doplnění nových ovladačů pro přístup k datové službě
 
   /**
    * Funkce vracející přehled podporovaných typů databází
    * @return string[]
    */
   public static function getDatabaseTypes(){
-    return array(self::DB_TYPE_MYSQL,self::DB_TYPE_CASSANDRA);
+    return [
+      self::DB_TYPE_MYSQL,
+      self::DB_TYPE_DBS_LIMITED,
+      self::DB_TYPE_DBS_UNLIMITED
+    ];
   }
 
   /**
@@ -65,9 +71,9 @@ class DatabasesFacade {
     if ($dbConnection->type==self::DB_TYPE_MYSQL){
       /** @var IDatabase|string $class */
       $class=self::DB_CLASS_MYSQL;
-    }elseif($dbConnection->type==self::DB_TYPE_CASSANDRA){
+    }elseif ($dbConnection->type==self::DB_TYPE_DBS_LIMITED){
       /** @var IDatabase|string $class */
-      $class=self::DB_TYPE_CASSANDRA;
+      $class=self::DB_CLASS_DATA_SERVICE;
     }else{
       throw new ApplicationException('Unknown database type!');
     }
@@ -88,7 +94,7 @@ class DatabasesFacade {
     return self::DB_TYPE_MYSQL;
 
     if ($dbColumnsCount>self::MYSQL_COLUMNS_MAX_COUNT){
-      return self::DB_TYPE_CASSANDRA;
+      ////FIXME... return self::DB_TYPE_CASSANDRA;
     }else{
       return self::DB_TYPE_MYSQL;
     }
@@ -314,6 +320,17 @@ class DatabasesFacade {
   }
 
   /**
+   * Funkce vracející jednotlivé řádky z databáze
+   * @param int $limitStart
+   * @param int $limitCount
+   * @return array
+   */
+  public function getRows($tableName,$limitStart=0,$limitCount=0,$databaseProperty=self::FIRST_DB){
+    $this->$databaseProperty->selectTable($tableName);
+    return $this->$databaseProperty->getRows('',null,$limitStart,$limitCount);
+  }
+
+  /**
    * Funkce umožňující promazání tabulky
    * @param string $tableName
    * @param string $databaseProperty
@@ -346,5 +363,42 @@ class DatabasesFacade {
     $database=$this->$databaseProperty;
     $database->selectTable($tableName);
     return $database->importCsvFile($csvFileName,$columnsNames, $delimiter, $enclosure, $escapeCharacter, $nullValue, $offsetRows);
+  }
+
+
+  /**
+   * Funkce pro in-memory sestavení CSV souboru z vybraných řádků v DB
+   * @param string $dbTable
+   * @param int $offset
+   * @param int $limit
+   * @param string $delimiter=';'
+   * @param string $enclosure='"'
+   * @param string $databaseProperty=self::FIRST_DB
+   * @return string
+   */
+  public function prepareCsvFromDatabaseRows($dbTable,$offset,$limit,$delimiter=';',$enclosure='"',$databaseProperty=self::FIRST_DB){
+    $rows=$this->getRows($dbTable,$offset,$limit,$databaseProperty);
+    $csv='';
+    $delimiter=';';
+    $enclosure='\\';
+
+    if (!empty($rows)){
+      #region sestavení CSV
+      $fd = fopen('php://temp/maxmemory:10048576', 'w');//TODO zvětšení maximální velikosti souboru...
+      if($fd === FALSE) {
+        die('Failed to open temporary file');
+      }
+
+      fputcsv($fd, array_keys($rows[0]),$delimiter,$enclosure);
+      foreach($rows as $row) {
+        fputcsv($fd, array_values($row),$delimiter,$enclosure);
+      }
+
+      rewind($fd);
+      $csv = stream_get_contents($fd);
+      fclose($fd);
+      #endregion sestavení CSV
+    }
+    return $csv;
   }
 } 

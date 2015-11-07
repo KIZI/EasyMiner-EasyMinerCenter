@@ -17,4 +17,17 @@ class DatasourceColumn extends Entity{
   const TYPE_STRING='string';
   const TYPE_INTEGER='int';
   const TYPE_FLOAT='float';
+
+  /**
+   * Funkce vracející základní přehled dat
+   * @return array
+   */
+  public function getDataArr() {
+    return [
+      'id'=>$this->datasourceColumnId,
+      'name'=>$this->name,
+      'type'=>$this->type,
+      'format'=>$this->getRowData()['format_id']
+    ];
+  }
 } 

@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use Nette\Application\BadRequestException;
+use Nette\Application\Responses\TextResponse;
 use Nette\Http\FileUpload;
 use Nette\Utils\FileSystem;
 
@@ -33,7 +34,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @SWG\Parameter(
-   *     name="dbTable",
+   *     name="name",
    *     description="Table name (if empty, will be auto-generated)",
    *     required=false,
    *     type="string",
@@ -76,11 +77,11 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *     in="query"
    *   ),
    *   @SWG\Parameter(
-   *     name="dbType",
+   *     name="type",
    *     description="Database type",
    *     required=true,
    *     type="string",
-   *     enum={"mysql"},
+   *     enum={"mysql","limited","unlimited"},
    *     in="query"
    *   ),
    *   @SWG\Parameter(
@@ -136,10 +137,10 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     /** @var array $inputData */
     $inputData=$this->input->getData();
     //prepare default values
-    if (empty($inputData['dbTable'])){
-      $inputData['dbTable']=FileImportsFacade::sanitizeFileNameForImport($file->sanitizedName);
+    if (empty($inputData['name'])){
+      $inputData['name']=FileImportsFacade::sanitizeFileNameForImport($file->sanitizedName);
     }else{
-      $inputData['dbTable']=FileImportsFacade::sanitizeFileNameForImport($inputData['dbTable']);
+      $inputData['name']=FileImportsFacade::sanitizeFileNameForImport($inputData['name']);
     }
     if (empty($inputData['enclosure'])){
       $inputData['enclosure']='"';
@@ -153,10 +154,11 @@ class DatasourcesPresenter extends BaseResourcePresenter{
 
     //prepare new datasource
     /** @var Datasource $datasource */
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->getCurrentUser(),$inputData['dbType']);
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->getCurrentUser(),$inputData['type']);
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    $inputData['dbTable']=$this->databasesFacade->prepareNewTableName($inputData['dbTable']);
-    $this->fileImportsFacade->importCsvFile($filename,$datasource->getDbConnection(),$inputData['dbTable'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
+    $inputData['name']=$this->databasesFacade->prepareNewTableName($inputData['name']);
+    $datasource->dbTable=$inputData['name'];
+    $this->fileImportsFacade->importCsvFile($filename,$datasource->getDbConnection(),$inputData['name'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
     $this->datasourcesFacade->saveDatasource($datasource);
     //send response
     $this->actionRead($datasource->datasourceId);
@@ -167,7 +169,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
-    $this->input->field('dbType')
+    $this->input->field('type')
       ->addRule(IValidator::REQUIRED,'You have to select database type!');
     $this->input->field('separator')
       ->addRule(IValidator::REQUIRED,'Separator character is required!')
@@ -265,6 +267,77 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   }
   #endregion actionRead/actionList
 
+  #region actionRead/actionList
+  /**
+   * @param int|null $id=null
+   * @throws BadRequestException
+   * @SWG\Get(
+   *   tags={"Datasources"},
+   *   path="/datasources/{id}/csv",
+   *   summary="Get data source rows as CSV",
+   *   produces={"text/csv"},
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Datasource ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="offset",
+   *     description="Skip rows",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="limit",
+   *     description="Result rows count",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="separator",
+   *     description="Columns separator",
+   *     required=true,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="enclosure",
+   *     description="Enclosure character",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="CSV"
+   *   ),
+   *   @SWG\Response(
+   *     response=400,
+   *     description="Invalid API key supplied",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested datasource was not found.")
+   * )
+   */
+  public function actionReadCsv($id) {
+    $datasource=$this->findDatasourceWithCheckAccess($id);
+    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+    $inputData=$this->getInput()->getData();
+    $offset=@$inputData['offset'];
+    $limit=(@$inputData['limit']>0?$inputData['limit']:10000);
+    $separator=(@$inputData['separator']!=''?$inputData['separator']:';');
+    $enclosure=(@$inputData['enclosure']!=''?$inputData['enclosure']:'"');
+    $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($datasource->dbTable,$offset,$limit,$separator,$enclosure);
+    $httpResponse=$this->getHttpResponse();
+    $httpResponse->setContentType('text/csv','UTF-8');
+    $this->sendResponse(new TextResponse($csv));
+  }
+
   /**
    * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
    * @param int $datasourceId
@@ -313,12 +386,8 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   title="DatasourceBasicInfo",
  *   required={"id","type","dbServer","dbUsername","dbName","dbTable"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
- *   @SWG\Property(property="type",type="string",description="Type of the used database"),
- *   @SWG\Property(property="dbServer",type="string",description="Database server"),
- *   @SWG\Property(property="dbPort",type="integer",description="Database port"),
- *   @SWG\Property(property="dbUsername",type="string",description="Database user name"),
- *   @SWG\Property(property="dbName",type="string",description="Name of the database"),
- *   @SWG\Property(property="dbTable",type="string",description="Name of the database table"),
+ *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"mysql","limited","unlimited"}),
+ *   @SWG\Property(property="name",type="string")
  * )
  * @SWG\Definition(
  *   definition="DatasourceWithColumnsResponse",
@@ -326,11 +395,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   required={"id","type","dbServer","dbUsername","dbName","dbTable"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
  *   @SWG\Property(property="type",type="string",description="Type of the used database"),
- *   @SWG\Property(property="dbServer",type="string",description="Database server"),
- *   @SWG\Property(property="dbPort",type="integer",description="Database port"),
- *   @SWG\Property(property="dbUsername",type="string",description="Database user name"),
- *   @SWG\Property(property="dbName",type="string",description="Name of the database"),
- *   @SWG\Property(property="dbTable",type="string",description="Name of the database table"),
+ *   @SWG\Property(property="name",type="string",description="Name of the database table"),
  *   @SWG\Property(property="column",type="array",
  *     @SWG\Items(ref="#/definitions/ColumnBasicInfoResponse")
  *   )
