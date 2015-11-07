@@ -1,9 +1,9 @@
 <?php
-/*XXX pracovní nová verze presenteru!*/
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
+use EasyMinerCenter\Model\Data\Facades\NewDatabasesFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
@@ -18,6 +18,9 @@ class NewDataPresenter extends BasePresenter{
 
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
+  /** @var  NewDatabasesFacade $databasesFacade */
+  private $newDatabasesFacade;
+
 
   public function renderUpload() {
     //akce pro upload souboru...
@@ -90,7 +93,14 @@ class NewDataPresenter extends BasePresenter{
       ->setRequired('Je nutné vybrat soubor pro import!')
 //      ->addRule(Form::MAX_FILE_SIZE,'Nahrávaný soubor je příliš velký',$this->fileImportsFacade->getMaximumFileUploadSize())
     ;
-    $form->addHidden('dbType','limited');//FIXME výběr vhodných typů DB
+    $databaseTypes=$this->newDatabasesFacade->getDatabaseTypes(true);
+    if (count($databaseTypes)==1){
+      reset($databaseTypes);
+      $form->addHidden('dbType',key($databaseTypes));
+    }else{
+      $form->addSelect('dbType','Database type:',$databaseTypes)
+        ->setDefaultValue($this->newDatabasesFacade->getPrefferedDatabaseType());
+    }
     //přidání submit tlačítek
     $form->addSubmit('submit','Configure upload...')
       ->onClick[]=function(){
@@ -158,10 +168,18 @@ class NewDataPresenter extends BasePresenter{
   }
 
 
+  #region injections
   /**
    * @param FileImportsFacade $fileImportsFacade
    */
   public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade){
     $this->fileImportsFacade=$fileImportsFacade;
   }
+  /**
+   * @param NewDatabasesFacade $newDatabasesFacade
+   */
+  public function injectNewDatabasesFacade(NewDatabasesFacade $newDatabasesFacade) {
+    $this->newDatabasesFacade=$newDatabasesFacade;
+  }
+  #endregion injections
 }

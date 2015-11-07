@@ -1,4 +1,6 @@
 {* View for upload form *}
+{block title}{_'Upload dataset'}{/block}
+
 {block scripts}
   {include parent}
   <script type="text/javascript" src="{$basePath}/js/EasyMiner/Data/FileUploader.js"></script>
@@ -10,6 +12,7 @@
     var uploadPreviewDataUrl={link uploadPreview};
   </script>
 {/block}
+
 {block content}
   <noscript>
     {*TODO error message...*}
@@ -28,8 +31,10 @@
   </div>
 
   <div id="uploadConfigBlock">
-    <h1>{_'Upload dataset - configure upload'}</h1>
-    {control uploadConfigForm}
+    <div class="form">
+      <h1>{_'Configure upload'}</h1>
+      {control uploadConfigForm}
+    </div>
     <div id="uploadConfigPreviewBlock">{*prostor pro zobrazení náhledu na celou tabulku*}</div>
   </div>
 

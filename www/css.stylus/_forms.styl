@@ -1,35 +1,50 @@
 /*Základní styly pro zobrazení formulářů*/
 
+normalInputWidth = 280px
+
+normalizeInputWidth(width)
+  input
+  select
+    width width
+
 form
   input
   select
-    padding: 10px 13px;
-    font-family: fontFamily
-    font-size: 15px;
-    border: 1px solid inputBorderColor;
+    box-sizing border-box
+    padding 11px 13px
+    font-family fontFamily
+    font-size 15px
+    border 1px solid inputBorderColor
+    width normalInputWidth
+    line-height 21px
     &:hover
     &:focus
     &:active
       border 1px solid inputHoverBorderColor
     &.has-error
       border-color errorColor !important
-    *.noBorder
+    &.noBorder
       border none !important
+    &[type="checkbox"]
+      width auto
 
-  select
-    padding 9px 13px
+  input[size="1"]
+  input[size="2"]
+    width 0.25*normalInputWidth !important
 
+/*TODO remove
   input.normalWidth
     width 300px
 
   select.normalWidth
     width 328px
-
+*/
   input.button
   input[type="submit"]
   input[type="button"]
   input[type="reset"]
     button()
+    width auto
     padding: 11px 13px
 
   th[colspan]
@@ -51,7 +66,8 @@ form
     font-weight normal
     text-align right
     > label
-      padding 7px 13px 0 8px
+      padding 11px 13px 0 8px
+      line-height 21px
       display block
 
   td

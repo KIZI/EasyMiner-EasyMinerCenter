@@ -858,10 +858,13 @@ body > footer div.content a:hover {
 }
 form input,
 form select {
-  padding: 10px 13px;
+  box-sizing: border-box;
+  padding: 11px 13px;
   font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-size: 15px;
   border: 1px solid #ebebeb;
+  width: 280px;
+  line-height: 21px;
 }
 form input:hover,
 form select:hover,
@@ -875,23 +878,22 @@ form input.has-error,
 form select.has-error {
   border-color: #d01d1d !important;
 }
-form input *.noBorder,
-form select *.noBorder {
+form input.noBorder,
+form select.noBorder {
   border: none !important;
 }
-form select {
-  padding: 9px 13px;
+form input[type="checkbox"],
+form select[type="checkbox"] {
+  width: auto;
 }
-form input.normalWidth {
-  width: 300px;
+form input[size="1"],
+form input[size="2"] {
+  width: 70px !important;
 }
-form select.normalWidth {
-  width: 328px;
-}
-form input.button,
-form input[type="submit"],
-form input[type="button"],
-form input[type="reset"] {
+input.button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"] {
   background: #075783;
   font-size: 14px;
   font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
@@ -903,44 +905,46 @@ form input[type="reset"] {
   text-align: center;
   display: inline-block;
   padding: 8px 13px;
+  width: auto;
   padding: 11px 13px;
 }
-form input.button:hover,
-form input[type="submit"]:hover,
-form input[type="button"]:hover,
-form input[type="reset"]:hover,
-form input.button:focus,
-form input[type="submit"]:focus,
-form input[type="button"]:focus,
-form input[type="reset"]:focus {
+input.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+input[type="reset"]:hover,
+input.button:focus,
+input[type="submit"]:focus,
+input[type="button"]:focus,
+input[type="reset"]:focus {
   background: #2d83be;
   color: #fff;
   border: 1px solid #314e64;
   text-decoration: none;
 }
-form th[colspan] input.button,
-form th[colspan] input[type="submit"],
-form th[colspan] input[type="button"],
-form th[colspan] input[type="reset"] {
+th[colspan] input.button,
+th[colspan] input[type="submit"],
+th[colspan] input[type="button"],
+th[colspan] input[type="reset"] {
   margin-top: 10px;
 }
-form .error,
-form .error-message {
+.error,
+.error-message {
   display: block;
   padding: 3px 5px 5px 13px;
   color: #d01d1d;
   font-size: 85%;
 }
-form th {
+th {
   vertical-align: top;
   font-weight: normal;
   text-align: right;
 }
-form th > label {
-  padding: 7px 13px 0 8px;
+th > label {
+  padding: 11px 13px 0 8px;
+  line-height: 21px;
   display: block;
 }
-form td {
+td {
   vertical-align: top;
   font-weight: normal;
 }
@@ -1311,10 +1315,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -ms-flex-align: start;
   align-items: flex-start;
 }
-#uploadConfigBlock h1 {
-  width: 100%;
-}
-#uploadConfigBlock > form {
+#uploadConfigBlock > .form {
   color: #434343;
   background-color: #fff;
   border: none;
@@ -1330,15 +1331,13 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -ms-flex: 0 0 auto;
   flex: 0 0 auto;
 }
-#uploadConfigBlock > form > h1,
-#uploadConfigBlock > form > h2 {
+#uploadConfigBlock > .form > h1,
+#uploadConfigBlock > .form > h2 {
   margin-top: 0;
 }
-#uploadConfigBlock > form select {
-  width: 200px;
-}
-#uploadConfigBlock > form input[type="submit"] {
-  margin-top: 1em;
+#uploadConfigBlock > .form input,
+#uploadConfigBlock > .form select {
+  width: 196px;
 }
 #uploadConfigBlock #uploadConfigPreviewBlock {
   -webkit-box-flex: 1;
@@ -1401,9 +1400,105 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadConfigBlock #uploadConfigPreviewBlock > table tr:nth-child(even) {
   background: #fcfbff;
 }
-#uploadColumnsBlock,
+#uploadColumnsBlock {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+}
+#uploadColumnsBlock > h1,
+#uploadColumnsBlock > h2 {
+  margin-top: 0;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table {
+  background: #fff;
+  color: #434343;
+  border-spacing: 0;
+  margin: 20px 0;
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: collapse;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table tr:first-child th {
+  border-top: 1px solid #075783;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table th {
+  padding: 5px 8px;
+  background: #075783;
+  color: #fff;
+  text-align: left;
+  border: 1px solid #075783;
+  border-left: none;
+  border-top: none;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table th:first-child {
+  border: 1px solid #075783;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table th.empty {
+  background: #fff;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table th.empty:first-child {
+  border-left: none;
+  border-top: none;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-top: none;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table td:first-child {
+  border-left: 1px solid #ebebeb;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table tr:nth-child(even) {
+  background: #fcfbff;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table tr:first-child th:nth-child(1) {
+  width: 280px;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table tr:first-child th:nth-child(2) {
+  width: 168px;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table td:nth-child(1) {
+  width: 280px;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table td:nth-child(2) {
+  width: 168px;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table td:nth-child(2) select {
+  width: 100%;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table td.values div {
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#uploadColumnsBlock #uploadColumnsListBlock > table td.values span {
+  display: inline-block;
+  padding: 8px 10px;
+  border: 1px solid #f0f0f0;
+  background: #fff;
+  margin: 2px;
+}
 #uploadProgressBlock {
-  background: #ff0;
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+}
+#uploadProgressBlock > h1,
+#uploadProgressBlock > h2 {
+  margin-top: 0;
 }
 #newMinerPage {
   width: auto;
