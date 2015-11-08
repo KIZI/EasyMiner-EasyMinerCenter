@@ -10,7 +10,11 @@ use LeanMapper\Entity;
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
- * @property string $type = m:Enum('mysql','cassandra')
+ * @property string $type = m:Enum('mysql','limited','unlimited')
+ * @property string $name
+ * @property int|null $remoteId = null
+ * @property bool $available = true
+ *
  * @property string $dbServer
  * @property int|null $dbPort = null
  * @property string $dbUsername
@@ -24,7 +28,7 @@ class Datasource extends Entity{
    * Funkce vracející přehled typů databází
    * @return array
    */
-  public static function getTypes(){
+  public static function getTypes(){//TODO remove?
     return array(
       'mysql'=>'MySQL',
       'limited'=>'Data service limited',
@@ -40,7 +44,9 @@ class Datasource extends Entity{
     return [
       'id'=>$this->datasourceId,
       'type'=>$this->type,
-      'name'=>$this->dbTable
+      'name'=>(!empty($this->name)?$this->name:$this->dbTable),
+      'remoteId'=>$this->remoteId,
+      'available'=>$this->available
     ];
   }
 

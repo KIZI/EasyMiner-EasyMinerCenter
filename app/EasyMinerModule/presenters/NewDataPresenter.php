@@ -5,6 +5,8 @@ use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Facades\NewDatabasesFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
+use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 
@@ -15,12 +17,32 @@ use Nette\Application\UI\Form;
  */
 class NewDataPresenter extends BasePresenter{
   use ResponsesTrait;
+  use MinersFacadeTrait;
 
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
   /** @var  NewDatabasesFacade $databasesFacade */
   private $newDatabasesFacade;
+  /** @var  UsersFacade $usersFacade */
+  private $usersFacade;
+  /** @var  DatasourcesFacade $datasourcesFacade */
+  private $datasourcesFacade;
 
+  #region vytvoření nového mineru
+
+  /**
+   * Akce pro založení nového EasyMineru či otevření stávajícího
+   */
+  public function renderNewMiner(){
+    $currentUser=$this->getCurrentUser();
+    $this->template->miners=$this->minersFacade->findMinersByUser($currentUser);
+    $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
+    $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser);
+  }
+
+  #endregion
+
+  #region upload datasetu
 
   public function renderUpload() {
     //akce pro upload souboru...
@@ -85,7 +107,6 @@ class NewDataPresenter extends BasePresenter{
     $this->sendJsonResponse(['file'=>$filename]);
   }
 
-
   public function createComponentUploadForm() {
     $form = new Form();
     $form->setTranslator($this->translator);
@@ -93,13 +114,13 @@ class NewDataPresenter extends BasePresenter{
       ->setRequired('Je nutné vybrat soubor pro import!')
 //      ->addRule(Form::MAX_FILE_SIZE,'Nahrávaný soubor je příliš velký',$this->fileImportsFacade->getMaximumFileUploadSize())
     ;
-    $databaseTypes=$this->newDatabasesFacade->getDatabaseTypes(true);
+    $databaseTypes=$this->newDatabasesFacade->getDbTypes(true);
     if (count($databaseTypes)==1){
       reset($databaseTypes);
       $form->addHidden('dbType',key($databaseTypes));
     }else{
       $form->addSelect('dbType','Database type:',$databaseTypes)
-        ->setDefaultValue($this->newDatabasesFacade->getPrefferedDatabaseType());
+        ->setDefaultValue($this->newDatabasesFacade->getPreferredDatabaseType());
     }
     //přidání submit tlačítek
     $form->addSubmit('submit','Configure upload...')
@@ -167,6 +188,15 @@ class NewDataPresenter extends BasePresenter{
     return $form;
   }
 
+  #endregion
+
+  /**
+   * Funkce vracející entitu konkrétního uživatele
+   * @return \EasyMinerCenter\Model\EasyMiner\Entities\User
+   */
+  protected function getCurrentUser() {
+    return $this->usersFacade->findUser($this->user->id);
+  }
 
   #region injections
   /**
@@ -180,6 +210,18 @@ class NewDataPresenter extends BasePresenter{
    */
   public function injectNewDatabasesFacade(NewDatabasesFacade $newDatabasesFacade) {
     $this->newDatabasesFacade=$newDatabasesFacade;
+  }
+  /**
+   * @param UsersFacade $usersFacade
+   */
+  public function injectUsersFacade(UsersFacade $usersFacade) {
+    $this->usersFacade=$usersFacade;
+  }
+  /**
+   * @param DatasourcesFacade $datasourcesFacade
+   */
+  public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade) {
+    $this->datasourcesFacade=$datasourcesFacade;
   }
   #endregion injections
 }
