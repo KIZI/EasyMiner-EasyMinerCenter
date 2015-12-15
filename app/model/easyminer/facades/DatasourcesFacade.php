@@ -297,7 +297,11 @@ class DatasourcesFacade {
     $datasource->user=$user;
     $datasource->dbName=str_replace('*',$user->userId,$databaseConfig['_database']);
     $datasource->dbUsername=str_replace('*',$user->userId,$databaseConfig['_username']);
-    $datasource->setDbPassword($this->getUserDbPassword($user));
+    if (isset($databaseConfig['_password']) && !$databaseConfig['_password']){
+      $datasource->setDbPassword('');
+    }else{
+      $datasource->setDbPassword($this->getUserDbPassword($user));
+    }
     $datasource->dbServer=$databaseConfig['server'];
     if (!empty($databaseConfig['port'])){
       $datasource->dbPort=$databaseConfig['port'];
