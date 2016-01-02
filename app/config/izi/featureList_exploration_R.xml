@@ -108,8 +108,8 @@
             <DefaultValue>5</DefaultValue>
             <LocalizedName lang="en">max value</LocalizedName>
             <Validation>
-              <MinValue>2</MinValue>
-              <MaxValue>10</MaxValue>
+              <MinValue inclusive="yes">1</MinValue>
+              <MaxValue inclusive="yes">10</MaxValue>
               <Datatype>integer</Datatype>
             </Validation>
           </Field>

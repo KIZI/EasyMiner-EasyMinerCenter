@@ -16,11 +16,17 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
+use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsJson;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
 
+/**
+ * Class RDriver - ovladač pro dolování za využití nové verze R driveru s postupným vracením výsledků
+ * @package EasyMinerCenter\Model\Mining\R
+ * @author Stanislav Vojíř
+ */
 class RDriver implements IMiningDriver{
   /** @var  Task $task */
   private $task;
@@ -49,19 +55,43 @@ class RDriver implements IMiningDriver{
   #endregion
 
   /**
+   * Funkce pro kontrolu nezbytných měr zajímavosti v nastavení úlohy
+   * @param TaskSettingsJson $taskSettingsJson
+   */
+  private function checkRequiredIMs(TaskSettingsJson $taskSettingsJson) {
+    $usedIMNames=$taskSettingsJson->getIMNames();
+    if (!in_array('FUI',$usedIMNames)){
+      $taskSettingsJson->simpleAddIM('FUI',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
+    }
+    if (!in_array('SUPP',$usedIMNames)){
+      $taskSettingsJson->simpleAddIM('SUPP',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
+    }
+    if (!in_array('RULE_LENGTH',$usedIMNames)){
+      $attributeNames=$taskSettingsJson->getAttributeNames();
+      $taskSettingsJson->simpleAddIM('RULE_LENGTH',TaskSettingsJson::THRESHOLD_TYPE_ABS,TaskSettingsJson::COMPARE_LTE,count($attributeNames));
+    }
+  }
+
+  /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
    * @return TaskState
    * @throws \Exception
    */
   public function startMining() {
+    #region kontrola zadání úlohy v JSONu
+    $taskSettingsJson=new TaskSettingsJson($this->task->taskSettingsJson);
+    $this->checkRequiredIMs($taskSettingsJson);
+    #endregion
+
+    #region serializace zadání v PMML
     $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($this->task);
     $pmmlSerializer->appendMetabaseInfo();
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
-    $taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
-    $pmml=$taskSettingsSerializer->getPmml();
-    //TODO doplnit kontrolu na nezbytné zadání confidence a supportu
+    $taskSettingsSerializer->settingsFromJson($taskSettingsJson->getJsonString());
+    #endregion
+
+    $pmml=$taskSettingsSerializer->getPmml();//TODO pokračovat...
     //import úlohy a spuštění dolování...
-    //exit($pmml->asXML());
     $numRequests=1;
     sendStartRequest:
     try{
