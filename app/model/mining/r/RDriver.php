@@ -59,6 +59,7 @@ class RDriver implements IMiningDriver{
    * @param TaskSettingsJson $taskSettingsJson
    */
   private function checkRequiredIMs(TaskSettingsJson $taskSettingsJson) {
+    #region TODO dodělat kontrolu požadovaných měr zajímavosti podle nastavovacího XML
     $usedIMNames=$taskSettingsJson->getIMNames();
     if (!in_array('FUI',$usedIMNames)){
       $taskSettingsJson->simpleAddIM('FUI',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
@@ -66,6 +67,7 @@ class RDriver implements IMiningDriver{
     if (!in_array('SUPP',$usedIMNames)){
       $taskSettingsJson->simpleAddIM('SUPP',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
     }
+    #endregion
     if (!in_array('RULE_LENGTH',$usedIMNames)){
       $attributeNames=$taskSettingsJson->getAttributeNames();
       $taskSettingsJson->simpleAddIM('RULE_LENGTH',TaskSettingsJson::THRESHOLD_TYPE_ABS,TaskSettingsJson::COMPARE_LTE,count($attributeNames));
