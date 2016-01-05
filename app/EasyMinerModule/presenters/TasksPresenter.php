@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
+use EasyMinerCenter\Libs\RequestHelper;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
@@ -63,18 +64,46 @@ class TasksPresenter  extends BasePresenter{
       }
       $task->taskSettingsJson=$data;
       $this->tasksFacade->saveTask($task);
-      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser(),$this->getBackgroundImportLink($task));
       $taskState=$miningDriver->startMining();
       #endregion
     }else{
       #region zjištění stavu již existující úlohy
-      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser(),$this->getBackgroundImportLink($task));
       $this->session->close();
       $taskState=$miningDriver->checkTaskState();
       #endregion
     }
     $this->tasksFacade->updateTaskState($task,$taskState);
-    $this->sendJsonResponse($task->getTaskState()->asArray());
+    $taskState=$task->getTaskState();
+    $taskState->setState(TASK::STATE_IN_PROGRESS);//TODO remove...
+    $array=$taskState->asArray();
+    $_SESSION['session_counter']=@$_SESSION['session_counter']+1;
+    $array['sessionCounter']=@$_SESSION['session_counter'];//TODO remove... (jen ladicí výpis)
+    $this->sendJsonResponse($array);
+  }
+
+
+  /**
+   * Akce pro spuštění importu dat, která jsou již uložena v TEMP složce na tomto serveru
+   * @param int $task
+   */
+  public function actionImportMiningResults($task){
+    //načtení příslušné úlohy
+    try {
+      $task=$this->tasksFacade->findTask($task);
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$task->miner->user,$this->getBackgroundImportLink($task));
+    }catch (\Exception $e){
+      //pokud nebyla nalezena příslušná úloha, není co importovat
+      $this->terminate();
+      return;
+    }
+
+    //zakážeme ukončení načítání
+    ignore_user_abort(true);
+
+    //TODO tady bude spuštění importu v rámci driveru
+    file_put_contents(__DIR__.'/../../../temp/actionTest','testOK');
   }
 
   /**
@@ -91,7 +120,7 @@ class TasksPresenter  extends BasePresenter{
     $this->checkMinerAccess($miner);
 
 
-    $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser(),$this->getBackgroundImportLink($task));
     $taskState=$miningDriver->stopMining();
 
     $this->tasksFacade->updateTaskState($task,$taskState);
@@ -237,7 +266,7 @@ class TasksPresenter  extends BasePresenter{
     //vygenerování a odeslání PMML
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
     $xml=$associationRulesXmlSerializer->getXml();
-    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml,$this->template->basePath));
+    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml/*,$this->template->basePath*/));
   }
 
   /**
@@ -254,7 +283,7 @@ class TasksPresenter  extends BasePresenter{
     //vygenerování PMML
     $pmml=$this->prepareTaskPmml($task);
     $this->template->task=$task;
-    $this->template->content=$this->xmlTransformator->transformToHtml($pmml,$this->template->basePath);//TODO basePath?
+    $this->template->content=$this->xmlTransformator->transformToHtml($pmml);
   }
 
   /**
@@ -302,6 +331,16 @@ class TasksPresenter  extends BasePresenter{
       /*ignore error (uživatel nemusí být přihlášen)*/
     }
     return null;
+  }
+
+  /**
+   * Funkce vracející relativní URL pro import výsledků dolování (pro spuštění na pozadí)
+   * @param Task $task
+   * @return string
+   */
+  private function getBackgroundImportLink(Task $task){
+    $this->absoluteUrls=false;
+    return $this->link('importMiningResults',['task'=>$task->taskId]);
   }
 
   #region injections

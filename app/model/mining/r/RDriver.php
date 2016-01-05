@@ -44,6 +44,8 @@ class RDriver implements IMiningDriver{
   private $guhaPmmlSerializerFactory;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
+  /** @var  string $backgroundImportLink - relativní URL pro spuštění plného importu (na pozadí) */
+  private $backgroundImportLink;
   /** @var  User $user */
   private $user;
   /** @var  string $apiKey - API KEY pro konktrétního uživatele */
@@ -136,7 +138,7 @@ class RDriver implements IMiningDriver{
         $taskState=$this->task->taskState;
         $taskState->state=Task::STATE_FAILED;
       }
-    }elseif ($this->task->state==Task::STATE_SOLVED_HEADS){
+    }/*FIXME elseif ($this->task->state==Task::STATE_SOLVED_HEADS){
       if (file_exists($this->getImportPmmlPath())){
         //ignore user abort (continue running this script)
         ignore_user_abort(true);
@@ -148,10 +150,11 @@ class RDriver implements IMiningDriver{
         }
         return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
       }
-    }
+    }*/
     return $this->task->taskState;
   }
 
+  #region funkce pro smazání mineru, kontrolu jeho stavu a jeho smazání
   /**
    * Funkce pro zastavení dolování
    * @return TaskState
@@ -221,31 +224,35 @@ class RDriver implements IMiningDriver{
     }
   }
 
+  #endregion
+
   /**
-   * Funkce pro načtení PMML
-   * @param string|\SimpleXMLElement $pmml
-   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
-   * @param string $responseData
-   * @return bool
+   * Funkce pro načtení pravidel z PMML získaného v rámci odpovědi serveru
+   * @param string $pmmlString
+   * @return TaskState
    * @throws \Exception
    */
-  public function parseRulesPMML($pmml,&$rulesCount=null,$responseData){
+  public function parseRulesPMML($pmmlString){
     if (is_dir($this->params['importsDirectory'])){
-      file_put_contents($this->getImportPmmlPath(),$responseData);
-      $this->basicParseRulesPMML($pmml,$rulesCount);
-      return Task::STATE_SOLVED_HEADS;
-    }else{
+      file_put_contents($this->getImportPmmlPath(),$pmmlString);
+      $this->basicParseRulesPMML($pmmlString,$rulesCount);
+      $taskState=$this->task->getTaskState();
+      $taskState->setRulesCount($rulesCount);
+      /////FIXME $taskState->setState(Task::STATE_SOLVED_HEADS);//FIXME je nutné nějak sjednotit stavy úlohy tak, aby bylo jasné, co vše již bylo importováno
+      return $taskState;
+    }else{/*FIXME implementace plného parsování PMML souborů
       $this->fullParseRulesPMML($pmml,$rulesCount);
       @unlink($this->getImportPmmlPath());
+
       return Task::STATE_SOLVED;
+*/
     }
   }
 
   /**
-   * Funkce pro načtení PMML
+   * Funkce pro načtení základu pravidel z PMML (jen text pravidla, IDčka a míry zajímavosti)
    * @param string|\SimpleXMLElement $pmml
    * @param int &$rulesCount = null - informace o počtu importovaných pravidel
-   * @return bool
    * @throws \Exception
    */
   public function basicParseRulesPMML($pmml,&$rulesCount=null){
@@ -261,7 +268,7 @@ class RDriver implements IMiningDriver{
 
     $associationRules=$xml->xpath('//guha:AssociationModel/AssociationRules/AssociationRule');
 
-    if (empty($associationRules)){return true;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+    if (empty($associationRules)){return;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
 
     $rulesArr=[];
     foreach ($associationRules as $associationRule){
@@ -278,7 +285,6 @@ class RDriver implements IMiningDriver{
     }
     $this->rulesFacade->saveRulesHeads($rulesArr);
     $this->rulesFacade->calculateMissingInterestMeasures($this->task);
-    return true;
   }
 
 
@@ -540,8 +546,8 @@ class RDriver implements IMiningDriver{
           //jde o úlohu, která aktuálně nemá žádné další výsledky
           return $this->task->getTaskState();
         case 206:
-          exit('import partial results...');
-          //TODO je nutné importovat částečné výsledky úlohy
+          $rulesCount=0;
+          return $this->parseRulesPMML($response);
           break;
         case 303:
           //byly importovány všechny částečné výsledky, jen ukončíme úlohu (import celého PMML již nepotřebujeme
@@ -569,8 +575,9 @@ class RDriver implements IMiningDriver{
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
    * @param $params = array()
+   * @param string $backgroundImportLink="" - relativní URL pro spuštění plného importu (na pozadí)
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array(), $backgroundImportLink="") {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
@@ -579,6 +586,7 @@ class RDriver implements IMiningDriver{
     $this->user=$user;
     $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
     $this->setApiKey($user->getEncodedApiKey());
+    $this->backgroundImportLink=$backgroundImportLink;
   }
 
   /**
@@ -637,8 +645,12 @@ class RDriver implements IMiningDriver{
    * @return string
    */
   private function getImportPmmlPath(){
+    //FIXME implementace zpracování většího množství dílčích souborů
     return $this->params['importsDirectory'].'/'.$this->task->taskId.'.pmml';
   }
+
+
+  #region apiKey
 
   /**
    * Funkce nastavující API klíč
@@ -660,6 +672,8 @@ class RDriver implements IMiningDriver{
     return $this->apiKey;
   }
 
+  #endregion apiKey
+
   /**
    * Funkce pro kontrolu, jestli je dostupný dolovací server
    *
@@ -672,4 +686,15 @@ class RDriver implements IMiningDriver{
     return !empty($response);
     //TODO implementace kontroly dostupnosti serveru
   }
+
+  /**
+   * Funkce pro načtení plných výsledků úlohy z PMML
+   *
+   * @return TaskState
+   */
+  public function importResultsPMML() {
+    // FIXME implementace importu plných výsledků z PMML uloženého v TEMPu na serveru...
+
+  }
+
 }

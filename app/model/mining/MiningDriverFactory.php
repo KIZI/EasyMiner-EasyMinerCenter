@@ -66,12 +66,13 @@ class MiningDriverFactory extends Object{
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param User $user
+   * @param string $backgroundImportLink="" - relativní URL pro spuštění plného importu (na pozadí)
    * @return IMiningDriver
    */
-  public function getDriverInstance(Task $task ,MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user){
+  public function getDriverInstance(Task $task ,MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user,$backgroundImportLink=""){
     if (isset($this->params['driver_'.$task->type])){
       $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
-      return new $driverClass($task, $minersFacade, $rulesFacade, $metaAttributesFacade, $user, $this->guhaPmmlSerializerFactory, $this->params['driver_'.$task->type]);
+      return new $driverClass($task, $minersFacade, $rulesFacade, $metaAttributesFacade, $user, $this->guhaPmmlSerializerFactory, $this->params['driver_'.$task->type],$backgroundImportLink);
     }
     throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
   }

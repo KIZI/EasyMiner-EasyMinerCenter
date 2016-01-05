@@ -172,7 +172,7 @@ class MinersFacade {
    */
   public function prepareAttribute($miner,$attribute){
     if (!$miner instanceof Miner){
-      $miner=$this->findMiner($miner);
+      /*$miner=*/$this->findMiner($miner);//kontrola existence daného mineru
     }
     if ($attribute instanceof Attribute){
       if ($attribute->isDetached() || $attribute->isModified()){
@@ -212,28 +212,30 @@ class MinersFacade {
   /**
    * @param Task|int $task
    * @param User $user
+   * @param string $backgroundImportLink - relativní URL pro spuštění plného importu (na pozadí)
    * @return \EasyMinerCenter\Model\Mining\IMiningDriver
    */
-  public function getTaskMiningDriver($task, User $user){
+  public function getTaskMiningDriver($task, User $user, $backgroundImportLink){
     if (!$task instanceof Task){
       $task=$this->tasksFacade->findTask($task);
     }
-    return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade,$user);
+    return $this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade,$user,$backgroundImportLink);
   }
 
   /**
    * Funkce pro kontrolu stavu konkrétního mineru (jestli jsou nadefinované všechny atributy atd.
    * @param Miner|int $miner
    * @param User $user
+   * @param string $backgroundImportLink - relativní URL pro spuštění plného importu (na pozadí)
    */
-  public function checkMinerState($miner,User $user){
+  public function checkMinerState($miner, User $user, $backgroundImportLink){
     if (!$miner instanceof Miner){
       $miner=$this->findMiner($miner);
     }
     $task=new Task();
     $task->type=$miner->type;
     $task->miner=$miner;
-    $miningDriver=$this->getTaskMiningDriver($task, $user);
+    $miningDriver=$this->getTaskMiningDriver($task, $user, $backgroundImportLink);
     $miningDriver->checkMinerState($user);
   }
 

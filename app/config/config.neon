@@ -120,6 +120,7 @@ services:
 
 			- addResource('EasyMiner:Tasks')
 			- allow('authenticated','EasyMiner:Tasks')
+			- allow('guest','EasyMiner:Tasks','importMiningResults')
 
 			- addResource('EasyMiner:User')
 			- allow('guest','EasyMiner:User','login')

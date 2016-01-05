@@ -1,7 +1,6 @@
 <?php
 
 namespace EasyMinerCenter\Model\Mining;
-use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -34,11 +33,13 @@ interface IMiningDriver {
    */
   public function checkTaskState();
 
-  /**
-   * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
 
-  public function importResults();
-*/
+  /**
+   * Funkce pro načtení plných výsledků úlohy z PMML
+   * @return TaskState
+   */
+  public function importResultsPMML();
+
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
@@ -47,8 +48,9 @@ interface IMiningDriver {
    * @param User $user
    * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
    * @param array $params = array() - parametry výchozí konfigurace
+   * @param string $backgroundImportLink="" - relativní URL pro spuštění plného importu (na pozadí)
    */
-  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array());
+  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array(), $backgroundImportLink="");
 
   /**
    * Funkce pro kontrolu, jestli je dostupný dolovací server
@@ -66,6 +68,7 @@ interface IMiningDriver {
 
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * @param User $user
    */
   public function checkMinerState(User $user);
 
