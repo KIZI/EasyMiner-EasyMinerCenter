@@ -18,16 +18,22 @@ use Nette\Utils\Json;
  * @property string $state m:Enum(self::STATE_*)
  * @property string $taskSettingsJson = ''
  * @property string|null $resultsUrl = ''
+ * @property string $importState m:Enum(self::IMPORT_STATE_*)
+ * @property string $importJson = ''
  * @property-read TaskState $taskState
  * @property-read Rule[] $rules m:belongsToMany
  */
 class Task extends Entity{
   const STATE_NEW='new';
   const STATE_IN_PROGRESS='in_progress';
-  const STATE_SOLVED_HEADS='solved_heads';
   const STATE_SOLVED='solved';
   const STATE_FAILED='failed';
   const STATE_INTERRUPTED='interrupted';
+
+  const IMPORT_STATE_NONE='none';
+  const IMPORT_STATE_WAITING='waiting';
+  const IMPORT_STATE_PARTIAL='partial';
+  const IMPORT_STATE_DONE='done';
 
 
   /**
@@ -43,6 +49,7 @@ class Task extends Entity{
       'name'=>$this->name,
       'type'=>$this->type,
       'state'=>$this->state,
+      'importState'=>$this->importState,
       'rulesCount'=>$this->rulesCount,
       'rulesOrder'=>$this->rulesOrder
     ];
@@ -74,10 +81,44 @@ class Task extends Entity{
   }
 
   /**
+   * Funkce vracející konfiguraci importu
+   * @return mixed
+   * @throws \Nette\Utils\JsonException
+   */
+  public function getImportData() {
+    if (empty($this->importJson)){
+      return [];
+    }
+    return Json::decode($this->importJson,Json::FORCE_ARRAY);
+  }
+
+  /**
+   * Funkce pro nastavení konfigurace importu
+   * @param array $importData
+   * @throws \Nette\Utils\JsonException
+   */
+  public function setImportData($importData) {
+    if (!empty($importData) && is_array($importData) || is_object($importData)){
+      $importData=Json::encode($importData);
+    }elseif($importData===[]){
+      $importData="";
+    }
+    $this->importJson=$importData;
+  }
+
+  /**
    * @return TaskState
    */
   public function getTaskState(){
-    return new TaskState($this->state,$this->rulesCount,$this->resultsUrl);
+    return new TaskState($this->state,$this->rulesCount,$this->resultsUrl,$this->importState,$this->getImportData());
+  }
+
+  /**
+   * Funkce vracející info o tom, jestli již bylo dokončeno/přerušeno dolování na straně serveru
+   * @return bool
+   */
+  public function isMiningFinished() {
+    return $this->state!=self::STATE_NEW && $this->state!=self::STATE_IN_PROGRESS;
   }
 
   /**

@@ -64,23 +64,28 @@ class TasksPresenter  extends BasePresenter{
       }
       $task->taskSettingsJson=$data;
       $this->tasksFacade->saveTask($task);
-      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser(),$this->getBackgroundImportLink($task));
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
       $taskState=$miningDriver->startMining();
       #endregion
     }else{
       #region zjištění stavu již existující úlohy
-      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser(),$this->getBackgroundImportLink($task));
-      $this->session->close();
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
       $taskState=$miningDriver->checkTaskState();
       #endregion
     }
+
     $this->tasksFacade->updateTaskState($task,$taskState);
+    if ($taskState->importState==Task::IMPORT_STATE_WAITING){
+      //pokud máme na serveru čekající import, zkusíme poslat požadavek na jeho provedení
+      RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
+    }
     $taskState=$task->getTaskState();
-    $taskState->setState(TASK::STATE_IN_PROGRESS);//TODO remove...
-    $array=$taskState->asArray();
-    $_SESSION['session_counter']=@$_SESSION['session_counter']+1;
-    $array['sessionCounter']=@$_SESSION['session_counter'];//TODO remove... (jen ladicí výpis)
-    $this->sendJsonResponse($array);
+    #region FIXME dočasná úprava vracení stavu úlohy pro UI
+    if ($taskState->state==Task::STATE_SOLVED && $taskState->importState!=Task::IMPORT_STATE_DONE){
+      $taskState->state=Task::STATE_IN_PROGRESS;
+    }
+    #endregion
+    $this->sendJsonResponse($taskState->asArray());
   }
 
 
@@ -92,18 +97,29 @@ class TasksPresenter  extends BasePresenter{
     //načtení příslušné úlohy
     try {
       $task=$this->tasksFacade->findTask($task);
-      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$task->miner->user,$this->getBackgroundImportLink($task));
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$task->miner->user);
     }catch (\Exception $e){
       //pokud nebyla nalezena příslušná úloha, není co importovat
       $this->terminate();
       return;
     }
 
-    //zakážeme ukončení načítání
-    ignore_user_abort(true);
+    //import budeme provádět pouze v případě, že zatím neběží jiný import (abychom předešli konfliktům a zahlcení serveru)
+    if ($task->importState==Task::IMPORT_STATE_WAITING){
+      //zakážeme ukončení načítání
+      ignore_user_abort(true);
+      //označíme částečný probíhající import
+      $taskState=$task->getTaskState();
+      $taskState->importState=Task::IMPORT_STATE_PARTIAL;
+      $this->tasksFacade->updateTaskState($task,$taskState);
+      //provedeme import plného PMML (klidně jen částečných výsledků) a zaktualizujeme stav úlohy
+      $taskState=$miningDriver->importResultsPMML();
+      $this->tasksFacade->updateTaskState($task,$taskState);
 
-    //TODO tady bude spuštění importu v rámci driveru
-    file_put_contents(__DIR__.'/../../../temp/actionTest','testOK');
+      //spustíme další dílší import
+      RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
+    }
+    $this->terminate();
   }
 
   /**
@@ -120,7 +136,7 @@ class TasksPresenter  extends BasePresenter{
     $this->checkMinerAccess($miner);
 
 
-    $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser(),$this->getBackgroundImportLink($task));
+    $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
     $taskState=$miningDriver->stopMining();
 
     $this->tasksFacade->updateTaskState($task,$taskState);

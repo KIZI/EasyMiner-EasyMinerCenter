@@ -431,7 +431,7 @@ class TasksPresenter extends BaseResourcePresenter {
  *   @SWG\Property(property="miner",type="integer",description="ID of the associated miner"),
  *   @SWG\Property(property="type",type="integer",description="Type of the miner"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
- *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted","solved_heads"}),
+ *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted"}),
  *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
  *   @SWG\Property(property="rulesOrder",type="string",description="Rules order")
  * )
@@ -443,7 +443,7 @@ class TasksPresenter extends BaseResourcePresenter {
  *   @SWG\Property(property="miner",type="integer",description="ID of the associated miner"),
  *   @SWG\Property(property="type",type="integer",description="Type of the miner"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
- *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted","solved_heads"}),
+ *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted"}),
  *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
  *   @SWG\Property(property="rulesOrder",type="string",description="Rules order"),
  *   @SWG\Property(

@@ -48,9 +48,8 @@ interface IMiningDriver {
    * @param User $user
    * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
    * @param array $params = array() - parametry výchozí konfigurace
-   * @param string $backgroundImportLink="" - relativní URL pro spuštění plného importu (na pozadí)
    */
-  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array(), $backgroundImportLink="");
+  public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array());
 
   /**
    * Funkce pro kontrolu, jestli je dostupný dolovací server

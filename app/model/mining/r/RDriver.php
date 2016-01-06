@@ -20,6 +20,7 @@ use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsJson;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Nette\InvalidArgumentException;
+use Nette\Utils\FileSystem;
 use Nette\Utils\Strings;
 
 /**
@@ -44,8 +45,6 @@ class RDriver implements IMiningDriver{
   private $guhaPmmlSerializerFactory;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
-  /** @var  string $backgroundImportLink - relativní URL pro spuštění plného importu (na pozadí) */
-  private $backgroundImportLink;
   /** @var  User $user */
   private $user;
   /** @var  string $apiKey - API KEY pro konktrétního uživatele */
@@ -128,7 +127,6 @@ class RDriver implements IMiningDriver{
         try{
           #region zjištění stavu úlohy, případně import pravidel
           $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/'.$this->task->resultsUrl,'',$this->getApiKey(),$responseCode);
-          //$response=self::curlRequestResponse($this->task->resultsUrl,'',$this->getApiKey(),$responseCode);
           return $this->parseResponse($response,$responseCode);
           #endregion
         }catch (\Exception $e){
@@ -137,21 +135,10 @@ class RDriver implements IMiningDriver{
       }else{
         $taskState=$this->task->taskState;
         $taskState->state=Task::STATE_FAILED;
+        return $taskState;
       }
-    }/*FIXME elseif ($this->task->state==Task::STATE_SOLVED_HEADS){
-      if (file_exists($this->getImportPmmlPath())){
-        //ignore user abort (continue running this script)
-        ignore_user_abort(true);
-        //update task details
-        $rulesCount=0;
-        $this->fullParseRulesPMML(simplexml_load_file($this->getImportPmmlPath()),$rulesCount,true);
-        if ($rulesCount!=$this->task->rulesCount){
-          $this->task->rulesCount=$rulesCount;
-        }
-        return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
-      }
-    }*/
-    return $this->task->taskState;
+    }
+    return $this->task->getTaskState();
   }
 
   #region funkce pro smazání mineru, kontrolu jeho stavu a jeho smazání
@@ -233,20 +220,12 @@ class RDriver implements IMiningDriver{
    * @throws \Exception
    */
   public function parseRulesPMML($pmmlString){
-    if (is_dir($this->params['importsDirectory'])){
-      file_put_contents($this->getImportPmmlPath(),$pmmlString);
-      $this->basicParseRulesPMML($pmmlString,$rulesCount);
-      $taskState=$this->task->getTaskState();
-      $taskState->setRulesCount($rulesCount);
-      /////FIXME $taskState->setState(Task::STATE_SOLVED_HEADS);//FIXME je nutné nějak sjednotit stavy úlohy tak, aby bylo jasné, co vše již bylo importováno
-      return $taskState;
-    }else{/*FIXME implementace plného parsování PMML souborů
-      $this->fullParseRulesPMML($pmml,$rulesCount);
-      @unlink($this->getImportPmmlPath());
-
-      return Task::STATE_SOLVED;
-*/
-    }
+    file_put_contents($this->getImportPmmlPath(),$pmmlString);
+    $this->basicParseRulesPMML($pmmlString,$rulesCount);
+    $taskState=$this->task->getTaskState();
+    $taskState->setRulesCount($taskState->getRulesCount()+$rulesCount);
+    $taskState->importState=Task::IMPORT_STATE_WAITING;
+    return $taskState;
   }
 
   /**
@@ -546,11 +525,10 @@ class RDriver implements IMiningDriver{
           //jde o úlohu, která aktuálně nemá žádné další výsledky
           return $this->task->getTaskState();
         case 206:
-          $rulesCount=0;
+          //import částečných výsledků
           return $this->parseRulesPMML($response);
-          break;
         case 303:
-          //byly importovány všechny částečné výsledky, jen ukončíme úlohu (import celého PMML již nepotřebujeme
+          //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
           return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
         case 404:
           if ($this->task->state==Task::STATE_IN_PROGRESS && $this->task->rulesCount>0){
@@ -575,9 +553,8 @@ class RDriver implements IMiningDriver{
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
    * @param $params = array()
-   * @param string $backgroundImportLink="" - relativní URL pro spuštění plného importu (na pozadí)
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array(), $backgroundImportLink="") {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
@@ -586,7 +563,6 @@ class RDriver implements IMiningDriver{
     $this->user=$user;
     $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
     $this->setApiKey($user->getEncodedApiKey());
-    $this->backgroundImportLink=$backgroundImportLink;
   }
 
   /**
@@ -642,11 +618,16 @@ class RDriver implements IMiningDriver{
   }
 
   /**
+   * Funkce vracející cestu k souboru, který má být updatován
    * @return string
    */
   private function getImportPmmlPath(){
-    //FIXME implementace zpracování většího množství dílčích souborů
-    return $this->params['importsDirectory'].'/'.$this->task->taskId.'.pmml';
+    $taskImportData=$this->task->getImportData();
+    $uniqid=uniqid();
+    $filename=$this->params['importsDirectory'].'/import_'.$this->task->taskId.'_'.$uniqid.'.pmml';
+    $taskImportData[$uniqid]=$filename;
+    $this->task->setImportData($taskImportData);
+    return $filename;
   }
 
 
@@ -693,8 +674,31 @@ class RDriver implements IMiningDriver{
    * @return TaskState
    */
   public function importResultsPMML() {
-    // FIXME implementace importu plných výsledků z PMML uloženého v TEMPu na serveru...
+    #region zjištění jména souboru, který se má importovat (a kontrola, jestli tu nějaký takový soubor je)
+    $importData=$this->task->getImportData();
+    $taskState=$this->task->getTaskState();
+    if (!empty($importData)){
+      $filename=array_shift($importData);
+      if (file_exists($filename)){
+        //FIXME optimalizace načítání výsledků - vyřešení duplicitních cedentů (aby nedocházelo k jejich duplicitnímu importu
+        $importedRulesCount=0;
+        $this->fullParseRulesPMML(simplexml_load_file($filename),$importedRulesCount,true);
 
+        #region aktualizace TaskState
+        $taskState->importData=$importData;
+        $taskState->importState=Task::IMPORT_STATE_WAITING;
+        if (empty($importData)){
+          if ($taskState->state==Task::STATE_SOLVED){
+            $taskState->importState=Task::IMPORT_STATE_DONE;
+          }
+        }
+        #endregion aktualizace TaskState
+        //smažeme importovaný soubor
+        FileSystem::delete($filename);
+      }
+    }
+    #endregion
+    return $taskState;
   }
 
 }
