@@ -688,7 +688,7 @@ class RDriver implements IMiningDriver{
         $taskState->importData=$importData;
         $taskState->importState=Task::IMPORT_STATE_WAITING;
         if (empty($importData)){
-          if ($taskState->state==Task::STATE_SOLVED){
+          if ($taskState->state==Task::STATE_SOLVED || $taskState->state==Task::STATE_INTERRUPTED){
             $taskState->importState=Task::IMPORT_STATE_DONE;
           }
         }

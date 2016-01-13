@@ -80,11 +80,6 @@ class TasksPresenter  extends BasePresenter{
       RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
     }
     $taskState=$task->getTaskState();
-    #region FIXME dočasná úprava vracení stavu úlohy pro UI
-    if ($taskState->state==Task::STATE_SOLVED && $taskState->importState!=Task::IMPORT_STATE_DONE){
-      $taskState->state=Task::STATE_IN_PROGRESS;
-    }
-    #endregion
     $this->sendJsonResponse($taskState->asArray());
   }
 
