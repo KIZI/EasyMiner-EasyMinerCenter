@@ -534,7 +534,7 @@
 				<Type>
 					<Name>Subset</Name>
 					<LocalizedName lang="en">Subset of values</LocalizedName>
-					<Explanation lang="en">The system will try to use all individual attribute values. If maximum number of values parameter is set to a value greater than 1, dynamic binning will be activated. </Explanation>
+					<Explanation lang="en">The system will try to use all individual attribute values.</Explanation>
 					<MaxOccurrences>1</MaxOccurrences>
 					<Field>
 						<Name>minLength</Name>
