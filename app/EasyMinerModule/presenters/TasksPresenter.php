@@ -171,7 +171,7 @@ class TasksPresenter  extends BasePresenter{
         $rulesArr[$rule->ruleId]=$rule->getBasicDataArr();
       }
     }
-    $this->sendJsonResponse(array('task'=>array('name'=>$task->name,'rulesCount'=>$task->rulesCount,'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
+    $this->sendJsonResponse(array('task'=>array('name'=>$task->name,'rulesCount'=>$task->rulesCount,'IMs'=>$task->getInterestMeasures(),'state'=>$task->state,'importState'=>$task->importState),'rules'=>$rulesArr));
   }
 
   /**
