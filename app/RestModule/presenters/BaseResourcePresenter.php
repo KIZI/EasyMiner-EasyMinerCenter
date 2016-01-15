@@ -1,6 +1,7 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
 
+use Drahak\Restful\Resource\Link;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Drahak\Restful\Application\UI\ResourcePresenter;
@@ -134,6 +135,15 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
     $this->sendResponse(new TextResponse(($simpleXml instanceof \SimpleXMLElement?$simpleXml->asXML():$simpleXml)));
   }
 
+  /**
+   * Funkce pro odeslání textové odpovědi
+   * @param string $text
+   */
+  protected function sendTextResponse($text) {
+    $httpResponse=$this->getHttpResponse();
+    $httpResponse->setContentType('text/plain','UTF-8');
+    $this->sendResponse(new TextResponse($text));
+  }
 
   /**
    * Funkce pro nastavení specifikace XML elementů
@@ -145,6 +155,28 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
     //TODO set namespace
     if (!empty($itemElement)){
       $this->xmlMapper->setItemElement($itemElement);
+    }
+  }
+
+  /**
+   * Funkce vracející absolutní URL zadaného linku
+   * @param string $destination
+   * @param array $args
+   * @param string $rel
+   * @param bool $includeCurrentParams=false - pokud je true, dojde ke sloučení aktuálních parametrů a parametrů nových
+   * @return string
+   */
+  protected function getAbsoluteLink($destination, $args=[], $rel=Link::SELF, $includeCurrentParams=false) {
+    if (($destination=='self'||$destination=='//self')&&empty($args)){
+      $args=$this->params;
+    }elseif($includeCurrentParams){
+      $args=array_merge($this->params,$args);
+    }
+    $link=$this->link($destination, $args, $rel)->getHref();
+    if ($link[0]=='/'){
+      return $this->getHttpRequest()->getUrl()->getHostUrl().$link;
+    }else{
+      return $link;
     }
   }
 
