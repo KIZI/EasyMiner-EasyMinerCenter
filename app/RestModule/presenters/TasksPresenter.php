@@ -9,7 +9,6 @@ use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
-use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
 use Nette\Application\BadRequestException;
 
@@ -19,6 +18,8 @@ use Nette\Application\BadRequestException;
  */
 class TasksPresenter extends BaseResourcePresenter {
   use TasksFacadeTrait;
+  /** @const MINING_STATE_CHECK_INTERVAL - doba čekání mezi kontrolami stavu úlohy */
+  const MINING_STATE_CHECK_INTERVAL=1000;
 
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
@@ -197,7 +198,7 @@ class TasksPresenter extends BaseResourcePresenter {
   }
   #endregion actionSimple
 
-  #region actionStart/actionStop
+  #region actionStart/actionStop/actionState
   /**
    * Akce pro spuštění dolování konkrétní úlohy
    * @param int $id
@@ -230,11 +231,43 @@ class TasksPresenter extends BaseResourcePresenter {
     if ($task->state==Task::STATE_NEW){
       //runTask
       $taskState=$miningDriver->startMining();
+      $this->tasksFacade->updateTaskState($task,$taskState);
+      //send task simple details
+      $this->resource=$task->getDataArr(false);
+      $this->sendResource();
     }else{
-      //check task state
-      $taskState=$miningDriver->checkTaskState();
+      $this->redirect('readState',['id'=>$id]);
     }
-    $this->tasksFacade->updateTaskState($task,$taskState);
+  }
+
+  /**
+   * Akce pro spuštění dolování konkrétní úlohy
+   * @param int $id
+   * @SWG\Get(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}/state",
+   *   summary="Check state of the data mining task",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Task ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Task state",
+   *     @SWG\Schema(
+   *       ref="#/definitions/TaskSimpleResponse"
+   *     )
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found.")
+   * )
+   */
+  public function actionReadState($id) {
+    $task=$this->findTaskWithCheckAccess($id);
     //send task simple details
     $this->resource=$task->getDataArr(false);
     $this->sendResource();
@@ -276,7 +309,26 @@ class TasksPresenter extends BaseResourcePresenter {
     $this->resource=$task->getDataArr(false);
     $this->sendResource();
   }
-  #endregion actionStart/actionStop
+  #endregion actionStart/actionStop/actionState
+
+  #region akce pro periodickou kontrolu dolování a import na pozadí
+  /**
+   * Akce pro periodickou kontrolu stavu úlohy na serveru
+   * @param int $id - ID úlohy, kterou chceme zkontrolovat
+   */
+  public function actionReadMiningCheckState($id) {
+    //TODO implement
+  }
+
+  /**
+   * Akce pro import výsledků
+   * @param int
+   */
+  public function actionReadMiningImportResults() {
+    //TODO
+  }
+  #endregion
+
 
   #region actionReadRules
   /**
@@ -432,6 +484,7 @@ class TasksPresenter extends BaseResourcePresenter {
  *   @SWG\Property(property="type",type="integer",description="Type of the miner"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
  *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted"}),
+ *   @SWG\Property(property="importState",type="string",description="State of the results import",enum={"none","waiting","partial","done"}),
  *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
  *   @SWG\Property(property="rulesOrder",type="string",description="Rules order")
  * )
@@ -444,6 +497,7 @@ class TasksPresenter extends BaseResourcePresenter {
  *   @SWG\Property(property="type",type="integer",description="Type of the miner"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
  *   @SWG\Property(property="state",type="string",description="State of the task",enum={"new","in_progress","solved","failed","interrupted"}),
+ *   @SWG\Property(property="importState",type="string",description="State of the results import",enum={"none","waiting","partial","done"}),
  *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
  *   @SWG\Property(property="rulesOrder",type="string",description="Rules order"),
  *   @SWG\Property(

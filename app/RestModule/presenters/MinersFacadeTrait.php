@@ -17,7 +17,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
  */
 trait MinersFacadeTrait {
   /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
+  protected $minersFacade;
 
 
   /**
