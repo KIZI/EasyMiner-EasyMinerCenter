@@ -130,10 +130,8 @@ class TasksPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-
     $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
     $taskState=$miningDriver->stopMining();
-
     $this->tasksFacade->updateTaskState($task,$taskState);
 
     $this->sendJsonResponse($taskState->asArray());

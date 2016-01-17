@@ -147,9 +147,13 @@ class RDriver implements IMiningDriver{
    * @return TaskState
    */
   public function stopMining() {
-    $taskState=$this->task->taskState;
-    if ($taskState==Task::STATE_IN_PROGRESS){
+    $taskState=$this->task->getTaskState();
+    if ($taskState->state==Task::STATE_IN_PROGRESS){
       $taskState->state=Task::STATE_INTERRUPTED;
+      $taskState->resultsUrl=null;
+    }
+    if ($taskState->importState!=Task::IMPORT_STATE_PARTIAL){
+      $taskState->importState=Task::IMPORT_STATE_DONE;
     }
     return $taskState;
   }
