@@ -105,6 +105,10 @@ class TasksPresenter  extends BasePresenter{
       ignore_user_abort(true);
       //označíme částečný probíhající import
       $taskState=$task->getTaskState();
+      $importData=$taskState->getImportData();
+      if (empty($importData)){
+        $this->terminate();
+      }
       $taskState->importState=Task::IMPORT_STATE_PARTIAL;
       $this->tasksFacade->updateTaskState($task,$taskState);
       //provedeme import plného PMML (klidně jen částečných výsledků) a zaktualizujeme stav úlohy
