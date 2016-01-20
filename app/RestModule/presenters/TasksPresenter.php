@@ -247,7 +247,7 @@ class TasksPresenter extends BaseResourcePresenter {
       $this->resource=$task->getDataArr(false);
       $this->sendResource();
     }else{
-      $this->redirect('readState',['id'=>$id]);
+      $this->forward('readState',['id'=>$id]);
     }
   }
 

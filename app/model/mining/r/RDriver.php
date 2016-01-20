@@ -126,7 +126,9 @@ class RDriver implements IMiningDriver{
         sendStartRequest:
         try{
           #region zjištění stavu úlohy, případně import pravidel
-          $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/'.$this->task->resultsUrl,'',$this->getApiKey(),$responseCode);
+          $url=$this->getRemoteMinerUrl().'/'.$this->task->resultsUrl.'?apiKey='.$this->getApiKey();
+          $response=self::curlRequestResponse($url,'',$this->getApiKey(),$responseCode);
+
           return $this->parseResponse($response,$responseCode);
           #endregion
         }catch (\Exception $e){
@@ -551,12 +553,13 @@ class RDriver implements IMiningDriver{
 
   #region constructor
   /**
-   * @param Task $task
+   * @param Task|null $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
+   * @param User $user
    * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
-   * @param $params = array()
+   * @param array $params = array()
    */
   public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array()) {
     $this->minersFacade=$minersFacade;

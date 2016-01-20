@@ -1,6 +1,9 @@
 <?php
 
 namespace EasyMinerCenter\Libs;
+use Nette\Http\Url;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 /**
  * Class RequestHelper - třída shromažďující funkce pro práci s odesíláním requestů
@@ -12,17 +15,40 @@ class RequestHelper {
   /**
    * Funkce pro odeslání GET požadavku bez čekání na získání odpovědi
    * @param string $url
-   * @param string $server="localhost"
-   * @param int $port=80
    * @throws \Exception
    */
-  public static function sendBackgroundGetRequest($url, $server='localhost', $port=80){
-    $fp=fsockopen($server, $port, $errno, $errstr, self::REQUEST_TIMEOUT);
+  public static function sendBackgroundGetRequest($url){
+    $url = new Url($url);
+    $host=$url->getHost();
+    if (empty($host)){
+      $host='localhost';
+    }
+    #region parametry připojení
+    switch ($url->getScheme()) {
+      case 'https':
+        $scheme = 'ssl://';
+        $port = 443;
+        break;
+      case 'http':
+      default:
+        $scheme = '';
+        $port = 80;
+    }
+    $urlPort=$url->getPort();
+    if (!empty($urlPort)) {
+      $port=$urlPort;
+    }
+    #endregion
+
+    $fp=@fsockopen($scheme.$host, $port, $errno, $errstr, self::REQUEST_TIMEOUT);
     if (!$fp){
+      Debugger::log($errstr,ILogger::ERROR);
       throw new \Exception($errstr,$errno);
     }
-    fwrite($fp, "GET ".$url." HTTP/1.0\r\nHost: ".$server."\r\n\r\n");
-    fclose($fp);
+    $path=$url->getPath().($url->getQuery()!=""?'?'.$url->getQuery():'');
+    fputs($fp, "GET ".$path." HTTP/1.0\r\nHost: ".$host."\r\n\r\n");
+    fputs($fp, "Connection: close\r\n");
+    fputs($fp, "\r\n");
   }
 
 }
