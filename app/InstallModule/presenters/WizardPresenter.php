@@ -32,6 +32,7 @@ class WizardPresenter extends Presenter {
     'phpConfig',    //kontrola nastavení PHP (dostupnosti potřebných funkcí atp.)
     'files',        //kontrola přístupů k souborům a adresářům
     'timezone',     //nastavení časové zóny
+    'https',        //nastavení zabazpečeného přístupu
     'database',     //inicializace aplikační databáze
     'dataMysql',    //přístupy k databázi pro uživatelská data
     'logins',       //typy přihlašování
@@ -104,6 +105,17 @@ class WizardPresenter extends Presenter {
     $form->setDefaults(['backlink'=>$backlink]);
   }
   
+  /**
+   * Akce pro nastavení vyžadované časové zóny
+   */
+  public function actionHttps() {
+    $this->checkAccessRights();
+    $configManager=$this->createConfigManager();
+    /** @var Form $form */
+    $form=$this->getComponent('httpsForm');
+    $form->setDefaults(['protocol'=>(@$configManager->data['parameters']['router']['secured']?'https':'http')]);
+  }
+
   /**
    * Akce pro nastavení vyžadované časové zóny
    */
@@ -285,6 +297,28 @@ class WizardPresenter extends Presenter {
       $configManager->saveConfig();
       //redirect to the next step
       $this->redirect($this->getNextStep('timezone'));
+    };
+    return $form;
+  }
+
+  /**
+   * Formulář pro zadání přenosového protokolu
+   * @return Form
+   */
+  public function createComponentHttpsForm() {
+    $form=new Form();
+    $form->addSelect('protocol','Transfer protocol',[
+      'http'=>'http - unsecured',
+      'https'=>'https - secured using SSL certificate'
+    ]);
+    $form->addSubmit('save','Save & continue...')->onClick[]=function(SubmitButton $submitButton){
+      //save the protocol info
+      $values=$submitButton->getForm(true)->getValues(true);
+      $configManager=$this->createConfigManager();
+      $configManager->data['parameters']['router']['secured']=($values['protocol']=='https');
+      $configManager->saveConfig();
+      //redirect to the next step
+      $this->redirect($this->getNextStep('https'));
     };
     return $form;
   }
