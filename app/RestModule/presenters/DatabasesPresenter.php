@@ -55,7 +55,7 @@ class DatabasesPresenter extends BaseResourcePresenter {
       $dbType='dbs_'.$dbType;
     }
     //připravení informací o datovém zdroji pro konkrétního uživatele...
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->currentUser,$dbType);
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->currentUser,$dbType,true);//FIXME parametr pro zrušení kontroly dostupnosti databáze
 
     $arr=[
       'server'=>$datasource->dbServer

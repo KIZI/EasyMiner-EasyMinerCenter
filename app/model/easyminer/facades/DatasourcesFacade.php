@@ -285,7 +285,7 @@ class DatasourcesFacade {
    * @throws \Nette\Application\ApplicationException
    * @return Datasource
    */
-  public function prepareNewDatasourceForUser(User $user,$dbType){
+  public function prepareNewDatasourceForUser(User $user,$dbType,$ignoreCheck=false){
 
     $datasource=new Datasource();
     if (!in_array($dbType,$this->databasesFacade->getDatabaseTypes()) || !isset($this->databasesConfig[$dbType])){
@@ -310,6 +310,10 @@ class DatasourcesFacade {
     $dbConnection=$datasource->getDbConnection();
 
     if ($dbType==DatabasesFacade::DB_TYPE_DBS_UNLIMITED){return $datasource;}
+
+    if ($ignoreCheck){//FIXME
+      return $datasource;
+    }
 
     //TODO tato kontrola by neměla být prováděna při každém requestu...
     try{
