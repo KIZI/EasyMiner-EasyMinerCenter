@@ -26,6 +26,8 @@ extensions:
 parameters:
     install:
         version: "2.1b"
+    router:
+        secured: true
     xmlTransformations:
         directory: "../submodules/EasyMiner-XML/transformations"
         guhaPMML:
@@ -65,7 +67,7 @@ google:
 
 services:
 	- EasyMinerCenter\RouterFactory
-	router: @EasyMinerCenter\RouterFactory::createRouter
+	router: @EasyMinerCenter\RouterFactory::createRouter(%router.secured%)
 	translator: EasyMinerCenter\Model\BlankTranslator
 	restful.xmlMapper: EasyMinerCenter\RestModule\Model\Mappers\XmlMapper
 	authorizator:
