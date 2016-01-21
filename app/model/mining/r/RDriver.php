@@ -22,6 +22,8 @@ use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Nette\InvalidArgumentException;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Strings;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 /**
  * Class RDriver - ovladač pro dolování za využití nové verze R driveru s postupným vracením výsledků
@@ -282,6 +284,7 @@ class RDriver implements IMiningDriver{
    * @throws \Exception
    */
   public function fullParseRulesPMML($pmml,&$rulesCount=null,$updateImportedRulesHeads=false){
+    Debugger::log('fullParseRulesPMML start '.time(),ILogger::DEBUG);
     if ($pmml instanceof \SimpleXMLElement) {
       $xml=$pmml;
     }else{
@@ -308,8 +311,7 @@ class RDriver implements IMiningDriver{
       }
     }
     if (!empty($alternativeCedentIdsArr)){
-      $repeat=true;
-      while ($repeat){
+      do{
         $repeat=false;
         foreach ($alternativeCedentIdsArr as $id=>$referencedId){
           if (isset($alternativeCedentIdsArr[$referencedId])){
@@ -317,9 +319,10 @@ class RDriver implements IMiningDriver{
             $repeat=true;
           }
         }
-      }
+      }while($repeat);
     }
     #endregion
+
     /** @var Cedent[] $cedentsArr */
     $cedentsArr=[];
     /** @var RuleAttribute[] $ruleAttributesArr */
@@ -369,7 +372,6 @@ class RDriver implements IMiningDriver{
       }
     }
     #endregion
-
     #region zpracování cedentů s více subcedenty/hodnotami
     $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)>0]');
     if (!empty($dbaItems)){
@@ -427,10 +429,12 @@ class RDriver implements IMiningDriver{
     }
     #endregion
 
+    #region association rules
+    /** @var Cedent[] $topCedentsArr - pole s cedenty na vrcholné úrovni (pokud je ruleAttribute přímo na vrcholné úrovni, musí být zabalen v cedentu)*/
     $topCedentsArr=array();
 
     foreach ($associationRulesXml->AssociationRule as $associationRule){
-      $rule='';
+      $rule=false;
       if ($updateImportedRulesHeads){
         try{
           $rule=$this->rulesFacade->findRuleByPmmlImportId($this->task->taskId,(string)$associationRule['id']);
@@ -440,6 +444,7 @@ class RDriver implements IMiningDriver{
         $rule=new Rule();
       }
       $rule->task=$this->task;
+      #region antecedent
       if (isset($associationRule['antecedent'])){
         //jde o pravidlo s antecedentem
         $antecedentId=(string)$associationRule['antecedent'];
@@ -469,6 +474,9 @@ class RDriver implements IMiningDriver{
         //jde o pravidlo bez antecedentu
         $rule->antecedent=null;
       }
+      #endregion antecedent
+
+      #region consequent
       $consequentId=(string)$associationRule['consequent'];
       if (isset($alternativeCedentIdsArr[$consequentId])){
         $consequentId=$alternativeCedentIdsArr[$consequentId];
@@ -491,6 +499,7 @@ class RDriver implements IMiningDriver{
           throw new \Exception('Import failed!');
         }
       }
+      #endregion consequent
 
       $rule->text=(string)$associationRule->Text;
       $fourFtTable=$associationRule->FourFtTable;
@@ -498,9 +507,12 @@ class RDriver implements IMiningDriver{
       $rule->b=(string)$fourFtTable['b'];
       $rule->c=(string)$fourFtTable['c'];
       $rule->d=(string)$fourFtTable['d'];
+
       $this->rulesFacade->saveRule($rule);
     }
     $this->rulesFacade->calculateMissingInterestMeasures($this->task);
+    #endregion association rules
+    Debugger::log('fullParseRulesPMML end '.time(),ILogger::DEBUG);
     return true;
   }
 
