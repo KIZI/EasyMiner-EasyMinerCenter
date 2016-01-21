@@ -16,12 +16,13 @@ class RouterFactory {
   const BASE_PATH = "install/";
 
 	/**
-   * @param string $baseUrl = self::BASE_PATH
+   * @param string $basePath = self::BASE_PATH
+   * @param bool $secured=false
    * @return IRouter
    */
-	public static function createRouter($baseUrl=self::BASE_PATH) {
+	public static function createRouter($basePath=self::BASE_PATH, $secured=false) {
     $installRouter = new RouteList('Install');
-    $installRouter[] = new Route($baseUrl.'<presenter=Default>[/<action=default>]');
+    $installRouter[] = new Route($basePath.'<presenter=Default>[/<action=default>]',[],($secured?Route::SECURED:0));
     return $installRouter;
   }
 

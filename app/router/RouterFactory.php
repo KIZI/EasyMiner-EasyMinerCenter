@@ -2,55 +2,31 @@
 
 namespace EasyMinerCenter;
 
-use Drahak\Restful\Application\IResourceRouter;
-use Drahak\Restful\Application\Routes\CrudRoute;
+use Drahak\Restful\Utils\Strings;
 use Nette, Nette\Application\Routers\RouteList, Nette\Application\Routers\Route;
 
 
 /**
- * Router factory.
+ * Router factory
+ * @author Stanislav Vojíř
  */
 class RouterFactory {
+  const EASYMINER_MODULE_BASE_URL = 'em/';
   const REST_MODULE_BASE_URL = 'api/';
   const INSTALL_MODULE_BASE_URL = 'install/';
 
 	/**
+   * Funkce pro vygenerování kompletního routeru pro aplikaci
+   * @param bool $secured
    * @return \Nette\Application\IRouter
    */
-	public function createRouter() {
+	public static function createRouter($secured=false) {
     $router = new RouteList();
-    $router[] = new Route('', ['module' => 'EasyMiner', 'presenter' => 'Homepage', 'action' => 'default']);
 
-    $router[] = $dataMiningRouter = new RouteList('EasyMiner');
-    $dataMiningRouter[] = new Route('em/user/oauth-[!<type=google>]', ['presenter' => 'User', 'action' => 'oauthGoogle', null => array(Route::FILTER_IN => function (array $params) {
-      $params['do'] = $params['type'] . 'Login-response';
-      unset($params['type']);
-
-      return $params;
-    }, Route::FILTER_OUT => function (array $params) {
-      if (empty($params['do']) || !preg_match('~^login\\-([^-]+)\\-response$~', $params['do'], $m)) {
-        return null;
-      }
-
-      $params['type'] = \Nette\Utils\Strings::lower($m[1]);
-      unset($params['do']);
-
-      return $params;
-    },),]);
-    $dataMiningRouter[] = new Route('em/<presenter>[/<action=default>[/<id>]]');
-
-    #region router pro RestModule
-    $router[] = $restRouter = new RouteList('Rest');
-    $restRouter[] = new Route(self::REST_MODULE_BASE_URL . 'auth[/<action=read>]', ['presenter' => 'Auth']);
-    $restRouter[] = new Route(self::REST_MODULE_BASE_URL . 'swagger[/<action=ui>]', ['presenter' => 'Swagger']);
-    $restRouter[] = new CrudRoute(self::REST_MODULE_BASE_URL . 'databases/<dbType>[/<id>[/<relation>[/<relationId>]]]', ['presenter'=>'Databases'], IResourceRouter::GET | IResourceRouter::POST | IResourceRouter::PUT | IResourceRouter::DELETE);
-    $restRouter[] = new CrudRoute(self::REST_MODULE_BASE_URL . '<presenter>[/<id>[/<relation>[/<relationId>]]]', [], IResourceRouter::GET | IResourceRouter::POST | IResourceRouter::PUT | IResourceRouter::DELETE);
-    $restRouter[] = new Route(self::REST_MODULE_BASE_URL, ['presenter' => 'Default', 'action' => 'default']);
-    #endregion
-
-    $router[] = \EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter(self::INSTALL_MODULE_BASE_URL);
-
-    //$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+    $router[] = new Route('', ['module' => 'EasyMiner', 'presenter' => 'Homepage', 'action' => 'default'], ($secured?Route::SECURED:0));
+    $router[] = \EasyMinerCenter\EasyMinerModule\Router\RouterFactory::createRouter(self::EASYMINER_MODULE_BASE_URL, $secured);
+    $router[] = \EasyMinerCenter\RestModule\Router\RouterFactory::createRouter(self::REST_MODULE_BASE_URL, $secured);
+    $router[] = \EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter(self::INSTALL_MODULE_BASE_URL, $secured);
 
     return $router;
   }
