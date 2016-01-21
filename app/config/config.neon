@@ -26,6 +26,8 @@ extensions:
 parameters:
     install:
         version: "2.1b"
+    router:
+        secured: true
     xmlTransformations:
         directory: "../submodules/EasyMiner-XML/transformations"
         guhaPMML:
@@ -65,7 +67,7 @@ google:
 
 services:
 	- EasyMinerCenter\RouterFactory
-	router: @EasyMinerCenter\RouterFactory::createRouter
+	router: @EasyMinerCenter\RouterFactory::createRouter(%router.secured%)
 	translator: EasyMinerCenter\Model\BlankTranslator
 	restful.xmlMapper: EasyMinerCenter\RestModule\Model\Mappers\XmlMapper
 	authorizator:
@@ -94,6 +96,9 @@ services:
 			- addResource('EasyMiner:Data')
 			- allow('authenticated','EasyMiner:Data')
 
+			- addResource('EasyMiner:NewData')
+			- allow('authenticated','EasyMiner:NewData')
+
 			- addResource('EasyMiner:Error')
 			- allow('guest','EasyMiner:Error')
 
@@ -117,6 +122,7 @@ services:
 
 			- addResource('EasyMiner:Tasks')
 			- allow('authenticated','EasyMiner:Tasks')
+			- allow('guest','EasyMiner:Tasks','importMiningResults')
 
 			- addResource('EasyMiner:User')
 			- allow('guest','EasyMiner:User','login')
@@ -140,6 +146,7 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
 	- EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade(%usersPhotosDirectory%,%usersPhotosUrl%)
 	- EasyMinerCenter\Model\Data\Facades\DatabasesFacade
+	- EasyMinerCenter\Model\Data\Facades\NewDatabasesFacade(%databases%)
 	- EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade

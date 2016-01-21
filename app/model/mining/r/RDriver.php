@@ -16,11 +16,18 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
+use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsJson;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Nette\InvalidArgumentException;
+use Nette\Utils\FileSystem;
 use Nette\Utils\Strings;
 
+/**
+ * Class RDriver - ovladač pro dolování za využití nové verze R driveru s postupným vracením výsledků
+ * @package EasyMinerCenter\Model\Mining\R
+ * @author Stanislav Vojíř
+ */
 class RDriver implements IMiningDriver{
   /** @var  Task $task */
   private $task;
@@ -49,25 +56,53 @@ class RDriver implements IMiningDriver{
   #endregion
 
   /**
+   * Funkce pro kontrolu nezbytných měr zajímavosti v nastavení úlohy
+   * @param TaskSettingsJson $taskSettingsJson
+   */
+  private function checkRequiredIMs(TaskSettingsJson $taskSettingsJson) {
+    #region TODO dodělat kontrolu požadovaných měr zajímavosti podle nastavovacího XML (issue #104)
+    $usedIMNames=$taskSettingsJson->getIMNames();
+    if (!in_array('FUI',$usedIMNames)){
+      $taskSettingsJson->simpleAddIM('FUI',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
+    }
+    if (!in_array('SUPP',$usedIMNames)){
+      $taskSettingsJson->simpleAddIM('SUPP',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
+    }
+    #endregion
+    #region kontrola zadání RULE_LENGTH
+    if (!in_array('RULE_LENGTH',$usedIMNames)){
+      $attributeNames=$taskSettingsJson->getAttributeNames();
+      $taskSettingsJson->simpleAddIM('RULE_LENGTH',TaskSettingsJson::THRESHOLD_TYPE_ABS,TaskSettingsJson::COMPARE_LTE,count($attributeNames));
+    }
+    #endregion kontrola zadání RULE_LENGTH
+  }
+
+  /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
    * @return TaskState
    * @throws \Exception
    */
   public function startMining() {
+    #region kontrola zadání úlohy v JSONu
+    $taskSettingsJson=new TaskSettingsJson($this->task->taskSettingsJson);
+    $this->checkRequiredIMs($taskSettingsJson);
+    #endregion
+
+    #region serializace zadání v PMML
     $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($this->task);
     $pmmlSerializer->appendMetabaseInfo();
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
-    $taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
+    $taskSettingsSerializer->settingsFromJson($taskSettingsJson->getJsonString());
+    #endregion
+
     $pmml=$taskSettingsSerializer->getPmml();
-    //TODO doplnit kontrolu na nezbytné zadání confidence a supportu
     //import úlohy a spuštění dolování...
-    //exit($pmml->asXML());
     $numRequests=1;
     sendStartRequest:
     try{
       #region pracovní zjednodušený request
-      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),$this->getApiKey());
-      $taskState=$this->parseResponse($response);
+      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),$this->getApiKey(),$responseCode);
+      $taskState=$this->parseResponse($response,$responseCode);
     #endregion
     }catch (\Exception $e){
       if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
@@ -84,15 +119,17 @@ class RDriver implements IMiningDriver{
    * @throws \Exception
    * @return TaskState
    */
-  public function checkTaskState(){              
+  public function checkTaskState(){
     if ($this->task->taskState->state==Task::STATE_IN_PROGRESS){
       if($this->task->resultsUrl!=''){
         $numRequests=1;
         sendStartRequest:
         try{
           #region zjištění stavu úlohy, případně import pravidel
-          $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/'.$this->task->resultsUrl,'',$this->getApiKey());
-          return $this->parseResponse($response);
+          $url=$this->getRemoteMinerUrl().'/'.$this->task->resultsUrl.'?apiKey='.$this->getApiKey();
+          $response=self::curlRequestResponse($url,'',$this->getApiKey(),$responseCode);
+
+          return $this->parseResponse($response,$responseCode);
           #endregion
         }catch (\Exception $e){
           if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
@@ -100,31 +137,25 @@ class RDriver implements IMiningDriver{
       }else{
         $taskState=$this->task->taskState;
         $taskState->state=Task::STATE_FAILED;
-      }
-    }elseif ($this->task->state==Task::STATE_SOLVED_HEADS){
-      if (file_exists($this->getImportPmmlPath())){
-        //ignore user abort (continue running this script)
-        ignore_user_abort(true);
-        //update task details
-        $rulesCount=0;
-        $this->fullParseRulesPMML(simplexml_load_file($this->getImportPmmlPath()),$rulesCount,true);
-        if ($rulesCount!=$this->task->rulesCount){
-          $this->task->rulesCount=$rulesCount;
-        }
-        return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
+        return $taskState;
       }
     }
-    return $this->task->taskState;
+    return $this->task->getTaskState();
   }
 
+  #region funkce pro smazání mineru, kontrolu jeho stavu a jeho smazání
   /**
    * Funkce pro zastavení dolování
    * @return TaskState
    */
   public function stopMining() {
-    $taskState=$this->task->taskState;
-    if ($taskState==Task::STATE_IN_PROGRESS){
+    $taskState=$this->task->getTaskState();
+    if ($taskState->state==Task::STATE_IN_PROGRESS){
       $taskState->state=Task::STATE_INTERRUPTED;
+      $taskState->resultsUrl=null;
+    }
+    if ($taskState->importState!=Task::IMPORT_STATE_PARTIAL){
+      $taskState->importState=Task::IMPORT_STATE_DONE;
     }
     return $taskState;
   }
@@ -186,31 +217,27 @@ class RDriver implements IMiningDriver{
     }
   }
 
+  #endregion
+
   /**
-   * Funkce pro načtení PMML
-   * @param string|\SimpleXMLElement $pmml
-   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
-   * @param string $responseData
-   * @return bool
+   * Funkce pro načtení pravidel z PMML získaného v rámci odpovědi serveru
+   * @param string $pmmlString
+   * @return TaskState
    * @throws \Exception
    */
-  public function parseRulesPMML($pmml,&$rulesCount=null,$responseData){
-    if (is_dir($this->params['importsDirectory'])){
-      file_put_contents($this->getImportPmmlPath(),$responseData);
-      $this->basicParseRulesPMML($pmml,$rulesCount);
-      return Task::STATE_SOLVED_HEADS;
-    }else{
-      $this->fullParseRulesPMML($pmml,$rulesCount);
-      @unlink($this->getImportPmmlPath());
-      return Task::STATE_SOLVED;
-    }
+  public function parseRulesPMML($pmmlString){
+    file_put_contents($this->getImportPmmlPath(),$pmmlString);
+    $this->basicParseRulesPMML($pmmlString,$rulesCount);
+    $taskState=$this->task->getTaskState();
+    $taskState->setRulesCount($taskState->getRulesCount()+$rulesCount);
+    $taskState->importState=Task::IMPORT_STATE_WAITING;
+    return $taskState;
   }
 
   /**
-   * Funkce pro načtení PMML
+   * Funkce pro načtení základu pravidel z PMML (jen text pravidla, IDčka a míry zajímavosti)
    * @param string|\SimpleXMLElement $pmml
    * @param int &$rulesCount = null - informace o počtu importovaných pravidel
-   * @return bool
    * @throws \Exception
    */
   public function basicParseRulesPMML($pmml,&$rulesCount=null){
@@ -226,7 +253,7 @@ class RDriver implements IMiningDriver{
 
     $associationRules=$xml->xpath('//guha:AssociationModel/AssociationRules/AssociationRule');
 
-    if (empty($associationRules)){return true;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+    if (empty($associationRules)){return;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
 
     $rulesArr=[];
     foreach ($associationRules as $associationRule){
@@ -243,7 +270,6 @@ class RDriver implements IMiningDriver{
     }
     $this->rulesFacade->saveRulesHeads($rulesArr);
     $this->rulesFacade->calculateMissingInterestMeasures($this->task);
-    return true;
   }
 
 
@@ -481,52 +507,59 @@ class RDriver implements IMiningDriver{
   /**
    * Funkce parsující stav odpovědi od LM connectu
    * @param string $response
-   * @param string $message
+   * @param int $responseCode
    * @return TaskState
    * @throws \Exception
    */
-  private function parseResponse($response, $message = ''){
-    $body=simplexml_load_string($response);
-    if ($body->getName()=='status' || $body->getName()=='error'){
-      //jde o informaci o stavu minování
-      $code=substr($body->code,0,3);
-      switch ($code){
-        case '202':
-          //jde o informaci o tom, že je nutné na odpověď dál čekat
-          $this->task->state=Task::STATE_IN_PROGRESS;
-          $resultUrl=(string)$body->miner->{'result-url'};
-          if (Strings::startsWith($resultUrl,'/api/v1')){//FIXME remove
-            $resultUrl=substr($resultUrl,8);
-          }
-
-          if ($resultUrl=='' && $this->task->resultUrl!=''){
-            $resultUrl=$this->task->resultUrl;
-          }
-          return new TaskState(Task::STATE_IN_PROGRESS,null,$resultUrl);
-        case '500':
-          //jde o chybu mineru
-          return new TaskState(Task::STATE_FAILED);
+  private function parseResponse($response, $responseCode){
+    //kontrola stavového kódu odpovědi a stavu úlohy
+    if ($responseCode==202 && $this->task->state==Task::STATE_NEW){
+      //vytvoření nového mineru (spuštění úlohy)
+      $body=simplexml_load_string($response);
+      if (substr($body->code,0,3)==202){
+        //pokud je odpověď ve vhodném formátu, uložíme k úloze info o tom, kde hledat dílčí odpověď
+        $this->task->state=Task::STATE_IN_PROGRESS;
+        if (!empty($body->miner->{'partial-result-url'})){
+          $resultUrl='partial-result/'.$body->miner->{'task-id'};
+        }
+        return new TaskState(Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
       }
-    }elseif($body->getName()=='PMML'){
-      //jde o export výsledků
-      $rulesCount=0;
-      $taskState=$this->parseRulesPMML($body,$rulesCount,$response);
-      return new TaskState($taskState,$rulesCount);
-    }else{
-      throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
+    }elseif($this->task->state==Task::STATE_IN_PROGRESS){
+      #region zpracování již probíhající úlohy
+      switch ($responseCode){
+        case 204:
+          //jde o úlohu, která aktuálně nemá žádné další výsledky
+          return $this->task->getTaskState();
+        case 206:
+          //import částečných výsledků
+          return $this->parseRulesPMML($response);
+        case 303:
+          //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
+          return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
+        case 404:
+          if ($this->task->state==Task::STATE_IN_PROGRESS && $this->task->rulesCount>0){
+            return new TaskState(Task::STATE_INTERRUPTED,$this->task->rulesCount);
+          }else{
+            return new TaskState(Task::STATE_FAILED);
+          }
+      }
+      #endregion zpracování již probíhající úlohy
     }
-    return new TaskState(Task::STATE_FAILED);
+    //úloha není v žádném standartním tvaru...
+    throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
+    //return new TaskState(Task::STATE_FAILED);
   }
 
 
   #region constructor
   /**
-   * @param Task $task
+   * @param Task|null $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
+   * @param User $user
    * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
-   * @param $params = array()
+   * @param array $params = array()
    */
   public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array()) {
     $this->minersFacade=$minersFacade;
@@ -555,10 +588,11 @@ class RDriver implements IMiningDriver{
    * @param string $url
    * @param string $postData = ''
    * @param string $apiKey = ''
+   * @param int|null &$responseCode - proměnná pro vrácení stavového kódu odpovědi
    * @return string - response data
    * @throws \Exception - curl error
    */
-  private static function curlRequestResponse($url, $postData='', $apiKey=''){
+  private static function curlRequestResponse($url, $postData='', $apiKey='', &$responseCode=null){
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -579,6 +613,8 @@ class RDriver implements IMiningDriver{
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArr);
 
     $responseData = curl_exec($ch);
+    $responseCode=curl_getinfo($ch,CURLINFO_HTTP_CODE);
+
     if(curl_errno($ch)){
       $exception=curl_error($ch);
       curl_close($ch);
@@ -589,11 +625,20 @@ class RDriver implements IMiningDriver{
   }
 
   /**
+   * Funkce vracející cestu k souboru, který má být updatován
    * @return string
    */
   private function getImportPmmlPath(){
-    return $this->params['importsDirectory'].'/'.$this->task->taskId.'.pmml';
+    $taskImportData=$this->task->getImportData();
+    $uniqid=uniqid();
+    $filename=$this->params['importsDirectory'].'/import_'.$this->task->taskId.'_'.$uniqid.'.pmml';
+    $taskImportData[$uniqid]=$filename;
+    $this->task->setImportData($taskImportData);
+    return $filename;
   }
+
+
+  #region apiKey
 
   /**
    * Funkce nastavující API klíč
@@ -615,6 +660,8 @@ class RDriver implements IMiningDriver{
     return $this->apiKey;
   }
 
+  #endregion apiKey
+
   /**
    * Funkce pro kontrolu, jestli je dostupný dolovací server
    *
@@ -627,4 +674,38 @@ class RDriver implements IMiningDriver{
     return !empty($response);
     //TODO implementace kontroly dostupnosti serveru
   }
+
+  /**
+   * Funkce pro načtení plných výsledků úlohy z PMML
+   *
+   * @return TaskState
+   */
+  public function importResultsPMML() {
+    #region zjištění jména souboru, který se má importovat (a kontrola, jestli tu nějaký takový soubor je)
+    $importData=$this->task->getImportData();
+    $taskState=$this->task->getTaskState();
+    if (!empty($importData)){
+      $filename=array_shift($importData);
+      if (file_exists($filename)){
+        //FIXME optimalizace načítání výsledků - vyřešení duplicitních cedentů (aby nedocházelo k jejich duplicitnímu importu
+        $importedRulesCount=0;
+        $this->fullParseRulesPMML(simplexml_load_file($filename),$importedRulesCount,true);
+
+        #region aktualizace TaskState
+        $taskState->importData=$importData;
+        $taskState->importState=Task::IMPORT_STATE_WAITING;
+        if (empty($importData)){
+          if ($taskState->state==Task::STATE_SOLVED || $taskState->state==Task::STATE_INTERRUPTED){
+            $taskState->importState=Task::IMPORT_STATE_DONE;
+          }
+        }
+        #endregion aktualizace TaskState
+        //smažeme importovaný soubor
+        FileSystem::delete($filename);
+      }
+    }
+    #endregion
+    return $taskState;
+  }
+
 }

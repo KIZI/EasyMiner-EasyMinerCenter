@@ -41,9 +41,10 @@ trait ResponsesTrait {
    * Funkce pro odeslání XML odpovědi
    * @param \SimpleXMLElement|string $simpleXml
    */
-  protected function sendXmlResponse($simpleXml){
+  protected function sendXmlResponse($simpleXml,$code=IResponse::S200_OK){
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('application/xml','UTF-8');
+    $httpResponse->setCode($code);
     $this->sendResponse(new TextResponse(($simpleXml instanceof \SimpleXMLElement?$simpleXml->asXML():$simpleXml)));
   }
 
@@ -51,9 +52,10 @@ trait ResponsesTrait {
    * Funkce pro odeslání JSON odpovědi
    * @param array|object|string $data
    */
-  protected function sendJsonResponse($data){
+  protected function sendJsonResponse($data,$code=IResponse::S200_OK){
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('application/json','UTF-8');
+    $httpResponse->setCode($code);
     $this->sendResponse(new TextResponse((is_string($data)?$data:Json::encode($data))));
   }
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
+use EasyMinerCenter\Libs\RequestHelper;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
@@ -69,12 +70,55 @@ class TasksPresenter  extends BasePresenter{
     }else{
       #region zjištění stavu již existující úlohy
       $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
-      $this->session->close();
       $taskState=$miningDriver->checkTaskState();
       #endregion
     }
+
     $this->tasksFacade->updateTaskState($task,$taskState);
-    $this->sendJsonResponse($task->getTaskState()->asArray());
+    if ($taskState->importState==Task::IMPORT_STATE_WAITING){
+      //pokud máme na serveru čekající import, zkusíme poslat požadavek na jeho provedení
+      RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
+    }
+    $taskState=$task->getTaskState();
+    $this->sendJsonResponse($taskState->asArray());
+  }
+
+
+  /**
+   * Akce pro spuštění importu dat, která jsou již uložena v TEMP složce na tomto serveru
+   * @param int $task
+   */
+  public function actionImportMiningResults($task){
+    //načtení příslušné úlohy
+    try {
+      $task=$this->tasksFacade->findTask($task);
+      $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$task->miner->user);
+    }catch (\Exception $e){
+      //pokud nebyla nalezena příslušná úloha, není co importovat
+      $this->terminate();
+      return;
+    }
+
+    //import budeme provádět pouze v případě, že zatím neběží jiný import (abychom předešli konfliktům a zahlcení serveru)
+    if ($task->importState==Task::IMPORT_STATE_WAITING){
+      //zakážeme ukončení načítání
+      ignore_user_abort(true);
+      //označíme částečný probíhající import
+      $taskState=$task->getTaskState();
+      $importData=$taskState->getImportData();
+      if (empty($importData)){
+        $this->terminate();
+      }
+      $taskState->importState=Task::IMPORT_STATE_PARTIAL;
+      $this->tasksFacade->updateTaskState($task,$taskState);
+      //provedeme import plného PMML (klidně jen částečných výsledků) a zaktualizujeme stav úlohy
+      $taskState=$miningDriver->importResultsPMML();
+      $this->tasksFacade->updateTaskState($task,$taskState);
+
+      //spustíme další dílší import
+      RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
+    }
+    $this->terminate();
   }
 
   /**
@@ -90,10 +134,8 @@ class TasksPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-
     $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
     $taskState=$miningDriver->stopMining();
-
     $this->tasksFacade->updateTaskState($task,$taskState);
 
     $this->sendJsonResponse($taskState->asArray());
@@ -126,7 +168,7 @@ class TasksPresenter  extends BasePresenter{
         $rulesArr[$rule->ruleId]=$rule->getBasicDataArr();
       }
     }
-    $this->sendJsonResponse(array('task'=>array('name'=>$task->name,'rulesCount'=>$task->rulesCount,'IMs'=>$task->getInterestMeasures()),'rules'=>$rulesArr));
+    $this->sendJsonResponse(array('task'=>array('name'=>$task->name,'rulesCount'=>$task->rulesCount,'IMs'=>$task->getInterestMeasures(),'state'=>$task->state,'importState'=>$task->importState),'rules'=>$rulesArr));
   }
 
   /**
@@ -237,7 +279,7 @@ class TasksPresenter  extends BasePresenter{
     //vygenerování a odeslání PMML
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
     $xml=$associationRulesXmlSerializer->getXml();
-    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml,$this->template->basePath));
+    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml/*,$this->template->basePath*/));
   }
 
   /**
@@ -254,7 +296,7 @@ class TasksPresenter  extends BasePresenter{
     //vygenerování PMML
     $pmml=$this->prepareTaskPmml($task);
     $this->template->task=$task;
-    $this->template->content=$this->xmlTransformator->transformToHtml($pmml,$this->template->basePath);//TODO basePath?
+    $this->template->content=$this->xmlTransformator->transformToHtml($pmml);
   }
 
   /**
@@ -302,6 +344,16 @@ class TasksPresenter  extends BasePresenter{
       /*ignore error (uživatel nemusí být přihlášen)*/
     }
     return null;
+  }
+
+  /**
+   * Funkce vracející relativní URL pro import výsledků dolování (pro spuštění na pozadí)
+   * @param Task $task
+   * @return string
+   */
+  private function getBackgroundImportLink(Task $task){
+    $this->absoluteUrls=false;
+    return $this->link('importMiningResults',['task'=>$task->taskId]);
   }
 
   #region injections

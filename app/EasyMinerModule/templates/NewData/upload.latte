@@ -1,0 +1,52 @@
+{* View for upload form *}
+{block title}{_'Upload dataset'}{/block}
+
+{block scripts}
+  {include parent}
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/Data/FileUploader.js"></script>
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/Data/upload.js"></script>
+  <script type="text/javascript">
+    var apiKey={$apiKey};
+    var dataServiceUrl={$dataServiceUrl};
+    var previewUrl={link previewData file=>'__FILE__',delimiter=>'__DELIMITER__',encoding=>'__ENCODING__',enclosure=>'__ENCLOSURE__',escapeCharacter=>'__ESCAPE_CHARACTER__',nullValue=>'__NULL_VALUE__',locale=>'__LOCALE__'};
+    var uploadPreviewDataUrl={link uploadPreview};
+  </script>
+{/block}
+
+{block content}
+  <noscript>
+    {*TODO error message...*}
+    <div id="mainBlock">
+      <h1>Enable javascript!</h1>
+      <p>For upload of your data set, it is required to have javascript support.</p>
+    </div>
+  </noscript>
+
+  <div id="uploadFormBlock">
+    <h1>{_'Upload dataset - select file'}</h1>
+    <p>
+      {_'You can upload a CSV file (optionally packed in a ZIP archive).'}
+    </p>
+    {control uploadForm}
+  </div>
+
+  <div id="uploadConfigBlock">
+    <div class="form">
+      <h1>{_'Configure upload'}</h1>
+      {control uploadConfigForm}
+    </div>
+    <div id="uploadConfigPreviewBlock">{*prostor pro zobrazení náhledu na celou tabulku*}</div>
+  </div>
+
+  <div id="uploadColumnsBlock">
+    <h1>{_'Upload dataset - configure columns'}</h1>
+    <form>
+      <div id="uploadColumnsListBlock">{*prostor pro dynamické doplnění přehledu sloupců*}</div>
+      <input type="submit" id="uploadAllSubmit" value="{_'Finish upload...'}" />
+    </form>
+  </div>
+
+  <div id="uploadProgressBlock">
+    <h1>{_'Uploading dataset...'}</h1>
+    <div class="progressBar"></div>
+  </div>

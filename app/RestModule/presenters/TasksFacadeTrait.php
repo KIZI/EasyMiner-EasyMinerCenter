@@ -20,7 +20,7 @@ trait TasksFacadeTrait {
   use MinersFacadeTrait;
 
   /** @var  TasksFacade $tasksFacade */
-  private $tasksFacade;
+  protected $tasksFacade;
 
 
 

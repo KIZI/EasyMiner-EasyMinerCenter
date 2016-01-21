@@ -133,8 +133,9 @@ class DataPresenter extends BasePresenter{
    * Akce pro založení nového EasyMineru či otevření stávajícího
    */
   public function renderNewMiner(){
-    $this->template->miners=$this->minersFacade->findMinersByUser($this->user->id);
-    $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($this->user->id);
+    $user=$this->usersFacade->findUser($this->user->id);
+    $this->template->miners=$this->minersFacade->findMinersByUser($user);
+    $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($user);
   }
 
   /**

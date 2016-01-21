@@ -44,13 +44,13 @@ var Config = new Class({
   ruleClipboardRemoveFromKnowledgeBaseUrl: {plink RuleClipboard:removeRulesFromRuleSet miner=>'__MINERID__',task=>'__TASKID__',ruleset=>'__RULESETID__'},
 
   ruleClipboardExportLinks: {l}
-    guhaPmml:{l}text:"Task details (GUHA PMML)",url:{plink Tasks:taskPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
-    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
+    guhaPmml:{l}text:"Task details (GUHA PMML)",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
+    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
   {r},
 
   discoveredRulesExportLinks: {l}
-    guhaPmml:{l}text:"GUHA PMML",url:{plink Tasks:taskPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
-    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
+    guhaPmml:{l}text:"GUHA PMML",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
+    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',task=>'__TASKID__'}{r},
   {r},
 
   knowledgeBaseExportLinks: {l}

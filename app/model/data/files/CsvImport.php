@@ -86,7 +86,7 @@ class CsvImport {
     }
     while($offset>0){
       //přeskakujeme řádky, které nemají být importovány...
-      fgets($file,null);
+      fgets($file);
       $offset--;
     }
 
@@ -181,7 +181,7 @@ class CsvImport {
    * @param string[] $columnNamesArr
    * @return string[]
    */
-  public static function sanitizeColumnNames($columnNamesArr){
+  public static function sanitizeColumnNames($columnNamesArr){//TODO oprava prázdných jmen souborů
     $finalColumnNamesArr=[];
     $finalColumnNamesFilterArr=['id'];
     foreach($columnNamesArr as $name){
@@ -210,9 +210,10 @@ class CsvImport {
    * @param string $delimiter = ','
    * @param string $enclosure  = '"'
    * @param string $escapeCharacter = '\\'
+   * @param int $analyzeRowsCount=100
    * @return DbColumn[]
    */
-  public static function analyzeCSVColumns($filename, $delimiter=',',$enclosure='"',$escapeCharacter='\\'){
+  public static function analyzeCSVColumns($filename, $delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=100){
     $columnNamesArr=self::getColsNamesInCsv($filename,$delimiter,$enclosure,$escapeCharacter);
 
     $columnNamesArr=self::sanitizeColumnNames($columnNamesArr);
@@ -230,7 +231,7 @@ class CsvImport {
     fgets($file);
     //kontrola všech řádků v souboru
     $rowsCount=0;
-    while (($data=fgetcsv($file,0,$delimiter,$enclosure,$escapeCharacter))&&($rowsCount<10000)){
+    while (($data=fgetcsv($file,0,$delimiter,$enclosure,$escapeCharacter))&&($rowsCount<$analyzeRowsCount)){
       //načten další řádek
       for ($i=0;$i<$columnsCount;$i++){
         $value=@$data[$i];
@@ -278,7 +279,7 @@ class CsvImport {
     if ($value==''){
       return 1;
     }
-    if (is_numeric($value)||(is_numeric(str_replace(',','.',$value)))){
+    if (is_numeric($value)||(is_numeric(str_replace(',','.',$value)))){//TODO analýza by měla odpovídat nastavení LOCALE
       if (((string)intval(str_replace(',','.',$value)))==str_replace(',','.',$value)){
         return 1;
       }else{

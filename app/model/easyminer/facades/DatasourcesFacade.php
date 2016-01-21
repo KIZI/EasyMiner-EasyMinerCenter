@@ -2,10 +2,10 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-
 use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Facades\NewDatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
@@ -15,15 +15,104 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 
+/**
+ * Class DatasourcesFacade - fasáda pro práci s datovými zdroji
+ *
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ */
 class DatasourcesFacade {
   /** @var DatasourcesRepository $datasourcesRepository */
   private $datasourcesRepository;
   /** @var  DatasourceColumnsRepository $datasourceColumnsRepository */
   private $datasourceColumnsRepository;
+  /** @var  NewDatabasesFacade $newDatabasesFacade */
+  private $newDatabasesFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
   /** @var array $databasesConfig - konfigurace jednotlivých připojení k DB */
   private $databasesConfig;
+
+  private static $dbTypesWithRemoteDatasources=['limited'];
+
+  ///REVIDOVANÉ METODY///////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Funkce pro aktualizaci informací o vzdálených datových zdrojích
+   * @param User $user
+   */
+  public function updateRemoteDatasourcesByUser(User $user){
+    $this->newDatabasesFacade->setUser($user);
+    $dbTypes=$this->newDatabasesFacade->getDbTypes();
+    foreach(self::$dbTypesWithRemoteDatasources as $dbTypeId){
+      if (in_array($dbTypeId,$dbTypes)){
+        #region aktualizace datových zdrojů v DB
+        $dbDatasources=$this->newDatabasesFacade->getDbDatasources($dbTypeId);
+        $updatedDatasourcesIds=[];
+        $updatedDbDatasourcesIds=[];
+        $datasources=$this->findDatasourcesByUser($user);
+        if (!empty($datasources)&&!empty($dbDatasources)){
+          //zkusíme najít příslušné překrývající se datové zdroje
+          foreach($datasources as $datasource){
+            foreach($dbDatasources as $dbDatasource){
+              if ($datasource->remoteId==$dbDatasource->remoteId){
+                if ($datasource->name!=$dbDatasource->name){
+                  //aktualizace názvu datového zdroje (došlo k jeho přejmenování) a uložení
+                  $datasource->name=$dbDatasource->name;
+                  $this->datasourcesRepository->persist($datasource);
+                }
+                $updatedDatasourcesIds[]=$datasource->remoteId;
+                $updatedDbDatasourcesIds[]=$dbDatasource->remoteId;
+                continue;
+              }
+            }
+          }
+        }
+        if (!empty($datasources)){
+          foreach($datasources as $datasource){
+            if($datasource->available && !in_array($datasource->remoteId,$updatedDatasourcesIds)){
+              //označení datového zdroje, který již není dostupný
+              $datasource->available=false;
+              $this->datasourcesRepository->persist($datasource);
+            }
+          }
+        }
+        if (!empty($dbDatasources)){
+          foreach($dbDatasources as $dbDatasource){
+            if (!in_array($dbDatasource->remoteId,$updatedDbDatasourcesIds)){
+              //přidání nového datového zdroje...
+              $datasource=new Datasource();
+              $datasource->user=$user;
+              $datasource->name=$dbDatasource->name;
+              $datasource->remoteId=$dbDatasource->remoteId;
+              $datasource->type=$dbDatasource->type;
+              $datasource->available=true;
+              $this->datasourcesRepository->persist($datasource);
+            }
+          }
+        }
+        #endregion
+      }
+    }
+    $this->datasourcesRepository->findAllBy(['user_id'=>$user]);
+  }
+
+
+  /**
+   * Funkce pro získání seznamu dostupných datových zdrojů
+   * @param User $user
+   * @param bool $onlyAvailable=false
+   * @return Datasource[]|null
+   */
+  public function findDatasourcesByUser(User $user, $onlyAvailable=false) {
+    $selectParams=['user_id' => $user->userId];
+    if($onlyAvailable){
+      $selectParams['available']=true;
+    }
+    return $this->datasourcesRepository->findAllBy($selectParams);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * @param array $databasesConfig
@@ -31,7 +120,7 @@ class DatasourcesFacade {
    * @param DatasourceColumnsRepository $datasourceColumnsRepository
    * @param DatabasesFacade $databasesFacade
    */
-  public function __construct($databasesConfig, DatasourcesRepository $datasourcesRepository, DatasourceColumnsRepository $datasourceColumnsRepository, DatabasesFacade $databasesFacade) {
+  public function __construct($databasesConfig, DatasourcesRepository $datasourcesRepository, DatasourceColumnsRepository $datasourceColumnsRepository, DatabasesFacade $databasesFacade, NewDatabasesFacade $newDatabasesFacade) {
     $this->datasourcesRepository = $datasourcesRepository;
     $this->datasourceColumnsRepository = $datasourceColumnsRepository;
     $this->databasesConfig = $databasesConfig;
@@ -39,6 +128,7 @@ class DatasourcesFacade {
       $this->databasesConfig['dbs_limited']=$this->databasesConfig['mysql'];
     }
     $this->databasesFacade = $databasesFacade;
+    $this->newDatabasesFacade=$newDatabasesFacade;
   }
 
   /**
@@ -71,17 +161,6 @@ class DatasourcesFacade {
       $datasource=$datasource->datasourceId;
     }
     return $this->datasourceColumnsRepository->findBy(array('datasource_id'=>$datasource,'name'=>$columnName));
-  }
-
-  /**
-   * @param int|User $user
-   * @return Datasource[]|null
-   */
-  public function findDatasourcesByUser($user) {
-    if ($user instanceof User) {
-      $user = $user->userId;
-    }
-    return $this->datasourcesRepository->findAllBy(array('user_id' => $user));
   }
 
   /**
@@ -206,7 +285,7 @@ class DatasourcesFacade {
    * @throws \Nette\Application\ApplicationException
    * @return Datasource
    */
-  public function prepareNewDatasourceForUser(User $user,$dbType){
+  public function prepareNewDatasourceForUser(User $user,$dbType,$ignoreCheck=false){
 
     $datasource=new Datasource();
     if (!in_array($dbType,$this->databasesFacade->getDatabaseTypes()) || !isset($this->databasesConfig[$dbType])){
@@ -218,7 +297,11 @@ class DatasourcesFacade {
     $datasource->user=$user;
     $datasource->dbName=str_replace('*',$user->userId,$databaseConfig['_database']);
     $datasource->dbUsername=str_replace('*',$user->userId,$databaseConfig['_username']);
-    $datasource->setDbPassword($this->getUserDbPassword($user));
+    if (isset($databaseConfig['_password']) && !$databaseConfig['_password']){
+      $datasource->setDbPassword('');
+    }else{
+      $datasource->setDbPassword($this->getUserDbPassword($user));
+    }
     $datasource->dbServer=$databaseConfig['server'];
     if (!empty($databaseConfig['port'])){
       $datasource->dbPort=$databaseConfig['port'];
@@ -227,6 +310,10 @@ class DatasourcesFacade {
     $dbConnection=$datasource->getDbConnection();
 
     if ($dbType==DatabasesFacade::DB_TYPE_DBS_UNLIMITED){return $datasource;}
+
+    if ($ignoreCheck){//FIXME
+      return $datasource;
+    }
 
     //TODO tato kontrola by neměla být prováděna při každém requestu...
     try{

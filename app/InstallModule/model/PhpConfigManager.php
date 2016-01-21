@@ -87,6 +87,13 @@ class PhpConfigManager {
       'passed' => flock(fopen(__FILE__, 'r'), LOCK_SH),
       'description' => 'Function <code>flock()</code> is not supported on this filesystem. This function is required for processing of atomic file operations.',
     ];
+    $tests[] = [
+      'title' => 'Function fsockopen()',
+      'type' => self::TEST_TYPE_FUNCTIONS,
+      'required' => true,
+      'passed' => function_exists('fsockopen'),
+      'description' => 'Function <code>fsockopen()</code> is not supported on this filesystem. This function is required for data-mining process.',
+    ];
     #endregion functions
     #region environment
     $tests[] = [

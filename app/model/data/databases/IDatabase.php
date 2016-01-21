@@ -4,12 +4,21 @@ namespace EasyMinerCenter\Model\Data\Databases;
 use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 
 /**
  * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
  * @package EasyMinerCenter\Model\Data\Databases
  */
 interface IDatabase {
+  ///REVIZE POTŘEBNÝCH METOD///////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * Funkce vracející seznam datových zdrojů v DB
+   * @return DbDatasource[]
+   */
+  public function getDbDatasources();
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * @param DbConnection $dbConnection

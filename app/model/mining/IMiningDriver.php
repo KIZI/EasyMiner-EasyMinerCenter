@@ -1,7 +1,6 @@
 <?php
 
 namespace EasyMinerCenter\Model\Mining;
-use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -34,11 +33,13 @@ interface IMiningDriver {
    */
   public function checkTaskState();
 
-  /**
-   * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
 
-  public function importResults();
-*/
+  /**
+   * Funkce pro načtení plných výsledků úlohy z PMML
+   * @return TaskState
+   */
+  public function importResultsPMML();
+
   /**
    * @param Task $task
    * @param MinersFacade $minersFacade
@@ -66,6 +67,7 @@ interface IMiningDriver {
 
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * @param User $user
    */
   public function checkMinerState(User $user);
 

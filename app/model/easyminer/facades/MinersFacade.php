@@ -172,7 +172,7 @@ class MinersFacade {
    */
   public function prepareAttribute($miner,$attribute){
     if (!$miner instanceof Miner){
-      $miner=$this->findMiner($miner);
+      /*$miner=*/$this->findMiner($miner);//kontrola existence daného mineru
     }
     if ($attribute instanceof Attribute){
       if ($attribute->isDetached() || $attribute->isModified()){
@@ -226,7 +226,7 @@ class MinersFacade {
    * @param Miner|int $miner
    * @param User $user
    */
-  public function checkMinerState($miner,User $user){
+  public function checkMinerState($miner, User $user){
     if (!$miner instanceof Miner){
       $miner=$this->findMiner($miner);
     }

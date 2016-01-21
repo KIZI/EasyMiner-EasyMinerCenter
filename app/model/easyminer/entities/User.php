@@ -3,7 +3,6 @@
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
-use Nette\Security\IRole;
 use Nette\Utils\DateTime;
 use Nette\Utils\Strings;
 
@@ -57,7 +56,7 @@ class User extends Entity{
    */
   public static function encodeUserApiKey($userId,$apiKey){
     $output=Strings::substring($apiKey,0,3);
-    $number=(intval(str_replace([".",":"],["",""],$_SERVER['SERVER_ADDR']))+15)%15+1;//příprava random čísla dle IP adresy serveru
+    $number=(ord((!empty($apiKey[5])?$apiKey[5]:'?'))+15)%15+1;
     $output.=dechex($number);
     $output.=Strings::substring($apiKey,3,$number);
     $output.=($userId+18039);

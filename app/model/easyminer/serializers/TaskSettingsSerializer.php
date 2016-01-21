@@ -26,6 +26,10 @@ class TaskSettingsSerializer {
   /** @var  \SimpleXMLElement $interestMeasureSetting */
   protected $interestMeasureSetting;
 
+  public function getInterestMeasureSetting() {
+    return $this->interestMeasureSetting;//XXX dočasně doplněno...
+  }
+
   protected static $BOOLEAN_TYPES = ['neg' => 'Negation', 'and' => 'Conjunction', 'or' => 'Disjunction', 'lit' => 'Literal'];
   protected static $FORCE_DEPTH_BOOLEAN = 'Conjunction';
   protected static $LITERAL = 'Literal';

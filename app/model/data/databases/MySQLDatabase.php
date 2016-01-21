@@ -5,6 +5,7 @@ namespace EasyMinerCenter\Model\Data\Databases;
 use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use Nette\Utils\Strings;
 use \PDO;
 
@@ -523,4 +524,12 @@ class MySQLDatabase implements IDatabase{
 
     return $result;
   }
-}
+
+  /**
+   * Funkce vracející seznam datových zdrojů v DB
+   *
+   * @return DbDatasource[]
+   */
+  public function getDbDatasources() {
+    // TODO: Implement getDbDatasources() method.
+  }}

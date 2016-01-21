@@ -1,0 +1,40 @@
+{block}{_'Select miner'}{/block}
+
+{block content}
+
+  <div id="newMinerPage">
+
+    <div>
+      <h2>{_'Create new miner'}</h2>
+      <div class="actionsDiv bigButtons">
+        <a href="{link Data:uploadData}">{_'Upload CSV'}</a>
+        <!--TODO existing database-->
+
+        {if (count($datasources))}
+          <a href="" onclick="$('#existingDataSources').show();$(this).hide();return false;">{_'New miner from existing datasource'}</a>
+          <div id="existingDataSources">
+            <h3>{_'New miner from existing datasource'}</h3>
+            {foreach $datasources as $datasource}
+              <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}">{$datasource->type}: {$datasource->dbTable}</a>
+            {/foreach}
+          </div>
+        {/if}
+      </div>
+    </div>
+
+    {if (count($miners))}
+      <div>
+        <h2>{_'Open existing EasyMiner'}</h2>
+        <div class="actionsDiv bigButtons">
+          {foreach $miners as $miner}
+            <a href="{link Data:openMiner id=>$miner->minerId}" class="existingMiner">{$miner->name}</a>
+          {/foreach}
+        </div>
+      </div>
+    {/if}
+
+  </div>
+
+{/block}
+
+

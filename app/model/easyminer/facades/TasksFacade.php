@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
 use EasyMinerCenter\Model\EasyMiner\Repositories\TasksRepository;
+use Nette\Utils\FileSystem;
 
 class TasksFacade {
   /** @var  TasksRepository $tasksRepository */
@@ -51,13 +52,47 @@ class TasksFacade {
    * @param TaskState $taskState
    */
   public function updateTaskState(Task &$task,TaskState $taskState){
+    /** @var Task $task - aktualizujeme data o konkrétní úloze*/
+    $task=$this->findTask($task->taskId);
+    //zpracování info o stavu úlohy
     if (!empty($taskState->rulesCount) && $taskState->rulesCount>$task->rulesCount){
       $task->rulesCount=$taskState->rulesCount;
     }
+
+    //stav řešení úlohy
     if (($task->state!=Task::STATE_SOLVED)&&($task->state!=$taskState->state)){
       $task->state=$taskState->state;
     }
+
+    //URL s výsledky
     $task->resultsUrl=$taskState->resultsUrl;
+
+    //postupný import výsledků
+    if ($task->importState!=Task::IMPORT_STATE_DONE){
+      if ($taskState->importState!=null && $taskState->importState!=$task->importState) {
+        $task->importState=$taskState->importState;
+      }
+
+      #region vyřešení pole importData
+      $importData=array_merge($task->getImportData(),$taskState->importData);
+      if (!empty($importData)){
+        foreach($importData as $key=>$filename){
+          if (!file_exists($filename)){
+            unset($importData[$key]);
+          }
+        }
+      }
+      if (empty($importData)&&$task->isMiningFinished()){
+        $task->importState=Task::IMPORT_STATE_DONE;
+      }
+      $task->setImportData($importData);
+      #endregion vyřešení pole importData
+
+    }elseif($taskState->importState==Task::IMPORT_STATE_DONE && $task->importState!=Task::IMPORT_STATE_DONE){
+      $task->importState=Task::IMPORT_STATE_DONE;
+      $task->setImportData([]);
+    }
+
 
     if ($task->isModified()){
       $this->saveTask($task);

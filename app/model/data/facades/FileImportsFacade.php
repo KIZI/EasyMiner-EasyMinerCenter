@@ -23,6 +23,8 @@ class FileImportsFacade {
   const FILE_TYPE_ZIP='Zip';
   const FILE_TYPE_CSV='Csv';
   const FILE_TYPE_UNKNOWN='';
+  /*počet řádků, které mají být analyzovány pro určení datových typů v CSV souboru*/
+  const CSV_ANALYZE_ROWS=100;
 
   public function __construct($dataDirectory, $databases, DatabasesFacade $databasesFacade){
     $this->dataDirectory=$dataDirectory;
@@ -194,10 +196,11 @@ class FileImportsFacade {
    * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
+   * @param int $analyzeRowsCount = max(self::CSV_ANALYZE_ROWS,given value)
    * @return \EasyMinerCenter\Model\Data\Entities\DbColumn[]
    */
-  public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\'){
-    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter);
+  public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=self::CSV_ANALYZE_ROWS){
+    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter,max($analyzeRowsCount,self::CSV_ANALYZE_ROWS));
   }
 
   /**
@@ -232,6 +235,17 @@ class FileImportsFacade {
    */
   public function checkFileExists($filename) {
     return file_exists($this->dataDirectory.'/'.$filename);
+  }
+
+  /**
+   * Funkce pro uložení obsahu dočasného souboru (s nově vygenerovaným dočasným názvem)
+   * @param string $fileContent
+   * @return string
+   */
+  public function saveTempFile($fileContent){
+    $filename=$this->getTempFilename();
+    file_put_contents($this->getFilePath($filename),$fileContent);
+    return $filename;
   }
 
   /**

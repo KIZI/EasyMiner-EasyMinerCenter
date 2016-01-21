@@ -255,7 +255,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   public function actionList() {
     $this->setXmlMapperElements('datasources','datasource');
     $currentUser=$this->getCurrentUser();
-    $datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser);
+    $datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser,true);
     $result=[];
     if (!empty($datasources)){
       foreach ($datasources as $datasource){
@@ -267,7 +267,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   }
   #endregion actionRead/actionList
 
-  #region actionRead/actionList
+  #region actionReadCsv
   /**
    * @param int|null $id=null
    * @throws BadRequestException
@@ -326,6 +326,9 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    */
   public function actionReadCsv($id) {
     $datasource=$this->findDatasourceWithCheckAccess($id);
+    if (!$datasource->available){
+      $this->error('This datasource is not available!');
+    }
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $inputData=$this->getInput()->getData();
     $offset=@$inputData['offset'];
@@ -337,6 +340,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $httpResponse->setContentType('text/csv','UTF-8');
     $this->sendResponse(new TextResponse($csv));
   }
+  #endregion actionReadCsv
 
   /**
    * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
@@ -384,10 +388,12 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  * @SWG\Definition(
  *   definition="DatasourceBasicResponse",
  *   title="DatasourceBasicInfo",
- *   required={"id","type","dbServer","dbUsername","dbName","dbTable"},
+ *   required={"id","type","name","available"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
  *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"mysql","limited","unlimited"}),
- *   @SWG\Property(property="name",type="string")
+ *   @SWG\Property(property="name",type="string",description="Name of the database table"),
+ *   @SWG\Property(property="remoteId",type="integer",description="ID of the datasource on the remote data service"),
+ *   @SWG\Property(property="available",type="boolean"),
  * )
  * @SWG\Definition(
  *   definition="DatasourceWithColumnsResponse",
@@ -396,6 +402,8 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
  *   @SWG\Property(property="type",type="string",description="Type of the used database"),
  *   @SWG\Property(property="name",type="string",description="Name of the database table"),
+ *   @SWG\Property(property="remoteId",type="integer",description="ID of the datasource on the remote data service"),
+ *   @SWG\Property(property="available",type="boolean"),
  *   @SWG\Property(property="column",type="array",
  *     @SWG\Items(ref="#/definitions/ColumnBasicInfoResponse")
  *   )

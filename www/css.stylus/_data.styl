@@ -1,3 +1,65 @@
+/*styly pro šablony NewDataPresenteru*/
+uploadConfigSelectWidth=200px
+
+
+#uploadFormBlock
+  mainBlock()
+
+#uploadConfigBlock
+  flexbox(flex)
+  flex-direction(row)
+  flex-wrap(wrap)
+  flex-align(start)
+
+  > .form
+    block()
+    background white
+    flex(null,0,0)
+    normalizeInputWidth(0.7*normalInputWidth)
+
+  #uploadConfigPreviewBlock
+    flex(null,1,1)
+    block()
+
+    > table
+      listTable()
+      margin 0
+
+
+
+#uploadColumnsBlock
+  block()
+  #uploadColumnsListBlock > table
+    listTable()
+    width 100%
+    table-layout fixed
+    border-spacing collapse
+
+    tr:first-child
+      th:nth-child(1)
+        width normalInputWidth
+      th:nth-child(2)
+        width 0.6*normalInputWidth
+
+    td:nth-child(1)
+      width normalInputWidth
+    td:nth-child(2)
+      width 0.6*normalInputWidth
+      select
+        width 100%
+    td.values
+      div
+        width 100%
+        text-overflow ellipsis
+        white-space nowrap
+        overflow hidden
+      span
+        valuePreview()
+
+
+#uploadProgressBlock
+  block()
+
 /*styly pro šablony DataPresenteru*/
 
 #newMinerPage
