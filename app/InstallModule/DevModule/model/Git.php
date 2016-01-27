@@ -1,6 +1,8 @@
 <?php
 
 namespace EasyMinerCenter\InstallModule\DevModule\Model;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 /**
  * Class Git - wrapper pro možnost práce s GITem
@@ -8,13 +10,25 @@ namespace EasyMinerCenter\InstallModule\DevModule\Model;
  * @author Stanislav Vojíř
  */
 class Git {
+  /** @var string $repositoryPath */
   private $repositoryPath;
+  /** @var  string $sudoCommand */
+  private $sudoCommand;
 
   /**
    * @param string $repositoryPath
+   * @param string $sudoUsername
+   * @param string $sudoPassword
    */
-  public function __construct($repositoryPath='') {
+  public function __construct($repositoryPath='',$sudoUsername="",$sudoPassword="") {
     $this->repositoryPath=realpath($repositoryPath);
+    if (!empty($sudoUsername)){
+      $this->sudoCommand='sudo -u '.escapeshellarg($sudoUsername);
+      if (!empty($sudoPassword)){
+        $this->sudoCommand.=' <<< '.escapeshellarg($sudoPassword);
+      }
+      $this->sudoCommand.=' ';
+    }
   }
 
   /**
@@ -30,6 +44,17 @@ class Git {
    */
   public function reset() {
     $this->execute('git reset --hard');
+  }
+
+  /**
+   * @throws \Exception
+   */
+  public function clean() {
+    $this->execute('git clean -f -d');
+  }
+
+  public function pull() {
+    $this->execute('git pull');
   }
 
   /**
@@ -55,10 +80,13 @@ class Git {
   private function execute($command) {
     $cwd = getcwd();
     chdir($this->repositoryPath);
-    exec($command, $output, $returnValue);
+    exec($this->sudoCommand.$command, $output, $returnValue);
+    Debugger::log($this->sudoCommand.$command,ILogger::DEBUG);
     chdir($cwd);
     if ($returnValue !== 0) {
-      throw new \Exception(implode("\r\n", $output));
+      Debugger::log($returnValue,ILogger::DEBUG);
+      Debugger::log($output,ILogger::DEBUG);
+      ////throw new \Exception(implode("\r\n", $output));
     }
     return $output;
   }

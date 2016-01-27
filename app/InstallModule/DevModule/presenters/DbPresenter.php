@@ -28,8 +28,11 @@ class DbPresenter extends BasePresenter{
     }
 
     #region reset git repository
-    $git = new Git(FilesManager::getRootDirectory());
+    $sudoCredentials=$this->devConfigManager->getSudoCredentials();
+    $git = new Git(FilesManager::getRootDirectory(),@$sudoCredentials['username'],@$sudoCredentials['password']);
     $git->reset();
+    $git->clean();
+    $git->pull();
     #endregion
 
     #region export struktury databáze
@@ -48,11 +51,13 @@ class DbPresenter extends BasePresenter{
     //uložení obsahu
     MysqlDump::saveSqlFileContent($dump);
     #endregion export struktury databáze
-
+    $this->sendJson(['state'=>'OK','message'=>'Updated.']);
+      return;
     #region commit
     $git->addFileToCommit(realpath('../../data/mysql.sql'));
-
+    $git->commitAndPush('DB structure updated');
     #endregion commit
+
     $this->sendJson(['state'=>'OK','message'=>'Updated.']);
   }
 

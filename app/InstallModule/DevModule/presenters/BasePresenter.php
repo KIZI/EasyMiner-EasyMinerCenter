@@ -34,7 +34,6 @@ abstract class BasePresenter extends Presenter{
       }
     }
   }
-
   /**
    * @param DevConfigManager $devConfigManager
    */

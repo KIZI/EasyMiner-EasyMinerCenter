@@ -3,7 +3,9 @@
 #
 parameters:
     dev:
-        sudo: true
+        sudo:
+            username: shell_username
+            password: shell_password
         credentials:
             login1: password1(sha1)
             login2: password2(sha1)

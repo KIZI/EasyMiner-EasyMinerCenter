@@ -34,5 +34,12 @@ class DevConfigManager {
     }
     return false;
   }
-  
+
+  /**
+   * Funkce vracející konfiguraci pro sudo
+   * @return array
+   */
+  public function getSudoCredentials() {
+    return @$this->configParams['sudo'];
+  }
 }
