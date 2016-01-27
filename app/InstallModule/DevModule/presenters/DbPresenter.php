@@ -5,6 +5,7 @@ use EasyMinerCenter\InstallModule\DevModule\Model\Git;
 use EasyMinerCenter\InstallModule\DevModule\Model\MysqlDump;
 use EasyMinerCenter\InstallModule\Model\ConfigManager;
 use EasyMinerCenter\InstallModule\Model\FilesManager;
+use Nette\Application\Responses\TextResponse;
 
 /**
  * Class DbDumpPresenter - presenter pro možnost exportu struktury databáze z vývojového serveru na GITHUB
@@ -15,6 +16,21 @@ use EasyMinerCenter\InstallModule\Model\FilesManager;
 class DbPresenter extends BasePresenter{
   /** @var  ConfigManager $configManager */
   private $configManager;
+
+  /**
+   * Akce vracející strukturu databáze
+   */
+  public function actionReadStructure() {
+    $mainDatabaseConfig=$this->configManager->data['parameters']['mainDatabase'];
+    $dumpContent=MysqlDump::dumpStructureToFile($mainDatabaseConfig['host'],!empty($mainDatabaseConfig['port'])?$mainDatabaseConfig['port']:null,$mainDatabaseConfig['username'],$mainDatabaseConfig['password'],$mainDatabaseConfig['database']);
+    $dump='';
+    if (!empty($dumpContent)){
+      foreach ($dumpContent as $row){
+        $dump.=$row."\r\n";
+      }
+    }
+    $this->sendResponse(new TextResponse($dump));
+  }
 
   /**
    * Akce pro export struktury databáze a jeho kontrola oproti uloženému souboru
@@ -51,10 +67,8 @@ class DbPresenter extends BasePresenter{
     //uložení obsahu
     MysqlDump::saveSqlFileContent($dump);
     #endregion export struktury databáze
-    $this->sendJson(['state'=>'OK','message'=>'Updated.']);
-      return;
     #region commit
-    $git->addFileToCommit(realpath('../../data/mysql.sql'));
+    $git->addFileToCommit(realpath(__DIR__.'/../../data/mysql.sql'));
     $git->commitAndPush('DB structure updated');
     #endregion commit
 

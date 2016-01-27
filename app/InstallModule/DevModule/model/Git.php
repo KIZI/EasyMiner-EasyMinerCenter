@@ -36,7 +36,7 @@ class Git {
    * @throws \Exception
    */
   public function addFileToCommit($file) {
-    $this->execute('git add '.$file);
+    $this->execute('git add '.escapeshellarg($file));
   }
 
   /**
@@ -81,12 +81,12 @@ class Git {
     $cwd = getcwd();
     chdir($this->repositoryPath);
     exec($this->sudoCommand.$command, $output, $returnValue);
-    Debugger::log($this->sudoCommand.$command,ILogger::DEBUG);
+    Debugger::log($this->sudoCommand.$this->sudoCommand.$command,ILogger::DEBUG);
     chdir($cwd);
     if ($returnValue !== 0) {
-      Debugger::log($returnValue,ILogger::DEBUG);
-      Debugger::log($output,ILogger::DEBUG);
-      ////throw new \Exception(implode("\r\n", $output));
+      Debugger::log(' '.$returnValue.' '.$command,ILogger::ERROR);
+      Debugger::log($output,ILogger::ERROR);
+      //throw new \Exception(implode("\r\n", $output));
     }
     return $output;
   }
