@@ -22,6 +22,8 @@ class RouterFactory {
    */
 	public static function createRouter($basePath=self::BASE_PATH, $secured=false) {
     $installRouter = new RouteList('Install');
+    $installRouter[] = $devSubmoduleRouter = new RouteList('Dev');
+    $devSubmoduleRouter[] = new Route($basePath.'dev/<presenter=Default>[/<action=default>]',[],($secured?Route::SECURED:0));
     $installRouter[] = new Route($basePath.'<presenter=Default>[/<action=default>]',[],($secured?Route::SECURED:0));
     return $installRouter;
   }

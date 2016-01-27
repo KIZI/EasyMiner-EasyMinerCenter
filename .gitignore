@@ -3,6 +3,7 @@
 composer.lock
 composer.phar
 app/config/config.local.neon
+app/config/dev.local.neon
 
 .DS_Store
 !.gitignore

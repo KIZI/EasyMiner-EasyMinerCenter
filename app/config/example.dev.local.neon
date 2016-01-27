@@ -1,0 +1,9 @@
+#
+#   Soubor s konfigurací aplikace pro konkrétní server (pro development)
+#
+parameters:
+    dev:
+        sudo: true
+        credentials:
+            login1: password1(sha1)
+            login2: password2(sha1)

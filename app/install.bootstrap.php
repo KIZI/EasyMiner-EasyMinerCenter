@@ -43,6 +43,10 @@ $robotLoader->addDirectory(APP_ROOT.'/model');
 $robotLoader->register();
 
 $configurator->addConfig(APP_ROOT.'/config/install.config.neon');
+if (file_exists(APP_ROOT.'/config/dev.local.neon')){
+  //přidání konfigurace DEV submodulu
+  $configurator->addConfig(APP_ROOT.'/config/dev.local.neon');
+}
 
 $container = $configurator->createContainer();
 

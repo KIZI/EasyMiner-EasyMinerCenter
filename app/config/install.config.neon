@@ -19,6 +19,7 @@ nette:
 		autoStart: yes
 
 parameters:
+    dev: false
     miningDriverFactory:
         driver_lm:
             class: EasyMinerCenter\Model\Mining\LM\LMDriver
@@ -30,3 +31,4 @@ services:
 	routing.router: EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter()
 	- EasyMinerCenter\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
 	- EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory("installation")
+	- EasyMinerCenter\InstallModule\DevModule\model\DevConfigManager(%dev%)
