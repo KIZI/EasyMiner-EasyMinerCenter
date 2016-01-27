@@ -1,0 +1,5 @@
+# ignore everything except this file, index.html and readme
+*
+!.gitignore
+!index.html
+!README.md
