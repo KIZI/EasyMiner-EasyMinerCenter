@@ -29,6 +29,7 @@ class DbPresenter extends BasePresenter{
 
     #region reset git repository
     $git = new Git(FilesManager::getRootDirectory());
+    $git->clean();
     $git->reset();
     #endregion
 
@@ -51,8 +52,9 @@ class DbPresenter extends BasePresenter{
 
     #region commit
     $git->addFileToCommit(realpath('../../data/mysql.sql'));
-
+    $git->commitAndPush('DB structure updated');
     #endregion commit
+
     $this->sendJson(['state'=>'OK','message'=>'Updated.']);
   }
 

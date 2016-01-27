@@ -33,6 +33,13 @@ class Git {
   }
 
   /**
+   * @throws \Exception
+   */
+  public function clean() {
+    $this->execute('git clean -f -d');
+  }
+
+  /**
    * @param string $message
    * @throws \Exception
    */
