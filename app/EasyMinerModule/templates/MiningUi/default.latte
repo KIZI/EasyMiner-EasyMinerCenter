@@ -1,7 +1,10 @@
+{var includeHelp=>"miningUI"}
+
 {block scripts}
   {include parent}
+
   <script>
-    var $js=jQuery.noConflict();
+    var $jq=jQuery.noConflict();
     var minerId={$miner->minerId};
     var rootElementId='IZIMiner';
   </script>
@@ -12,25 +15,18 @@
       <script type="text/javascript" src="{$basePath}/_miningUI/{$file}" ></script>
     {/if}
   {/foreach}
-  {foreach $javascriptFilesHelp as $file}
-    <script type="text/javascript" src="{$basePath}/_help/{$file}" ></script>
-  {/foreach}
 {/block}
 
 {block head}
   {foreach $cssFiles as $file}
     <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_miningUI/{$file}" />
   {/foreach}
-  {foreach $cssFilesHelp as $file}
-    <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_help/{$file}" />
-  {/foreach}
-
   <meta http-equiv="Cache-Control" content="no-cache" />
 {/block}
 
-{block headerLinks}
+{*block headerLinks }
   {include parent, includeHelp=>"miningUI"}
-{/block}
+{ /block*}
 
 {block main}
   <main id="IZIMiner" class="clearfix"></main>
