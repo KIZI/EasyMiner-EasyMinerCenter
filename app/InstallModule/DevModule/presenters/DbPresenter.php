@@ -33,6 +33,25 @@ class DbPresenter extends BasePresenter{
   }
 
   /**
+   * Akce pro aktualizaci souboru s výpisem databáze
+   */
+  public function actionUpdateDumpFile() {
+    #region export struktury databáze
+    $mainDatabaseConfig=$this->configManager->data['parameters']['mainDatabase'];
+    $dumpContent=MysqlDump::dumpStructureToFile($mainDatabaseConfig['host'],!empty($mainDatabaseConfig['port'])?$mainDatabaseConfig['port']:null,$mainDatabaseConfig['username'],$mainDatabaseConfig['password'],$mainDatabaseConfig['database']);
+    $dump='';
+    if (!empty($dumpContent)){
+      foreach ($dumpContent as $row){
+        $dump.=$row."\r\n";
+      }
+    }
+    //uložení obsahu
+    MysqlDump::saveSqlFileContent($dump);
+    #endregion export struktury databáze
+    $this->sendJson(['state'=>'OK']);
+  }
+
+  /**
    * Akce pro export struktury databáze a jeho kontrola oproti uloženému souboru
    * @throws \Nette\Application\AbortException
    */
