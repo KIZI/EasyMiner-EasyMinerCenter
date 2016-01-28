@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyMinerCenter\InstallModule\DevModule\model;
+namespace EasyMinerCenter\InstallModule\DevModule\Model;
 
 /**
  * Class DevConfigManager

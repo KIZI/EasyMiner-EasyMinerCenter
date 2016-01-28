@@ -182,3 +182,5 @@ services:
 	- EasyMinerCenter\EasyMinerModule\Components\MailerControlFactory(%emailFrom%)
 
 	- EasyMinerCenter\Model\Scoring\ScorerDriverFactory(%scorerDriverFactory%)
+
+	- EasyMinerCenter\InstallModule\DevModule\Model\DevConfigManager(%@dev%)

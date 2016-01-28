@@ -31,4 +31,4 @@ services:
 	routing.router: EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter()
 	- EasyMinerCenter\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
 	- EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory("installation")
-	- EasyMinerCenter\InstallModule\DevModule\model\DevConfigManager(%dev%)
+	- EasyMinerCenter\InstallModule\DevModule\Model\DevConfigManager(%dev%)

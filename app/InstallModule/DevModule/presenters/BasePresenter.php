@@ -3,8 +3,7 @@
 namespace EasyMinerCenter\InstallModule\DevModule\Presenters;
 
 
-use EasyMinerCenter\InstallModule\DevModule\model\DevConfigManager;
-use Nette\Application\BadRequestException;
+use EasyMinerCenter\InstallModule\DevModule\Model\DevConfigManager;
 use Nette\Application\UI\Presenter;
 
 /**
