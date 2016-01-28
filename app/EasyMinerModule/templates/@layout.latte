@@ -18,9 +18,36 @@
 
 	{block scripts}
     <script src="{$basePath}/js/jquery.js"></script>
-  	<!--<script src="{$basePath}/js/netteForms.js"></script>-->
   	<script src="{$basePath}/js/liveFormsValidation.js"></script>
   	<script src="{$basePath}/js/main.js"></script>
+
+  	{if !empty($includeHelp)}
+      {*region HELP*}
+      {foreach \EasyMiner\Help\Integration::$javascriptFiles as $file}
+        <script type="text/javascript" src="{$basePath}/_help/{$file}" ></script>
+      {/foreach}
+      {foreach \EasyMiner\Help\Integration::$cssFiles as $file}
+        <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_help/{$file}" />
+      {/foreach}
+      <script type="text/javascript">
+        {var helpConfig=[
+          'dataDirectoryUrl'=>$basePath.'/_help/xml/',
+          'dataFile'=>$includeHelp,
+          'lang'=>'en'
+        ]}
+        jQuery(document).ready(function(){l}
+          var help=new EMHelp({$helpConfig});
+          alert('x');
+          jQuery('#headerHelpLink').click(function(){l}
+            alert('show help');
+            help.show();
+          {r});
+        {r});
+      </script>
+      {*endregion HELP*}
+    {/if}
+
+
   {/block}
   {block head}{/block}
   <script> document.documentElement.className+=' js' </script>
@@ -47,14 +74,9 @@
               <span class="name">{_'Login...'}</span>
             </a>
           {/if}
-
           <a id="headerAppsLink" href="#">{_'Menu'}</a>
           {if !empty($includeHelp)}
-            {* //TODO přepsat na lepší konstrukci *}
-            <script type="text/javascript">
-              var help=new EMHelp({l}'dataDirectoryUrl':'/easyminercenter/_help/xml/','dataFile':'miningUI','lang':'en'{r});
-            </script>
-            <a class="help"  id="headerHelpLink" href="#" onclick="help.show();">{_'Help'}</a>
+            <a class="help"  id="headerHelpLink" href="#">{_'Help'}</a>
           {/if}
         {/block}
       </div>

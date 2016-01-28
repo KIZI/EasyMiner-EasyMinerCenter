@@ -6,7 +6,6 @@ use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMiner\MiningUI\Integration as MiningUIIntegration;
-use EasyMiner\Help\Integration as HelpIntegration;
 use IZI\IZIConfig;
 use IZI\Parser\DataParser;
 use Nette\Application\ForbiddenRequestException;
@@ -53,7 +52,7 @@ class MiningUiPresenter extends BasePresenter{
     //------------------------------------------------------------------------------------------------------------------
     #region připravení informací pro UI - s odděleným připravením DataDictionary
     $dataDescriptionPMML=null;
-    $dataParser = new DataParser($dataDescriptionPMML, $this->config->$FLPathElement, $this->config->FGCPath, null, null, $this->lang);//TODO kontrola, jestli může být obsah předán bez uložení do souboru
+    $dataParser = new DataParser($dataDescriptionPMML, $this->config->$FLPathElement, $this->config->FGCPath, null, null, $this->lang);
     $dataParser->loadData();
     $responseContent = $dataParser->parseData();
 
@@ -96,8 +95,6 @@ class MiningUiPresenter extends BasePresenter{
    * Akce pro zobrazení EasyMiner-MiningUI
    */
   public function renderDefault($id_dm,$miner) {
-    //TODO doplnit kontroly na přihlášeného uživatele, oprávnění k mineru atd.
-
     if (empty($miner)){
       $miner=$id_dm;
     }
@@ -105,12 +102,8 @@ class MiningUiPresenter extends BasePresenter{
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->template->miner=$miner;
 
-    $this->template->javascriptFiles= MiningUIIntegration::$javascriptFiles;
-    $this->template->cssFiles= MiningUIIntegration::$cssFiles;
-
-    //TODO optimalizace připojení helpu
-    $this->template->javascriptFilesHelp= HelpIntegration::$javascriptFiles;
-    $this->template->cssFilesHelp=HelpIntegration::$cssFiles;
+    $this->template->javascriptFiles = MiningUIIntegration::$javascriptFiles;
+    $this->template->cssFiles = MiningUIIntegration::$cssFiles;
   }
   
 
