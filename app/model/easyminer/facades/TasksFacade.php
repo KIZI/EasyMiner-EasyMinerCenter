@@ -173,7 +173,7 @@ class TasksFacade {
           'children'=>$this->prepareSimpleTaskAttributesArr(@$settingsArr['antecedent'])
         ],
         'IMs'=>$this->prepareSimpleTaskIMsArr(@$settingsArr['IMs']),
-        'specialIMs'=>[],
+        'specialIMs'=>$this->prepareSimpleTaskSpecialIMsArr(@$settingsArr['specialIMs']),
         'succedent'=>[
           'type'=>'cedent',
           'connective'=>[
@@ -212,7 +212,7 @@ class TasksFacade {
     $result=[];
     if (empty($IMsSettingsArr)){return $result;}
     foreach($IMsSettingsArr as $IMSettings){
-      if (!in_array($IMSettings['name'],['FUI','AAD','LIFT','SUPP'])){
+      if (!in_array($IMSettings['name'],['FUI','AAD','LIFT','SUPP','AUTO_FUI_SUPP'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
         throw new \InvalidArgumentException('Unsupported interest measure: '.$IMSettings['name']);
       }
       $result[]=[
@@ -223,10 +223,40 @@ class TasksFacade {
         'fields'=>[
           [
             'name'=>'threshold',
-            'value'=>$IMSettings['value']
+            'value'=>@$IMSettings['value']
           ]
         ],
-        'threshold'=>$IMSettings['value'],
+        'threshold'=>@$IMSettings['value'],
+        'alpha'=>0
+      ];
+    }
+    return $result;
+  }
+
+  /**
+   * Funkce pro připravení struktury nastavení měr zajímavosti v nastavení úlohy dle pole s jednoduchou konfigurací
+   * @param array $specialIMsSettingsArr
+   * @return array
+   */
+  private function prepareSimpleTaskSpecialIMsArr($specialIMsSettingsArr) {
+    $result=[];
+    if (empty($specialIMsSettingsArr)){return $result;}
+    foreach($specialIMsSettingsArr as $IMSettings){
+      if (!in_array($IMSettings['name'],['CBA'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
+        throw new \InvalidArgumentException('Unsupported interest measure: '.$IMSettings['name']);
+      }
+      $result[]=[
+        'name'=> $IMSettings['name'],
+        'localizedName'=>$IMSettings['name'],//TODO opravit na lokalizovaný název
+        'thresholdType'=>'% of all',
+        'compareType'=>'Greater than or equal',
+        'fields'=>[
+          [
+            'name'=>'threshold',
+            'value'=>@$IMSettings['value']
+          ]
+        ],
+        'threshold'=>@$IMSettings['value'],
         'alpha'=>0
       ];
     }

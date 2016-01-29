@@ -18,7 +18,7 @@ use Nette\Utils\Json;
  * @property string $state m:Enum(self::STATE_*)
  * @property string $taskSettingsJson = ''
  * @property string|null $resultsUrl = ''
- * @property string $importState m:Enum(self::IMPORT_STATE_*)
+ * @property string $importState = 'none' m:Enum(self::IMPORT_STATE_*)
  * @property string $importJson = ''
  * @property-read TaskState $taskState
  * @property-read Rule[] $rules m:belongsToMany
