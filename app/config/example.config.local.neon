@@ -18,6 +18,12 @@ parameters:
             server:
             minerUrl:
             importsDirectory: "absolutePath"
+    scorerDriverFactory:
+        driver_modelTester:
+            server: "http://br-dev.lmcloud.vse.cz:8080/DroolsModelTester_web/rest/"
+            tempDirectory: "/var/www/easyminercenter/www/temp"
+        driver_emScorer:
+            server: "http://xtest.lmcloud.vse.cz:9980/easyminer-scorer/latest/"
     mainDatabase:
         driver: mysqli
         host: localhost
