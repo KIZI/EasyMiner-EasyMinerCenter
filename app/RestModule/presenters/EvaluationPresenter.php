@@ -66,8 +66,8 @@ class EvaluationPresenter extends BaseResourcePresenter {
    *   ),
    *   @SWG\Parameter(
    *     name="datasource",
-   *     description="Datasource ID",
-   *     required=true,
+   *     description="Datasource ID (if not specified, task datasource will be used)",
+   *     required=false,
    *     type="integer",
    *     in="query"
    *   ),
@@ -97,17 +97,27 @@ class EvaluationPresenter extends BaseResourcePresenter {
     }else{
       $scorerDriver=$this->scorerDriverFactory->getScorerInstance($inputData['scorer']);
     }
-    try{
-      $datasource=$this->datasourcesFacade->findDatasource(@$inputData['datasource']);
-      if (!$this->datasourcesFacade->checkDatasourceAccess($datasource,$this->getCurrentUser())){
-        throw new \Exception();
+    if (!empty($inputData['datasource'])){
+      try{
+        $datasource=$this->datasourcesFacade->findDatasource(@$inputData['datasource']);
+        if (!$this->datasourcesFacade->checkDatasourceAccess($datasource,$this->getCurrentUser())){
+          throw new \Exception();
+        }
+      }catch (\Exception $e){
+        throw new BadRequestException("Requested data source was not found!");
       }
-    }catch (\Exception $e){
-      throw new BadRequestException("Requested data source was not found!");
+    }elseif(!empty($inputData['task'])){
+      $task=$this->findTaskWithCheckAccess($inputData['task']);
+      $datasource=$task->miner->datasource;
+    }else{
+      throw new BadRequestException("Data source was not specified!");
     }
 
+
     if (!empty($inputData['task'])){
-      $task=$this->findTaskWithCheckAccess($inputData['task']);
+      if (empty($task)){
+        $task=$this->findTaskWithCheckAccess($inputData['task']);
+      }
       $result=$scorerDriver->evaluateTask($task,$datasource)->getDataArr();
       $result['task']=$task->getDataArr(false);
     }elseif(!empty($inputData['ruleSet'])){

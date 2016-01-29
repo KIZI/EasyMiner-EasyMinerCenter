@@ -84,7 +84,7 @@ class ModelTesterScorer implements IScorerDriver{
       //}catch (\Exception $e){
       //  /*ignore error...*/
       //}
-      //XXX unlink($csvFilePath);
+      unlink($csvFilePath);
       $testedRowsCount+=self::ROWS_PER_TEST;
     }
     //XXX unlink($rulesXmlFilePath);

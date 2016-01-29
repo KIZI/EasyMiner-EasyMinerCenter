@@ -5,12 +5,24 @@ namespace EasyMinerCenter\Model\Scoring;
 /**
  * Class ScoringResult - třída pro záznam výsledků testování rulesetu či úlohy
  * @package EasyMinerCenter\Model\Scoring
+ * @author Stanislav Vojíř
  */
 class ScoringResult {
 
   public $truePositive=0;
   public $falsePositive=0;
   public $rowsCount=0;
+
+  /**
+   * @param int $truePositive
+   * @param int $falsePositive
+   * @param int $rowsCount
+   */
+  public function __construct($truePositive, $falsePositive, $rowsCount) {
+    $this->truePositive=$truePositive;
+    $this->falsePositive=$falsePositive;
+    $this->rowsCount=$rowsCount;
+  }
 
   /**
    * Funkce vracející data výsledků v podobě pole

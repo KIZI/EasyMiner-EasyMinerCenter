@@ -47,7 +47,7 @@ parameters:
     scorerDriverFactory:
         driver_modelTester:
             class: EasyMinerCenter\Model\Scoring\ModelTester\ModelTesterScorer
-        driver_emScorer:
+        driver_easyMinerScorer:
             class: EasyMinerCenter\Model\Scoring\EasyMinerScorer\EasyMinerScorer
 
 restful:
