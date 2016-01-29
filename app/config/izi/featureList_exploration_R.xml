@@ -29,7 +29,6 @@
 				<Type>
 					<Name>FUI</Name>
           <Default>true</Default>
-          <Required>true</Required>
 					<LocalizedName lang="en">Confidence</LocalizedName>
 					<LocalizedName lang="cs">Spolehlivost</LocalizedName>
 					<ThresholdType>% of all</ThresholdType>
@@ -51,7 +50,6 @@
 				<Type>
 					<Name>SUPP</Name>
           <Default>true</Default>
-          <Required>true</Required>
 					<LocalizedName lang="en">Support</LocalizedName>
 					<LocalizedName lang="cs">Podpora</LocalizedName>
 					<ThresholdType>% of all</ThresholdType>
@@ -96,9 +94,8 @@
         <Type>
           <Name>RULE_LENGTH</Name>
           <Default>false</Default>
-          <Required>false</Required>
           <LocalizedName lang="en">Rule length</LocalizedName>
-          <LocalizedName lang="cs">Rule length</LocalizedName>
+          <LocalizedName lang="cs">Délka pravidel</LocalizedName>
           <ThresholdType>Abs</ThresholdType>
           <CompareType>Less than or equal</CompareType>
           <Explanation lang="en">Length of searched rules</Explanation>
@@ -114,6 +111,20 @@
             </Validation>
           </Field>
         </Type>
+				<Type>
+					<Name>AUTO_FUI_SUPP</Name>
+					<Default>false</Default>
+					<LocalizedName lang="en">AUTO conf &amp; supp</LocalizedName>
+					<LocalizedName lang="cs">AUTO conf &amp; supp</LocalizedName>
+					<ThresholdType>Abs</ThresholdType>
+					<CompareType>Equal</CompareType>
+					<Explanation lang="en">Automatic setting of confidence and support thresholds (depending on the data set).</Explanation>
+					<Calculation />
+					<AutoSetIM>
+						<InterestMeasure>FUI</InterestMeasure>
+						<InterestMeasure>SUPP</InterestMeasure>
+					</AutoSetIM>
+				</Type>
 			</Types>
       <SupportedInterestMeasureCombinations >
         <SupportedIMCombination>
@@ -136,6 +147,9 @@
           <InterestMeasure>LIFT</InterestMeasure>
           <InterestMeasure>RULE_LENGTH</InterestMeasure>
         </SupportedIMCombination>
+				<SupportedIMCombination>
+					<InterestMeasure>AUTO_FUI_SUPP</InterestMeasure>
+				</SupportedIMCombination>
       </SupportedInterestMeasureCombinations>
 		</InterestMeasures>
 

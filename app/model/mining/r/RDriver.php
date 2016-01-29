@@ -64,11 +64,13 @@ class RDriver implements IMiningDriver{
   private function checkRequiredIMs(TaskSettingsJson $taskSettingsJson) {
     #region TODO dodělat kontrolu požadovaných měr zajímavosti podle nastavovacího XML (issue #104)
     $usedIMNames=$taskSettingsJson->getIMNames();
-    if (!in_array('FUI',$usedIMNames)){
-      $taskSettingsJson->simpleAddIM('FUI',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
-    }
-    if (!in_array('SUPP',$usedIMNames)){
-      $taskSettingsJson->simpleAddIM('SUPP',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
+    if (!in_array('AUTO_FUI_SUPP',$usedIMNames)){//FIXME jen dočasná úprava, je nutno kontrolovat dle konfiguračního souboru
+      if (!in_array('FUI',$usedIMNames)){
+        $taskSettingsJson->simpleAddIM('FUI',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
+      }
+      if (!in_array('SUPP',$usedIMNames)){
+        $taskSettingsJson->simpleAddIM('SUPP',TaskSettingsJson::THRESHOLD_TYPE_PERCENTS,TaskSettingsJson::COMPARE_GTE,0.0001);
+      }
     }
     #endregion
     #region kontrola zadání RULE_LENGTH
