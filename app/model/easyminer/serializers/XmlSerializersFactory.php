@@ -6,7 +6,11 @@ namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 
-class GuhaPmmlSerializerFactory {
+/**
+ * Class XmlSerializersFactory - Factory třída pro vytváření XML serializérů
+ * @package EasyMinerCenter\Model\EasyMiner\Serializers
+ */
+class XmlSerializersFactory {
   /** @var string $appVersion */
   private $appVersion;
 
@@ -24,13 +28,9 @@ class GuhaPmmlSerializerFactory {
    * @param bool $prepareTaskSettingsPmml=false
    * @return GuhaPmmlSerializer
    */
-  public function create(Task $task, $pmml = null, $databasesFacade=null, $prepareTaskSettingsPmml=false){
+  public function createGuhaPmmlSerializer(Task $task, $pmml = null, $databasesFacade=null){
+    //TODO výhledově přesun DatabasesFacade do této třídy...
     $guhaPmmlSerializer=new GuhaPmmlSerializer($task,$pmml,$databasesFacade,$this->appVersion);
-    if ($prepareTaskSettingsPmml){
-      $guhaPmmlSerializer->appendTaskSettings();
-      $guhaPmmlSerializer->appendDataDictionary();
-      $guhaPmmlSerializer->appendTransformationDictionary();
-    }
     return $guhaPmmlSerializer;
   }
 

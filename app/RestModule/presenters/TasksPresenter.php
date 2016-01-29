@@ -11,7 +11,7 @@ use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
-use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
+use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use Nette\Application\BadRequestException;
 
 /**
@@ -27,8 +27,8 @@ class TasksPresenter extends BaseResourcePresenter {
 
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
-  /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
-  private $guhaPmmlSerializerFactory;
+  /** @var  XmlSerializersFactory $xmlSerializersFactory */
+  private $xmlSerializersFactory;
 
   #region actionReadPmml
   /**
@@ -69,14 +69,18 @@ class TasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * @param $task
+   * @param Task $task
+   * @param bool $includeFrequencies=true
    * @return \SimpleXMLElement
    */
-  private function prepareTaskPmml(Task $task){
+  private function prepareTaskPmml(Task $task, $includeFrequencies=true){
     /** @var Metasource $metasource */
     $metasource=$task->miner->metasource;
     $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($task,null,$this->databasesFacade,true);
+    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer->appendTaskSettings();
+    $pmmlSerializer->appendDataDictionary($includeFrequencies);
+    $pmmlSerializer->appendTransformationDictionary($includeFrequencies);
     $pmmlSerializer->appendRules();
     return $pmmlSerializer->getPmml();
   }
@@ -524,10 +528,10 @@ class TasksPresenter extends BaseResourcePresenter {
     $this->databasesFacade=$databasesFacade;
   }
   /**
-   * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
+   * @param XmlSerializersFactory $xmlSerializersFactory
    */
-  public function injectGuhaPmmlSerializerFactory(GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory) {
-    $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
+  public function injectXmlSerializersFactory(XmlSerializersFactory $xmlSerializersFactory) {
+    $this->xmlSerializersFactory=$xmlSerializersFactory;
   }
   #endregion injections
 }

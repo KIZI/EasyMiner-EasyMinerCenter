@@ -4,21 +4,25 @@ use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 
 /**
  * Interface IScoringDriver - rozhraní driveru pro evaluační službu
  * @package EasyMinerCenter\Model\Scoring
+ * @author Stanislav Vojíř
  */
 interface IScorerDriver {
 
   /**
    * @param $serverUrl
    * @param DatabasesFacade $databasesFacade
+   * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array|null $params=null
    */
-  public function __construct($serverUrl, DatabasesFacade $databasesFacade, $params=null);
+  public function __construct($serverUrl, DatabasesFacade $databasesFacade, XmlSerializersFactory $xmlSerializersFactory, $params=null);
 
   /**
+   * Funkce pro evaluaci pravidel nalezených v rámci konkrétní úlohy
    * @param Task $task
    * @param Datasource $testingDatasource
    * @return ScoringResult
@@ -26,6 +30,7 @@ interface IScorerDriver {
   public function evaluateTask(Task $task, Datasource $testingDatasource);
 
   /**
+   * Funkce pro evaluaci pravidel v rámci konkrétního rule setu
    * @param RuleSet $ruleSet
    * @param Datasource $testingDatasource
    * @return ScoringResult

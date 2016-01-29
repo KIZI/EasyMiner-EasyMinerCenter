@@ -15,7 +15,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
-use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
+use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsJson;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
@@ -43,8 +43,8 @@ class RDriver implements IMiningDriver{
   private $rulesFacade;
   /** @var MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
-  /** @var GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
-  private $guhaPmmlSerializerFactory;
+  /** @var XmlSerializersFactory $xmlSerializersFactory */
+  private $xmlSerializersFactory;
   /** @var array $params - parametry výchozí konfigurace */
   private $params;
   /** @var  User $user */
@@ -93,7 +93,7 @@ class RDriver implements IMiningDriver{
     #endregion
 
     #region serializace zadání v PMML
-    $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($this->task);
+    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($this->task);
     $pmmlSerializer->appendMetabaseInfo();
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $taskSettingsSerializer->settingsFromJson($taskSettingsJson->getJsonString());
@@ -572,17 +572,17 @@ class RDriver implements IMiningDriver{
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param User $user
-   * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
+   * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array $params = array()
    */
-  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory, $params = array()) {
+  public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, XmlSerializersFactory $xmlSerializersFactory, $params = array()) {
     $this->minersFacade=$minersFacade;
     $this->setTask($task);
     $this->params=$params;
     $this->rulesFacade=$rulesFacade;
     $this->metaAttributesFacade=$metaAttributesFacade;
     $this->user=$user;
-    $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
+    $this->xmlSerializersFactory=$xmlSerializersFactory;
     $this->setApiKey($user->getEncodedApiKey());
   }
 

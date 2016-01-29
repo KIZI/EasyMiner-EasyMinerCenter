@@ -1,30 +1,29 @@
 <?php
-namespace EasyMinerCenter\Model\Scoring\ModelTester;
+namespace EasyMinerCenter\Model\Scoring\EasyMinerScorer;
 
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
-use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\Scoring\IScorerDriver;
 use EasyMinerCenter\Model\Scoring\ScoringResult;
-use Nette\Application\LinkGenerator;
 use Nette\NotImplementedException;
+use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 
 /**
- * Class ModelTesterScorer - driver pro práci s ModelTesterem (postaveným na Drools
+ * Class EasyMinerScorer - driver pro práci se scorerem vytvořeným Jardou Kuchařem
  * @package EasyMinerCenter\Model\Scoring\ModelTester
  * @author Stanislav Vojíř
  */
-class ModelTesterScorer implements IScorerDriver{
+class EasyMinerScorer implements IScorerDriver{
   /** @var  string $serverUrl */
   private $serverUrl;
   /** @var DatabasesFacade $databasesFacade */
   private $databasesFacade;
-  /** @var  LinkGenerator $linkGenerator */
-  public $linkGenerator;
-
+  /** @var  XmlSerializersFactory $xmlSerializersFactory */
+  private $xmlSerializersFactory;
+  /** @var array|null $params - pole připravené pro pracovní parametry tohoto driveru */
   public $params=[];
 
   const ROWS_PER_TEST=1000;
@@ -36,8 +35,9 @@ class ModelTesterScorer implements IScorerDriver{
    * @param array|null $params = null
    */
   public function __construct($serverUrl, DatabasesFacade $databasesFacade, XmlSerializersFactory $xmlSerializersFactory, $params=null){
-    $this->serverUrl=trim($serverUrl,'/').'/association-rules/test-files';
+    $this->serverUrl=trim($serverUrl,'/');
     $this->databasesFacade=$databasesFacade;
+    $this->xmlSerializersFactory=$xmlSerializersFactory;
     $this->params=$params;
   }
 
@@ -47,15 +47,13 @@ class ModelTesterScorer implements IScorerDriver{
    * @return ScoringResult
    */
   public function evaluateTask(Task $task, Datasource $testingDatasource) {
-    $rulesXmlFileName=$task->taskId.'.xml';
-    /** @var string $rulesXmlFilePath - cesta souboru s pravidly v XML */
-    $rulesXmlFilePath=@$this->params['tempDirectory'].'/'.$rulesXmlFileName;
+    #region sestavení PMML a následné vytvoření scoreru
+    $pmml=$this->prepareTaskPmml($task);
+    //TODO vytvoření scoreru
+    #endregion sestavení PMML a následné vytvoření scoreru
 
-    $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
-    $rulesXml=$associationRulesXmlSerializer->getXml()->asXML();
-    file_put_contents($rulesXmlFilePath,$rulesXml);
+    #region postupné posílání řádků z testovací DB tabulky
     $dbTable=$testingDatasource->dbTable;
-
     $this->databasesFacade->openDatabase($testingDatasource->getDbConnection());
     $dbRowsCount=$this->databasesFacade->getRowsCount($dbTable);
     $testedRowsCount=0;
@@ -63,16 +61,11 @@ class ModelTesterScorer implements IScorerDriver{
     $partialResults=[];
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
-      $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST,';','"');
-
-      $csvFileName=$testingDatasource->datasourceId.'-'.$testedRowsCount.'-'.self::ROWS_PER_TEST.'.csv';
-      /** @var string $csvFilePath - cesta k CSV souboru s částí dat */
-      $csvFilePath=@$this->params['tempDirectory'].'/'.$csvFileName;
-
-      file_put_contents($csvFilePath,$csv);
-      $url=$this->serverUrl.'?rulesXml='.$this->getTempFileUrl($rulesXmlFileName).'&dataCsv='.$this->getTempFileUrl($csvFileName);
-
+      //TODO sestavení JSONu pro poslání v rámci požadavku
+      ////$csv=$this->databasesFacade->prepareCsvFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST,';','"');
+      //TODO odeslání požadavku na vyhodnocení konkrétních řádků
       //try{
+      /*
         $response=self::curlRequestResponse($url);
         $xml=simplexml_load_string($response);
         $partialResult=new ScoringResult();
@@ -81,26 +74,32 @@ class ModelTesterScorer implements IScorerDriver{
         $partialResult->rowsCount=(string)$xml->rowsCount;
         $partialResults[]=$partialResult;
         unset($xml);
+      */
       //}catch (\Exception $e){
       //  /*ignore error...*/
       //}
-      //XXX unlink($csvFilePath);
       $testedRowsCount+=self::ROWS_PER_TEST;
     }
-    //XXX unlink($rulesXmlFilePath);
-    //sestavení celkového výsledku
+    #endregion postupné posílání řádků z testovací DB tabulky
+    #region sestavení celkového výsledku a jeho vrácení
     return ScoringResult::merge($partialResults);
+    #endregion sestavení celkového výsledku a jeho vrácení
   }
 
+
   /**
-   * Pracovní funkce vracející URL aplikace pro sestavení odkazů na stahování dat...
-   * @return string
+   * Funkce pro vytvoření PMML z konkrétní úlohy
+   * @param Task $task
+   * @return GuhaPmmlSerializer
    */
-  private function getTempFileUrl($filename) {
-    //FIXME HACK!
-    $requestUri=substr($_SERVER['SCRIPT_NAME'],0,strrpos($_SERVER['SCRIPT_NAME'],'/www'));
-    $requestUri='http://'.$_SERVER['HTTP_HOST'].$requestUri;
-    return $requestUri.'/temp/'.$filename;
+  private function prepareTaskPmml(Task $task){
+    $this->databasesFacade->openDatabase($task->miner->metasource->getDbConnection());
+    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer->appendTaskSettings();
+    $pmmlSerializer->appendDataDictionary(false);
+    $pmmlSerializer->appendTransformationDictionary(false);
+    $pmmlSerializer->appendRules();
+    return $pmmlSerializer;
   }
 
 
@@ -110,7 +109,7 @@ class ModelTesterScorer implements IScorerDriver{
    * @return ScoringResult
    */
   public function evaluateRuleSet(RuleSet $ruleSet, Datasource $testingDatasource) {
-    // TODO: Implement evaluateRuleSet() method.
+    // TODO: Implement evaluareRuleSet() method.
     throw new NotImplementedException();
   }
 

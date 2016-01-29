@@ -10,7 +10,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
-use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializerFactory;
+use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
@@ -34,8 +34,8 @@ class TasksPresenter  extends BasePresenter{
   private $usersFacade;
   /** @var XmlTransformator $xmlTransformator */
   private $xmlTransformator;
-  /** @var  GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory */
-  private $guhaPmmlSerializerFactory;
+  /** @var  XmlSerializersFactory $xmlSerializersFactory */
+  private $xmlSerializersFactory;
 
   /**
    * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
@@ -302,13 +302,17 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Funkce inicializující PmmlSerializer za využití konfigurace úlohy
    * @param Task $task
+   * @param bool $includeFrequencies=true
    * @return GuhaPmmlSerializer
    */
-  private function initPmmlSerializer(Task $task) {
+  private function initPmmlSerializer(Task $task, $includeFrequencies=true) {
     /** @var Metasource $metasource */
     $metasource=$task->miner->metasource;
     $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    $pmmlSerializer=$this->guhaPmmlSerializerFactory->create($task,null,$this->databasesFacade,true);
+    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer->appendTaskSettings();
+    $pmmlSerializer->appendDataDictionary($includeFrequencies);
+    $pmmlSerializer->appendTransformationDictionary($includeFrequencies);
     return $pmmlSerializer;
   }
 
@@ -318,7 +322,7 @@ class TasksPresenter  extends BasePresenter{
    * @return \SimpleXMLElement
    */
   private function prepareTaskSettingPmml(Task $task) {
-    $pmmlSerializer=$this->initPmmlSerializer($task);
+    $pmmlSerializer=$this->initPmmlSerializer($task, false);
     return $pmmlSerializer->getPmml();
   }
 
@@ -328,7 +332,7 @@ class TasksPresenter  extends BasePresenter{
    * @return \SimpleXMLElement
    */
   private function prepareTaskPmml(Task $task){
-    $pmmlSerializer=$this->initPmmlSerializer($task);
+    $pmmlSerializer=$this->initPmmlSerializer($task, true);
     $pmmlSerializer->appendRules();
     return $pmmlSerializer->getPmml();
   }
@@ -392,10 +396,10 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * @param GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory
+   * @param XmlSerializersFactory $xmlSerializersFactory
    */
-  public function injectGuhaPmmlSerializerFactory(GuhaPmmlSerializerFactory $guhaPmmlSerializerFactory) {
-    $this->guhaPmmlSerializerFactory=$guhaPmmlSerializerFactory;
+  public function injectXmlSerializersFactory(XmlSerializersFactory $xmlSerializersFactory) {
+    $this->xmlSerializersFactory=$xmlSerializersFactory;
   }
   #endregion
 } 

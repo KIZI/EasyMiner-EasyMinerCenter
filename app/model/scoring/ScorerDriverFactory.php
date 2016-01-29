@@ -2,27 +2,32 @@
 
 namespace EasyMinerCenter\Model\Scoring;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
-use Nette\Application\LinkGenerator;
+use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use Nette\ArgumentOutOfRangeException;
 use Nette\NotImplementedException;
 
 /**
  * Class ScorerDriverFactory
  * @package EasyMinerCenter\Model\Scoring
+ * @author Stanislav Vojíř
  */
 class ScorerDriverFactory {
   /** @var  array $params */
   private $params;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var XmlSerializersFactory $xmlSerializersFactory */
+  private $xmlSerializersFactory;
 
   /**
    * @param array $params
    * @param DatabasesFacade $databasesFacade
+   * @param XmlSerializersFactory $xmlSerializersFactory
    */
-  public function __construct($params, DatabasesFacade $databasesFacade) {
+  public function __construct($params, DatabasesFacade $databasesFacade, XmlSerializersFactory $xmlSerializersFactory) {
     $this->params=$params;
     $this->databasesFacade=$databasesFacade;
+    $this->xmlSerializersFactory=$xmlSerializersFactory;
   }
 
   /**
@@ -37,7 +42,8 @@ class ScorerDriverFactory {
       throw new ArgumentOutOfRangeException('Requested scorer driver was not found!');
     }
     $driverClass='\\'.$this->params['driver_'.$scorerType]['class'];
-    $result=new $driverClass($driverConfigParams['server'], $this->databasesFacade,$driverConfigParams);
+    /** @var IScorerDriver $result */
+    $result=new $driverClass($driverConfigParams['server'], $this->databasesFacade, $this->xmlSerializersFactory,$driverConfigParams);
     return $result;
   }
 
