@@ -38,7 +38,7 @@ class ScorerDriverFactory {
   public function getScorerInstance($scorerType) {
     /** @var array $driverConfigParams */
     $driverConfigParams=@$this->params['driver_'.$scorerType];
-    if (empty($driverConfigParams) || !isset($driverConfigParams['class'])){
+    if (empty($driverConfigParams) || !isset($driverConfigParams['class']) || empty($driverConfigParams['server'])){
       throw new ArgumentOutOfRangeException('Requested scorer driver was not found!');
     }
     $driverClass='\\'.$this->params['driver_'.$scorerType]['class'];

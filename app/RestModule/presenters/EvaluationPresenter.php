@@ -43,6 +43,14 @@ class EvaluationPresenter extends BaseResourcePresenter {
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @SWG\Parameter(
+   *     name="scorer",
+   *     description="Scorer type",
+   *     required=true,
+   *     type="string",
+   *     in="query",
+   *     enum={"easyMinerScorer","modelTester"}
+   *   ),
+   *   @SWG\Parameter(
    *     name="task",
    *     description="Task ID",
    *     required=false,
@@ -84,7 +92,11 @@ class EvaluationPresenter extends BaseResourcePresenter {
     $this->setXmlMapperElements('classification');
     $inputData=$this->getInput()->getData();
     /** @var IScorerDriver $scorerDriver */
-    $scorerDriver=$this->scorerDriverFactory->getDefaultScorerInstance();
+    if (empty($inputData['scorer'])){
+      $scorerDriver=$this->scorerDriverFactory->getDefaultScorerInstance();
+    }else{
+      $scorerDriver=$this->scorerDriverFactory->getScorerInstance($inputData['scorer']);
+    }
     try{
       $datasource=$this->datasourcesFacade->findDatasource(@$inputData['datasource']);
       if (!$this->datasourcesFacade->checkDatasourceAccess($datasource,$this->getCurrentUser())){

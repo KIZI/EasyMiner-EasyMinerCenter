@@ -49,7 +49,13 @@ class EasyMinerScorer implements IScorerDriver{
   public function evaluateTask(Task $task, Datasource $testingDatasource) {
     #region sestavení PMML a následné vytvoření scoreru
     $pmml=$this->prepareTaskPmml($task);
-    //TODO vytvoření scoreru
+    exit(var_dump($pmml));//XXX
+    $url=$this->serverUrl.'/scorer';
+    //pro korektní odeslání požadavku ukládáme do dočasného souboru
+    $filename=tempnam(sys_get_temp_dir(),'pmml'.$task->taskId);
+    file_put_contents($filename,$pmml);
+    $response=self::curlRequestResponse($url,['data'=>'@'.$filename]);
+    exit(var_dump($response));//XXX
     #endregion sestavení PMML a následné vytvoření scoreru
 
     #region postupné posílání řádků z testovací DB tabulky
@@ -59,10 +65,18 @@ class EasyMinerScorer implements IScorerDriver{
     $testedRowsCount=0;
     /** @var ScoringResult[] $partialResults */
     $partialResults=[];
+    $url='';//TODO
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
+
+
       //TODO sestavení JSONu pro poslání v rámci požadavku
+      $json='';
       ////$csv=$this->databasesFacade->prepareCsvFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST,';','"');
+      $filename=tempnam(sys_get_temp_dir(),$testingDatasource->datasourceId.'-'.$testedRowsCount.'-'.self::ROWS_PER_TEST);
+      file_put_contents($filename,$json);
+      self::curlRequestResponse($url,['data'=>'@'.$filename]);
+
       //TODO odeslání požadavku na vyhodnocení konkrétních řádků
       //try{
       /*
@@ -90,7 +104,7 @@ class EasyMinerScorer implements IScorerDriver{
   /**
    * Funkce pro vytvoření PMML z konkrétní úlohy
    * @param Task $task
-   * @return GuhaPmmlSerializer
+   * @return string
    */
   private function prepareTaskPmml(Task $task){
     $this->databasesFacade->openDatabase($task->miner->metasource->getDbConnection());
@@ -99,7 +113,7 @@ class EasyMinerScorer implements IScorerDriver{
     $pmmlSerializer->appendDataDictionary(false);
     $pmmlSerializer->appendTransformationDictionary(false);
     $pmmlSerializer->appendRules();
-    return $pmmlSerializer;
+    return $pmmlSerializer->getPmml()->asXML();
   }
 
 
@@ -117,26 +131,35 @@ class EasyMinerScorer implements IScorerDriver{
    * @param string $url
    * @param string $postData = ''
    * @param string $apiKey = ''
+   * @param array $headersArr=[]
    * @return string - response data
    * @throws \Exception - curl error
    */
-  private static function curlRequestResponse($url, $postData='', $apiKey=''){
+  private static function curlRequestResponse($url, $postData='', $apiKey='', $headersArr=[]){
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch,CURLOPT_MAXREDIRS,0);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    $headersArr=[
-      'Content-Type: application/xml; charset=utf-8'
-    ];
+    if (empty($headersArr['Accept'])){
+      $headersArr['Accept']='application/json';
+    }
     if (!empty($apiKey)){
       $headersArr[]='Authorization: ApiKey '.$apiKey;
     }
-    if ($postData!=''){
-      curl_setopt($ch,CURLOPT_POST,true);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-      $headersArr[]='Content-length: '.strlen($postData);
+    //připojení POST dat
+    if (!empty($postData)){//TODO zkontrolovat...
+      if(is_array($postData)){
+        //$headersArr['Content-type']='multipart/form-data';
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+      }elseif (is_string($postData)){
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        $headersArr[]='Content-length: '.strlen($postData);
+      }
     }
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArr);
 
