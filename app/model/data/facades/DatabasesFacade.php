@@ -5,6 +5,7 @@ use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use Nette\Application\ApplicationException;
+use Nette\Utils\Json;
 use Nette\Utils\Strings;
 
 /**
@@ -379,7 +380,7 @@ class DatabasesFacade {
   public function prepareCsvFromDatabaseRows($dbTable,$offset,$limit,$delimiter=';',$enclosure='"',$databaseProperty=self::FIRST_DB){
     $rows=$this->getRows($dbTable,$offset,$limit,$databaseProperty);
     $csv='';
-    $delimiter=';';
+    $delimiter=';';//TODO check...
     $enclosure='\\';
 
     if (!empty($rows)){
@@ -400,5 +401,19 @@ class DatabasesFacade {
       #endregion sestavení CSV
     }
     return $csv;
+  }
+
+  /**
+   * Funkce vracející data z řádků v DB v podobě JSONu
+   * @param string $dbTable
+   * @param int $offset
+   * @param int $limit
+   * @return string
+   * @throws \Nette\Utils\JsonException
+   */
+  public function prepareJsonFromDatabaseRows($dbTable, $offset, $limit) {
+    $result=[];
+    $rows=$this->getRows($dbTable, $offset,$limit);
+    return Json::encode($rows);
   }
 } 

@@ -9,7 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\Scoring\IScorerDriver;
 use EasyMinerCenter\Model\Scoring\ScoringResult;
 use Nette\NotImplementedException;
-use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use Nette\Utils\Json;
 
 /**
  * Class EasyMinerScorer - driver pro práci se scorerem vytvořeným Jardou Kuchařem
@@ -45,17 +45,24 @@ class EasyMinerScorer implements IScorerDriver{
    * @param Task $task
    * @param Datasource $testingDatasource
    * @return ScoringResult
+   * @throws \Exception
    */
   public function evaluateTask(Task $task, Datasource $testingDatasource) {
     #region sestavení PMML a následné vytvoření scoreru
     $pmml=$this->prepareTaskPmml($task);
-    exit(var_dump($pmml));//XXX
     $url=$this->serverUrl.'/scorer';
-    //pro korektní odeslání požadavku ukládáme do dočasného souboru
-    $filename=tempnam(sys_get_temp_dir(),'pmml'.$task->taskId);
-    file_put_contents($filename,$pmml);
-    $response=self::curlRequestResponse($url,['data'=>'@'.$filename]);
-    exit(var_dump($response));//XXX
+
+    try{
+      $response=self::curlRequestResponse($url,$pmml,'',['Content-Type'=>'application/xml; charset=utf-8']);
+      $response=Json::decode($response,Json::FORCE_ARRAY);
+      if (@$response['code']==201 && !empty($response['id'])){
+        $scorerId=$response['id'];
+      }else{
+        throw new \Exception(@$response['description']);
+      }
+    }catch (\Exception $e){
+      throw new \Exception('Scorer creation failed!',500,$e);
+    }
     #endregion sestavení PMML a následné vytvoření scoreru
 
     #region postupné posílání řádků z testovací DB tabulky
@@ -65,33 +72,26 @@ class EasyMinerScorer implements IScorerDriver{
     $testedRowsCount=0;
     /** @var ScoringResult[] $partialResults */
     $partialResults=[];
-    $url='';//TODO
+    $url.='/'.$scorerId;
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
+      //připravení JSONu a jeho odeslání
+      $json=$this->databasesFacade->prepareJsonFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST);
+      $response=self::curlRequestResponse($url,$json,'',['Content-Type'=>'application/json; charset=utf-8']);
 
+      $response=Json::decode($response,Json::FORCE_ARRAY);
+      if ($response["code"]!=200){
+        throw new \Exception('Invalid scorer response!');
+      }
 
-      //TODO sestavení JSONu pro poslání v rámci požadavku
-      $json='';
-      ////$csv=$this->databasesFacade->prepareCsvFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST,';','"');
-      $filename=tempnam(sys_get_temp_dir(),$testingDatasource->datasourceId.'-'.$testedRowsCount.'-'.self::ROWS_PER_TEST);
-      file_put_contents($filename,$json);
-      self::curlRequestResponse($url,['data'=>'@'.$filename]);
+      //vytvoření objektu s výsledky
+      $scoringResult=new EasyMinerScoringResult($response);
+      $partialResult=$scoringResult->getScoringConfusionMatrix()->getScoringResult(true);
+      $partialResults[]=$partialResult;
+      //TODO tady bude v budoucnu možné doplnit zpracování celé kontingenční tabulky
 
-      //TODO odeslání požadavku na vyhodnocení konkrétních řádků
-      //try{
-      /*
-        $response=self::curlRequestResponse($url);
-        $xml=simplexml_load_string($response);
-        $partialResult=new ScoringResult();
-        $partialResult->truePositive=(string)$xml->truePositive;
-        $partialResult->falsePositive=(string)$xml->falsePositive;
-        $partialResult->rowsCount=(string)$xml->rowsCount;
-        $partialResults[]=$partialResult;
-        unset($xml);
-      */
-      //}catch (\Exception $e){
-      //  /*ignore error...*/
-      //}
+      //připočtení řádků a uvolnění paměti
+      unset($scoringResult);
       $testedRowsCount+=self::ROWS_PER_TEST;
     }
     #endregion postupné posílání řádků z testovací DB tabulky
@@ -141,27 +141,22 @@ class EasyMinerScorer implements IScorerDriver{
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch,CURLOPT_MAXREDIRS,0);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    if (empty($headersArr['Accept'])){
-      $headersArr['Accept']='application/json';
-    }
     if (!empty($apiKey)){
-      $headersArr[]='Authorization: ApiKey '.$apiKey;
+      $headersArr['Authorization']='ApiKey '.$apiKey;
     }
-    //připojení POST dat
-    if (!empty($postData)){//TODO zkontrolovat...
-      if(is_array($postData)){
-        //$headersArr['Content-type']='multipart/form-data';
-        curl_setopt($ch,CURLOPT_POST,true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-      }elseif (is_string($postData)){
-        curl_setopt($ch,CURLOPT_POST,true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-        $headersArr[]='Content-length: '.strlen($postData);
+    if ($postData!=''){
+      curl_setopt($ch,CURLOPT_POST,true);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+      $headersArr['Content-length']=strlen($postData);
+    }
+    $headersSendArr=[];
+    if (!empty($headersArr)){
+      foreach ($headersArr as $header=>$value){
+        $headersSendArr[]=$header.': '.$value;
       }
     }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArr);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headersSendArr);
 
     $responseData = curl_exec($ch);
     if(curl_errno($ch)){
