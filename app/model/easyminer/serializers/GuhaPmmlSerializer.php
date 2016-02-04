@@ -434,7 +434,7 @@ class GuhaPmmlSerializer {
       $IMValueConfidence->addAttribute('name','BASE');
       $IMValueConfidence->addAttribute('type','%All');
       $IMValueConfidence=$associationRuleXml->addChild('IMValue',$rule->confidence);
-      $IMValueConfidence->addAttribute('name','FUI');
+      $IMValueConfidence->addAttribute('name','CONF');
       $IMValueConfidence->addAttribute('type','%All');
       //TODO reference na zadání měr zajímavosti?
       //FourFtTable

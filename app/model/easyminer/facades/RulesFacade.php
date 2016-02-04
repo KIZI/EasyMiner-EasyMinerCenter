@@ -46,6 +46,7 @@ class RulesFacade {
     $formulasArr=[
       'default'=>'rule_id',
       'fui'=>'confidence DESC',
+      'conf'=>'confidence DESC',
       'confidence'=>'confidence DESC',
       'supp'=>'support DESC',
       'support'=>'support DESC',

@@ -211,8 +211,8 @@ class TasksFacade {
   private function prepareSimpleTaskIMsArr($IMsSettingsArr) {
     $result=[];
     if (empty($IMsSettingsArr)){return $result;}
-    foreach($IMsSettingsArr as $IMSettings){
-      if (!in_array($IMSettings['name'],['FUI','AAD','LIFT','SUPP','AUTO_FUI_SUPP'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
+    foreach($IMsSettingsArr as $IMSettings){ //TODO KIZI/EasyMiner-EasyMinerCenter#104
+      if (!in_array($IMSettings['name'],['CONF','AAD','LIFT','SUPP','AUTO_CONF_SUPP'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
         throw new \InvalidArgumentException('Unsupported interest measure: '.$IMSettings['name']);
       }
       $result[]=[
