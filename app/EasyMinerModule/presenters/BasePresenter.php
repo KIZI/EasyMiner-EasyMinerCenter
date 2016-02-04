@@ -18,6 +18,8 @@ abstract class BasePresenter extends Presenter{//BaseRestPresenter
   protected function beforeRender(){
     /** @noinspection PhpUndefinedMethodInspection */
     $this->template->setTranslator($this->translator);
+    $this->template->lang=$this->translator->getLang();
+    $this->template->titleAppName='EasyMiner';
   }
 
   public function injectTranslator(\Nette\Localization\ITranslator $translator){

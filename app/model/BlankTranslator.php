@@ -20,4 +20,11 @@ class BlankTranslator implements ITranslator{
   function translate($message, $count = NULL) {
     return $message;
   }
+
+  /**
+   * @return string
+   */
+  public function getLang() {
+    return "en";
+  }
 }
