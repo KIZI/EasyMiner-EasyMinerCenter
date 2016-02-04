@@ -113,12 +113,11 @@ class EvaluationPresenter extends BaseResourcePresenter {
       throw new BadRequestException("Data source was not specified!");
     }
 
-
     if (!empty($inputData['task'])){
       if (empty($task)){
         $task=$this->findTaskWithCheckAccess($inputData['task']);
       }
-      $result=$scorerDriver->evaluateTask($task,$datasource)->getDataArr();
+      $result=$scorerDriver->evaluateTask($task,$datasource)->getCorrectIncorrectDataArr();
       $result['task']=$task->getDataArr(false);
     }elseif(!empty($inputData['ruleSet'])){
       $ruleSet=$this->ruleSetsFacade->findRuleSet($inputData['ruleSet']);
@@ -158,10 +157,11 @@ class EvaluationPresenter extends BaseResourcePresenter {
  * @SWG\Definition(
  *   definition="ScoringResultResponse",
  *   title="ScoringResult",
- *   required={"rowsCount","truePositive","falsePositive"},
- *   @SWG\Property(property="rowsCount",type="integer",description="Count of rows"),
- *   @SWG\Property(property="truePositive",type="integer",description="True classifications"),
- *   @SWG\Property(property="falsePositive",type="integer",description="False classifications"),
+ *   required={"rowCount","correct","incorrect","unclassified"},
+ *   @SWG\Property(property="rowCount",type="integer",description="Count of rows"),
+ *   @SWG\Property(property="correct",type="integer",description="True classifications"),
+ *   @SWG\Property(property="incorrect",type="integer",description="False classifications"),
+ *   @SWG\Property(property="unclassified",type="integer",description="False classifications"),
  *   @SWG\Property(
  *      property="task",
  *      description="Task details",

@@ -44,6 +44,15 @@ class ScoringResult {
   }
 
   /**
+   * Funkce vracející data výsledků v podobě pole
+   * @return array
+   */
+  public function getCorrectIncorrectDataArr() {
+    $result=['correct'=>$this->truePositive,'incorrect'=>$this->falsePositive,'unclassified'=>$this->rowsCount-$this->truePositive-$this->falsePositive,'rowCount'=>$this->rowsCount];
+    return $result;
+  }
+
+  /**
    * Funkce pro sloučení dvou částečných výsledků do jednoho
    * @param ScoringResult[] $scoringResults
    * @return ScoringResult
