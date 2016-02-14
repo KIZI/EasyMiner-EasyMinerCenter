@@ -145,7 +145,7 @@ class UsersFacade implements IAuthenticator{
       $user->name=$googleProfile->givenName.' '.$googleProfile->familyName;
       $user->active=true;
       $user->lastLogin=new DateTime();
-      $this->usersRepository->persist($user);
+      $this->saveUser($user);
     }else{
       //kontrola, jestli není uživatel zablokován
       if (!$user->active){
