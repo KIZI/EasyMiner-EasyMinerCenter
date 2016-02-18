@@ -1,5 +1,6 @@
 <?php
 namespace EasyMinerCenter\Model\Data\Facades;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -10,18 +11,16 @@ use EasyMinerCenter\Model\EasyMiner\Entities\User;
  * @author Stanislav Vojíř
  */
 class NewDatabasesFacade{
-  /** @var  array $databasesConfig - pole s konfigurací přístupů k jednotlivým typům databází*/
-  private $databasesConfig;
-  /** @var  IDatabase[] $databases */
-  private $databases;
+  /** @var  DatabaseFactory $databasesFactory */
+  private $databaseFactory;
   /** @var  User $user */
   private $user;
 
   /**
-   * @param array $databasesConfig
+   * @param DatabaseFactory $databaseFactory
    */
-  public function __construct($databasesConfig) {
-    $this->databasesConfig=$databasesConfig;
+  public function __construct(DatabaseFactory $databaseFactory) {
+    $this->databaseFactory=$databaseFactory;
   }
 
   /**
@@ -57,24 +56,14 @@ class NewDatabasesFacade{
   }
 
   /**
-   * Funkce vracející instanci konkrétního ovladače databáze
-   * @param string|null $dbType=null
-   * @return IDatabase
-   */
-  private function getDatabase($dbType=null) {
-    if (empty($this->databases[$dbType])){
-      //FIXME připojení ke konkrétní databázi
-
-    }
-    return $this->databases[$dbType];
-  }
-
-  /**
    * Funkce vracející datové zdroje ve zvolené databázi
    * @param string $dbType
    * @return DbDatasource[]
    */
   public function getDbDatasources($dbType){
+    //FIXME implement
+    exit(var_dump($this->databaseFactory->getDbTypes()));
+
     $database=$this->getDatabase($dbType);
     return $database->getDbDatasources();
   }

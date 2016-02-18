@@ -1,15 +1,32 @@
 <?php
 
-namespace EasyMinerCenter\Model\Data\Entities;
+namespace EasyMinerCenter\Model\Data\Databases\Entities;
 
 /**
- * Class DbDatasource - třída prezentující datový zdroj uložený v databázi
- *
- * @package EasyMinerCenter\Model\Data\Entities
- * @property string $type
+ * Class DbDatasource - třída pro zabalení datového zdroje z datové služby
+ * @package EasyMinerCenter\Model\Data\Databases\DataService
+ * @author Stanislav Vojíř
+ * @property int|null $id
  * @property string $name
- * @property int $remoteId
+ * @property string $type m:Enum("limited","unlimited")
+ * @property int|null $size - počet instancí
  */
 class DbDatasource {
+  public $id;
+  public $name;
+  public $type;
+  public $size;
 
+  /**
+   * @param int|null $id
+   * @param string $name
+   * @param string $type
+   * @param int|null $size
+   */
+  public function __construct($id,$name,$type,$size) {
+    $this->id=$id;
+    $this->name=$name;
+    $this->type=$type;
+    $this->size=$size;
+  }
 }

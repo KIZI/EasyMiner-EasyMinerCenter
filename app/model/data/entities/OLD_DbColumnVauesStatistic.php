@@ -6,7 +6,7 @@ namespace EasyMinerCenter\Model\Data\Entities;
  * Class DbColumnValuesStatistic - informace o statistice vypočtené na základě databázového sloupce
  * @package EasyMinerCenter\Model\Data\Entities
  */
-class DbColumnValuesStatistic extends DbColumn{
+class OLD_DbColumnValuesStatistic extends DbColumn{
 
   /** @var null|float $minValue */
   public $minValue    = null;

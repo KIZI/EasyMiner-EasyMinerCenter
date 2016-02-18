@@ -1,5 +1,5 @@
 <?php
-
+/*TODO remove*/
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 use EasyMinerCenter\Model\Data\Entities\DbColumn;
@@ -21,7 +21,7 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\Model\EasyMiner\Facades
  * @author Stanislav Vojíř
  */
-class DatasourcesFacade {
+class OLD_DatasourcesFacade {
   /** @var DatasourcesRepository $datasourcesRepository */
   private $datasourcesRepository;
   /** @var  DatasourceColumnsRepository $datasourceColumnsRepository */
@@ -35,7 +35,7 @@ class DatasourcesFacade {
 
   private static $dbTypesWithRemoteDatasources=['limited'];
 
-  #region ///REVIDOVANÉ METODY///////////////////////////////////////////////////////////////////////////////////////////////
+  ///REVIDOVANÉ METODY///////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * Funkce pro aktualizaci informací o vzdálených datových zdrojích
@@ -113,7 +113,7 @@ class DatasourcesFacade {
     return $this->datasourcesRepository->findAllBy($selectParams);
   }
 
-  #endregion ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * @param array $databasesConfig

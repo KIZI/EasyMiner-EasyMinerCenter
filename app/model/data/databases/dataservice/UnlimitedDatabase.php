@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Stanislav
- * Date: 17. 2. 2016
- * Time: 17:34
- */
 
-namespace EasyMinerCenter\app\model\data\databases;
+namespace EasyMinerCenter\Model\Data\Databases\DataService;
 
-use EasyMinerCenter\Model\Data\Databases\DataServiceDatabase;
+use EasyMinerCenter\Model\Data\Databases\DataService;
 
 /**
  * Class UnlimitedDatabase - přístup k UNLIMITED DB pomocí EasyMiner-Data

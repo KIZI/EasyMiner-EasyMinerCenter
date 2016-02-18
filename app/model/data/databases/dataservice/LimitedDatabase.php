@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyMinerCenter\Model\Data\Databases;
+namespace EasyMinerCenter\Model\Data\Databases\DataService;
 
 /**
  * Class LimitedDatabase - přístup k LIMITED DB pomocí EasyMiner-Data

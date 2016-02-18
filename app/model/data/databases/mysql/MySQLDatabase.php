@@ -1,7 +1,8 @@
 <?php
 
-namespace EasyMinerCenter\Model\Data\Databases;
+namespace EasyMinerCenter\Model\Data\Databases\MySQL;
 
+use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
@@ -20,17 +21,13 @@ class MySQLDatabase implements IDatabase{
   private $tableName;
 
   #region connection
-  private function __construct(DbConnection $dbConnection){
-    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->dbName)?'dbname='.$dbConnection->dbName.';':'').'charset=utf8';
-    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
-  }
-
   /**
    * @param DbConnection $dbConnection
-   * @return MySqlDatabase
+   * @param string|null $apiKey=null - aktuálně nepoužívaný atribut
    */
-  public static function getInstance(DbConnection $dbConnection) {
-    return new MySqlDatabase($dbConnection);
+  public function __construct(DbConnection $dbConnection, $apiKey=null){
+    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->dbName)?'dbname='.$dbConnection->dbName.';':'').'charset=utf8';
+    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
   }
 
   public function selectTable($tableName){
