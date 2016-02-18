@@ -63,7 +63,7 @@ class NewDatabasesFacade{
    */
   private function getDatabase($dbType=null) {
     if (empty($this->databases[$dbType])){
-      //TODO připojení ke konkrétní databázi
+      //FIXME připojení ke konkrétní databázi
 
     }
     return $this->databases[$dbType];

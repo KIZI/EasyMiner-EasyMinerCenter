@@ -50,11 +50,11 @@ parameters:
             _database: 'user*'
             username: root
             password:
-            server: localhost
+            server: "URL datové služby"
         dbs_unlimited:
             _username: 'user*'
             _database: 'user*'
-            server: localhost
+            server: "URL datové služby"
 
 facebook:
     appId: ""

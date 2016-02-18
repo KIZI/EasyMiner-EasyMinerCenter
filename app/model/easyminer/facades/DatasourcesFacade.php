@@ -48,6 +48,7 @@ class DatasourcesFacade {
       if (in_array($dbTypeId,$dbTypes)){
         #region aktualizace datových zdrojů v DB
         $dbDatasources=$this->newDatabasesFacade->getDbDatasources($dbTypeId);
+        exit(var_dump($dbDatasources));//FIXME
         $updatedDatasourcesIds=[];
         $updatedDbDatasourcesIds=[];
         $datasources=$this->findDatasourcesByUser($user);

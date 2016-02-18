@@ -112,7 +112,6 @@ class NewDataPresenter extends BasePresenter{
     $form->setTranslator($this->translator);
     $form->addUpload('file','Upload file:')
       ->setRequired('Je nutné vybrat soubor pro import!')
-//      ->addRule(Form::MAX_FILE_SIZE,'Nahrávaný soubor je příliš velký',$this->fileImportsFacade->getMaximumFileUploadSize())
     ;
     $databaseTypes=$this->newDatabasesFacade->getDbTypes(true);
     if (count($databaseTypes)==1){

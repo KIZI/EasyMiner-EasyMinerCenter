@@ -11,20 +11,23 @@ use EasyMinerCenter\Model\Data\Entities\DbDatasource;
  * @package EasyMinerCenter\Model\Data\Databases
  */
 interface IDatabase {
-  ///REVIZE POTŘEBNÝCH METOD///////////////////////////////////////////////////////////////////////////////////////
+  ///TODO REVIZE POTŘEBNÝCH METOD///////////////////////////////////////////////////////////////////////////////////////
   /**
    * Funkce vracející seznam datových zdrojů v DB
    * @return DbDatasource[]
    */
   public function getDbDatasources();
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   /**
    * @param DbConnection $dbConnection
+   * @param string $apiKey
    * @return IDatabase
    */
-  public static function getInstance(DbConnection $dbConnection);
+  public static function getInstance(DbConnection $dbConnection, $apiKey);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
   /**
    * Funkce pro vytvoření uživatele a databáze na základě zadaných údajů
