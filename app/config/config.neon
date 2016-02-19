@@ -141,13 +141,12 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator(%xmlTransformations%)
 	- EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory(%install.version%)
 
-	- EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade(%databases%)
+	- EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade()
 	- EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade(%databases%)
 	- EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade(%usersPhotosDirectory%,%usersPhotosUrl%)
 	- EasyMinerCenter\Model\Data\Facades\DatabasesFacade
 	#todo
-	- EasyMinerCenter\Model\Data\Facades\NewDatabasesFacade
 	- EasyMinerCenter\Model\Data\Databases\DatabaseFactory(%databases%)
 
 	- EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade

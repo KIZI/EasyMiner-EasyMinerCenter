@@ -51,6 +51,24 @@ class Datasource extends Entity{
   }
 
   /**
+   * Funkce pro připravení entity nového datového zdroje podle DbConnection
+   *
+   * @param DbConnection $dbConnection
+   * @return Datasource
+   */
+  public static function newFromDbConnection(DbConnection $dbConnection) {
+    $datasource = new Datasource();
+    $datasource->dbName=$dbConnection->dbName;
+    $datasource->dbServer=$dbConnection->dbServer;
+    if (!empty($dbConnection->dbPort)){
+      $datasource->dbPort=$dbConnection->dbPort;
+    }
+    $datasource->dbUsername=$dbConnection->dbUsername;
+    $datasource->setDbPassword($dbConnection->dbPassword);
+    return $datasource;
+  }
+
+  /**
    * @return DbConnection
    */
   public function getDbConnection(){

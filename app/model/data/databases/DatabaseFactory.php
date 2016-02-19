@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\Model\Data\Databases;
 
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
 
 /**
  * Class DatabaseFactory - Factory třída pro vytváření připojení k DB
@@ -41,30 +42,74 @@ class DatabaseFactory {
     return $result;
   }
 
+
   /**
    * Funkce vracející výchozí připojení k databázi
    * @param string $dbType
+   * @param User $user
    * @return DbConnection
    */
-  public function getDatabaseDefaultDbConnection($dbType) {
-    //TODO implement
+  public function getDefaultDbConnection($dbType, User $user) {
+    $config=$this->getDatabaseConfig($dbType);
+    $dbConnection = new DbConnection();
+    $dbConnection->type=$dbType;
+    $dbConnection->dbServer=$config['server'];
+    if (!empty($config['port'])){
+      $dbConnection->dbPort=$config['port'];
+    }
+    //konfigurace připojení k DB
+    $dbConnection->dbName=str_replace('*',$user->userId,$config['_database']);
+    $dbConnection->dbUsername=str_replace('*',$user->userId,$config['_username']);
+    //heslo nastavujeme, pokud pro daný typ databáze není nastaveno na FALSE
+    if (isset($config['_password']) && !$config['_password']){
+      $dbConnection->dbPassword='';
+    }else{
+      $dbConnection->dbPassword=$user->getDbPassword();
+    }
+    return $dbConnection;
   }
 
   /**
    * Funkce vracející připojení k databázi
+   *
    * @param DbConnection $dbConnection
-   * @param string $apiKey
+   * @param User $user
+   * @return IDatabase
+   * @throws \Exception
    */
-  public function getDatabaseInstance(DbConnection $dbConnection, $apiKey) {
-    //TODO implement
+  public function getDatabaseInstance(DbConnection $dbConnection, User $user) {
+    if (empty(self::$dbTypeClasses[$dbConnection->type])){
+      throw new \Exception('Database driver "'.$dbConnection->type.'" not found!');
+    }
+    /** @var IDatabase $dbClass */
+    $dbClass=self::$dbTypeClasses[$dbConnection->type];
+    return new $dbClass($dbConnection, $user->getEncodedApiKey());
   }
 
   /**
    * Funkce vracející výchozí připojení k databázi
+   *
    * @param string $dbType
+   * @param User $user
+   * @return IDatabase
    */
-  public function getDatabaseDefaultInstance($dbType) {
-    //TODO
+  public function getDatabaseDefaultInstance($dbType, User $user) {
+    return $this->getDatabaseInstance($this->getDefaultDbConnection($dbType, $user), $user);
   }
 
+
+  //TODO doplnit další funkce...
+
+
+  /**
+   * @param string $dbType
+   * @return array
+   * @throws \Exception
+   */
+  public function getDatabaseConfig($dbType) {
+    if (!empty($this->databasesConfig[$dbType])){
+      return $this->databasesConfig[$dbType];
+    }
+    throw new \Exception('Database '.$dbType.' is not configured!');
+  }
 }

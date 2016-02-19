@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyMinerCenter\Model\Data\Databases;
+namespace EasyMinerCenter\Model\Data\Entities;
 
 /**
  * Class DbField
@@ -13,6 +13,10 @@ namespace EasyMinerCenter\Model\Data\Databases;
  * @property int $uniqueValuesSize
  */
 class DbField {
+  const TYPE_NOMINAL = 'nominal';
+  const TYPE_NUMERICAL = 'numerical';
+  const TYPE_STRING = self::TYPE_NOMINAL;
+
   public $id;
   public $dataSource;
   public $name;

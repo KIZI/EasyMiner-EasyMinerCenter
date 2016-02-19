@@ -25,6 +25,7 @@ class User extends Entity{
    * @return string
    */
   public function getDbPassword(){
+    //TODO původně to bylo znovu zakódováno...
     if (empty($this->row->db_password)){return null;}
     return StringsHelper::decodePassword($this->row->db_password);
   }

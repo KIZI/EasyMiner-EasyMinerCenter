@@ -1,9 +1,8 @@
 <?php
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
-use EasyMinerCenter\Model\Data\Facades\NewDatabasesFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
@@ -21,8 +20,6 @@ class NewDataPresenter extends BasePresenter{
 
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
-  /** @var  NewDatabasesFacade $databasesFacade */
-  private $newDatabasesFacade;
   /** @var  UsersFacade $usersFacade */
   private $usersFacade;
   /** @var  DatasourcesFacade $datasourcesFacade */
@@ -91,7 +88,7 @@ class NewDataPresenter extends BasePresenter{
     }
     foreach($columns as $column) {
       $resultArr['columnNames'][]=$column->name;
-      $resultArr['dataTypes'][]=($column->dataType==DbColumn::TYPE_STRING?'nominal':'numerical');
+      $resultArr['dataTypes'][]=($column->dataType==DbField::TYPE_STRING?'nominal':'numerical');
     }
     //načtení potřebných řádků...
     $resultArr['data']=$this->fileImportsFacade->getRowsFromCSV($file,$rowsCount,$delimiter,$enclosure,$escapeCharacter,$nullValue,1);
@@ -203,12 +200,6 @@ class NewDataPresenter extends BasePresenter{
    */
   public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade){
     $this->fileImportsFacade=$fileImportsFacade;
-  }
-  /**
-   * @param NewDatabasesFacade $newDatabasesFacade
-   */
-  public function injectNewDatabasesFacade(NewDatabasesFacade $newDatabasesFacade) {
-    $this->newDatabasesFacade=$newDatabasesFacade;
   }
   /**
    * @param UsersFacade $usersFacade

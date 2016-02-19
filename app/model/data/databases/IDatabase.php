@@ -1,8 +1,9 @@
 <?php
 
 namespace EasyMinerCenter\Model\Data\Databases;
-use EasyMinerCenter\Model\Data\Databases\Entities\DbDatasource;
+use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Entities\DbField;
 
 /**
  * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB

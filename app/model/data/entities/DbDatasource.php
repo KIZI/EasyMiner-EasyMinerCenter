@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyMinerCenter\Model\Data\Databases\Entities;
+namespace EasyMinerCenter\Model\Data\Entities;
 
 /**
  * Class DbDatasource - třída pro zabalení datového zdroje z datové služby

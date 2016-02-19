@@ -2,10 +2,9 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
-use EasyMinerCenter\Model\Data\Facades\NewDatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
@@ -22,36 +21,41 @@ use Nette\Utils\Strings;
  * @author Stanislav Vojíř
  */
 class DatasourcesFacade {
+  /** @var  DatabaseFactory $databaseFactory */
+  private $databaseFactory;
   /** @var DatasourcesRepository $datasourcesRepository */
   private $datasourcesRepository;
   /** @var  DatasourceColumnsRepository $datasourceColumnsRepository */
   private $datasourceColumnsRepository;
-  /** @var  NewDatabasesFacade $newDatabasesFacade */
-  private $newDatabasesFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
   /** @var array $databasesConfig - konfigurace jednotlivých připojení k DB */
   private $databasesConfig;
 
-  private static $dbTypesWithRemoteDatasources=['limited'];
+  private static $dbTypesWithRemoteDatasources=['limited','unlimited'];
 
   #region ///REVIDOVANÉ METODY///////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * Funkce pro aktualizaci informací o vzdálených datových zdrojích
+   *
    * @param User $user
    */
   public function updateRemoteDatasourcesByUser(User $user){
-    $this->newDatabasesFacade->setUser($user);
-    $dbTypes=$this->newDatabasesFacade->getDbTypes();
-    foreach(self::$dbTypesWithRemoteDatasources as $dbTypeId){
-      if (in_array($dbTypeId,$dbTypes)){
-        #region aktualizace datových zdrojů v DB
-        $dbDatasources=$this->newDatabasesFacade->getDbDatasources($dbTypeId);
-        exit(var_dump($dbDatasources));//FIXME
+    $supportedDbTypes = $this->databaseFactory->getDbTypes();
+
+    foreach(self::$dbTypesWithRemoteDatasources as $dbType){
+      if (in_array($dbType,$supportedDbTypes)){
+        //načteme datové zdroje ze vzdálené databáze
+        $database = $this->databaseFactory->getDatabaseDefaultInstance($dbType, $user);
+        $dbDatasources = $database->getDbDatasources();
+
+        //načteme seznam lokálních datových zdrojů
+        $datasources=$this->findDatasourcesByUser($user);
+
+        //porovnáme oba seznamy
         $updatedDatasourcesIds=[];
         $updatedDbDatasourcesIds=[];
-        $datasources=$this->findDatasourcesByUser($user);
         if (!empty($datasources)&&!empty($dbDatasources)){
           //zkusíme najít příslušné překrývající se datové zdroje
           foreach($datasources as $datasource){
@@ -72,6 +76,7 @@ class DatasourcesFacade {
         if (!empty($datasources)){
           foreach($datasources as $datasource){
             if($datasource->available && !in_array($datasource->remoteId,$updatedDatasourcesIds)){
+              //TODO výhledově podporovat datové zdroje na různých URL (aktuálně je přístup jen k výchozí vzdálené DB)
               //označení datového zdroje, který již není dostupný
               $datasource->available=false;
               $this->datasourcesRepository->persist($datasource);
@@ -92,15 +97,14 @@ class DatasourcesFacade {
             }
           }
         }
-        #endregion
       }
     }
     $this->datasourcesRepository->findAllBy(['user_id'=>$user]);
   }
 
-
   /**
    * Funkce pro získání seznamu dostupných datových zdrojů
+   *
    * @param User $user
    * @param bool $onlyAvailable=false
    * @return Datasource[]|null
@@ -113,24 +117,20 @@ class DatasourcesFacade {
     return $this->datasourcesRepository->findAllBy($selectParams);
   }
 
-  #endregion ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * @param array $databasesConfig
+   * @param DatabaseFactory $databaseFactory
    * @param DatasourcesRepository $datasourcesRepository
    * @param DatasourceColumnsRepository $datasourceColumnsRepository
-   * @param DatabasesFacade $databasesFacade
    */
-  public function __construct($databasesConfig, DatasourcesRepository $datasourcesRepository, DatasourceColumnsRepository $datasourceColumnsRepository, DatabasesFacade $databasesFacade, NewDatabasesFacade $newDatabasesFacade) {
+  public function __construct(DatabaseFactory $databaseFactory, DatasourcesRepository $datasourcesRepository, DatasourceColumnsRepository $datasourceColumnsRepository) {
+    $this->databaseFactory = $databaseFactory;
     $this->datasourcesRepository = $datasourcesRepository;
     $this->datasourceColumnsRepository = $datasourceColumnsRepository;
-    $this->databasesConfig = $databasesConfig;
-    if (!empty($this->databasesConfig['mysql']) && empty($this->databasesConfig['limited'])){//TODO opravit identifikaci databází
-      $this->databasesConfig['limited']=$this->databasesConfig['mysql'];
-    }
-    $this->databasesFacade = $databasesFacade;
-    $this->newDatabasesFacade=$newDatabasesFacade;
   }
+
+  #endregion ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
   /**
    * @param int $id
@@ -286,29 +286,10 @@ class DatasourcesFacade {
    * @throws \Nette\Application\ApplicationException
    * @return Datasource
    */
-  public function prepareNewDatasourceForUser(User $user,$dbType,$ignoreCheck=false){
+  public function prepareNewDatasourceForUser($dbType, User $user,$ignoreCheck=false){
 
-    $datasource=new Datasource();
-    if (!in_array($dbType,$this->databasesFacade->getDatabaseTypes()) || !isset($this->databasesConfig[$dbType])){
-      throw new BadRequestException('Unsupported type of database!',500);
-    }
-    $databaseConfig=$this->databasesConfig[$dbType];
-
-    $datasource->type=$dbType;
-    $datasource->user=$user;
-    $datasource->dbName=str_replace('*',$user->userId,$databaseConfig['_database']);
-    $datasource->dbUsername=str_replace('*',$user->userId,$databaseConfig['_username']);
-    if (isset($databaseConfig['_password']) && !$databaseConfig['_password']){
-      $datasource->setDbPassword('');
-    }else{
-      $datasource->setDbPassword($this->getUserDbPassword($user));
-    }
-    $datasource->dbServer=$databaseConfig['server'];
-    if (!empty($databaseConfig['port'])){
-      $datasource->dbPort=$databaseConfig['port'];
-    }
-
-    $dbConnection=$datasource->getDbConnection();
+    $defaultDbConnection=$this->databaseFactory->getDefaultDbConnection($dbType, $user);
+    $datasource = Datasource::newFromDbConnection($defaultDbConnection);
 
     if ($dbType==DatabasesFacade::DB_TYPE_DBS_UNLIMITED){return $datasource;}
 
@@ -316,13 +297,14 @@ class DatasourcesFacade {
       return $datasource;
     }
 
+    //FIXME aktualizovat pro kompatibilitu s datovou službou
     //TODO tato kontrola by neměla být prováděna při každém requestu...
     try{
-      $this->databasesFacade->openDatabase($dbConnection);
+      $this->databasesFacade->openDatabase($defaultDbConnection);
     }catch (\Exception $e){
       //pokud došlo k chybě, pokusíme se vygenerovat uživatelský účet a databázi
       $this->databasesFacade->openDatabase($this->getAdminDbConnection($dbType));
-      if (!$this->databasesFacade->createUserDatabase($dbConnection)){
+      if (!$this->databasesFacade->createUserDatabase($defaultDbConnection)){
         throw new \Exception('Database creation failed!');
       }
     }
@@ -335,6 +317,7 @@ class DatasourcesFacade {
    * @return string
    */
   private function getUserDbPassword(User $user){
+    //TODO remove...
     return Strings::substring($user->getDbPassword(),2,3).Strings::substring(sha1($user->userId.$user->getDbPassword()),4,5);
   }
 
@@ -343,15 +326,15 @@ class DatasourcesFacade {
    * @param string $dbType
    * @return DbConnection
    */
-  private function getAdminDbConnection($dbType){
+  public function getAdminDbConnection($dbType){
     $dbConnection=new DbConnection();
     $databaseConfig=$this->databasesConfig[$dbType];
     $dbConnection->type=$dbType;
-    $dbConnection->dbUsername=$databaseConfig['username'];
-    $dbConnection->dbPassword=$databaseConfig['password'];
-    $dbConnection->dbServer=$databaseConfig['server'];
-    if (!empty($databaseConfig['port'])){
-      $dbConnection->dbPort=$databaseConfig['port'];
+    $dbConnection->dbUsername=(!empty($databaseConfig['data_username'])?$databaseConfig['data_username']:@$databaseConfig['username']);
+    $dbConnection->dbPassword=(!empty($databaseConfig['data_password'])?$databaseConfig['data_password']:@$databaseConfig['password']);
+    $dbConnection->dbServer=(!empty($databaseConfig['data_server'])?$databaseConfig['data_server']:@$databaseConfig['server']);
+    if (!empty($databaseConfig['data_port'])){
+      $dbConnection->dbPort=$databaseConfig['data_port'];
     }
     return $dbConnection;
   }

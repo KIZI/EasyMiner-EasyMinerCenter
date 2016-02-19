@@ -1,5 +1,7 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 
 /**
@@ -10,6 +12,8 @@ use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 class DatabasesPresenter extends BaseResourcePresenter {
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
+  /** @var  DatabaseFactory $databaseFactory */
+  private $databaseFactory;
   /** @var  string $dbType */
   public $dbType;
 
@@ -48,21 +52,29 @@ class DatabasesPresenter extends BaseResourcePresenter {
    *   )
    * )
    */
-  public function actionRead($dbType) {
+  public function actionRead($dbType) {//TODO opravit
     $this->setXmlMapperElements('database');
     $dbType=strtolower($dbType);
-    if ($dbType=='limited'||$dbType=='unlimited'){
-      $dbType='dbs_'.$dbType;
-    }
-    //připravení informací o datovém zdroji pro konkrétního uživatele...
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->currentUser,$dbType,true);//FIXME parametr pro zrušení kontroly dostupnosti databáze
 
-    $arr=[
-      'server'=>$datasource->dbServer
-    ];
-    if (!empty($datasource->dbPort)){
-      $arr['port']=$datasource->dbPort;
+    //připravení informací o datovém zdroji pro konkrétního uživatele...
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($dbType, $this->currentUser,true);//FIXME parametr pro zrušení kontroly dostupnosti databáze
+
+    if ($dbType==DbConnection::TYPE_LIMITED || $dbType==DbConnection::TYPE_UNLIMITED){
+      //TODO dočasná úprava pro datovou službu...
+      $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
+      $arr['server']=$databaseConfig['data_server'];
+      if (!empty($databaseConfig['data_port'])){
+        $arr['data_port']=$databaseConfig['data_port'];
+      }
+    }else{
+      $arr=[
+        'server'=>$datasource->dbServer
+      ];
+      if (!empty($datasource->dbPort)){
+        $arr['port']=$datasource->dbPort;
+      }
     }
+
     if (!empty($datasource->dbUsername)){
       $arr['username']=$datasource->dbUsername;
     }
@@ -79,7 +91,19 @@ class DatabasesPresenter extends BaseResourcePresenter {
   }
 
 
+  #region injections
+  /**
+   * @param DatasourcesFacade $datasourcesFacade
+   */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade) {
     $this->datasourcesFacade=$datasourcesFacade;
   }
+
+  /**
+   * @param DatabaseFactory $databaseFactory
+   */
+  public function injectDatabaseFactory(DatabaseFactory $databaseFactory) {
+    $this->databaseFactory=$databaseFactory;
+  }
+  #endregion injections
 }
