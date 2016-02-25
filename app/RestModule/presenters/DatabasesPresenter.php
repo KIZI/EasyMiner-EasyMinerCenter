@@ -64,7 +64,7 @@ class DatabasesPresenter extends BaseResourcePresenter {
       $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
       $arr['server']=$databaseConfig['data_server'];
       if (!empty($databaseConfig['data_port'])){
-        $arr['data_port']=$databaseConfig['data_port'];
+        $arr['port']=$databaseConfig['data_port'];
       }
     }else{
       $arr=[
