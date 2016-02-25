@@ -47,7 +47,7 @@ class DatasourcesFacade {
     foreach(self::$dbTypesWithRemoteDatasources as $dbType){
       if (in_array($dbType,$supportedDbTypes)){
         //načteme datové zdroje ze vzdálené databáze
-        $database = $this->databaseFactory->getDatabaseDefaultInstance($dbType, $user);
+        $database = $this->databaseFactory->getDatabaseInstanceWithDefaultDbConnection($dbType, $user);
         $dbDatasources = $database->getDbDatasources();
 
         //načteme seznam lokálních datových zdrojů
@@ -287,10 +287,8 @@ class DatasourcesFacade {
    * @return Datasource
    */
   public function prepareNewDatasourceForUser($dbType, User $user,$ignoreCheck=false){
-
     $defaultDbConnection=$this->databaseFactory->getDefaultDbConnection($dbType, $user);
     $datasource = Datasource::newFromDbConnection($defaultDbConnection);
-
     if ($dbType==DatabasesFacade::DB_TYPE_DBS_UNLIMITED){return $datasource;}
 
     if ($ignoreCheck){//FIXME
@@ -300,6 +298,7 @@ class DatasourcesFacade {
     //FIXME aktualizovat pro kompatibilitu s datovou službou
     //TODO tato kontrola by neměla být prováděna při každém requestu...
     try{
+      $database=$this->databaseFactory->getDatabaseInstance($defaultDbConnection,$user);
       $this->databasesFacade->openDatabase($defaultDbConnection);
     }catch (\Exception $e){
       //pokud došlo k chybě, pokusíme se vygenerovat uživatelský účet a databázi

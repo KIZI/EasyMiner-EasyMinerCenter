@@ -154,7 +154,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
 
     //prepare new datasource
     /** @var Datasource $datasource */
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($this->getCurrentUser(),$inputData['type']);
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser('mysql'/*TODO*/,$this->getCurrentUser(),$inputData['type']);
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $inputData['name']=$this->databasesFacade->prepareNewTableName($inputData['name']);
     $datasource->dbTable=$inputData['name'];

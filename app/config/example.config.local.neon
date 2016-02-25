@@ -45,16 +45,19 @@ parameters:
             password:
             server: localhost
             allowFileImport: true
-        dbs_limited:
+        limited:
             _username: 'user*'
             _database: 'user*'
-            username: root
-            password:
-            server: "URL datové služby"
-        dbs_unlimited:
+            server: 'db server'
+            username: 'db admin username'
+            password: 'db admin password'
+            api: "URL datové služby"
+        unlimited:
             _username: 'user*'
             _database: 'user*'
-            server: "URL datové služby"
+            server: 'db server'
+            port: 'db port'
+            api: "URL datové služby"
 
 facebook:
     appId: ""

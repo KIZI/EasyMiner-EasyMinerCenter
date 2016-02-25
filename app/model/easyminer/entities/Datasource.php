@@ -11,11 +11,10 @@ use LeanMapper\Entity;
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
- * @property string $name
  * @property int|null $remoteId = null
  * @property bool $available = true
- *
- * @property string $dbServer
+ * @property string|null $dbServer = null
+ * @property string|null $dbApi = null
  * @property int|null $dbPort = null
  * @property string $dbUsername
  * @property string $dbName
@@ -60,6 +59,7 @@ class Datasource extends Entity{
     $datasource = new Datasource();
     $datasource->dbName=$dbConnection->dbName;
     $datasource->dbServer=$dbConnection->dbServer;
+    $datasource->dbApi = $dbConnection->dbApi;
     if (!empty($dbConnection->dbPort)){
       $datasource->dbPort=$dbConnection->dbPort;
     }
@@ -77,6 +77,7 @@ class Datasource extends Entity{
     $dbConnection->dbUsername=$this->dbUsername;
     $dbConnection->dbPassword=$this->getDbPassword();
     $dbConnection->dbPort=$this->dbPort;
+    $dbConnection->dbApi=$this->dbApi;
     $dbConnection->dbServer=$this->dbServer;
     $dbConnection->type=$this->type;
     return $dbConnection;

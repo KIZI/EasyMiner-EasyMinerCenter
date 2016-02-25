@@ -28,7 +28,7 @@ class DatabaseFactory {
   }
 
   /**
-   * Funcke vracející informace o nakonfigurovaných databázích
+   * Funkce vracející informace o nakonfigurovaných databázích
    * @return string[]
    */
   public function getDbTypes() {
@@ -53,16 +53,19 @@ class DatabaseFactory {
     $config=$this->getDatabaseConfig($dbType);
     $dbConnection = new DbConnection();
     $dbConnection->type=$dbType;
-    $dbConnection->dbServer=$config['server'];
-    if (!empty($config['port'])){
-      $dbConnection->dbPort=$config['port'];
-    }
+    $dbConnection->dbApi=!empty($config['api'])?$config['api']:null;
+    $dbConnection->dbServer=!empty($config['server'])?$config['server']:null;
+    $dbConnection->dbPort=!empty($config['port'])?$config['port']:null;
     //konfigurace připojení k DB
     $dbConnection->dbName=str_replace('*',$user->userId,$config['_database']);
     $dbConnection->dbUsername=str_replace('*',$user->userId,$config['_username']);
     //heslo nastavujeme, pokud pro daný typ databáze není nastaveno na FALSE
-    if (isset($config['_password']) && !$config['_password']){
-      $dbConnection->dbPassword='';
+    if (isset($config['_password'])){
+      if (!$config['_password']){
+        $dbConnection->dbPassword='';
+      }else{
+        $dbConnection->dbPassword=$config['_password'];
+      }
     }else{
       $dbConnection->dbPassword=$user->getDbPassword();
     }
@@ -93,7 +96,7 @@ class DatabaseFactory {
    * @param User $user
    * @return IDatabase
    */
-  public function getDatabaseDefaultInstance($dbType, User $user) {
+  public function getDatabaseInstanceWithDefaultDbConnection($dbType, User $user) {
     return $this->getDatabaseInstance($this->getDefaultDbConnection($dbType, $user), $user);
   }
 

@@ -55,26 +55,27 @@ class DatabasesPresenter extends BaseResourcePresenter {
   public function actionRead($dbType) {//TODO opravit
     $this->setXmlMapperElements('database');
     $dbType=strtolower($dbType);
-
+    if ($this->currentUser->userId=='8'){
+      $this->currentUser->setDbPassword('yOhf953a');
+    }
     //připravení informací o datovém zdroji pro konkrétního uživatele...
     $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($dbType, $this->currentUser,true);//FIXME parametr pro zrušení kontroly dostupnosti databáze
 
-    if ($dbType==DbConnection::TYPE_LIMITED || $dbType==DbConnection::TYPE_UNLIMITED){
-      //TODO dočasná úprava pro datovou službu...
-      $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
-      $arr['server']=$databaseConfig['data_server'];
-      if (!empty($databaseConfig['data_port'])){
-        $arr['port']=$databaseConfig['data_port'];
-      }
-    }else{
-      $arr=[
-        'server'=>$datasource->dbServer
-      ];
-      if (!empty($datasource->dbPort)){
-        $arr['port']=$datasource->dbPort;
-      }
+    $dbConnection=$datasource->getDbConnection();
+    #region sestavení data arr
+    $result=[];
+    if (!empty($dbConnection->dbServer)){
+      $result['server']=$dbConnection->dbServer;
     }
+    if (!empty($dbConnection->dbApi)){
+      $result['api']=$dbConnection->dbApi;
+    }
+    if (!empty($dbConnection->dbPort)){
+      $result['port']=$dbConnection->dbPort;
+    }
+    #endregion sestavení data arr
 
+    $arr=&$result;
     if (!empty($datasource->dbUsername)){
       $arr['username']=$datasource->dbUsername;
     }

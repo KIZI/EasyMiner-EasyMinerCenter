@@ -25,6 +25,11 @@ class NewDataPresenter extends BasePresenter{
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
 
+  public function actionDefault() {
+    $this->redirect('newMiner');
+    //TODO pravděpodobně odstranit...
+  }
+
   #region vytvoření nového mineru
 
   /**
@@ -33,7 +38,7 @@ class NewDataPresenter extends BasePresenter{
   public function renderNewMiner(){
     $currentUser=$this->getCurrentUser();
     $this->template->miners=$this->minersFacade->findMinersByUser($currentUser);
-    $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
+    $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);exit('--xem');
     $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser);
   }
 

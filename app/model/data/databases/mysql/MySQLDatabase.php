@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\Data\Entities\DbColumn;
 use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
+use EasyMinerCenter\Model\Data\Entities\DbField;
 use Nette\Utils\Strings;
 use \PDO;
 
@@ -529,4 +530,15 @@ class MySQLDatabase implements IDatabase{
    */
   public function getDbDatasources() {
     // TODO: Implement getDbDatasources() method.
-  }}
+  }
+
+  /**
+   * Funkce vracející seznam sloupců v datovém zdroji
+   *
+   * @param DbDatasource $dbDatasource
+   * @return DbField[]
+   */
+  public function getDbFields(DbDatasource $dbDatasource) {
+    // TODO: Implement getDbFields() method.
+  }
+}

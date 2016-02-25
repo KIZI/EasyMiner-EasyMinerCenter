@@ -25,8 +25,8 @@ class DatabasesFacade {
   const DB_TYPE_MYSQL='mysql';
   const DB_TYPE_DBS_LIMITED='limited';
   const DB_TYPE_DBS_UNLIMITED='unlimited';
-  const DB_CLASS_MYSQL='\EasyMinerCenter\Model\Data\Databases\MySQLDatabase';
-  const DB_CLASS_DATA_SERVICE='\EasyMinerCenter\Model\Data\Databases\MySQLDatabase';
+  const DB_CLASS_MYSQL='\EasyMinerCenter\Model\Data\Databases\MySQL\MySQLDatabase';
+  const DB_CLASS_DATA_SERVICE='\EasyMinerCenter\Model\Data\Databases\MySQL\MySQLDatabase';
   //TODO doplnění nových ovladačů pro přístup k datové službě
 
   /**

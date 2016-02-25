@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use Nette\Utils\Json;
+use Nette\Utils\Strings;
 
 /**
  * Class DataServiceDatabase - třída zajišťující přístup k databázím dostupným prostřednictvím služby EasyMiner-Data
@@ -31,7 +32,7 @@ use Nette\Utils\Json;
 
     $result=[];
     if (!empty($responseData)){
-      exit(var_dump($responseData));
+      exit(var_dump($responseData));//FIXME
       foreach($responseData as $item){
         $result[]=new DbDatasource($item['id'],$item['name'],$item['type'],$item['size']);
       }
@@ -69,7 +70,11 @@ use Nette\Utils\Json;
    * @return string
    */
   private function getRequestUrl($relativeUrl){
-    return $this->dbConnection->dbServer.$relativeUrl;
+    $url=$this->dbConnection->dbApi;
+    if (Strings::endsWith($url,'/')){
+      $url=rtrim($url,'/');
+    }
+    return $url.$relativeUrl;
   }
 
   /**
@@ -84,12 +89,13 @@ use Nette\Utils\Json;
    * @throws \Exception - curl error
    */
   private function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], &$responseCode=null){
+    //XXX exit(var_dump($url));
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch,CURLOPT_MAXREDIRS,0);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    if (empty($headersArr['Content-Type'])){
+    if (empty($headersArr['Content-Type']) & !empty($postData)){
       $headersArr['Content-Type']='application/xml; charset=utf-8';
     }
     if (!empty($this->apiKey)){
@@ -105,7 +111,7 @@ use Nette\Utils\Json;
     $httpHeadersArr=[];
     if (!empty($headersArr)){
       foreach($headersArr as $header=>$value){
-        $headersArr[]=$header.': '.$value;
+        $httpHeadersArr[]=$header.': '.$value;
       }
     }
     curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeadersArr);
