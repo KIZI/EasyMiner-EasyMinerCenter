@@ -25,17 +25,20 @@ class DataPresenter extends BasePresenter{
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
 
-  public function actionDefault() {
-    $this->redirect('newMiner');
-    //TODO pravděpodobně odstranit...
-  }
 
   #region vytvoření nového mineru
 
   /**
+   * Akce pro vytvoření nového mineru - výchozí pohled...
+   */
+  public function actionNewMiner() {
+    $this->redirect('default');
+  }
+
+  /**
    * Akce pro založení nového EasyMineru či otevření stávajícího
    */
-  public function renderNewMiner(){
+  public function renderDefault(){
     $currentUser=$this->getCurrentUser();
     $this->template->miners=$this->minersFacade->findMinersByUser($currentUser);
     $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
@@ -48,6 +51,7 @@ class DataPresenter extends BasePresenter{
 
   public function renderUpload() {
     //akce pro upload souboru...
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->template->apiKey=$this->user->getIdentity()->apiKey;
     $this->template->dataServiceUrl='http://br-dev.lmcloud.vse.cz/easyminer-data/api/v1/';//TOOD načtení URL z configu
   }

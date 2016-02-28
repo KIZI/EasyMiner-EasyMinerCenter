@@ -15,7 +15,7 @@
     {if $user->id==$selectedUser->userId}
       <div class="actions">
         <a href="{link changePassword}" >{if !empty($selectedUser->password)}{_'Change password'}{else}{_'Define password'}{/if}</a>
-        <a href="{link Data:newMiner}" >{_'Show tasks list'}</a>
+        <a href="{link Data:}" >{_'Show tasks list'}</a>
         <a href="{link logout}" >{_'Logout...'}</a>
       </div>
     {/if}
