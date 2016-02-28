@@ -4,10 +4,14 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
+use Nette\Application\UI\Presenter;
+use Nette\Forms\Controls\SubmitButton;
+use Nette\Forms\Controls\TextInput;
 
 /**
  * Class DataPresenter
@@ -44,6 +48,120 @@ class DataPresenter extends BasePresenter{
     $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
     $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser);
   }
+
+  /**
+   * Akce pro vytvoření mineru nad konkrétním datovým zdrojem
+   * @param int $datasource
+   * @throws BadRequestException
+   */
+  public function renderNewMinerFromDatasource($datasource){
+    try{
+      $datasource=$this->datasourcesFacade->findDatasourceWithCheckAccess($datasource, $this->getCurrentUser());
+    }catch (\Exception $e){
+      throw new BadRequestException('Requested datasource was not found!',404,$e);
+    }
+
+    #region kontrola, jestli je daný datový zdroj namapován na knowledge base
+    /*TODO refaktorovat... (zároveň je v MinersPresenteru v REST modulu)
+    if (!$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true)){
+      foreach ($datasource->datasourceColumns as $datasourceColumn){
+        if (empty($datasourceColumn->format)){
+          //automatické vytvoření formátu
+          $metaAttribute=$this->metaAttributesFacade->findOrCreateMetaAttributeWithName(Strings::lower($datasourceColumn->name));
+          $existingFormats=$this->metaAttributesFacade->findFormatsForUser($metaAttribute,$this->user->getId());
+          $existingFormatNames=[];
+          if (!empty($existingFormats)){
+            foreach ($existingFormats as $format){
+              $existingFormatNames[]=$format->name;
+            }
+          }
+          $basicFormatName=str_replace('-','_',Strings::webalize($datasource->dbTable));
+          $i=1;
+          do{
+            $formatName=$basicFormatName.($i>1?'_'.$i:'');
+            $i++;
+          }while(in_array($formatName,$existingFormatNames));
+          $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
+          $formatType=($datasourceColumn->type==DatasourceColumn::TYPE_STRING?Format::DATATYPE_VALUES:Format::DATATYPE_INTERVAL);
+          $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$datasourceColumnValuesStatistic,$formatType,false,$this->user->getId());
+          $datasourceColumn->format=$format;
+          $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
+        }
+      }
+    }
+    */
+    #endregion kontrola, jestli je daný datový zdroj namapován na knowledge base
+
+    $this->template->datasource=$datasource;
+    /** @var Form $form */
+    $form=$this->getComponent('newMinerForm');
+    $dateTime=new \DateTime();
+    $form->setDefaults(array('datasource'=>$datasource->datasourceId,'datasourceName'=>$datasource->type.': '.$datasource->getName(),'name'=>$datasource->dbTable.' '.$dateTime->format('Y-m-d H:i:s')));
+  }
+
+  /**
+   * Funkce pro vytvoření formuláře pro zadání nového mineru z existujícího datového zdroje
+   * @return Form
+   * @throws \Exception
+   */
+  public function createComponentNewMinerForm() {
+    $form = new Form();
+    $form->setTranslator($this->translator);
+    $form->addHidden('datasource');
+    $form->addText('datasourceName','Datasource:')
+      ->setAttribute('class','noBorder normalWidth')
+      ->setAttribute('readonly');
+    $form->addText('name', 'Miner name:')
+      ->setRequired('Input the miner name!')
+      ->setAttribute('autofocus')
+      ->setAttribute('class','normalWidth')
+      ->addRule(Form::MAX_LENGTH,'Max length of miner name is %s characters!',100)
+      ->addRule(Form::MIN_LENGTH,'Min length of miner name is %s characters!',3)
+      ->addRule(function(TextInput $control){
+        try{
+          $miner=$this->minersFacade->findMinerByName($this->getCurrentUser()->userId,$control->value);
+          if ($miner instanceof Miner){
+            return false;
+          }
+        }catch (\Exception $e){/*chybu ignorujeme (nenalezený miner je OK)*/}
+        return true;
+      },'Miner with this name already exists!');
+
+    $availableMinerTypes=$this->minersFacade->getAvailableMinerTypes();
+    if (empty($availableMinerTypes)){
+      throw new \Exception('No miner type found! Please check the configuration...');
+    }
+    $form->addSelect('type','Miner type:',$availableMinerTypes)
+      ->setAttribute('class','normalWidth')
+      ->setDefaultValue(Miner::DEFAULT_TYPE);
+
+    $form->addSubmit('submit','Create miner...')
+      ->onClick[]=function(SubmitButton $submitButton){
+      /** @var Form $form */
+      $form=$submitButton->form;
+      $values=$form->getValues();
+      $miner=new Miner();
+      $miner->user=$this->usersFacade->findUser($this->user->id);
+      $miner->name=$values['name'];
+      $miner->datasource=$this->datasourcesFacade->findDatasource($values['datasource']);
+      $miner->created=new \DateTime();
+      $miner->type=$values['type'];
+      $this->minersFacade->saveMiner($miner);
+      $this->redirect('Data:openMiner',array('id'=>$miner->minerId));
+    };
+    $form->addSubmit('storno','storno')
+      ->setValidationScope(array())
+      ->onClick[]=function(SubmitButton $button){
+      /** @var Presenter $presenter */
+      $presenter=$button->form->getParent();
+      $presenter->redirect('Data:');
+    };
+    return $form;
+  }
+
+
+
+
 
   #endregion
 
@@ -194,6 +312,26 @@ class DataPresenter extends BasePresenter{
   }
 
   #endregion
+
+
+  #region otevření mineru
+
+  /**
+   * Akce pro otevření existujícího mineru
+   * @param int $id
+   * @throws BadRequestException
+   */
+  public function actionOpenMiner($id){
+    $miner=$this->findMinerWithCheckAccess($id);
+
+    //zaktualizujeme info o posledním otevření mineru
+    $miner->lastOpened=new \DateTime();
+    $this->minersFacade->saveMiner($miner);
+
+    $this->redirect('MiningUi:default',['id_dm'=>$miner->minerId]);
+  }
+
+  #endregion otevření mineru
 
   /**
    * Funkce vracející entitu konkrétního uživatele

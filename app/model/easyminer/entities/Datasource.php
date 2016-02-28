@@ -11,7 +11,7 @@ use LeanMapper\Entity;
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
- * @property string $name = ""
+ * @property string|null $name = null
  * @property int|null $remoteId = null
  * @property bool $available = true
  * @property string|null $dbServer = null
@@ -44,10 +44,22 @@ class Datasource extends Entity{
     return [
       'id'=>$this->datasourceId,
       'type'=>$this->type,
-      'name'=>(!empty($this->name)?$this->name:$this->dbTable),
+      'name'=>$this->getName(),
       'remoteId'=>$this->remoteId,
       'available'=>$this->available
     ];
+  }
+
+  /**
+   * Funkce vracející název datového zdroje (pokud není definován, je vrácen název tabulky)
+   * @return string
+   */
+  public function getName() {
+    if (!empty($this->row->name)){
+      return $this->row->name;
+    }else{
+      return $this->dbTable;
+    }
   }
 
   /**

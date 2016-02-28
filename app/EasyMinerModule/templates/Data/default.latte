@@ -15,7 +15,9 @@
           <div id="existingDataSources">
             <h3>{_'New miner from existing datasource'}</h3>
             {foreach $datasources as $datasource}
-              <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}">{$datasource->type}: {$datasource->dbTable}</a>
+              <a href="{link Data:newMinerFromDatasource datasource=>$datasource->datasourceId}">
+                {$datasource->type}: {$datasource->getName()}
+              </a>
             {/foreach}
           </div>
         {/if}

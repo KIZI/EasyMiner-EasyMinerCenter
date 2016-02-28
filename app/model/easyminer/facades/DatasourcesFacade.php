@@ -2,10 +2,10 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
+use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
@@ -141,16 +141,36 @@ class DatasourcesFacade {
     $this->datasourceColumnsRepository = $datasourceColumnsRepository;
   }
 
-  #endregion ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
   /**
+   * Funkce pro nalezení datového zdroje dle zadaného ID
    * @param int $id
    * @return Datasource
    */
   public function findDatasource($id) {
     return $this->datasourcesRepository->find($id);
   }
+
+  /**
+   * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
+   * @param int $id
+   * @param User $user
+   * @return Datasource
+   * @throws EntityNotFoundException
+   */
+  public function findDatasourceWithCheckAccess($id, User $user) {
+    $datasource=$this->findDatasource($id);
+    if ($datasource->user->userId==$user->userId){
+      return $datasource;
+    }else{
+      throw new EntityNotFoundException('Requested datasource was not found!');
+    }
+  }
+
+
+  #endregion ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
   /**
    * @param Datasource|int $datasource
