@@ -1,7 +1,6 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
-use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 
 /**

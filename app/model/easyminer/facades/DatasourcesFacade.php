@@ -28,12 +28,10 @@ class DatasourcesFacade {
   private $datasourcesRepository;
   /** @var  DatasourceColumnsRepository $datasourceColumnsRepository */
   private $datasourceColumnsRepository;
-  /** @var  DatabasesFacade $databasesFacade */
-  private $databasesFacade;
   /** @var array $databasesConfig - konfigurace jednotlivých připojení k DB */
   private $databasesConfig;
-
-  private static $dbTypesWithRemoteDatasources=['limited','unlimited'];
+  /** @var string[] $dbTypesWithRemoteDatasources - seznam typů databází, ve kterých se nacházejí vzdálené datové zdroje */
+  private static $dbTypesWithRemoteDatasources=[DbConnection::TYPE_LIMITED,DbConnection::TYPE_UNLIMITED];
 
   #region ///REVIDOVANÉ METODY///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -235,7 +233,7 @@ class DatasourcesFacade {
    * @throws \LeanMapper\Exception\InvalidStateException
    * @throws \Nette\Application\ApplicationException
    */
-  public function reloadDatasourceColumns(Datasource &$datasource){
+  public function reloadDatasourceColumns(Datasource &$datasource){/*TODO
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $datasourceColumns=$datasource->datasourceColumns;
     $datasourceColumnsArr=array();
@@ -244,13 +242,13 @@ class DatasourcesFacade {
         $datasourceColumnsArr[$datasourceColumn->name]=$datasourceColumn;
       }
     }
-
-    /** @var DbColumn[] $dbColumns */
     $dbColumns = $this->databasesFacade->getColumns($datasource->dbTable);
 
     if (!empty($dbColumns)) {
       foreach ($dbColumns as $dbColumn) {
-        if ($dbColumn->name=='id'){continue;/*ignorujeme sloupec s ID*/}
+        if ($dbColumn->name=='id'){
+          continue;//ignorujeme sloupec s ID
+        }
         if (isset($datasourceColumnsArr[$dbColumn->name])) {
           unset($datasourceColumnsArr[$dbColumn->name]);
         } else {
@@ -277,7 +275,7 @@ class DatasourcesFacade {
       }
     }
 
-    $datasource=$this->findDatasource($datasource->datasourceId);
+    $datasource=$this->findDatasource($datasource->datasourceId);*/
   }
   /**
    * @param Datasource|int $datasource
@@ -303,14 +301,14 @@ class DatasourcesFacade {
   public function prepareNewDatasourceForUser($dbType, User $user,$ignoreCheck=false){
     $defaultDbConnection=$this->databaseFactory->getDefaultDbConnection($dbType, $user);
     $datasource = Datasource::newFromDbConnection($defaultDbConnection);
-    if ($dbType==DatabasesFacade::DB_TYPE_DBS_UNLIMITED){return $datasource;}
+    if ($dbType==DbConnection::TYPE_UNLIMITED){return $datasource;}
 
     if ($ignoreCheck){//FIXME
       return $datasource;
     }
 
     //FIXME aktualizovat pro kompatibilitu s datovou službou
-    //TODO tato kontrola by neměla být prováděna při každém requestu...
+    /*TODO tato kontrola by neměla být prováděna při každém requestu...
     try{
       $database=$this->databaseFactory->getDatabaseInstance($defaultDbConnection,$user);
       $this->databasesFacade->openDatabase($defaultDbConnection);
@@ -320,7 +318,7 @@ class DatasourcesFacade {
       if (!$this->databasesFacade->createUserDatabase($defaultDbConnection)){
         throw new \Exception('Database creation failed!');
       }
-    }
+    }*/
     return $datasource;
   }
 
@@ -353,64 +351,17 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro odstranění datového sloupce z databáze
-   * @param Datasource|int $datasource
-   * @param DatasourceColumn|int $column
-   * @return bool
-   */
-  public function deleteDatasourceColumn($datasource, $column){
-    if (!$datasource instanceof Datasource){
-      $datasource=$this->findDatasource($datasource);
-    }
-    if (!($column instanceof DatasourceColumn)){
-      $column=$this->findDatasourceColumn($datasource,$column);
-    }
-    $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    if ($this->databasesFacade->deleteColumn($datasource->dbTable,$column->name)){
-      $this->datasourceColumnsRepository->delete($column);
-      $this->reloadDatasourceColumns($datasource);
-      return true;
-    }else{
-      $this->reloadDatasourceColumns($datasource);
-      return false;
-    }
-  }
-
-  /**
-   * Funkce pro přejmenování datového sloupce v databázi
-   * @param Datasource|int $datasource
-   * @param DatasourceColumn|int $column
-   * @param string $newName
-   * @return bool
-   */
-  public function renameDatasourceColumn($datasource, $column, $newName){
-    if (!($datasource instanceof Datasource)){
-      $datasource=$this->findDatasource($datasource);
-    }
-    if (!($column instanceof DatasourceColumn)){
-      $column=$this->findDatasourceColumn($datasource,$column);
-    }
-    $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    if ($this->databasesFacade->renameColumn($datasource->dbTable,$column->name,$newName)){
-      $column->name=$newName;
-      $this->saveDatasourceColumn($column);
-      $this->reloadDatasourceColumns($datasource);
-      return true;
-    }else{
-      $this->reloadDatasourceColumns($datasource);
-      return false;
-    }
-  }
-
-  /**
    * Funkce pro export pole s informacemi z DataDictionary a TransformationDictionary
    * @param Datasource $datasource
    * @param Metasource|null $metasource
    * @return array
    */
   public function exportDictionariesArr(Datasource $datasource,Metasource $metasource=null) {
+    $output=array('dataDictionary'=>array(),'transformationDictionary'=>array(),'recordCount'=>0/*TODO*/);
+    return $output;//FIXME implementovat zbytek funkce...
+
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    $output=array('dataDictionary'=>array(),'transformationDictionary'=>array(),'recordCount'=>$this->databasesFacade->getRowsCount($datasource->dbTable));
+
 
     #region datafields
     foreach($datasource->datasourceColumns as $datasourceColumn){

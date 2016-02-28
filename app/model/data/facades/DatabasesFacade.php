@@ -1,7 +1,7 @@
 <?php
 namespace EasyMinerCenter\Model\Data\Facades;
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
-use EasyMinerCenter\Model\Data\Entities\DbDatasource;
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 
 /**
@@ -35,12 +35,16 @@ class DatabasesFacade{
    * @param bool $assocWithNames=false
    * @return string[]|array
    */
-  public function getDbTypes($assocWithNames=false) {
-    //TODO implement
+  public function getDbTypes($assocWithNames=false) {//TODO remove?
+    //TODO implementovat kontrolu dostupných (nakonfigurovaných) typů databází
     if ($assocWithNames){
-      return ['mysql'=>'MySQL','limited'=>'Limited data service DB','unlimited'=>'Unlimited data service DB'];
+      return [
+        DbConnection::TYPE_MYSQL=>DbConnection::TYPE_MYSQL_NAME,
+        DbConnection::TYPE_LIMITED=>DbConnection::TYPE_LIMITED_NAME,
+        DbConnection::TYPE_UNLIMITED=>DbConnection::TYPE_UNLIMITED_NAME
+      ];
     }else{
-      return ['mysql','limited','unlimited'];
+      return [DbConnection::TYPE_MYSQL,DbConnection::TYPE_LIMITED,DbConnection::TYPE_UNLIMITED];
     }
 
   }
@@ -54,17 +58,5 @@ class DatabasesFacade{
     return 'mysql';
   }
 
-  /**
-   * Funkce vracející datové zdroje ve zvolené databázi
-   * @param string $dbType
-   * @return DbDatasource[]
-   */
-  public function getDbDatasources($dbType){
-    //FIXME implement
-    exit(var_dump($this->databaseFactory->getDbTypes()));
-
-    $database=$this->getDatabase($dbType);
-    return $database->getDbDatasources();
-  }
 
 }
