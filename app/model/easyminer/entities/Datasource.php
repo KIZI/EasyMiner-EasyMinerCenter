@@ -11,6 +11,7 @@ use LeanMapper\Entity;
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
+ * @property string $name = ""
  * @property int|null $remoteId = null
  * @property bool $available = true
  * @property string|null $dbServer = null

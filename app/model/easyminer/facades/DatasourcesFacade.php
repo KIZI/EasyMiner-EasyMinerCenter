@@ -4,6 +4,7 @@ namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
@@ -43,63 +44,76 @@ class DatasourcesFacade {
    */
   public function updateRemoteDatasourcesByUser(User $user){
     $supportedDbTypes = $this->databaseFactory->getDbTypes();
-
+    #region připravení seznamu externích
+    /** @var DbDatasource[] $dbDatasources */
+    $dbDatasources=[];
     foreach(self::$dbTypesWithRemoteDatasources as $dbType){
       if (in_array($dbType,$supportedDbTypes)){
         //načteme datové zdroje ze vzdálené databáze
         $database = $this->databaseFactory->getDatabaseInstanceWithDefaultDbConnection($dbType, $user);
-        $dbDatasources = $database->getDbDatasources();
-
-        //načteme seznam lokálních datových zdrojů
-        $datasources=$this->findDatasourcesByUser($user);
-
-        //porovnáme oba seznamy
-        $updatedDatasourcesIds=[];
-        $updatedDbDatasourcesIds=[];
-        if (!empty($datasources)&&!empty($dbDatasources)){
-          //zkusíme najít příslušné překrývající se datové zdroje
-          foreach($datasources as $datasource){
-            foreach($dbDatasources as $dbDatasource){
-              if ($datasource->remoteId==$dbDatasource->remoteId){
-                if ($datasource->name!=$dbDatasource->name){
-                  //aktualizace názvu datového zdroje (došlo k jeho přejmenování) a uložení
-                  $datasource->name=$dbDatasource->name;
-                  $this->datasourcesRepository->persist($datasource);
-                }
-                $updatedDatasourcesIds[]=$datasource->remoteId;
-                $updatedDbDatasourcesIds[]=$dbDatasource->remoteId;
-                continue;
-              }
-            }
-          }
-        }
-        if (!empty($datasources)){
-          foreach($datasources as $datasource){
-            if($datasource->available && !in_array($datasource->remoteId,$updatedDatasourcesIds)){
-              //TODO výhledově podporovat datové zdroje na různých URL (aktuálně je přístup jen k výchozí vzdálené DB)
-              //označení datového zdroje, který již není dostupný
-              $datasource->available=false;
-              $this->datasourcesRepository->persist($datasource);
-            }
-          }
-        }
-        if (!empty($dbDatasources)){
-          foreach($dbDatasources as $dbDatasource){
-            if (!in_array($dbDatasource->remoteId,$updatedDbDatasourcesIds)){
-              //přidání nového datového zdroje...
-              $datasource=new Datasource();
-              $datasource->user=$user;
-              $datasource->name=$dbDatasource->name;
-              $datasource->remoteId=$dbDatasource->remoteId;
-              $datasource->type=$dbDatasource->type;
-              $datasource->available=true;
-              $this->datasourcesRepository->persist($datasource);
-            }
+        $remoteDbDatasources = $database->getDbDatasources();
+        if (!empty($remoteDbDatasources)){
+          foreach($remoteDbDatasources as $remoteDbDatasource){
+            $dbDatasources[$remoteDbDatasource->type.'-'.$remoteDbDatasource->id]=$remoteDbDatasource;
           }
         }
       }
     }
-    $this->datasourcesRepository->findAllBy(['user_id'=>$user]);
+    #endregion připravení seznamu externích zdrojů
+    #region zpracovani seznamu datovych zdroju
+    //načteme seznam lokálních datových zdrojů
+    $datasources=$this->findDatasourcesByUser($user);
+
+    //porovnáme oba seznamy
+    $updatedDatasourcesIds=[];
+    $updatedDbDatasourcesIds=[];
+    if (!empty($datasources)&&!empty($dbDatasources)){
+      //zkusíme najít příslušné překrývající se datové zdroje
+      foreach($datasources as $datasource){
+        foreach($dbDatasources as $dbDatasource){
+          if ($datasource->remoteId==$dbDatasource->id){
+            if ($datasource->name!=$dbDatasource->name){
+              //aktualizace názvu datového zdroje (došlo k jeho přejmenování) a uložení
+              $datasource->name=$dbDatasource->name;
+              $this->datasourcesRepository->persist($datasource);
+            }
+            $updatedDatasourcesIds[]=$datasource->remoteId;
+            $updatedDbDatasourcesIds[]=$dbDatasource->id;
+            continue;
+          }
+        }
+      }
+    }
+    if (!empty($datasources)){
+      foreach($datasources as $datasource){
+        if($datasource->available && !in_array($datasource->remoteId,$updatedDatasourcesIds)){
+          //TODO výhledově podporovat datové zdroje na různých URL (aktuálně je přístup jen k výchozí vzdálené DB)
+          //označení datového zdroje, který již není dostupný
+          $datasource->available=false;
+          $this->datasourcesRepository->persist($datasource);
+        }
+      }
+    }
+    if (!empty($dbDatasources)){
+      $defaultDbConnections=[];
+      foreach($dbDatasources as $dbDatasource){
+        if (!in_array($dbDatasource->id,$updatedDbDatasourcesIds)){
+          //vyřešení výchozího připojení k DB
+          if (!isset($defaultDbConnections[$dbDatasource->type])){
+            $defaultDbConnections[$dbDatasource->type]=$this->databaseFactory->getDefaultDbConnection($dbDatasource->type,$user);
+          }
+          //přidání nového datového zdroje...
+          $datasource=Datasource::newFromDbConnection($defaultDbConnections[$dbDatasource->type]);
+          $datasource->user=$user;
+          $datasource->name=$dbDatasource->name;
+          $datasource->remoteId=$dbDatasource->id;
+          $datasource->type=$dbDatasource->type;
+          $datasource->available=true;
+          $this->datasourcesRepository->persist($datasource);
+        }
+      }
+    }
+    #endregion zpracovani seznamu datovych zdroju
   }
 
   /**

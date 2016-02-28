@@ -32,7 +32,6 @@ use Nette\Utils\Strings;
 
     $result=[];
     if (!empty($responseData)){
-      exit(var_dump($responseData));//FIXME
       foreach($responseData as $item){
         $result[]=new DbDatasource($item['id'],$item['name'],$item['type'],$item['size']);
       }
