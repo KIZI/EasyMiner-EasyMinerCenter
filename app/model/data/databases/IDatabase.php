@@ -44,4 +44,18 @@ interface IDatabase {
   public function __construct(DbConnection $dbConnection, $apiKey);
 
 
+  /**
+   * Funkce vracející uživatelsky srozumitelný název databáze
+   *
+   * @return string
+   */
+  public static function getDbTypeName();
+
+  /**
+   * Funkce vracející identifikaci daného typu databáze
+   *
+   * @return string
+   */
+  public static function getDbType();
+
 } 

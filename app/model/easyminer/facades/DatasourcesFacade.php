@@ -36,6 +36,32 @@ class DatasourcesFacade {
   #region ///REVIDOVANÉ METODY///////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
+   * Funkce vracející seznam aktivních (nakonfigurovaných) typů databází
+   *
+   * @param bool $withNames = false
+   * @return array
+   */
+  public function getDbTypes($withNames=false) {
+    $dbTypes=$this->databaseFactory->getDbTypes();
+    $result=[];
+    if (!empty($dbTypes)) {
+      foreach($dbTypes as $dbType) {
+        $result[$dbType]=($withNames?$this->databaseFactory->getDbTypeName($dbType):$dbType);
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * Funkce vrace
+   * @return string
+   */
+  public function getPrefferedDbType() {
+    //TODO implementovat načtení výchozího typu databáze z konfigurace
+    return DbConnection::TYPE_LIMITED;
+  }
+
+  /**
    * Funkce pro aktualizaci informací o vzdálených datových zdrojích
    *
    * @param User $user

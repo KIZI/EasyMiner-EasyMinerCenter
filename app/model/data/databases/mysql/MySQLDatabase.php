@@ -3,8 +3,6 @@
 namespace EasyMinerCenter\Model\Data\Databases\MySQL;
 
 use EasyMinerCenter\Model\Data\Databases\IDatabase;
-use EasyMinerCenter\Model\Data\Entities\DbColumn;
-use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
@@ -19,10 +17,14 @@ use \PDO;
  * @property string $tableName
  */
 class MySQLDatabase implements IDatabase{
+
+  const DB_TYPE=DbConnection::TYPE_MYSQL;
+  const DB_TYPE_NAME=DbConnection::TYPE_MYSQL_NAME;
+
   private $db;
   private $tableName;
 
-  #region původní funkce
+  #region původní funkce //TODO předělat...
 
   public function selectTable($tableName){
     $this->tableName=$tableName;
@@ -565,5 +567,23 @@ class MySQLDatabase implements IDatabase{
     $query=$this->db->prepare('SELECT count(*) AS pocet FROM `'.$dbDatasourceId.'`;');
     $query->execute();
     return $query->fetchColumn(0);
+  }
+
+  /**
+   * Funkce vracející uživatelsky srozumitelný název databáze
+   *
+   * @return string
+   */
+  public static function getDbTypeName() {
+    return self::DB_TYPE_NAME;
+  }
+
+  /**
+   * Funkce vracející identifikaci daného typu databáze
+   *
+   * @return string
+   */
+  public static function getDbType() {
+    return self::DB_TYPE;
   }
 }

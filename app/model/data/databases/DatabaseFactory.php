@@ -42,6 +42,16 @@ class DatabaseFactory {
     return $result;
   }
 
+  /**
+   * Funkce vracející název dabáze zvoleného typu
+   * @param string $dbType
+   * @return string
+   * @throws \Exception
+   */
+  public function getDbTypeName($dbType) {
+    $dbClass=self::getDatabaseClassName($dbType);
+    return $dbClass::getDbTypeName();
+  }
 
   /**
    * Funkce vracející výchozí připojení k databázi
@@ -81,12 +91,21 @@ class DatabaseFactory {
    * @throws \Exception
    */
   public function getDatabaseInstance(DbConnection $dbConnection, User $user) {
-    if (empty(self::$dbTypeClasses[$dbConnection->type])){
-      throw new \Exception('Database driver "'.$dbConnection->type.'" not found!');
-    }
-    /** @var IDatabase $dbClass */
-    $dbClass=self::$dbTypeClasses[$dbConnection->type];
+    $dbClass=self::getDatabaseClassName($dbConnection->type);
     return new $dbClass($dbConnection, $user->getEncodedApiKey());
+  }
+
+  /**
+   * Funkce vracející název třídy obsahující příslušný ovladač databáze
+   * @param string $dbType
+   * @return string
+   * @throws \Exception
+   */
+  private static function getDatabaseClassName($dbType) {
+    if (empty(self::$dbTypeClasses[$dbType])){
+      throw new \Exception('Database driver "'.$dbType.'" not found!');
+    }
+    return self::$dbTypeClasses[$dbType];
   }
 
   /**

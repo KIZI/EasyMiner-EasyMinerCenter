@@ -16,7 +16,7 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\Model\Data\Databases
  * @author Stanislav Vojíř
  */
-/*TODO add: abstract*/ class DataServiceDatabase implements IDatabase {
+abstract class DataServiceDatabase implements IDatabase {
   /** @var  string $apiKey */
   private $apiKey;
   /** @var  DbConnection $dbConnection */

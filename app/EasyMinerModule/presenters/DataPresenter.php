@@ -233,6 +233,9 @@ class DataPresenter extends BasePresenter{
     $this->sendJsonResponse(['file'=>$filename]);
   }
 
+  /**
+   * @return Form
+   */
   public function createComponentUploadForm() {
     $form = new Form();
     $form->setTranslator($this->translator);
