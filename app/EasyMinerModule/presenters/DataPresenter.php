@@ -242,13 +242,13 @@ class DataPresenter extends BasePresenter{
     $form->addUpload('file','Upload file:')
       ->setRequired('Je nutné vybrat soubor pro import!')
     ;
-    $databaseTypes=$this->databasesFacade->getDbTypes(true);//TODO
-    if (count($databaseTypes)==1){
-      reset($databaseTypes);
-      $form->addHidden('dbType',key($databaseTypes));
+    $dbTypes=$this->datasourcesFacade->getDbTypes(true);//TODO
+    if (count($dbTypes)==1){
+      reset($dbTypes);
+      $form->addHidden('dbType',key($dbTypes));
     }else{
-      $form->addSelect('dbType','Database type:',$databaseTypes)
-        ->setDefaultValue($this->databasesFacade->getPreferredDatabaseType());
+      $form->addSelect('dbType','Database type:',$dbTypes)
+        ->setDefaultValue($this->datasourcesFacade->getPreferredDbType());
     }
     //přidání submit tlačítek
     $form->addSubmit('submit','Configure upload...')

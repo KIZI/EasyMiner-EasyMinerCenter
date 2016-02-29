@@ -56,7 +56,7 @@ class DatasourcesFacade {
    * Funkce vrace
    * @return string
    */
-  public function getPrefferedDbType() {
+  public function getPreferredDbType() {
     //TODO implementovat načtení výchozího typu databáze z konfigurace
     return DbConnection::TYPE_LIMITED;
   }
