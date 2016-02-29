@@ -166,35 +166,128 @@ class DatasourcesFacade {
     }
   }
 
+  /**
+   * Funkce pro aktualizaci info o datových sloupcích v DB
+   * @param Datasource &$datasource
+   * @param User $user
+   */
+  public function updateDatasourceColumns(Datasource &$datasource, User $user) {
+    //TODO opravit...
+    $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(), $user);
+    $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->datasourceId:$datasource->dbTable);
+    $datasource->size=$dbDatasource->size;
+    $dbFields=$database->getDbFields($dbDatasource);
+
+    #region připravení seznamu aktuálně existujících datasourceColumns
+    /** @var DatasourceColumn[] $existingDatasourceColumnsByDbDatasourceFieldId */
+    $existingDatasourceColumnsByDbDatasourceFieldId=[];
+    /** @var DatasourceColumn[] $existingDatasourceColumnsByName */
+    $existingDatasourceColumnsByName=[];
+    /** @var DatasourceColumn[] $datasourceColumns */
+    $datasourceColumns=$datasource->datasourceColumns;
+    if (!empty($datasourceColumns)){
+      foreach ($datasourceColumns as &$datasourceColumn){
+        if (!empty($datasourceColumn->dbDatasourceColumnId)){
+          $existingDatasourceColumnsByDbDatasourceFieldId[$datasourceColumn->dbDatasourceColumnId]=$datasourceColumn;
+        }else{
+          $existingDatasourceColumnsByName[$datasourceColumn->name]=$datasourceColumn;
+        }
+
+      }
+    }
+    #endregion
+
+    #region aktualizace seznamu sloupců získaných z DB
+    if (!empty($dbFields)){
+      foreach($dbFields as $dbField){
+        if (!empty($dbField->id) && is_int($dbField->id) && isset($existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id])){
+          //sloupec s daným ID již je v databázi
+          $datasourceColumn=$existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id];
+          $datasourceColumn->name=$dbField->name;
+          $datasourceColumn->type=$dbField->type;
+          $datasourceColumn->active=true;
+          if ($datasourceColumn->isModified()){
+            $this->datasourceColumnsRepository->persist($datasourceColumn);
+          }
+          unset($existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id]);
+        }elseif(!empty($dbField->name) && isset($existingDatasourceColumnsByName[$dbField->name])){
+          //sloupec najdeme podle jména
+          $datasourceColumn=$existingDatasourceColumnsByName[$dbField->name];
+          $datasourceColumn->type=$dbField->type;
+          $datasourceColumn->active=true;
+          if ($datasourceColumn->isModified()){
+            $this->datasourceColumnsRepository->persist($datasourceColumn);
+          }
+          unset($existingDatasourceColumnsByName[$dbField->name]);
+        }else{
+          //máme tu nový datový sloupec
+          $datasourceColumn=new DatasourceColumn();
+          $datasourceColumn->name=$dbField->name;
+          if (is_int($dbField->id)){
+            $datasourceColumn->dbDatasourceColumnId=$dbField->id;
+          }
+          $datasourceColumn->active=true;
+          $datasourceColumn->name=$dbField->name;
+          $datasourceColumn->type=$dbField->type;
+          $this->datasourceColumnsRepository->persist($datasourceColumn);
+        }
+      }
+    }
+    #endregion
+    #region deaktivace již neexistujících sloupců
+    if (!empty($existingDatasourceColumnsByDbDatasourceFieldId)){
+      foreach($existingDatasourceColumnsByDbDatasourceFieldId as &$datasourceColumn){
+        $datasourceColumn->active=false;
+        if ($datasourceColumn->isModified()){
+          $this->datasourceColumnsRepository->persist($datasourceColumn);
+        }
+      }
+    }
+    if (!empty($existingDatasourceColumnsByName)){
+      foreach($existingDatasourceColumnsByName as &$datasourceColumn){
+        $datasourceColumn->active=false;
+        if ($datasourceColumn->isModified()){
+          $this->datasourceColumnsRepository->persist($datasourceColumn);
+        }
+      }
+    }
+    #endregion
+    //aktualizace datového zdroje z DB
+    $datasource=$this->findDatasource($datasource->datasourceId);
+  }
+
+  /**
+   * Funkce pro nalezení DatasourceColumn dle jeho ID
+   * @param Datasource|int $datasource
+   * @param int $columnId
+   * @return DatasourceColumn
+   */
+  public function findDatasourceColumn($datasource,$columnId) {
+    if ($datasource instanceof Datasource){
+      $datasource=$datasource->datasourceId;
+    }
+    return $this->datasourceColumnsRepository->findBy(['datasource_id'=>$datasource,'datasource_column_id'=>$columnId]);
+  }
+
+  /**
+   * Funkce pro nalezení DatasourceColumn podle jména
+   * @param Datasource|int $datasource
+   * @param string $columnName
+   * @return DatasourceColumn
+   */
+  public function findDatasourceColumnByName($datasource, $columnName) {
+    if ($datasource instanceof Datasource){
+      $datasource=$datasource->datasourceId;
+    }
+    return $this->datasourceColumnsRepository->findBy(['datasource_id'=>$datasource,'name'=>$columnName]);
+  }
 
   #endregion ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
 
-  /**
-   * @param Datasource|int $datasource
-   * @param int $column
-   * @return DatasourceColumn
-   */
-  public function findDatasourceColumn($datasource,$column) {
-    if ($datasource instanceof Datasource){
-      $datasource=$datasource->datasourceId;
-    }
-    return $this->datasourceColumnsRepository->findBy(array('datasource_id'=>$datasource,'datasource_column_id'=>$column));
-  }
 
-  /**
-   * @param Datasource|int $datasource
-   * @param string $columnName
-   * @return DatasourceColumn
-   */
-  public function findDatasourceColumnByName($datasource,$columnName) {
-    if ($datasource instanceof Datasource){
-      $datasource=$datasource->datasourceId;
-    }
-    return $this->datasourceColumnsRepository->findBy(array('datasource_id'=>$datasource,'name'=>$columnName));
-  }
 
   /**
    * Funkce pro kontrolu, jestli jsou všechny sloupce z daného datového zdroje namapované na formáty z knowledge base
@@ -378,22 +471,16 @@ class DatasourcesFacade {
    * @return array
    */
   public function exportDictionariesArr(Datasource $datasource,Metasource $metasource=null, User $user) {
-    $output = ['dataDictionary'=>[], 'transformationDictionary'=>[], 'recordCount'=>0];
-
+    $output = ['dataDictionary'=>[], 'transformationDictionary'=>[], 'recordCount'=>$datasource->size];
 
     #region datafields
+    $this->updateDatasourceColumns($datasource, $user);//aktualizace seznamu datových sloupců
     foreach($datasource->datasourceColumns as $datasourceColumn){
-      $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(), $user);
-      $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->datasourceId:$datasource->dbTable);
-      $output['recordCount']=$dbDatasource->size;
-      $dbFields=$database->getDbFields($dbDatasource);
-      if (!empty($dbFields)){
-        foreach($dbFields as $dbField){
-          $output['dataDictionary'][$dbField->name]=$dbField->type;
-        }
-      }
+      if (!$datasourceColumn->active){continue;}
+      $output['dataDictionary'][$datasourceColumn->name]=$datasourceColumn->type;
     }
     #endregion datafields
+
     return $output;//TODO continue...
 
     #region atributy

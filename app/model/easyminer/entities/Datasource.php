@@ -21,6 +21,7 @@ use LeanMapper\Entity;
  * @property string $dbUsername
  * @property string $dbName
  * @property string $dbTable
+ * @property int|null $size = null
  * @property-read DatasourceColumn[] $datasourceColumns m:belongsToMany
  * @property-read DbConnection $dbDonnection
  */
@@ -47,7 +48,8 @@ class Datasource extends Entity{
       'type'=>$this->type,
       'name'=>$this->getName(),
       'dbDatasourceId'=>$this->dbDatasourceId,
-      'available'=>$this->available
+      'available'=>$this->available,
+      'size'=>$this->size
     ];
   }
 

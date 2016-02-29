@@ -331,6 +331,16 @@ class DataPresenter extends BasePresenter{
 
   #endregion otevření mineru
 
+  #region funkce pro přístup k datům
+  public function renderColumnHistogram() {
+    //TODO implementovat podporu vykreslení histogramu
+
+  }
+  
+  
+  #endregion funkce pro přístup k datům
+  
+  
   #region injections
   /**
    * @param FileImportsFacade $fileImportsFacade
