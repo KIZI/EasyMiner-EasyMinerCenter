@@ -8,7 +8,7 @@ use LeanMapper\Entity;
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $datasourceColumnId=null
  * @property Datasource $datasource m:hasOne
- * @property int|null $dbDatasourceColumnId = null
+ * @property int|null $dbDatasourceFieldId = null
  * @property string $name
  * @property string $type m:Enum(self::TYPE_*)
  * @property int|null $strLen = null

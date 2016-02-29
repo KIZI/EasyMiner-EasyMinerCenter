@@ -77,7 +77,7 @@ use Nette\Utils\Strings;
           $result[]=new DbField($responseField['id'], $responseField['dataSource'], $responseField['name'], $responseField['type'], $responseField['uniqueValuesSize']);
         }
       }
-      return new DbDatasource($responseData['id'],$responseData['name'],$responseData['type'],$responseData['size']);
+      return $result;
     }
     throw new EntityNotFoundException('Requested DbDatasource was not found.');
   }

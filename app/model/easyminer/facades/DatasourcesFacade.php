@@ -174,7 +174,7 @@ class DatasourcesFacade {
   public function updateDatasourceColumns(Datasource &$datasource, User $user) {
     //TODO opravit...
     $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(), $user);
-    $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->datasourceId:$datasource->dbTable);
+    $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->dbTable);
     $datasource->size=$dbDatasource->size;
     $dbFields=$database->getDbFields($dbDatasource);
 
@@ -187,8 +187,8 @@ class DatasourcesFacade {
     $datasourceColumns=$datasource->datasourceColumns;
     if (!empty($datasourceColumns)){
       foreach ($datasourceColumns as &$datasourceColumn){
-        if (!empty($datasourceColumn->dbDatasourceColumnId)){
-          $existingDatasourceColumnsByDbDatasourceFieldId[$datasourceColumn->dbDatasourceColumnId]=$datasourceColumn;
+        if (!empty($datasourceColumn->dbDatasourceFieldId)){
+          $existingDatasourceColumnsByDbDatasourceFieldId[$datasourceColumn->dbDatasourceFieldId]=$datasourceColumn;
         }else{
           $existingDatasourceColumnsByName[$datasourceColumn->name]=$datasourceColumn;
         }
@@ -222,9 +222,10 @@ class DatasourcesFacade {
         }else{
           //máme tu nový datový sloupec
           $datasourceColumn=new DatasourceColumn();
+          $datasourceColumn->datasource=$datasource;
           $datasourceColumn->name=$dbField->name;
           if (is_int($dbField->id)){
-            $datasourceColumn->dbDatasourceColumnId=$dbField->id;
+            $datasourceColumn->dbDatasourceFieldId=$dbField->id;
           }
           $datasourceColumn->active=true;
           $datasourceColumn->name=$dbField->name;

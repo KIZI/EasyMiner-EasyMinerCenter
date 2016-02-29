@@ -94,7 +94,11 @@ class DataPresenter extends BasePresenter{
     /** @var Form $form */
     $form=$this->getComponent('newMinerForm');
     $dateTime=new \DateTime();
-    $form->setDefaults(array('datasource'=>$datasource->datasourceId,'datasourceName'=>$datasource->type.': '.$datasource->getName(),'name'=>$datasource->dbTable.' '.$dateTime->format('Y-m-d H:i:s')));
+    $form->setDefaults([
+      'datasource'=>$datasource->datasourceId,
+      'datasourceName'=>$datasource->type.': '.$datasource->getName(),
+      'name'=>$datasource->getName().' '.$dateTime->format('Y-m-d H:i:s')
+    ]);
   }
 
   /**
