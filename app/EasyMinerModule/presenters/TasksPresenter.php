@@ -2,12 +2,10 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\Libs\RequestHelper;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
-use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
-use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
@@ -19,19 +17,19 @@ use Nette\Utils\Json;
 /**
  * Class TasksPresenter - presenter pro práci s úlohami...
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
  */
 class TasksPresenter  extends BasePresenter{
   use MinersFacadeTrait;
   use ResponsesTrait;
+  use UsersTrait;
 
   /** @var RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var TasksFacade $tasksFacade */
   private $tasksFacade;
-  /** @var DatabasesFacade $databasesFacade */
-  private $databasesFacade;
-  /** @var  UsersFacade $usersFacade */
-  private $usersFacade;
+  /** @var  DatabaseFactory $databaseFactory */
+  private $databaseFactory;
   /** @var XmlTransformator $xmlTransformator */
   private $xmlTransformator;
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
@@ -306,10 +304,7 @@ class TasksPresenter  extends BasePresenter{
    * @return GuhaPmmlSerializer
    */
   private function initPmmlSerializer(Task $task, $includeFrequencies=true) {
-    /** @var Metasource $metasource */
-    $metasource=$task->miner->metasource;
-    $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null);
     $pmmlSerializer->appendTaskSettings();
     $pmmlSerializer->appendDataDictionary($includeFrequencies);
     $pmmlSerializer->appendTransformationDictionary($includeFrequencies);
@@ -337,19 +332,6 @@ class TasksPresenter  extends BasePresenter{
     return $pmmlSerializer->getPmml();
   }
 
-
-  /**
-   * @return \EasyMinerCenter\Model\EasyMiner\Entities\User|null
-   */
-  private function getCurrentUser(){
-    try{
-      return $this->usersFacade->findUser($this->user->id);
-    }catch (\Exception $e){
-      /*ignore error (uživatel nemusí být přihlášen)*/
-    }
-    return null;
-  }
-
   /**
    * Funkce vracející relativní URL pro import výsledků dolování (pro spuštění na pozadí)
    * @param Task $task
@@ -367,18 +349,21 @@ class TasksPresenter  extends BasePresenter{
   public function injectRulesFacade(RulesFacade $rulesFacade) {
     $this->rulesFacade = $rulesFacade;
   }
+
   /**
    * @param TasksFacade $tasksFacade
    */
   public function injectTasksFacade(TasksFacade $tasksFacade){
     $this->tasksFacade=$tasksFacade;
   }
+
   /**
-   * @param DatabasesFacade $databasesFacade
+   * @param DatabaseFactory $databaseFactory
    */
-  public function injectDatabasesFacade(DatabasesFacade $databasesFacade){
-    $this->databasesFacade=$databasesFacade;
+  public function injectDatabaseFactory(DatabaseFactory $databaseFactory){
+    $this->databaseFactory=$databaseFactory;
   }
+
   /**
    * @param XmlTransformator $xmlTransformator
    */
@@ -386,13 +371,6 @@ class TasksPresenter  extends BasePresenter{
     $this->xmlTransformator=$xmlTransformator;
     //nastaven basePath
     $this->xmlTransformator->setBasePath($this->template->basePath);
-  }
-
-  /**
-   * @param UsersFacade $usersFacade
-   */
-  public function injectUsersFacade(UsersFacade $usersFacade) {
-    $this->usersFacade=$usersFacade;
   }
 
   /**

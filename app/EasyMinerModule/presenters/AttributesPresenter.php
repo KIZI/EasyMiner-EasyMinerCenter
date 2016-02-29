@@ -16,7 +16,6 @@ use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade;
-use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Form;
@@ -33,6 +32,7 @@ use Nette\Utils\Strings;
  */
 class AttributesPresenter extends BasePresenter{
   use MinersFacadeTrait;
+  use UsersTrait;
 
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
@@ -42,8 +42,6 @@ class AttributesPresenter extends BasePresenter{
   private $metaAttributesFacade;
   /** @var  PreprocessingsFacade $preprocessingsFacade */
   private $preprocessingsFacade;
-  /** @var  UsersFacade $usersFacade */
-  private $usersFacade;
 
   /**
    * @var string $mode
@@ -567,7 +565,7 @@ class AttributesPresenter extends BasePresenter{
       $preprocessing=new Preprocessing();
       $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareIntervalEnumerationPreprocessingName($format,$values));
       $preprocessing->format=$format;
-      $preprocessing->user=$this->usersFacade->findUser($this->user->id);
+      $preprocessing->user=$this->getCurrentUser();
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
       foreach($values['valuesBins'] as $valuesBinValues){
         $valuesBin=new ValuesBin();
@@ -717,7 +715,7 @@ class AttributesPresenter extends BasePresenter{
       $preprocessing=new Preprocessing();
       $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareEquidistantPreprocessingName($format,$values));
       $preprocessing->format=$format;
-      $preprocessing->user=$this->usersFacade->findUser($this->user->id);
+      $preprocessing->user=$this->getCurrentUser();
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
 
       //vytvoření jednotlivých intervalů v podobě samostatných binů
@@ -955,7 +953,7 @@ class AttributesPresenter extends BasePresenter{
       $preprocessing=new Preprocessing();
       $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareNominalEnumerationPreprocessingName($format,$values));
       $preprocessing->format=$format;
-      $preprocessing->user=$this->usersFacade->findUser($this->user->id);
+      $preprocessing->user=$this->getCurrentUser();
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
       foreach($values['valuesBins'] as $valuesBinValues){
         $valuesBin=new ValuesBin();
@@ -1176,18 +1174,6 @@ class AttributesPresenter extends BasePresenter{
     return $preprocessingName;
   }
 
-  /**
-   * @return \EasyMinerCenter\Model\EasyMiner\Entities\User|null
-   */
-  private function getCurrentUser(){
-    try{
-      return $this->usersFacade->findUser($this->user->id);
-    }catch (\Exception $e){
-      /*ignore error (uživatel nemusí být přihlášen)*/
-    }
-    return null;
-  }
-
   #region injections
   /**
    * @param DatasourcesFacade $datasourcesFacade
@@ -1213,12 +1199,6 @@ class AttributesPresenter extends BasePresenter{
    */
   public function injectPreprocessingsFacade(PreprocessingsFacade $preprocessingsFacade){
     $this->preprocessingsFacade=$preprocessingsFacade;
-  }
-  /**
-   * @param UsersFacade $usersFacade
-   */
-  public function injectUsersFacade(UsersFacade $usersFacade){
-    $this->usersFacade=$usersFacade;
   }
   #endregion injections
 } 

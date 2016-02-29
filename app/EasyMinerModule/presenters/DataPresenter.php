@@ -6,7 +6,6 @@ use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
-use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
@@ -21,11 +20,10 @@ use Nette\Forms\Controls\TextInput;
 class DataPresenter extends BasePresenter{
   use ResponsesTrait;
   use MinersFacadeTrait;
+  use UsersTrait;
 
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
-  /** @var  UsersFacade $usersFacade */
-  private $usersFacade;
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
 
@@ -141,7 +139,7 @@ class DataPresenter extends BasePresenter{
       $form=$submitButton->form;
       $values=$form->getValues();
       $miner=new Miner();
-      $miner->user=$this->usersFacade->findUser($this->user->id);
+      $miner->user=$this->getCurrentUser();
       $miner->name=$values['name'];
       $miner->datasource=$this->datasourcesFacade->findDatasource($values['datasource']);
       $miner->created=new \DateTime();
@@ -237,7 +235,7 @@ class DataPresenter extends BasePresenter{
     $form->addUpload('file','Upload file:')
       ->setRequired('Je nutné vybrat soubor pro import!')
     ;
-    $databaseTypes=$this->databasesFacade->getDbTypes(true);
+    $databaseTypes=$this->databasesFacade->getDbTypes(true);//TODO
     if (count($databaseTypes)==1){
       reset($databaseTypes);
       $form->addHidden('dbType',key($databaseTypes));
@@ -333,26 +331,12 @@ class DataPresenter extends BasePresenter{
 
   #endregion otevření mineru
 
-  /**
-   * Funkce vracející entitu konkrétního uživatele
-   * @return \EasyMinerCenter\Model\EasyMiner\Entities\User
-   */
-  protected function getCurrentUser() {
-    return $this->usersFacade->findUser($this->user->id);
-  }
-
   #region injections
   /**
    * @param FileImportsFacade $fileImportsFacade
    */
   public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade){
     $this->fileImportsFacade=$fileImportsFacade;
-  }
-  /**
-   * @param UsersFacade $usersFacade
-   */
-  public function injectUsersFacade(UsersFacade $usersFacade) {
-    $this->usersFacade=$usersFacade;
   }
   /**
    * @param DatasourcesFacade $datasourcesFacade
