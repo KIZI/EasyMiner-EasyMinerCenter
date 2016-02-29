@@ -68,7 +68,7 @@ google:
 services:
 	- EasyMinerCenter\RouterFactory
 	router: @EasyMinerCenter\RouterFactory::createRouter(%router.secured%)
-	translator: EasyMinerCenter\Model\BlankTranslator
+	translator: EasyMinerCenter\Model\Translation\BlankTranslator
 	restful.xmlMapper: EasyMinerCenter\RestModule\Model\Mappers\XmlMapper
 	authorizator:
 		class: EasyMinerCenter\Model\EasyMiner\Authorizators\AclPermission

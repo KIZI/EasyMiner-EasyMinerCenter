@@ -5,16 +5,16 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
+use EasyMinerCenter\Model\Translation\EasyMinerTranslator;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
-use Nette\Localization\ITranslator;
 use Nette\Security\User;
 
 /**
  * Trait MinersFacadeTrait - kód pro přístup k minerům v rámci presenterů
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  *
- * @property ITranslator $translator
+ * @property EasyMinerTranslator $translator
  * @property User $user
  * @method bool isAjax()
  * @method flashMessage($text, $type)

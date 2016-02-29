@@ -1,6 +1,7 @@
 <?php
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
+use EasyMinerCenter\Model\Translation\EasyMinerTranslator;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Presenter;
 
@@ -12,7 +13,7 @@ use Nette\Application\UI\Presenter;
 abstract class BasePresenter extends Presenter{//BaseRestPresenter
 
   #region translator
-  /** @var  \Nette\Localization\ITranslator $translator */
+  /** @var  EasyMinerTranslator $translator */
   protected  $translator;
 
   protected function beforeRender(){
@@ -22,7 +23,7 @@ abstract class BasePresenter extends Presenter{//BaseRestPresenter
     $this->template->titleAppName='EasyMiner';
   }
 
-  public function injectTranslator(\Nette\Localization\ITranslator $translator){
+  public function injectTranslator(EasyMinerTranslator $translator){
     $this->translator=$translator;
   }
 

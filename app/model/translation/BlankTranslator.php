@@ -1,15 +1,12 @@
 <?php
 
-namespace EasyMinerCenter\Model;
-
-
-use Nette\Localization\ITranslator;
+namespace EasyMinerCenter\Model\Translation;
 
 /**
  * Class BlankTranslator - prázdná třída pro zajištění lokalizací (bude implementováno v budoucnu)
  * @package EasyMinerCenter\Model
  */
-class BlankTranslator implements ITranslator{
+class BlankTranslator implements EasyMinerTranslator{
 
   /**
    * Translates the given string.

@@ -20,7 +20,6 @@ class MiningUiPresenter extends BasePresenter{
   use MinersFacadeTrait;
   use ResponsesTrait;
 
-  private $lang='en';//TODO předávání jazyka rozhraní
   /** @var  IZIConfig $config */
   private $config;
   /** @var  DatasourcesFacade $datasourcesFacade*/
@@ -52,7 +51,7 @@ class MiningUiPresenter extends BasePresenter{
     //------------------------------------------------------------------------------------------------------------------
     #region připravení informací pro UI - s odděleným připravením DataDictionary
     $dataDescriptionPMML=null;
-    $dataParser = new DataParser($dataDescriptionPMML, $this->config->$FLPathElement, $this->config->FGCPath, null, null, $this->lang);
+    $dataParser = new DataParser($dataDescriptionPMML, $this->config->$FLPathElement, $this->config->FGCPath, null, null, $this->translator->getLang());
     $dataParser->loadData();
     $responseContent = $dataParser->parseData();
 
