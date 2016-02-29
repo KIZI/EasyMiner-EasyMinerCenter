@@ -392,7 +392,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
  *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"mysql","limited","unlimited"}),
  *   @SWG\Property(property="name",type="string",description="Name of the database table"),
- *   @SWG\Property(property="remoteId",type="integer",description="ID of the datasource on the remote data service"),
+ *   @SWG\Property(property="dbDatasourceId",type="integer",description="ID of the datasource on the remote data service"),
  *   @SWG\Property(property="available",type="boolean"),
  * )
  * @SWG\Definition(
@@ -402,7 +402,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
  *   @SWG\Property(property="type",type="string",description="Type of the used database"),
  *   @SWG\Property(property="name",type="string",description="Name of the database table"),
- *   @SWG\Property(property="remoteId",type="integer",description="ID of the datasource on the remote data service"),
+ *   @SWG\Property(property="dbDatasourceId",type="integer",description="ID of the datasource on the remote data service"),
  *   @SWG\Property(property="available",type="boolean"),
  *   @SWG\Property(property="column",type="array",
  *     @SWG\Items(ref="#/definitions/ColumnBasicInfoResponse")

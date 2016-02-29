@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\Data\Databases\DataService;
 
+use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
@@ -27,11 +28,11 @@ use Nette\Utils\Strings;
    * @return DbDatasource[]
    */
   public function getDbDatasources() {
-    $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource'),null,'GET',['Accept'=>'application/json; charset=utf8']);
+    $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource'),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
     $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
 
     $result=[];
-    if (!empty($responseData)){
+    if (!empty($responseData) && $responseCode==200){
       foreach($responseData as $item){
         $result[]=new DbDatasource($item['id'],$item['name'],$item['type'],$item['size']);
       }
@@ -40,13 +41,45 @@ use Nette\Utils\Strings;
   }
 
   /**
+   * Funkce vracející informace o konkrétním datovém zdroji
+   *
+   * @param int $datasourceId
+   * @return DbDatasource
+   * @throws EntityNotFoundException
+   * @throws \Exception
+   * @throws \Nette\Utils\JsonException
+   */
+  public function getDbDatasource($datasourceId) {
+    $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.$datasourceId),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+    $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+
+    if (!empty($responseData) && ($responseCode==200)){
+      return new DbDatasource($responseData['id'],$responseData['name'],$responseData['type'],$responseData['size']);
+    }
+    throw new EntityNotFoundException('Requested DbDatasource was not found.');
+  }
+
+  /**
    * Funkce vracející seznam sloupců v datovém zdroji
    *
    * @param DbDatasource $dbDatasource
    * @return DbField[]
+   * @throws EntityNotFoundException
+   * @throws \Exception
    */
   public function getDbFields(DbDatasource $dbDatasource) {
-    // TODO: Implement getDbFields() method.
+    $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.$dbDatasource->id.'/field'),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+    if ($responseCode==200){
+      $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+      $result=[];
+      if (!empty($responseData)){
+        foreach($responseData as $responseField){
+          $result[]=new DbField($responseField['id'], $responseField['dataSource'], $responseField['name'], $responseField['type'], $responseField['uniqueValuesSize']);
+        }
+      }
+      return new DbDatasource($responseData['id'],$responseData['name'],$responseData['type'],$responseData['size']);
+    }
+    throw new EntityNotFoundException('Requested DbDatasource was not found.');
   }
 
   /**
@@ -88,7 +121,6 @@ use Nette\Utils\Strings;
    * @throws \Exception - curl error
    */
   private function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], &$responseCode=null){
-    //XXX exit(var_dump($url));
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -127,4 +159,5 @@ use Nette\Utils\Strings;
     return $responseData;
   }
   #endregion funkce pro práci s RESTFUL API
+
 }

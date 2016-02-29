@@ -4,7 +4,6 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
-use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMiner\MiningUI\Integration as MiningUIIntegration;
 use IZI\IZIConfig;
 use IZI\Parser\DataParser;
@@ -19,6 +18,7 @@ use Nette\Utils\Strings;
 class MiningUiPresenter extends BasePresenter{
   use MinersFacadeTrait;
   use ResponsesTrait;
+  use UsersTrait;
 
   /** @var  IZIConfig $config */
   private $config;
@@ -26,8 +26,6 @@ class MiningUiPresenter extends BasePresenter{
   private $datasourcesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
-  /** @var  UsersFacade $usersFacade */
-  private $usersFacade;
 
   /**
    * Akce vracející data description a konfiguraci pro EasyMiner UI
@@ -60,7 +58,7 @@ class MiningUiPresenter extends BasePresenter{
       $metasource=$miner->metasource;
     }catch (\Exception $e){/*chybu ignorujeme - zatím pravděpodobně neexistují žádné atributy*/}
 
-    $responseContent['DD']=$this->datasourcesFacade->exportDictionariesArr($miner->datasource,$metasource);
+    $responseContent['DD']=$this->datasourcesFacade->exportDictionariesArr($miner->datasource, $metasource, $this->getCurrentUser());
     #endregion připravení informací pro UI - s odděleným připravením DataDictionary
 
     uksort($responseContent['DD']['transformationDictionary'],function($a,$b){
@@ -78,7 +76,7 @@ class MiningUiPresenter extends BasePresenter{
     if ($miner->ruleSet){
       $ruleSet=$miner->ruleSet;
     }else{
-      $ruleSet=$this->ruleSetsFacade->saveNewRuleSetForUser($miner->name,$this->usersFacade->findUser($this->user->id));
+      $ruleSet=$this->ruleSetsFacade->saveNewRuleSetForUser($miner->name,$this->getCurrentUser());
       $miner->ruleSet=$ruleSet;
       $this->minersFacade->saveMiner($miner);
     }
@@ -124,12 +122,6 @@ class MiningUiPresenter extends BasePresenter{
    */
   public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
     $this->ruleSetsFacade=$ruleSetsFacade;
-  }
-  /**
-   * @param UsersFacade $usersFacade
-   */
-  public function injectUsersFacade(UsersFacade $usersFacade){
-    $this->usersFacade=$usersFacade;
   }
   #endregion
 } 

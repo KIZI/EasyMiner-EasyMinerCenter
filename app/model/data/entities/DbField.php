@@ -10,7 +10,7 @@ namespace EasyMinerCenter\Model\Data\Entities;
  * @property int $dataSource
  * @property string $name
  * @property string $type m:Enum("nominal","numeric")
- * @property int $uniqueValuesSize
+ * @property int|null $uniqueValuesSize
  */
 class DbField {
   const TYPE_NOMINAL = 'nominal';
@@ -28,7 +28,7 @@ class DbField {
    * @param int $dataSource
    * @param string $name
    * @param string $type
-   * @param int $uniqueValuesSize
+   * @param int|null $uniqueValuesSize
    */
   public function __construct($id,$dataSource,$name,$type,$uniqueValuesSize) {
     $this->id=$id;

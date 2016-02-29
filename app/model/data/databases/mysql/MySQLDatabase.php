@@ -8,6 +8,7 @@ use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
+use Nette\NotSupportedException;
 use Nette\Utils\Strings;
 use \PDO;
 
@@ -21,20 +22,11 @@ class MySQLDatabase implements IDatabase{
   private $db;
   private $tableName;
 
-  #region connection
-  /**
-   * @param DbConnection $dbConnection
-   * @param string|null $apiKey=null - aktuálně nepoužívaný atribut
-   */
-  public function __construct(DbConnection $dbConnection, $apiKey=null){
-    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->dbName)?'dbname='.$dbConnection->dbName.';':'').'charset=utf8';
-    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
-  }
+  #region původní funkce
 
   public function selectTable($tableName){
     $this->tableName=$tableName;
   }
-  #endregion
 
 
   /**
@@ -347,7 +339,6 @@ class MySQLDatabase implements IDatabase{
     $result5=$query5->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
     return ($result2 && $result3 && $result4);
   }
-
   /**
    * Funkce vracející přehled datových sloupců v DB tabulce
    * @return DbColumn[]
@@ -367,21 +358,6 @@ class MySQLDatabase implements IDatabase{
       $result[]=$dbColumn;
     }
     return $result;
-  }
-
-  /**
-   * @param string $dataType
-   * @return string
-   */
-  public static function encodeDbDataType($dataType){
-    $dataType=Strings::lower($dataType);
-    if (Strings::contains($dataType,'int(')){
-      return DbColumn::TYPE_INTEGER;
-    }elseif(Strings::contains($dataType,'float')||Strings::contains($dataType,'double')||Strings::contains($dataType,'real')){
-      return DbColumn::TYPE_FLOAT;
-    }else{
-      return DbColumn::TYPE_STRING;
-    }
   }
 
   /**
@@ -431,15 +407,6 @@ class MySQLDatabase implements IDatabase{
     return $renameQuery->execute($params);
   }
 
-  /**
-   * Funkce vracející počet řádků v tabulce
-   * @return int
-   */
-  public function getRowsCount() {
-    $query=$this->db->prepare('SELECT count(*) AS pocet FROM `'.$this->tableName.'`;');
-    $query->execute();
-    return $query->fetchColumn(0);
-  }
 
   /**
    * @param string $column
@@ -523,22 +490,80 @@ class MySQLDatabase implements IDatabase{
     return $result;
   }
 
+
+  #endregion původní funkce
+
+  /**
+   * @param DbConnection $dbConnection
+   * @param string|null $apiKey=null - aktuálně nepoužívaný atribut
+   */
+  public function __construct(DbConnection $dbConnection, $apiKey=null){
+    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->dbName)?'dbname='.$dbConnection->dbName.';':'').'charset=utf8';
+    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
+  }
+
   /**
    * Funkce vracející seznam datových zdrojů v DB
    *
    * @return DbDatasource[]
    */
   public function getDbDatasources() {
-    // TODO: Implement getDbDatasources() method.
+    throw new NotSupportedException('MySQL does not support list of datasources!');
   }
 
   /**
    * Funkce vracející seznam sloupců v datovém zdroji
    *
-   * @param DbDatasource $dbDatasource
+   * @param DbDatasource|string $dbDatasource
    * @return DbField[]
    */
   public function getDbFields(DbDatasource $dbDatasource) {
-    // TODO: Implement getDbFields() method.
+    $query=$this->db->prepare('SHOW COLUMNS IN `'.$dbDatasource->id.'`;');
+    $query->execute();
+    $columns=$query->fetchAll(PDO::FETCH_CLASS);
+    $result=[];
+    foreach ($columns as $column){
+      $result[]=new DbField($column->Field, $dbDatasource->id, $column->Field, self::encodeDbDataType($column->Type), null);
+      //// $queryStrLen=$this->db->prepare('SELECT MAX(CHAR_LENGTH(`'.$column->Field.'`)) AS strLen FROM `'.$this->tableName.'`;');
+      //// $queryStrLen->execute();
+      //// $dbColumn->strLength=$queryStrLen->fetchColumn(0);
+    }
+    return $result;
+  }
+
+  /**
+   * @param string $dataType
+   * @return string
+   */
+  private static function encodeDbDataType($dataType){
+    $dataType=Strings::lower($dataType);
+    if (Strings::contains($dataType,'int(')){
+      return DbField::TYPE_NUMERICAL;
+    }elseif(Strings::contains($dataType,'float')||Strings::contains($dataType,'double')||Strings::contains($dataType,'real')){
+      return DbField::TYPE_NUMERICAL;
+    }else{
+      return DbField::TYPE_STRING;
+    }
+  }
+
+  /**
+   * Funkce vracející informace o konkrétním datovém zdroji
+   *
+   * @param string $dbDatasourceId
+   * @return DbDatasource
+   */
+  public function getDbDatasource($dbDatasourceId) {
+    return new DbDatasource($dbDatasourceId, null, DbConnection::TYPE_MYSQL, $this->getRowsCount($dbDatasourceId));
+  }
+
+  /**
+   * Funkce vracející počet řádků v tabulce
+   * @param string $dbDatasourceId
+   * @return int
+   */
+  private function getRowsCount($dbDatasourceId) {
+    $query=$this->db->prepare('SELECT count(*) AS pocet FROM `'.$dbDatasourceId.'`;');
+    $query->execute();
+    return $query->fetchColumn(0);
   }
 }

@@ -69,13 +69,13 @@ class DatasourcesFacade {
       //zkusíme najít příslušné překrývající se datové zdroje
       foreach($datasources as $datasource){
         foreach($dbDatasources as $dbDatasource){
-          if ($datasource->remoteId==$dbDatasource->id){
+          if ($datasource->dbDatasourceId==$dbDatasource->id){
             if ($datasource->name!=$dbDatasource->name){
               //aktualizace názvu datového zdroje (došlo k jeho přejmenování) a uložení
               $datasource->name=$dbDatasource->name;
               $this->datasourcesRepository->persist($datasource);
             }
-            $updatedDatasourcesIds[]=$datasource->remoteId;
+            $updatedDatasourcesIds[]=$datasource->dbDatasourceId;
             $updatedDbDatasourcesIds[]=$dbDatasource->id;
             continue;
           }
@@ -84,7 +84,7 @@ class DatasourcesFacade {
     }
     if (!empty($datasources)){
       foreach($datasources as $datasource){
-        if($datasource->available && !in_array($datasource->remoteId,$updatedDatasourcesIds)){
+        if($datasource->available && !in_array($datasource->dbDatasourceId,$updatedDatasourcesIds)){
           //TODO výhledově podporovat datové zdroje na různých URL (aktuálně je přístup jen k výchozí vzdálené DB)
           //označení datového zdroje, který již není dostupný
           $datasource->available=false;
@@ -104,7 +104,7 @@ class DatasourcesFacade {
           $datasource=Datasource::newFromDbConnection($defaultDbConnections[$dbDatasource->type]);
           $datasource->user=$user;
           $datasource->name=$dbDatasource->name;
-          $datasource->remoteId=$dbDatasource->id;
+          $datasource->dbDatasourceId=$dbDatasource->id;
           $datasource->type=$dbDatasource->type;
           $datasource->available=true;
           $this->datasourcesRepository->persist($datasource);
@@ -374,20 +374,27 @@ class DatasourcesFacade {
    * Funkce pro export pole s informacemi z DataDictionary a TransformationDictionary
    * @param Datasource $datasource
    * @param Metasource|null $metasource
+   * @param User $user
    * @return array
    */
-  public function exportDictionariesArr(Datasource $datasource,Metasource $metasource=null) {
-    $output=array('dataDictionary'=>array(),'transformationDictionary'=>array(),'recordCount'=>0/*TODO*/);
-    return $output;//FIXME implementovat zbytek funkce...
-
-    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+  public function exportDictionariesArr(Datasource $datasource,Metasource $metasource=null, User $user) {
+    $output = ['dataDictionary'=>[], 'transformationDictionary'=>[], 'recordCount'=>0];
 
 
     #region datafields
     foreach($datasource->datasourceColumns as $datasourceColumn){
-      $output['dataDictionary'][$datasourceColumn->name]=($datasourceColumn->type==DatasourceColumn::TYPE_STRING?'string':'integer');//TODO kontrola, jaké má smysl vracet datové typy....
+      $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(), $user);
+      $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->datasourceId:$datasource->dbTable);
+      $output['recordCount']=$dbDatasource->size;
+      $dbFields=$database->getDbFields($dbDatasource);
+      if (!empty($dbFields)){
+        foreach($dbFields as $dbField){
+          $output['dataDictionary'][$dbField->name]=$dbField->type;
+        }
+      }
     }
     #endregion datafields
+    return $output;//TODO continue...
 
     #region atributy
     if (!empty($metasource) && !empty($metasource->attributes)) {

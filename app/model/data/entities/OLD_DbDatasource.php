@@ -8,7 +8,7 @@ namespace EasyMinerCenter\Model\Data\Entities;
  * @package EasyMinerCenter\Model\Data\Entities
  * @property string $type
  * @property string $name
- * @property int $remoteId
+ * @property int $dbDatasourceId
  */
 class OLD_DbDatasource {
 

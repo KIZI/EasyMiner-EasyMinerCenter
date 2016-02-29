@@ -2,7 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
@@ -15,6 +15,7 @@ use Nette\Utils\Strings;
 /**
  * Class GuhaPmmlSerializer - serializer umožňující sestavit GUHA PMML dokument z dat zadané úlohy...
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
+ * @author Stanislav Vojíř
  */
 class GuhaPmmlSerializer {
   /** @var  \SimpleXMLElement $pmml */
@@ -28,8 +29,8 @@ class GuhaPmmlSerializer {
 
   const PMML_XMLNS='http://www.dmg.org/PMML-4_0';
 
-  /** @var  DatabasesFacade $databasesFacade */
-  private $databasesFacade;
+  /** @var  DatabaseFactory $databaseFactory */
+  private $databaseFactory;
 
   /** @var  \SimpleXMLElement $BBAsWorkXml */
   private $BBAsWorkXml;
@@ -58,10 +59,10 @@ class GuhaPmmlSerializer {
   /**
    * @param Task $task
    * @param \SimpleXMLElement|null $pmml
-   * @param DatabasesFacade|null $databasesFacade
+   * @param DatabaseFactory $databaseFactory
    * @param string $appVersion=''
    */
-  public function __construct(Task $task, $pmml = null, $databasesFacade=null, $appVersion=''){
+  public function __construct(Task $task, \SimpleXMLElement $pmml = null, DatabaseFactory $databaseFactory, $appVersion=''){
     if ($task instanceof Task){
       $this->task=$task;
       $this->miner=$task->miner;
@@ -80,7 +81,7 @@ class GuhaPmmlSerializer {
 
     $this->appendTaskInfo();
 
-    $this->databasesFacade=$databasesFacade;
+    $this->databaseFactory=$databaseFactory;
 
     $connectivesArr=Cedent::getConnectives();
     foreach($connectivesArr as $connective){
@@ -268,6 +269,7 @@ class GuhaPmmlSerializer {
       }
 
       if ($includeFrequencies){
+        //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
         if ($datasourceColumn->type=DatasourceColumn::TYPE_STRING && !empty($valuesStatistics->valuesArr)){
           //výčet hodnot
@@ -324,6 +326,7 @@ class GuhaPmmlSerializer {
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frekvence
+        //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr)){
           if ($includeFrequencies){
@@ -346,6 +349,7 @@ class GuhaPmmlSerializer {
         $discretizeXml=$derivedFieldXml->addChild('Discretize');
         $discretizeXml->addAttribute('field',$datasourceColumn->name);
         //frekvence
+        //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
           foreach($valuesStatistics->valuesArr as $value=>$count){
@@ -375,6 +379,7 @@ class GuhaPmmlSerializer {
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frekvence
+        //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
           foreach($valuesStatistics->valuesArr as $value=>$count){

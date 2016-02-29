@@ -26,7 +26,7 @@ CREATE TABLE `attributes` (
   CONSTRAINT `attributes_ibfk_1` FOREIGN KEY (`metasource_id`) REFERENCES `metasources` (`metasource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `attributes_ibfk_3` FOREIGN KEY (`datasource_column_id`) REFERENCES `datasource_columns` (`datasource_column_id`) ON UPDATE CASCADE,
   CONSTRAINT `attributes_ibfk_4` FOREIGN KEY (`preprocessing_id`) REFERENCES `preprocessings` (`preprocessing_id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=775 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB';
+) ENGINE=InnoDB AUTO_INCREMENT=1992 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cedents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -35,7 +35,7 @@ CREATE TABLE `cedents` (
   `cedent_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `connective` enum('conjunction','disjunction','negation') COLLATE utf8_czech_ci NOT NULL,
   PRIMARY KEY (`cedent_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=270083 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující jednotlivé cedenty';
+) ENGINE=InnoDB AUTO_INCREMENT=295205 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující jednotlivé cedenty';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cedents_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -76,7 +76,7 @@ CREATE TABLE `datasource_columns` (
   KEY `format_id` (`format_id`),
   CONSTRAINT `datasource_columns_ibfk_1` FOREIGN KEY (`datasource_id`) REFERENCES `datasources` (`datasource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `datasource_columns_ibfk_2` FOREIGN KEY (`format_id`) REFERENCES `formats` (`format_id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2958 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB';
+) ENGINE=InnoDB AUTO_INCREMENT=5252 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `datasources`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -85,10 +85,11 @@ CREATE TABLE `datasources` (
   `datasource_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
   `type` enum('mysql','limited','unlimited') COLLATE utf8_czech_ci NOT NULL,
-  `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
-  `remote_id` int(11) DEFAULT NULL,
+  `name` varchar(200) COLLATE utf8_czech_ci NOT NULL,
+  `db_datasource_id` int(11) DEFAULT NULL,
   `available` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Informace o tom, jestli daný datasource existuje',
-  `db_server` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  `db_api` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL COMMENT 'URL API, přes které je daná služba dostupná',
+  `db_server` varchar(100) COLLATE utf8_czech_ci DEFAULT NULL,
   `db_port` smallint(6) DEFAULT NULL,
   `db_username` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_password` varchar(300) COLLATE utf8_czech_ci NOT NULL,
@@ -97,7 +98,7 @@ CREATE TABLE `datasources` (
   PRIMARY KEY (`datasource_id`),
   KEY `is_user` (`user_id`),
   CONSTRAINT `datasources_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=145 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data';
+) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `formats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -114,7 +115,7 @@ CREATE TABLE `formats` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `formats_ibfk_1` FOREIGN KEY (`meta_attribute_id`) REFERENCES `meta_attributes` (`meta_attribute_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `formats_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2685 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých formátů';
+) ENGINE=InnoDB AUTO_INCREMENT=4955 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých formátů';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `helper_data`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -139,7 +140,7 @@ CREATE TABLE `intervals` (
   PRIMARY KEY (`interval_id`),
   KEY `format_id` (`format_id`),
   CONSTRAINT `intervals_ibfk_1` FOREIGN KEY (`format_id`) REFERENCES `formats` (`format_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2104 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2334 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `knowledge_bases`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -160,7 +161,7 @@ CREATE TABLE `meta_attributes` (
   PRIMARY KEY (`meta_attribute_id`),
   KEY `knowledge_base_id` (`knowledge_base_id`),
   CONSTRAINT `meta_attributes_ibfk_1` FOREIGN KEY (`knowledge_base_id`) REFERENCES `knowledge_bases` (`knowledge_base_id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1562 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici metaatributů';
+) ENGINE=InnoDB AUTO_INCREMENT=1744 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici metaatributů';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `metasources`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -169,7 +170,7 @@ CREATE TABLE `metasources` (
   `metasource_id` int(11) NOT NULL AUTO_INCREMENT,
   `miner_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `type` enum('mysql','cassandra') COLLATE utf8_czech_ci NOT NULL,
+  `type` enum('mysql','limited','unlimited') COLLATE utf8_czech_ci NOT NULL,
   `db_server` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_port` smallint(6) DEFAULT NULL,
   `db_username` varchar(100) COLLATE utf8_czech_ci NOT NULL,
@@ -181,7 +182,7 @@ CREATE TABLE `metasources` (
   KEY `miner_id` (`miner_id`),
   CONSTRAINT `metasources_ibfk_1` FOREIGN KEY (`miner_id`) REFERENCES `miners` (`miner_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `metasources_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data';
+) ENGINE=InnoDB AUTO_INCREMENT=307 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `miners`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -205,7 +206,7 @@ CREATE TABLE `miners` (
   CONSTRAINT `miners_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `miners_ibfk_2` FOREIGN KEY (`datasource_id`) REFERENCES `datasources` (`datasource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `miners_ibfk_3` FOREIGN KEY (`metasource_id`) REFERENCES `metasources` (`metasource_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8 COMMENT='Table with definition of EasyMiner instances';
+) ENGINE=InnoDB AUTO_INCREMENT=233 DEFAULT CHARSET=utf8 COMMENT='Table with definition of EasyMiner instances';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `preprocessings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -222,7 +223,7 @@ CREATE TABLE `preprocessings` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `preprocessings_ibfk_1` FOREIGN KEY (`format_id`) REFERENCES `formats` (`format_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `preprocessings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=623 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující seznam preprocessingů';
+) ENGINE=InnoDB AUTO_INCREMENT=1839 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující seznam preprocessingů';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `preprocessings_values_bins`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -251,7 +252,7 @@ CREATE TABLE `rule_attributes` (
   CONSTRAINT `rule_attributes_ibfk_1` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`attribute_id`) ON UPDATE CASCADE,
   CONSTRAINT `rule_attributes_ibfk_2` FOREIGN KEY (`values_bin_id`) REFERENCES `values_bins` (`values_bin_id`) ON UPDATE CASCADE,
   CONSTRAINT `rule_attributes_ibfk_3` FOREIGN KEY (`value_id`) REFERENCES `values` (`value_id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=51107 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=54710 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `rule_set_rule_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -281,7 +282,7 @@ CREATE TABLE `rule_sets` (
   PRIMARY KEY (`rule_set_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `rule_sets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých rulesetů';
+) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých rulesetů';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `rules`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -308,7 +309,7 @@ CREATE TABLE `rules` (
   CONSTRAINT `rules_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`task_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `rules_ibfk_2` FOREIGN KEY (`antecedent`) REFERENCES `cedents` (`cedent_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `rules_ibfk_3` FOREIGN KEY (`consequent`) REFERENCES `cedents` (`cedent_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1615992 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující nalezená asociační pravidla';
+) ENGINE=InnoDB AUTO_INCREMENT=1640871 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující nalezená asociační pravidla';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `tasks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -330,7 +331,7 @@ CREATE TABLE `tasks` (
   PRIMARY KEY (`task_id`),
   KEY `miner_id` (`miner_id`),
   CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`miner_id`) REFERENCES `miners` (`miner_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2281 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2396 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `user_forgotten_passwords`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -360,7 +361,7 @@ CREATE TABLE `users` (
   `last_login` datetime NOT NULL,
   `active` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users';
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users';
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `values`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -373,7 +374,7 @@ CREATE TABLE `values` (
   KEY `format_id` (`format_id`),
   KEY `value` (`value`),
   CONSTRAINT `values_ibfk_1` FOREIGN KEY (`format_id`) REFERENCES `formats` (`format_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=122320 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=152440 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `values_bins`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -385,7 +386,7 @@ CREATE TABLE `values_bins` (
   PRIMARY KEY (`values_bin_id`),
   KEY `format_id` (`format_id`),
   CONSTRAINT `values_bins_ibfk_1` FOREIGN KEY (`format_id`) REFERENCES `formats` (`format_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=378 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=390 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `values_bins_intervals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -19,6 +19,14 @@ interface IDatabase {
   public function getDbDatasources();
 
   /**
+   * Funkce vracející informace o konkrétním datovém zdroji
+   *
+   * @param int|string $datasourceId
+   * @return DbDatasource
+   */
+  public function getDbDatasource($datasourceId);
+
+  /**
    * Funkce vracející seznam sloupců v datovém zdroji
    *
    * @param DbDatasource $dbDatasource

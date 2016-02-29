@@ -7,12 +7,13 @@ use LeanMapper\Entity;
 
 /**
  * Class Datasource
- * @package EasyMinerCenter\Model\EasyMiner\Entities
+ *
+*@package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
  * @property string|null $name = null
- * @property int|null $remoteId = null
+ * @property int|null $dbDatasourceId = null
  * @property bool $available = true
  * @property string|null $dbServer = null
  * @property string|null $dbApi = null
@@ -45,7 +46,7 @@ class Datasource extends Entity{
       'id'=>$this->datasourceId,
       'type'=>$this->type,
       'name'=>$this->getName(),
-      'remoteId'=>$this->remoteId,
+      'dbDatasourceId'=>$this->dbDatasourceId,
       'available'=>$this->available
     ];
   }
