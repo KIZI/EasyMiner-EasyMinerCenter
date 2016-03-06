@@ -157,7 +157,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser('mysql'/*TODO*/,$this->getCurrentUser(),$inputData['type']);
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
     $inputData['name']=$this->databasesFacade->prepareNewTableName($inputData['name']);
-    $datasource->dbTable=$inputData['name'];
+    $datasource->name=$inputData['name'];
     $this->fileImportsFacade->importCsvFile($filename,$datasource->getDbConnection(),$inputData['name'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
     $this->datasourcesFacade->saveDatasource($datasource);
     //send response
@@ -335,7 +335,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $limit=(@$inputData['limit']>0?$inputData['limit']:10000);
     $separator=(@$inputData['separator']!=''?$inputData['separator']:';');
     $enclosure=(@$inputData['enclosure']!=''?$inputData['enclosure']:'"');
-    $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($datasource->dbTable,$offset,$limit,$separator,$enclosure);
+    $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($datasource->name,$offset,$limit,$separator,$enclosure);
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('text/csv','UTF-8');
     $this->sendResponse(new TextResponse($csv));

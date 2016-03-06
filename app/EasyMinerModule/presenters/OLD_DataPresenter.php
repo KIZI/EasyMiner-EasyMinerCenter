@@ -472,7 +472,7 @@ class OLD_DataPresenter extends BasePresenter{
         //připravení připojení k DB
         $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($user,$dbType);
         $this->fileImportsFacade->importCsvFile($values->file,$datasource->getDbConnection(),$values->table,$values->encoding,$values->separator,$values->enclosure,$values->escape,$nullValue);
-        $datasource->dbTable=$values->table;
+        $datasource->name=$values->table;
         //uložíme datasource
         $this->datasourcesFacade->saveDatasource($datasource);
         //smažeme dočasné soubory...

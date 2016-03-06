@@ -278,7 +278,7 @@ class MinersPresenter extends BaseResourcePresenter{
               $existingFormatNames[]=$format->name;
             }
           }
-          $basicFormatName=str_replace('-','_',Strings::webalize($datasource->dbTable));
+          $basicFormatName=str_replace('-','_',Strings::webalize($datasource->name));
           $i=1;
           do{
             $formatName=$basicFormatName.($i>1?'_'.$i:'');

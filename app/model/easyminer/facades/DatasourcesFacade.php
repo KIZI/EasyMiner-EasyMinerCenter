@@ -8,12 +8,10 @@ use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
-use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository;
 use Nette\Application\BadRequestException;
-use Nette\Utils\Strings;
 
 /**
  * Class DatasourcesFacade - fasáda pro práci s datovými zdroji
@@ -28,12 +26,8 @@ class DatasourcesFacade {
   private $datasourcesRepository;
   /** @var  DatasourceColumnsRepository $datasourceColumnsRepository */
   private $datasourceColumnsRepository;
-  /** @var array $databasesConfig - konfigurace jednotlivých připojení k DB */
-  private $databasesConfig;
   /** @var string[] $dbTypesWithRemoteDatasources - seznam typů databází, ve kterých se nacházejí vzdálené datové zdroje */
   private static $dbTypesWithRemoteDatasources=[DbConnection::TYPE_LIMITED,DbConnection::TYPE_UNLIMITED];
-
-  #region ///REVIDOVANÉ METODY///////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * Funkce vracející seznam aktivních (nakonfigurovaných) typů databází
@@ -198,9 +192,8 @@ class DatasourcesFacade {
    * @param User $user
    */
   public function updateDatasourceColumns(Datasource &$datasource, User $user) {
-    //TODO opravit...
     $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(), $user);
-    $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->dbTable);
+    $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->name);
     $datasource->size=$dbDatasource->size;
     $dbFields=$database->getDbFields($dbDatasource);
 
@@ -309,126 +302,6 @@ class DatasourcesFacade {
     return $this->datasourceColumnsRepository->findBy(['datasource_id'=>$datasource,'name'=>$columnName]);
   }
 
-  #endregion ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-  /**
-   * Funkce pro kontrolu, jestli jsou všechny sloupce z daného datového zdroje namapované na formáty z knowledge base
-   * @param Datasource|int $datasource
-   * @param bool $reloadColumns = false
-   * @return bool
-   */
-  public function checkDatasourceColumnsFormatsMappings($datasource, $reloadColumns = false){
-    if ($datasource->isDetached()){
-      exit('xxx');//FIXME
-    }
-    if (!($datasource instanceof Datasource)){
-      $datasource=$this->findDatasource($datasource);
-    }
-
-    if ($reloadColumns){
-      $this->reloadDatasourceColumns($datasource);
-    }
-
-    $datasourceColumns=$datasource->datasourceColumns;
-    foreach ($datasourceColumns as &$datasourceColumn){
-      if (empty($datasourceColumn->format)){
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * @param Datasource $datasource
-   * @param bool $reloadColumns = true - true, pokud má být zaktualizován seznam
-   * @return bool
-   */
-  public function saveDatasource(Datasource &$datasource, $reloadColumns = true) {
-    $result = $this->datasourcesRepository->persist($datasource);
-    if ($reloadColumns) {
-      $this->reloadDatasourceColumns($datasource);
-    }
-    return $result;
-  }
-
-
-  /**
-   * Funkce pro uložení entity DatasourceColumn
-   * @param DatasourceColumn $datasourceColumn
-   * @return int|bool
-   */
-  public function saveDatasourceColumn(DatasourceColumn &$datasourceColumn){
-    $result = $this->datasourceColumnsRepository->persist($datasourceColumn);
-    return $result;
-  }
-
-  /**
-   * Funkce pro aktualizaci info o sloupcích v daném datovém zdroji
-   * @param Datasource $datasource
-   * @throws \LeanMapper\Exception\InvalidStateException
-   * @throws \Nette\Application\ApplicationException
-   */
-  public function reloadDatasourceColumns(Datasource &$datasource){/*TODO
-    $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    $datasourceColumns=$datasource->datasourceColumns;
-    $datasourceColumnsArr=array();
-    if (!empty($datasourceColumns)){
-      foreach ($datasourceColumns as $datasourceColumn){
-        $datasourceColumnsArr[$datasourceColumn->name]=$datasourceColumn;
-      }
-    }
-    $dbColumns = $this->databasesFacade->getColumns($datasource->dbTable);
-
-    if (!empty($dbColumns)) {
-      foreach ($dbColumns as $dbColumn) {
-        if ($dbColumn->name=='id'){
-          continue;//ignorujeme sloupec s ID
-        }
-        if (isset($datasourceColumnsArr[$dbColumn->name])) {
-          unset($datasourceColumnsArr[$dbColumn->name]);
-        } else {
-          //vytvoříme info o datovém sloupci
-          $datasourceColumn = new DatasourceColumn();
-          $datasourceColumn->name = $dbColumn->name;
-          $datasourceColumn->datasource = $datasource;
-          switch ($dbColumn->dataType){
-            case DbColumn::TYPE_FLOAT: $datasourceColumn->type=DatasourceColumn::TYPE_FLOAT;break;
-            case DbColumn::TYPE_INTEGER: $datasourceColumn->type=DatasourceColumn::TYPE_INTEGER;break;
-            default: $datasourceColumn->type=DatasourceColumn::TYPE_STRING;
-          }
-
-          $datasourceColumn->strLen=$dbColumn->strLength;
-
-          $this->datasourceColumnsRepository->persist($datasourceColumn);
-        }
-      }
-    }
-    if (!empty($datasourceColumnsArr)) {
-      foreach ($datasourceColumnsArr as $datasourceColumn) {
-        //odmažeme info o sloupcích, které v datové tabulce již neexistují
-        $this->datasourceColumnsRepository->delete($datasourceColumn);
-      }
-    }
-
-    $datasource=$this->findDatasource($datasource->datasourceId);*/
-  }
-  /**
-   * @param Datasource|int $datasource
-   * @return int
-   */
-  public function deleteDatasource($datasource){
-    if (!($datasource instanceof Datasource)){
-      $datasource=$this->datasourcesRepository->find($datasource);
-    }
-    return $this->datasourcesRepository->delete($datasource);
-  }
-
-
   /**
    * Funkce pro připravení parametrů nového datového zdroje pro daného uživatele...
    * @param User $user
@@ -463,71 +336,20 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce vracející heslo k DB na základě údajů klienta
-   * @param User $user
-   * @return string
-   */
-  private function getUserDbPassword(User $user){
-    //TODO remove...
-    return Strings::substring($user->getDbPassword(),2,3).Strings::substring(sha1($user->userId.$user->getDbPassword()),4,5);
-  }
-
-  /**
-   * Funkce vracející admin přístupy k DB daného typu
-   * @param string $dbType
-   * @return DbConnection
-   */
-  public function getAdminDbConnection($dbType){
-    $dbConnection=new DbConnection();
-    $databaseConfig=$this->databasesConfig[$dbType];
-    $dbConnection->type=$dbType;
-    $dbConnection->dbUsername=(!empty($databaseConfig['data_username'])?$databaseConfig['data_username']:@$databaseConfig['username']);
-    $dbConnection->dbPassword=(!empty($databaseConfig['data_password'])?$databaseConfig['data_password']:@$databaseConfig['password']);
-    $dbConnection->dbServer=(!empty($databaseConfig['data_server'])?$databaseConfig['data_server']:@$databaseConfig['server']);
-    if (!empty($databaseConfig['data_port'])){
-      $dbConnection->dbPort=$databaseConfig['data_port'];
-    }
-    return $dbConnection;
-  }
-
-  /**
-   * Funkce pro export pole s informacemi z DataDictionary a TransformationDictionary
+   * Funkce pro export pole s informacemi z DataDictionary
    * @param Datasource $datasource
-   * @param Metasource|null $metasource
    * @param User $user
+   * @param int &rowsCount = null - počet řádků v datasource
    * @return array
    */
-  public function exportDictionariesArr(Datasource $datasource,Metasource $metasource=null, User $user) {
-    $output = ['dataDictionary'=>[], 'transformationDictionary'=>[], 'recordCount'=>$datasource->size];
-
-    #region datafields
+  public function exportDataDictionaryArr(Datasource $datasource, User $user, &$rowsCount = null) {
+    $output = [];
     $this->updateDatasourceColumns($datasource, $user);//aktualizace seznamu datových sloupců
     foreach($datasource->datasourceColumns as $datasourceColumn){
       if (!$datasourceColumn->active){continue;}
-      $output['dataDictionary'][$datasourceColumn->name]=$datasourceColumn->type;
+      $output[$datasourceColumn->name]=$datasourceColumn->type;
     }
-    #endregion datafields
-
-    return $output;//TODO continue...
-
-    #region atributy
-    if (!empty($metasource) && !empty($metasource->attributes)) {
-      $this->databasesFacade->openDatabase($metasource->getDbConnection());
-      foreach($metasource->attributes as $attribute) {
-        $valuesArr=array();
-        try{
-          $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name,true);
-          if (!empty($valuesStatistics->valuesArr)){
-            foreach ($valuesStatistics->valuesArr as $value=>$count){
-              $valuesArr[]=$value;
-            }
-          }
-        }catch (\Exception $e){}
-        $output['transformationDictionary'][$attribute->name]=array('choices'=>$valuesArr);
-      }
-    }
-    #endregion atributy
-
+    $rowsCount = $datasource->size;
     return $output;
   }
 
@@ -546,4 +368,86 @@ class DatasourcesFacade {
     }
     return $datasource->user->userId==$user;
   }
-} 
+
+
+#  /**
+#   * Funkce vracející admin přístupy k DB daného typu
+#   * @param string $dbType
+#   * @return DbConnection
+#   */
+#  public function getAdminDbConnection($dbType){
+#  $dbConnection=new DbConnection();
+#  $databaseConfig=$this->databasesConfig[$dbType];
+#  $dbConnection->type=$dbType;
+#  $dbConnection->dbUsername=(!empty($databaseConfig['data_username'])?$databaseConfig['data_username']:@$databaseConfig['username']);
+#  $dbConnection->dbPassword=(!empty($databaseConfig['data_password'])?$databaseConfig['data_password']:@$databaseConfig['password']);
+#  $dbConnection->dbServer=(!empty($databaseConfig['data_server'])?$databaseConfig['data_server']:@$databaseConfig['server']);
+#  if (!empty($databaseConfig['data_port'])){
+#  $dbConnection->dbPort=$databaseConfig['data_port'];
+#  }
+#  return $dbConnection;
+#  }
+#
+#
+#  /**
+#   * Funkce pro kontrolu, jestli jsou všechny sloupce z daného datového zdroje namapované na formáty z knowledge base
+#   * @param Datasource|int $datasource
+#   * @param bool $reloadColumns = false
+#   * @return bool
+#   */
+#  public function checkDatasourceColumnsFormatsMappings($datasource, $reloadColumns = false){
+#  if ($datasource->isDetached()){
+#  exit('xxx');//FIXME
+#  }
+#  if (!($datasource instanceof Datasource)){
+#  $datasource=$this->findDatasource($datasource);
+#  }
+#
+#  if ($reloadColumns){
+#  $this->reloadDatasourceColumns($datasource);
+#  }
+#
+#  $datasourceColumns=$datasource->datasourceColumns;
+#  foreach ($datasourceColumns as &$datasourceColumn){
+#  if (empty($datasourceColumn->format)){
+#  return false;
+#  }
+#  }
+#  return true;
+#  }
+#
+#  /**
+#   * @param Datasource $datasource
+#   * @param bool $reloadColumns = true - true, pokud má být zaktualizován seznam
+#   * @return bool
+#   */
+#  public function saveDatasource(Datasource &$datasource, $reloadColumns = true) {
+#  $result = $this->datasourcesRepository->persist($datasource);
+#  if ($reloadColumns) {
+#  ///XXX $this->reloadDatasourceColumns($datasource);
+#  }
+#  return $result;
+#  }
+#
+#
+#  /**
+#   * Funkce pro uložení entity DatasourceColumn
+#   * @param DatasourceColumn $datasourceColumn
+#   * @return int|bool
+#   */
+#  public function saveDatasourceColumn(DatasourceColumn &$datasourceColumn){
+#  $result = $this->datasourceColumnsRepository->persist($datasourceColumn);
+#  return $result;
+#  }
+#
+#  /**
+#   * @param Datasource|int $datasource
+#   * @return int
+#   */
+#  public function deleteDatasource($datasource){
+#  if (!($datasource instanceof Datasource)){
+#  $datasource=$this->datasourcesRepository->find($datasource);
+#  }
+#  return $this->datasourcesRepository->delete($datasource);
+#  }
+}

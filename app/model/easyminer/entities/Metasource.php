@@ -9,7 +9,6 @@ use LeanMapper\Entity;
  * Class Metasource
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $metasourceId = null
- * @property Miner $miner m:hasOne
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','cassandra')
  * @property string $dbServer

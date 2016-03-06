@@ -45,7 +45,7 @@ class Miner extends Entity implements IOwnerResource{
    * @return string
    */
   public function getAttributesTableName() {
-    return 'ATR' . $this->minerId . '_' . $this->datasource->dbTable;
+    return 'ATR' . $this->minerId . '_' . $this->datasource->name;
   }
 
   /**
@@ -53,7 +53,7 @@ class Miner extends Entity implements IOwnerResource{
    * @return string
    */
   public function getRulesTableName(){
-    return 'RULES'.$this->minerId.'_'.$this->datasource->dbTable;
+    return 'RULES'.$this->minerId.'_'.$this->datasource->name;
   }
 
   /**
@@ -61,7 +61,7 @@ class Miner extends Entity implements IOwnerResource{
    * @return string
    */
   public function getBBATableName(){
-    return 'BBA'.$this->minerId.'_'.$this->datasource->dbTable;
+    return 'BBA'.$this->minerId.'_'.$this->datasource->name;
   }
 
   /**

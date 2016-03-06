@@ -105,7 +105,7 @@ var DataUpload=function(){
       var columnDetailsTr=$('<tr></tr>');
       var nameInput=$('<input type="text" id="column_'+i+'_name" required />').val(columnNames[i]);//TODO připojení kontrol na tvar názvů sloupců
       columnDetailsTr.append($('<td></td>').html(nameInput));
-      var dataTypeSelect=$('<select id="column_'+i+'_type"><option value="nominal">nominal [ABC]</option><option value="numerical">numerical [123]</option><option value="null">--ignore--</option></select>');
+      var dataTypeSelect=$('<select id="column_'+i+'_type"><option value="nominal">nominal [ABC]</option><option value="numeric">numerical [123]</option><option value="null">--ignore--</option></select>');
       dataTypeSelect.val(columnDataTypes[i]);
       columnDetailsTr.append($('<td></td>').html(dataTypeSelect));
       var valuesTd=$('<td class="values"></td>');

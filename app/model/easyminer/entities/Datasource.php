@@ -12,7 +12,6 @@ use LeanMapper\Entity;
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
- * @property string|null $name = null
  * @property int|null $dbDatasourceId = null
  * @property bool $available = true
  * @property string|null $dbServer = null
@@ -20,10 +19,11 @@ use LeanMapper\Entity;
  * @property int|null $dbPort = null
  * @property string $dbUsername
  * @property string $dbName
- * @property string $dbTable
+ * @property string|null name = null
  * @property int|null $size = null
  * @property-read DatasourceColumn[] $datasourceColumns m:belongsToMany
  * @property-read DbConnection $dbDonnection
+ * @property-read string $dbTable
  */
 class Datasource extends Entity{
   /**
@@ -46,23 +46,11 @@ class Datasource extends Entity{
     return [
       'id'=>$this->datasourceId,
       'type'=>$this->type,
-      'name'=>$this->getName(),
+      'name'=>$this->name,
       'dbDatasourceId'=>$this->dbDatasourceId,
       'available'=>$this->available,
       'size'=>$this->size
     ];
-  }
-
-  /**
-   * Funkce vracející název datového zdroje (pokud není definován, je vrácen název tabulky)
-   * @return string
-   */
-  public function getName() {
-    if (!empty($this->row->name)){
-      return $this->row->name;
-    }else{
-      return $this->dbTable;
-    }
   }
 
   /**
@@ -112,5 +100,12 @@ class Datasource extends Entity{
    */
   public function setDbPassword($password){
     $this->row->db_password=StringsHelper::encodePassword($password);
+  }
+
+  /**
+   * @return string
+   */
+  public function getDbTable() {
+    return @$this->row->name;
   }
 } 

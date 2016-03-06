@@ -14,8 +14,7 @@ namespace EasyMinerCenter\Model\Data\Entities;
  */
 class DbField {
   const TYPE_NOMINAL = 'nominal';
-  const TYPE_NUMERICAL = 'numerical';
-  const TYPE_STRING = self::TYPE_NOMINAL;
+  const TYPE_NUMERIC = 'numeric';
 
   public $id;
   public $dataSource;

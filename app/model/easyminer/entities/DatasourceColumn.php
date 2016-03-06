@@ -21,7 +21,7 @@ class DatasourceColumn extends Entity{
   const TYPE_FLOAT='float';
   //TODO pročistit seznam datových typů
   const TYPE_NOMINAL='nominal';
-  const TYPE_NUMERICAL='numerical';
+  const TYPE_NUMERIC='numeric';
 
   /**
    * Funkce vracející základní přehled dat

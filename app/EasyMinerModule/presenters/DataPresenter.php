@@ -217,7 +217,7 @@ class DataPresenter extends BasePresenter{
     }
     foreach($columns as $column) {
       $resultArr['columnNames'][]=$column->name;
-      $resultArr['dataTypes'][]=($column->dataType==DbField::TYPE_STRING?'nominal':'numerical');
+      $resultArr['dataTypes'][]=($column->dataType==DbField::TYPE_NOMINAL?'nominal':'numeric');
     }
     //načtení potřebných řádků...
     $resultArr['data']=$this->fileImportsFacade->getRowsFromCSV($file,$rowsCount,$delimiter,$enclosure,$escapeCharacter,$nullValue,1);

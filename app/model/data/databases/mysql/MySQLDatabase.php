@@ -540,11 +540,11 @@ class MySQLDatabase implements IDatabase{
   private static function encodeDbDataType($dataType){
     $dataType=Strings::lower($dataType);
     if (Strings::contains($dataType,'int(')){
-      return DbField::TYPE_NUMERICAL;
+      return DbField::TYPE_NUMERIC;
     }elseif(Strings::contains($dataType,'float')||Strings::contains($dataType,'double')||Strings::contains($dataType,'real')){
-      return DbField::TYPE_NUMERICAL;
+      return DbField::TYPE_NUMERIC;
     }else{
-      return DbField::TYPE_STRING;
+      return DbField::TYPE_NOMINAL;
     }
   }
 

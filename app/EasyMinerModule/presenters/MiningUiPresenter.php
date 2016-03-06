@@ -3,6 +3,7 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMiner\MiningUI\Integration as MiningUIIntegration;
 use IZI\IZIConfig;
@@ -24,6 +25,8 @@ class MiningUiPresenter extends BasePresenter{
   private $config;
   /** @var  DatasourcesFacade $datasourcesFacade*/
   private $datasourcesFacade;
+  /** @var  MetasourcesFacade $metasourcesFacade */
+  private $metasourcesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
 
@@ -58,7 +61,11 @@ class MiningUiPresenter extends BasePresenter{
       $metasource=$miner->metasource;
     }catch (\Exception $e){/*chybu ignorujeme - zatím pravděpodobně neexistují žádné atributy*/}
 
-    $responseContent['DD']=$this->datasourcesFacade->exportDictionariesArr($miner->datasource, $metasource, $this->getCurrentUser());
+    $responseContent['DD']=[
+      'dataDictionary'=>$this->datasourcesFacade->exportDataDictionaryArr($miner->datasource, $this->getCurrentUser(), $rowsCount),
+      'transformationDictionary'=>[],
+      'recordCount'=>$rowsCount
+    ];
     #endregion připravení informací pro UI - s odděleným připravením DataDictionary
 
     uksort($responseContent['DD']['transformationDictionary'],function($a,$b){
@@ -116,6 +123,12 @@ class MiningUiPresenter extends BasePresenter{
    */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
     $this->datasourcesFacade=$datasourcesFacade;
+  }
+  /**
+   * @param MetasourcesFacade $metasourcesFacade
+   */
+  public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade) {
+    $this->metasourcesFacade=$metasourcesFacade;
   }
   /**
    * @param RuleSetsFacade $ruleSetsFacade

@@ -21,9 +21,9 @@ class DbDatasource {
    * @param int|null $id
    * @param string $name
    * @param string $type
-   * @param int|null $size
+   * @param int|null $size = null
    */
-  public function __construct($id,$name,$type,$size) {
+  public function __construct($id,$name,$type,$size=null) {
     $this->id=$id;
     $this->name=$name;
     $this->type=$type;
