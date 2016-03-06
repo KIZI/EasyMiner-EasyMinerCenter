@@ -49,6 +49,7 @@ class DatabaseFactory {
    * @throws \Exception
    */
   public function getDbTypeName($dbType) {
+    /** @var IDatabase|string $dbClass */
     $dbClass=self::getDatabaseClassName($dbType);
     return $dbClass::getDbTypeName();
   }
