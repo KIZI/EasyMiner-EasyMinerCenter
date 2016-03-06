@@ -1,10 +1,10 @@
 <?php
 
-namespace EasyMinerCenter\Model\Data\Entities;
+namespace EasyMinerCenter\Model\Preprocessing\Entities;
 
 /**
  * Class DbConnection
- * @package EasyMinerCenter\Model\Data\Entities
+ * @package EasyMinerCenter\Model\Preprocessing\Entities
  * @property string $type = m:Enum("mysql","limited","unlimited")
  * @property string|null $dbServer = null
  * @property string|null $dbApi = null
@@ -13,13 +13,13 @@ namespace EasyMinerCenter\Model\Data\Entities;
  * @property string $dbPassword
  * @property string $dbName
  */
-class DbConnection{
+class PpConnection{
   const TYPE_MYSQL='mysql';
   const TYPE_LIMITED='limited';
   const TYPE_UNLIMITED='unlimited';
   const TYPE_MYSQL_NAME='MySQL';
-  const TYPE_LIMITED_NAME='Limited data service DB';
-  const TYPE_UNLIMITED_NAME='Unlimited data service DB';
+  const TYPE_LIMITED_NAME='Limited preprocessing service DB';
+  const TYPE_UNLIMITED_NAME='Unlimited preprocessing service DB';
 
   /**
    * Funkce vracející connection string inspirovaný connection stringem pro PDO, ale obsahující všechny vlastnosti DbConnection
