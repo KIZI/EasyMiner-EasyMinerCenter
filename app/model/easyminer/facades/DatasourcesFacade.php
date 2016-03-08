@@ -222,19 +222,36 @@ class DatasourcesFacade {
         if (!empty($dbField->id) && is_int($dbField->id) && isset($existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id])){
           //sloupec s daným ID již je v databázi
           $datasourceColumn=$existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id];
-          $datasourceColumn->name=$dbField->name;
-          $datasourceColumn->type=$dbField->type;
-          $datasourceColumn->active=true;
-          if ($datasourceColumn->isModified()){
+          $modified=false;
+          if ($datasourceColumn->name!=$dbField->name){
+            $datasourceColumn->name=$dbField->name;
+            $modified=true;
+          }
+          if ($datasourceColumn->type!=$dbField->type){
+            $datasourceColumn->type=$dbField->type;
+            $modified=true;
+          }
+          if (!$datasourceColumn->active){
+            $datasourceColumn->active=true;
+            $modified=true;
+          }
+          if ($modified){
             $this->datasourceColumnsRepository->persist($datasourceColumn);
           }
           unset($existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id]);
         }elseif(!empty($dbField->name) && isset($existingDatasourceColumnsByName[$dbField->name])){
           //sloupec najdeme podle jména
           $datasourceColumn=$existingDatasourceColumnsByName[$dbField->name];
-          $datasourceColumn->type=$dbField->type;
-          $datasourceColumn->active=true;
-          if ($datasourceColumn->isModified()){
+          $modified=false;
+          if ($datasourceColumn->type!=$dbField->type){
+            $datasourceColumn->type=$dbField->type;
+            $modified=true;
+          }
+          if (!$datasourceColumn->active){
+            $datasourceColumn->active=true;
+            $modified=true;
+          }
+          if ($modified){
             $this->datasourceColumnsRepository->persist($datasourceColumn);
           }
           unset($existingDatasourceColumnsByName[$dbField->name]);
@@ -247,7 +264,6 @@ class DatasourcesFacade {
             $datasourceColumn->dbDatasourceFieldId=$dbField->id;
           }
           $datasourceColumn->active=true;
-          $datasourceColumn->name=$dbField->name;
           $datasourceColumn->type=$dbField->type;
           $this->datasourceColumnsRepository->persist($datasourceColumn);
         }
@@ -257,16 +273,16 @@ class DatasourcesFacade {
     #region deaktivace již neexistujících sloupců
     if (!empty($existingDatasourceColumnsByDbDatasourceFieldId)){
       foreach($existingDatasourceColumnsByDbDatasourceFieldId as &$datasourceColumn){
-        $datasourceColumn->active=false;
-        if ($datasourceColumn->isModified()){
+        if ($datasourceColumn->active){
+          $datasourceColumn->active=false;
           $this->datasourceColumnsRepository->persist($datasourceColumn);
         }
       }
     }
     if (!empty($existingDatasourceColumnsByName)){
       foreach($existingDatasourceColumnsByName as &$datasourceColumn){
-        $datasourceColumn->active=false;
-        if ($datasourceColumn->isModified()){
+        if ($datasourceColumn->active){
+          $datasourceColumn->active=false;
           $this->datasourceColumnsRepository->persist($datasourceColumn);
         }
       }
