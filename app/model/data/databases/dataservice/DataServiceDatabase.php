@@ -46,17 +46,20 @@ abstract class DataServiceDatabase implements IDatabase {
    * @param int $datasourceId
    * @return DbDatasource
    * @throws EntityNotFoundException
-   * @throws \Exception
-   * @throws \Nette\Utils\JsonException
    */
   public function getDbDatasource($datasourceId) {
-    $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.$datasourceId),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
-    $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+    try{
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.$datasourceId),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
 
-    if (!empty($responseData) && ($responseCode==200)){
-      return new DbDatasource($responseData['id'],$responseData['name'],$responseData['type'],$responseData['size']);
+      if (!empty($responseData) && ($responseCode==200)){
+        return new DbDatasource($responseData['id'],$responseData['name'],$responseData['type'],$responseData['size']);
+      }else{
+        throw new \Exception('responseCode: '.$responseCode);
+      }
+    }catch (\Exception $e){
+      throw new EntityNotFoundException('Requested DbDatasource was not found.');
     }
-    throw new EntityNotFoundException('Requested DbDatasource was not found.');
   }
 
   /**

@@ -8,10 +8,10 @@ namespace EasyMinerCenter\Model\Preprocessing\Entities;
  * @package EasyMinerCenter\Model\Preprocessing\Entities
  * @author Stanislav Vojíř
  *
- * @property $id
- * @property $name
- * @property $dataSource
- * @property $type
+ * @property int $id
+ * @property string $name
+ * @property int $dataSource
+ * @property string $type
  * @property int|null $size - počet instancí
  */
 class PpDataset {
