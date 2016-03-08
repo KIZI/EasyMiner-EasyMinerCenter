@@ -34,7 +34,7 @@ class MySQLDatabase implements IPreprocessing{
    * @return PpDataset
    */
   public function getPpDataset($ppDatasetId) {
-    return new PpDataset($ppDatasetId, $ppDatasetId, PpConnection::TYPE_MYSQL, $this->getRowsCount($ppDatasetId));
+    return new PpDataset($ppDatasetId, $ppDatasetId, null, PpConnection::TYPE_MYSQL, $this->getRowsCount($ppDatasetId));
   }
 
   /**
@@ -59,7 +59,7 @@ class MySQLDatabase implements IPreprocessing{
     $columns=$query->fetchAll(PDO::FETCH_CLASS);
     $result=[];
     foreach ($columns as $column){
-      $result[]=new PpAttribute($column->Field, $ppDataset->id, $column->Field, self::encodeDbDataType($column->Type), null);
+      $result[]=new PpAttribute($column->Field, $ppDataset->id, null, $column->Field, self::encodeDbDataType($column->Type), null);
     }
     return $result;
   }

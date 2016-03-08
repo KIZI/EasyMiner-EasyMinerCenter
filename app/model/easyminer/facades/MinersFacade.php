@@ -94,13 +94,14 @@ class MinersFacade {
    * @return int
    */
   public function saveMiner(Miner &$miner){
-    $minerId=$this->minersRepository->persist($miner);
-    $miner=$this->findMiner($minerId);
+    $result=$this->minersRepository->persist($miner);
+    if (empty($miner->minerId)){$miner->minerId=$result;}
+    $miner=$this->findMiner($miner->minerId);
     if (empty($miner->metasource)){
       $miner->metasource=$this->metasourcesFacade->initMetasourceForMiner($miner);
-      $this->saveMiner($miner);
+      return $this->saveMiner($miner);
     }
-    return $minerId;
+    return $result;
   }
 
   /**

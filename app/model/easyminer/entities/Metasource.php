@@ -13,6 +13,7 @@ use LeanMapper\Entity;
  * @property string $type = m:Enum('mysql','limited','unlimited')
  * @property int|null $ppDatasetId = null
  * @property bool $available = true
+ * @property Datasource|null $datasource = null m:hasOne
  * @property string $dbServer
  * @property string|null $dbApi = null
  * @property int|null $dbPort = null

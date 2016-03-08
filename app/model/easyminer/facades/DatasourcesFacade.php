@@ -171,6 +171,16 @@ class DatasourcesFacade {
   }
 
   /**
+   * Funkce pro nalezení datového zdroje dle zadaného ID z datové služby
+   * @param int $dbDatasourceFieldId
+   * @return Datasource
+   * @throws EntityNotFoundException
+   */
+  public function findDatasourceByDbDatasourceFieldId($dbDatasourceFieldId) {
+    return $this->datasourcesRepository->findBy(['db_datasource_id'=>$dbDatasourceFieldId]);
+  }
+  
+  /**
    * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
    * @param int $id
    * @param User $user
@@ -319,6 +329,17 @@ class DatasourcesFacade {
   }
 
   /**
+   * Funkce pro nalezení DatasourceColumn podle ID sloupce v datové službě
+   * @param Datasource $datasource
+   * @param int $dbDatasourceFieldId
+   * @return DatasourceColumn
+   * @throws EntityNotFoundException
+   */
+  public function findDatasourceColumnByDbDatasourceColumnId(Datasource $datasource, $dbDatasourceFieldId){
+    return $this->datasourceColumnsRepository->findBy(['datasource_id'=>$datasource->datasourceId, $dbDatasourceFieldId]);
+  }
+
+  /**
    * Funkce pro připravení parametrů nového datového zdroje pro daného uživatele...
    * @param User $user
    * @param string $dbType
@@ -363,7 +384,10 @@ class DatasourcesFacade {
     $this->updateDatasourceColumns($datasource, $user);//aktualizace seznamu datových sloupců
     foreach($datasource->datasourceColumns as $datasourceColumn){
       if (!$datasourceColumn->active){continue;}
-      $output[$datasourceColumn->name]=$datasourceColumn->type;
+      $output[$datasourceColumn->datasourceColumnId]=[
+        'name'=>$datasource->name,
+        'type'=>$datasourceColumn->type
+      ];
     }
     $rowsCount = $datasource->size;
     return $output;

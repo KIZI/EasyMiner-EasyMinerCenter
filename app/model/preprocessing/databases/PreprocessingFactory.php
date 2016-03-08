@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases;
 
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 
@@ -15,6 +16,11 @@ class PreprocessingFactory {
     PpConnection::TYPE_MYSQL=>'\EasyMinerCenter\Model\Preprocessing\Databases\MySQL\MySQLDatabase',
     PpConnection::TYPE_LIMITED=>'\EasyMinerCenter\Model\Preprocessing\Databases\DataService\LimitedDatabase',
     PpConnection::TYPE_UNLIMITED=>'\EasyMinerCenter\Model\Preprocessing\Databases\DataService\UnlimitedDatabase',
+  ];
+  private static $dbPpTypesMapping=[
+    DbConnection::TYPE_MYSQL=>PpConnection::TYPE_MYSQL,
+    DbConnection::TYPE_LIMITED=>PpConnection::TYPE_LIMITED,
+    DbConnection::TYPE_UNLIMITED=>PpConnection::TYPE_UNLIMITED,
   ];
   /** @var  array $preprocessingDatabasesConfig - pole s konfigurací přístupů k jednotlivým typům databází*/
   private $preprocessingDatabasesConfig;
@@ -133,6 +139,16 @@ class PreprocessingFactory {
     if (!empty($this->preprocessingDatabasesConfig[$ppType])){
       return $this->preprocessingDatabasesConfig[$ppType];
     }
-    throw new \Exception('Database '.$ppType.' is not configured!');
+    throw new \Exception('Preprocessing '.$ppType.' is not configured!');
+  }
+
+  /**
+   * Funkce vracející typ vhodného ovladače preprocessingu podle typu databáze, ve které jsou uložena data
+   * @param string $dbType
+   * @return string
+   */
+  public function getPreprocessingTypeByDatabaseType($dbType) {
+    if (!empty(self::$dbPpTypesMapping[$dbType])){return self::$dbPpTypesMapping[$dbType];}
+    throw new \InvalidArgumentException('Unsupported DB type: '.$dbType);
   }
 }

@@ -16,14 +16,15 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
  * @package EasyMinerCenter\Model\EasyMiner\Facades
  * @author Stanislav Vojíř
  */
-class MetasourcesFacade {//TODO implementovat...
+class MetasourcesFacade {
   /** @var PreprocessingFactory $preprocessingFactory */
   private $preprocessingFactory;
-  /** @var  AttributesRepository $attributesRepository */
+  /** @var AttributesRepository $attributesRepository */
   private $attributesRepository;
   /** @var MetasourcesRepository $metasourcesRepository*/
   private $metasourcesRepository;
-
+  /** @var DatasourcesFacade $datasourcesFacade */
+  private $datasourcesFacade;
 
   /**
    * Funkce pro export pole s informacemi z TransformationDictionary
@@ -38,13 +39,13 @@ class MetasourcesFacade {//TODO implementovat...
 
     foreach($metasource->attributes as $attribute){
       if (!$attribute->active){continue;}
-      $output[$attribute->name]=[
+      $output[$attribute->attributeId]=[
+        'name'=>$attribute->name,
         'type'=>$attribute->type,
         'choices'=>[]
       ];
     }
     $rowsCount = $metasource->size;
-    exit(var_dump($output));
     return $output;
 ////    #region atributy
 ////
@@ -86,6 +87,7 @@ class MetasourcesFacade {//TODO implementovat...
     $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(), $user);
 
     $ppDataset=$preprocessing->getPpDataset($metasource->ppDatasetId?$metasource->ppDatasetId:$metasource->name);
+    $datasource=$metasource->datasource;
     $metasource->size=$ppDataset->size;
     $ppAttributes=$preprocessing->getPpAttributes($ppDataset);
 
@@ -119,45 +121,39 @@ class MetasourcesFacade {//TODO implementovat...
             $attribute->name=$ppAttribute->name;
             $modified=true;
           }
-          if ($attribute->type!=$ppAttribute->type){
-            $attribute->type=$ppAttribute->type;
-            $modified=true;
-          }
           if (!$attribute->active){
             $modified=true;
             $attribute->active=true;
           }
           if ($modified){
-            $this->attributesRepository->persist($attribute);
+            $this->saveAttribute($attribute);
           }
           unset($existingAttributesByPpDatasetAttributeId[$ppAttribute->id]);
         }elseif(!empty($ppAttribute->name) && isset($existingAttributesByName[$ppAttribute->name])){
           //sloupec najdeme podle jména
           $attribute=$existingAttributesByName[$ppAttribute->name];
-          $modified=false;
-          if ($attribute->type!=$ppAttribute->type){
-            $attribute->type=$ppAttribute->type;
-            $modified=true;
-          }
           if (!$attribute->active){
             $attribute->active=true;
-            $modified=true;
-          }
-          if ($modified){
-            $this->attributesRepository->persist($attribute);
+            $this->saveAttribute($attribute);
           }
           unset($existingAttributesByName[$ppAttribute->name]);
-        }else{
-          //máme tu nový datový sloupec
+        }elseif (!empty($ppAttribute->field)){
+          //máme tu nový datový sloupec (který má svoji vazbu na datasource)
           $attribute=new Attribute();
           $attribute->metasource=$metasource;
+          try{
+            $datasourceColumn=$this->datasourcesFacade->findDatasourceColumnByDbDatasourceColumnId($datasource,$ppAttribute->field);
+          }catch (\Exception $e){
+            $datasourceColumn=null;
+          }
+          $attribute->datasourceColumn=$datasourceColumn;
           $attribute->name=$ppAttribute->name;
           if (is_int($ppAttribute->id)){
             $attribute->ppDatasetAttributeId=$ppAttribute->id;
           }
           $attribute->active=true;
           $attribute->type=$ppAttribute->type;
-          $this->attributesRepository->persist($attribute);
+          $this->saveAttribute($attribute);
         }
       }
     }
@@ -167,7 +163,7 @@ class MetasourcesFacade {//TODO implementovat...
       foreach($existingAttributesByPpDatasetAttributeId as &$attribute){
         if ($attribute->active){
           $attribute->active=false;
-          $this->attributesRepository->persist($attribute);
+          $this->saveAttribute($attribute);
         }
       }
     }
@@ -175,7 +171,7 @@ class MetasourcesFacade {//TODO implementovat...
       foreach($existingAttributesByName as &$attribute){
         if ($attribute->active){
           $attribute->active=false;
-          $this->attributesRepository->persist($attribute);
+          $this->saveAttribute($attribute);
         }
       }
     }
@@ -184,16 +180,26 @@ class MetasourcesFacade {//TODO implementovat...
     $metasource=$this->findMetasource($metasource->metasourceId);
   }
 
+  /**
+   * @param Attribute &$attribute
+   * @return Attribute
+   */
+  public function saveAttribute(Attribute $attribute) {
+    $attributeId=$this->attributesRepository->persist($attribute);
+    return $this->attributesRepository->find($attributeId);
+  }
 
   /**
    * @param PreprocessingFactory $preprocessingFactory
    * @param AttributesRepository $attributesRepository
    * @param MetasourcesRepository $metasourcesRepository
+   * @param DatasourcesFacade $datasourcesFacade
    */
-  public function __construct(PreprocessingFactory $preprocessingFactory, AttributesRepository $attributesRepository, MetasourcesRepository $metasourcesRepository) {
+  public function __construct(PreprocessingFactory $preprocessingFactory, AttributesRepository $attributesRepository, MetasourcesRepository $metasourcesRepository, DatasourcesFacade $datasourcesFacade) {
     $this->preprocessingFactory=$preprocessingFactory;
     $this->attributesRepository=$attributesRepository;
     $this->metasourcesRepository=$metasourcesRepository;
+    $this->datasourcesFacade=$datasourcesFacade;
   }
 
   /**
@@ -202,7 +208,15 @@ class MetasourcesFacade {//TODO implementovat...
    * @return Metasource
    */
   public function initMetasourceForMiner(Miner $miner) {
+    //TODO inicializace metasource pomocí ovladače preprocessingu
+    $ppType = $this->preprocessingFactory->getPreprocessingTypeByDatabaseType($miner->datasource->type);
+    /** @var IPreprocessing $preprocessing */
+    $preprocessing = $this->preprocessingFactory->getPreprocessingInstanceWithDefaultPpConnection($ppType, $miner->user);
 
-    //TODO inicializace metasource
+    $metasource=Metasource::newFromPpConnection($ppConnection);
+    $metasource->datasource=$miner->datasource;
+    $metasource->available=true;
+    $metasourceId=$this->metasourcesRepository->persist($metasource);
+    return $this->metasourcesRepository->find($metasourceId);
   }
 }

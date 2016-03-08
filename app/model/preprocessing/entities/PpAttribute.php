@@ -23,6 +23,7 @@ class PpAttribute {
   public $dataset;
   public $field;
   public $name;
+  public $type;
   public $uniqueValuesSize;
 
   /**
@@ -30,13 +31,15 @@ class PpAttribute {
    * @param int $dataset
    * @param int $field
    * @param string $name
+   * @param string $type
    * @param int $uniqueValuesSize
    */
-  public function __construct($id, $dataset, $field, $name, $uniqueValuesSize){
+  public function __construct($id, $dataset, $field, $name, $type, $uniqueValuesSize){
     $this->id=$id;
     $this->dataset=$dataset;
     $this->field=$field;
     $this->name=$name;
+    $this->type=$type;
     $this->uniqueValuesSize=$uniqueValuesSize;
   }
 }
