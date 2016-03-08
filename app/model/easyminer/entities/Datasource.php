@@ -27,18 +27,6 @@ use LeanMapper\Entity;
  */
 class Datasource extends Entity{
   /**
-   * Funkce vracející přehled typů databází
-   * @return array
-   */
-  public static function getTypes(){//TODO remove?
-    return array(
-      'mysql'=>'MySQL',
-      'limited'=>'Data service limited',
-      'unlimited'=>'Data service unlimited',
-    );
-  }
-
-  /**
    * Funkce vracející základní parametry datového zdroje
    * @return array
    */
@@ -91,14 +79,20 @@ class Datasource extends Entity{
    * @return string
    */
   public function getDbPassword(){
-    if (empty($this->row->db_password)){return null;}
-    return StringsHelper::decodePassword($this->row->db_password);
+    /** @noinspection PhpUndefinedFieldInspection */
+    if (!empty($this->row->db_password)){
+      /** @noinspection PhpUndefinedFieldInspection */
+      return StringsHelper::decodePassword($this->row->db_password);
+    }else{
+      return null;
+    }
   }
 
   /**
    * @param string $password
    */
   public function setDbPassword($password){
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->row->db_password=StringsHelper::encodePassword($password);
   }
 
@@ -106,6 +100,7 @@ class Datasource extends Entity{
    * @return string
    */
   public function getDbTable() {
+    /** @noinspection PhpUndefinedFieldInspection */
     return @$this->row->name;
   }
 } 

@@ -2,7 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use EasyMinerCenter\Libs\StringsHelper;
-use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use LeanMapper\Entity;
 
 /**
@@ -10,54 +10,74 @@ use LeanMapper\Entity;
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $metasourceId = null
  * @property User|null $user = null m:hasOne
- * @property string $type = m:Enum('mysql','cassandra')
+ * @property string $type = m:Enum('mysql','limited','unlimited')
+ * @property int|null $dbDatasetId = null
+ * @property bool $available = true
  * @property string $dbServer
+ * @property string|null $dbApi = null
  * @property int|null $dbPort = null
  * @property string $dbUsername
  * @property string $dbName
- * @property string $attributesTable
+ * @property string $name
  * @property-read Task[] $tasks m:belongsToMany
  * @property-read Attribute[] $attributes m:belongsToMany
- * @property-read DbConnection $dbConnection
+ * @property-read PpConnection $ppConnection
+ * @property-read string $dbTable
  */
 class Metasource extends Entity{
+
   /**
-   * Funkce vracející přehled typů databází
-   * @return array
+   * Funkce pro připravení entity nového Metasource podle DbConnection
+   * @param PpConnection $ppConnection
+   * @return Metasource
    */
-  public static function getTypes(){
-    return array(
-      'mysql'=>'MySQL',
-      'cassandra'=>'Cassandra DB'
-    );
+  public static function newFromPpConnection(PpConnection $ppConnection) {
+    $metasource = new Metasource();
+    $metasource->dbName=$ppConnection->dbName;
+    $metasource->dbServer=$ppConnection->dbServer;
+    $metasource->dbApi = $ppConnection->dbApi;
+    if (!empty($ppConnection->dbPort)){
+      $metasource->dbPort=$ppConnection->dbPort;
+    }
+    $metasource->dbUsername=$ppConnection->dbUsername;
+    $metasource->setDbPassword($ppConnection->dbPassword);
+    return $metasource;
   }
 
   /**
-   * @return DbConnection
+   * Funkce vracející PpConnection (instrukce pro připojení k DB/preprocessing službě)
+   * @return PpConnection
    */
-  public function getDbConnection(){
-    $dbConnection=new DbConnection();
-    $dbConnection->dbName=$this->dbName;
-    $dbConnection->dbUsername=$this->dbUsername;
-    $dbConnection->dbPassword=$this->getDbPassword();
-    $dbConnection->dbPort=$this->dbPort;
-    $dbConnection->dbServer=$this->dbServer;
-    $dbConnection->type=$this->type;
-    return $dbConnection;
+  public function getPpConnection(){
+    $ppConnection=new PpConnection();
+    $ppConnection->dbName=$this->dbName;
+    $ppConnection->dbUsername=$this->dbUsername;
+    $ppConnection->dbPassword=$this->getDbPassword();
+    $ppConnection->dbPort=$this->dbPort;
+    $ppConnection->dbApi=$this->dbApi;
+    $ppConnection->dbServer=$this->dbServer;
+    $ppConnection->type=$this->type;
+    return $ppConnection;
   }
 
   /**
    * @return string
    */
   public function getDbPassword(){
-    if (empty($this->row->db_password)){return null;}
-    return StringsHelper::decodePassword($this->row->db_password);
+    /** @noinspection PhpUndefinedFieldInspection */
+    if (!empty($this->row->db_password)) {
+      /** @noinspection PhpUndefinedFieldInspection */
+      return StringsHelper::decodePassword($this->row->db_password);
+    }else{
+      return null;
+    }
   }
 
   /**
    * @param string $password
    */
   public function setDbPassword($password){
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->row->db_password=StringsHelper::encodePassword($password);
   }
 
@@ -104,5 +124,13 @@ class Metasource extends Entity{
       }
     }
     return null;
+  }
+
+  /**
+   * @return string
+   */
+  public function getDbTable() {
+    /** @noinspection PhpUndefinedFieldInspection */
+    return @$this->row->name;
   }
 } 
