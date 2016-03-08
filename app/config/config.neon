@@ -143,8 +143,9 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade(%usersPhotosDirectory%,%usersPhotosUrl%)
 	- EasyMinerCenter\Model\Data\Facades\DatabasesFacade
-	#todo
+
 	- EasyMinerCenter\Model\Data\Databases\DatabaseFactory(%databases%)
+	- EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory(%databases%)
 
 	- EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade

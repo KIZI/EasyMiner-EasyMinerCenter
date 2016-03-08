@@ -14,6 +14,7 @@ class UnlimitedDatabase extends PreprocessingServiceDatabase{
   const PP_TYPE=PpConnection::TYPE_UNLIMITED;
   const PP_TYPE_NAME=PpConnection::TYPE_UNLIMITED_NAME;
 
+  #region funkce vracející identifikační konstanty
   /**
    * Funkce vracející uživatelsky srozumitelný název databáze
    *
@@ -31,5 +32,5 @@ class UnlimitedDatabase extends PreprocessingServiceDatabase{
   public static function getPpType() {
     return self::PP_TYPE_NAME;
   }
-
+  #endregion
 }

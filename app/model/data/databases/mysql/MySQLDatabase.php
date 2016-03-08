@@ -21,7 +21,7 @@ class MySQLDatabase implements IDatabase{
   const DB_TYPE=DbConnection::TYPE_MYSQL;
   const DB_TYPE_NAME=DbConnection::TYPE_MYSQL_NAME;
 
-  private $db;
+  private $pdo;
   private $tableName;
 
   #region původní funkce //TODO předělat...
@@ -500,8 +500,7 @@ class MySQLDatabase implements IDatabase{
    * @param string|null $apiKey=null - aktuálně nepoužívaný atribut
    */
   public function __construct(DbConnection $dbConnection, $apiKey=null){
-    $connectionString='mysql:host='.$dbConnection->dbServer.';'.(!empty($dbConnection->port)?'port='.$dbConnection->port.';':'').(!empty($dbConnection->dbName)?'dbname='.$dbConnection->dbName.';':'').'charset=utf8';
-    $this->db=new PDO($connectionString,$dbConnection->dbUsername,$dbConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
+    $this->db=new PDO($dbConnection->getPDOConnectionString(),$dbConnection->dbUsername,$dbConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
   }
 
   /**
@@ -526,9 +525,6 @@ class MySQLDatabase implements IDatabase{
     $result=[];
     foreach ($columns as $column){
       $result[]=new DbField($column->Field, $dbDatasource->id, $column->Field, self::encodeDbDataType($column->Type), null);
-      //// $queryStrLen=$this->db->prepare('SELECT MAX(CHAR_LENGTH(`'.$column->Field.'`)) AS strLen FROM `'.$this->tableName.'`;');
-      //// $queryStrLen->execute();
-      //// $dbColumn->strLength=$queryStrLen->fetchColumn(0);
     }
     return $result;
   }
@@ -555,7 +551,7 @@ class MySQLDatabase implements IDatabase{
    * @return DbDatasource
    */
   public function getDbDatasource($dbDatasourceId) {
-    return new DbDatasource($dbDatasourceId, null, DbConnection::TYPE_MYSQL, $this->getRowsCount($dbDatasourceId));
+    return new DbDatasource($dbDatasourceId, $dbDatasourceId, DbConnection::TYPE_MYSQL, $this->getRowsCount($dbDatasourceId));
   }
 
   /**

@@ -45,13 +45,13 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   /**
    * Funkce vracející informace o konkrétním datovém zdroji
    *
-   * @param int|string $datasetId
+   * @param int|string $ppDatasetId
    * @return PpDataset
    * @throws EntityNotFoundException
    */
-  public function getPpDataset($datasetId) {
+  public function getPpDataset($ppDatasetId) {
     try{
-      $responseData=$this->curlRequestResponse($this->getRequestUrl('/dataset/'.$datasetId), null, 'GET', ['Accept'=>'application/json; charset=utf8'], $responseCode);
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/dataset/'.$ppDatasetId), null, 'GET', ['Accept'=>'application/json; charset=utf8'], $responseCode);
       $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
 
       if(!empty($responseData) && ($responseCode==200)) {

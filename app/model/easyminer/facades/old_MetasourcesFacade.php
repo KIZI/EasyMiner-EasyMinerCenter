@@ -11,7 +11,7 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\AttributesRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository;
 use Nette\Utils\Strings;
 
-class MetasourcesFacade {//XXX dodelat!!!
+class OLD_MetasourcesFacade {//XXX dodelat!!!
   /** @var MetasourcesRepository $metasourcesRepository */
   private $metasourcesRepository;
   /** @var  AttributesRepository $attributesRepository */

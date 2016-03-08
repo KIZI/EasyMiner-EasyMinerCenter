@@ -56,14 +56,11 @@ class MiningUiPresenter extends BasePresenter{
     $dataParser->loadData();
     $responseContent = $dataParser->parseData();
 
-    $metasource=null;
-    try{
-      $metasource=$miner->metasource;
-    }catch (\Exception $e){/*chybu ignorujeme - zatím pravděpodobně neexistují žádné atributy*/}
+    $user=$this->getCurrentUser();
 
     $responseContent['DD']=[
-      'dataDictionary'=>$this->datasourcesFacade->exportDataDictionaryArr($miner->datasource, $this->getCurrentUser(), $rowsCount),
-      'transformationDictionary'=>[],
+      'dataDictionary'=>$this->datasourcesFacade->exportDataDictionaryArr($miner->datasource, $user, $rowsCount),
+      'transformationDictionary'=>$this->metasourcesFacade->exportTransformationDictionaryArr($miner->metasource, $user),
       'recordCount'=>$rowsCount
     ];
     #endregion připravení informací pro UI - s odděleným připravením DataDictionary

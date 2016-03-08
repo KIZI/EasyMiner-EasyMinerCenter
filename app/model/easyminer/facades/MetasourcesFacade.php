@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Repositories\AttributesRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository;
@@ -26,37 +27,44 @@ class MetasourcesFacade {//TODO implementovat...
 
   /**
    * Funkce pro export pole s informacemi z TransformationDictionary
-   * @param Metasource|null $metasource
+   * @param Metasource $metasource
    * @param User $user
+   * @param int &rowsCount = null - počet řádků v datasource
    * @return array
    */
-  public function exportTransformationDictionaryArr(Metasource $metasource=null, User $user) {
+  public function exportTransformationDictionaryArr(Metasource $metasource, User $user, &$rowsCount = null) {
     $output = [];
     $this->updateMetasourceAttributes($metasource, $user);//aktualizace seznamu datových sloupců
 
-    //TODO... (dodělat)
-    foreach($metasource->datasourceColumns as $datasourceColumn){
-      if (!$datasourceColumn->active){continue;}
-      $output['dataDictionary'][$datasourceColumn->name]=$datasourceColumn->type;
+    foreach($metasource->attributes as $attribute){
+      if (!$attribute->active){continue;}
+      $output[$attribute->name]=[
+        'type'=>$attribute->type,
+        'choices'=>[]
+      ];
     }
-
-    #region atributy
-    $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    foreach($metasource->attributes as $attribute) {
-      $valuesArr=array();
-      try{
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name,true);
-        if (!empty($valuesStatistics->valuesArr)){
-          foreach ($valuesStatistics->valuesArr as $value=>$count){
-            $valuesArr[]=$value;
-          }
-        }
-      }catch (\Exception $e){}
-      $output['transformationDictionary'][$attribute->name]=array('choices'=>$valuesArr);
-    }
-    #endregion atributy
-
+    $rowsCount = $metasource->size;
+    exit(var_dump($output));
     return $output;
+////    #region atributy
+////
+////
+////    $this->databasesFacade->openDatabase($metasource->getDbConnection());
+////    foreach($metasource->attributes as $attribute) {
+////      $valuesArr=array();
+////      try{
+////        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name,true);
+////        if (!empty($valuesStatistics->valuesArr)){
+////          foreach ($valuesStatistics->valuesArr as $value=>$count){
+////            $valuesArr[]=$value;
+////          }
+////        }
+////      }catch (\Exception $e){}
+////      $output['transformationDictionary'][$attribute->name]=array('choices'=>$valuesArr);
+////    }
+////    #endregion atributy
+////
+////    return $output;
   }
 
   /**
@@ -186,5 +194,15 @@ class MetasourcesFacade {//TODO implementovat...
     $this->preprocessingFactory=$preprocessingFactory;
     $this->attributesRepository=$attributesRepository;
     $this->metasourcesRepository=$metasourcesRepository;
+  }
+
+  /**
+   * Funkce pro inicializaci Metasource pro konkrétní miner
+   * @param Miner $miner
+   * @return Metasource
+   */
+  public function initMetasourceForMiner(Miner $miner) {
+
+    //TODO inicializace metasource
   }
 }

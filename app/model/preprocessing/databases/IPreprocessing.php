@@ -23,10 +23,10 @@ interface IPreprocessing {
   /**
    * Funkce vracející informace o konkrétním datovém zdroji
    *
-   * @param int|string $datasetId
+   * @param int|string $ppDatasetId
    * @return PpDataset
    */
-  public function getPpDataset($datasetId);
+  public function getPpDataset($ppDatasetId);
 
   /**
    * Funkce vracející seznam sloupců v datovém zdroji

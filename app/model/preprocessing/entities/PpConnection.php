@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\Model\Preprocessing\Entities;
+use Nette\NotSupportedException;
 
 /**
  * Class DbConnection
@@ -27,6 +28,18 @@ class PpConnection{
    */
   public function getConnectionString() {
     return $this->type.':dbname='.$this->dbName.(!empty($this->dbServer)?';host='.$this->dbServer:'').(!empty($this->dbApi)?';api='.$this->dbApi:'').';port='.$this->dbPort.';charset=utf8;user='.$this->dbUsername;
+  }
+
+  /**
+   * @return string
+   * @throws NotSupportedException
+   */
+  public function getPDOConnectionString() {
+    if ($this->type==self::TYPE_MYSQL){
+      return 'mysql:host='.$this->dbServer.';'.(!empty($this->port)?'port='.$this->port.';':'').(!empty($this->dbName)?'dbname='.$this->dbName.';':'').'charset=utf8';
+    }else{
+      throw new NotSupportedException('PDO connection is not available for DB type '.$this->type);
+    }
   }
 
 } 

@@ -12,7 +12,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\User;
  */
 class PreprocessingFactory {
   private static $ppTypeClasses=[
-    //PpConnection::TYPE_MYSQL=>'\EasyMinerCenter\Model\Preprocessing\Databases\MySQL\MySQLDatabase',
+    PpConnection::TYPE_MYSQL=>'\EasyMinerCenter\Model\Preprocessing\Databases\MySQL\MySQLDatabase',
     PpConnection::TYPE_LIMITED=>'\EasyMinerCenter\Model\Preprocessing\Databases\DataService\LimitedDatabase',
     PpConnection::TYPE_UNLIMITED=>'\EasyMinerCenter\Model\Preprocessing\Databases\DataService\UnlimitedDatabase',
   ];

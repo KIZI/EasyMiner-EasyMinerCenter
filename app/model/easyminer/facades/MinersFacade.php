@@ -3,13 +3,11 @@ namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 use EasyMinerCenter\Libs\StringsHelper;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
-use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Repositories\MinersRepository;
 use EasyMinerCenter\Model\Mining\MiningDriverFactory;
-use EasyMinerCenter\Model\Preprocessing\IPreprocessingDriver;
 
 class MinersFacade {
   /** @var  MinersRepository $minersRepository */
@@ -22,15 +20,12 @@ class MinersFacade {
   private $tasksFacade;
   /** @var  MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
-  /** @var  IPreprocessingDriver $preprocessingDriver */
-  private $preprocessingDriver;
   /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
 
-  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade,IPreprocessingDriver $preprocessingDriver, RulesFacade $rulesFacade, TasksFacade $tasksFacade, MetaAttributesFacade $metaAttributesFacade){
+  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade, RulesFacade $rulesFacade, TasksFacade $tasksFacade, MetaAttributesFacade $metaAttributesFacade){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
-    $this->preprocessingDriver=$preprocessingDriver;
     $this->miningDriverFactory=$miningDriverFactory;
     $this->rulesFacade=$rulesFacade;
     $this->tasksFacade=$tasksFacade;
@@ -71,7 +66,6 @@ class MinersFacade {
       $user=$user->userId;
     }
     try{
-
       /** @noinspection PhpUnusedLocalVariableInspection
        * @var Miner $miner
        */
@@ -91,17 +85,22 @@ class MinersFacade {
     if ($user instanceof User){
       $user=$user->userId;
     }
-
     return $this->minersRepository->findBy(array('name'=>$name,'user_id'=>$user));
   }
 
 
   /**
    * @param Miner $miner
-   * @return bool
+   * @return int
    */
-  public function saveMiner(Miner $miner){
-    return $this->minersRepository->persist($miner);
+  public function saveMiner(Miner &$miner){
+    $minerId=$this->minersRepository->persist($miner);
+    $miner=$this->findMiner($minerId);
+    if (empty($miner->metasource)){
+      $miner->metasource=$this->metasourcesFacade->initMetasourceForMiner($miner);
+      $this->saveMiner($miner);
+    }
+    return $minerId;
   }
 
   /**
@@ -136,32 +135,11 @@ class MinersFacade {
    * @param $miner
    */
   public function checkMinerMetasource($miner){
-    if (!($miner instanceof Miner)){
+    if (!$miner instanceof Miner){
       $miner=$this->findMiner($miner);
     }
-    try{
-      $metasource=$miner->metasource;
-
-    }catch (\Exception $e){}
-    if (empty($metasource) || (!$metasource instanceof Metasource)){
-      $datasource=$miner->datasource;
-
-      $metasource=new Metasource();
-      $metasource->miner=$miner;
-      $metasource->user=$datasource->user;
-      $metasource->dbName=$datasource->dbName;
-      $metasource->dbUsername=$datasource->dbUsername;
-      $metasource->dbPort=$datasource->dbPort;
-      $metasource->type=$datasource->type;
-      $metasource->dbServer=$datasource->dbServer;
-      $metasource->setDbPassword($datasource->getDbPassword());
-      $metasource->attributesTable=$miner->getAttributesTableName();
-
-      $this->metasourcesFacade->createMetasourcesTables($metasource);
-
-      $this->metasourcesFacade->saveMetasource($metasource);
-
-      $miner->metasource=$metasource;
+    //TODO musí tu tato kontrola vůbec být?
+    if (empty($miner->metasource)){
       $this->saveMiner($miner);
     }
   }
