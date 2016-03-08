@@ -19,7 +19,7 @@ use LeanMapper\Entity;
  * @property int|null $dbPort = null
  * @property string $dbUsername
  * @property string $dbName
- * @property string|null name = null
+ * @property string|null $name = null
  * @property int|null $size = null
  * @property-read DatasourceColumn[] $datasourceColumns m:belongsToMany
  * @property-read DbConnection $dbDonnection
