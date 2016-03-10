@@ -21,9 +21,9 @@ var Config = new Class({
 
 
   getDataUrl: {plink MiningUi:getData miner=>'__MINERID__'},
-  showAttributeHistogramUrl: {plink Data:attributeHistogram miner=>'__MINERID__',attribute=>'__ATTRIBUTE__',mode=>'iframe'},
-  showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',columnName=>'__COLUMNNAME__',mode=>'iframe'},
-  addAttributeUrl: {plink Attributes:addAttribute miner=>'__MINERID__',columnName=>'__COLUMNNAME__',mode=>'iframe'},
+  showAttributeHistogramUrl: {plink Data:attributeHistogram miner=>'__MINERID__',attribute=>'__ATTRIBUTEID__',mode=>'iframe'},
+  showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
+  addAttributeUrl: {plink Attributes:addAttribute miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
   addAttributesUrl: {plink Attributes:addAttributes miner=>'__MINERID__',columnNames=>'__COLUMNNAME__',mode=>'iframe'},
   getRulesUrl: {plink Tasks:getRules miner=>'__MINERID__',task=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
   startMiningUrl: {plink Tasks:startMining miner=>'__MINERID__',task=>'__TASKID__'},
@@ -106,19 +106,19 @@ var Config = new Class({
     return '';
   },
 
-  getAddAttributeURL: function (fieldName) {
-    return  this.addAttributeUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNNAME__',fieldName);
+  getAddAttributeURL: function (fieldId) {
+    return  this.addAttributeUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNID__',fieldId);
   },
 
   getAddAttributesURL: function (fieldNames) {
     return  this.addAttributesUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNNAME__',fieldNames.join(','));
   },
 
-  getShowHistogramURL: function (name, type) {
+  getShowHistogramURL: function (id, type) {
     if (type === 'attribute') {
-      return  this.showAttributeHistogramUrl.replace('__MINERID__',this.getMinerId()).replace('__ATTRIBUTE__',encodeURIComponent(name));
+      return  this.showAttributeHistogramUrl.replace('__MINERID__',this.getMinerId()).replace('__ATTRIBUTEID__',encodeURIComponent(id));
     } else {
-      return  this.showColumnHistogramUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNNAME__',encodeURIComponent(name));
+      return  this.showColumnHistogramUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNID__',encodeURIComponent(id));
     }
   },
 

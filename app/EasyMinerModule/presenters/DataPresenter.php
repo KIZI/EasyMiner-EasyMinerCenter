@@ -339,7 +339,12 @@ class DataPresenter extends BasePresenter{
   #endregion otevření mineru
 
   #region funkce pro přístup k datům
-  public function renderColumnHistogram() {
+  /**
+   * Funkce pro zobrazení histogramu pro datový sloupec
+   * @param int $miner - Miner ID
+   * @param int $column - DatasourceColum ID
+   */
+  public function renderColumnHistogram($miner, $column) {
     //TODO implementovat podporu vykreslení histogramu
 
   }

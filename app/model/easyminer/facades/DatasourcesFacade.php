@@ -385,7 +385,7 @@ class DatasourcesFacade {
     foreach($datasource->datasourceColumns as $datasourceColumn){
       if (!$datasourceColumn->active){continue;}
       $output[$datasourceColumn->datasourceColumnId]=[
-        'name'=>$datasource->name,
+        'name'=>$datasourceColumn->name,
         'type'=>$datasourceColumn->type
       ];
     }
