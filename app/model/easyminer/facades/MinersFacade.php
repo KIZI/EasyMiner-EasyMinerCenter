@@ -218,10 +218,11 @@ class MinersFacade {
 
   /**
    * Funkce vracející pole s identifikací dostupných minerů
+   * @param string $datasourceType - typ databáze, ke které se vztahují dané minery
    * @return array
    */
-  public function getAvailableMinerTypes() {
-    $minerTypes=Miner::getTypes();
+  public function getAvailableMinerTypes($datasourceType = null) {
+    $minerTypes=Miner::getTypes($datasourceType);
     $resultArr=[];
     if (!empty($minerTypes)){
       foreach($minerTypes as $minerType=>$minerTypeName){

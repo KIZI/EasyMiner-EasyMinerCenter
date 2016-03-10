@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
+use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\EasyMiner\Authorizators\IOwnerResource;
 use LeanMapper\Entity;
 use Nette;
@@ -25,19 +26,38 @@ use Nette\Utils\Json;
  * @property-read Task[] $tasks m:belongsToMany
  */
 class Miner extends Entity implements IOwnerResource{
-  const TYPE_LM='lm';
-  const TYPE_R='r';
-  const DEFAULT_TYPE='r';
+  const TYPE_LM     = 'lm';
+  const TYPE_LM_NAME= 'LISp-Miner';
+  const TYPE_R      = 'r';
+  const TYPE_R_NAME = 'R';
+  const TYPE_CLOUD  = 'cloud';
+  const TYPE_CLOUD_NAME='R/Hive Cloud';
+  public static $dbTypeMiners=[
+    DbConnection::TYPE_MYSQL=>[self::TYPE_R, self::TYPE_LM],
+    DbConnection::TYPE_LIMITED=>[self::TYPE_CLOUD],
+    DbConnection::TYPE_UNLIMITED=>[self::TYPE_CLOUD]
+  ];
 
   /**
    * Funkce vracející přehled jednotlivých podporovaných typů minerů
+   * @param string $dbType
    * @return array
    */
-  public static function getTypes(){
-    return array(
-      self::TYPE_LM=>'LISp-Miner',
-      self::TYPE_R=>'R',
-    );
+  public static function getTypes($dbType=null){
+    $types=$dbType? @self::$dbTypeMiners[$dbType]: [];
+    $reflectionClass=new \ReflectionClass(__CLASS__);
+    $constants=$reflectionClass->getConstants();
+    $result=[];
+    if (!empty($constants)){
+      foreach($constants as $constantName=>$constantValue){
+        if (preg_match('/TYPE_(.*)+_NAME/',$constantName)){
+          $name=substr($constantName,0,strlen($constantName)-5);
+          if (!empty($dbType) && !in_array($constants[$name],$types)){continue;}
+          $result[$constants[$name]]=$constantValue;
+        }
+      }
+    }
+    return $result;
   }
 
   /**

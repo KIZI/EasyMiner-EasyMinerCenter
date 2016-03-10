@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
+use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 
@@ -58,47 +59,26 @@ class DataPresenter extends BasePresenter{
     }catch (\Exception $e){
       throw new BadRequestException('Requested datasource was not found!',404,$e);
     }
-
-    #region kontrola, jestli je daný datový zdroj namapován na knowledge base
-    /*TODO refaktorovat... (zároveň je v MinersPresenteru v REST modulu)
-    if (!$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true)){
-      foreach ($datasource->datasourceColumns as $datasourceColumn){
-        if (empty($datasourceColumn->format)){
-          //automatické vytvoření formátu
-          $metaAttribute=$this->metaAttributesFacade->findOrCreateMetaAttributeWithName(Strings::lower($datasourceColumn->name));
-          $existingFormats=$this->metaAttributesFacade->findFormatsForUser($metaAttribute,$this->user->getId());
-          $existingFormatNames=[];
-          if (!empty($existingFormats)){
-            foreach ($existingFormats as $format){
-              $existingFormatNames[]=$format->name;
-            }
-          }
-          $basicFormatName=str_replace('-','_',Strings::webalize($datasource->dbTable));
-          $i=1;
-          do{
-            $formatName=$basicFormatName.($i>1?'_'.$i:'');
-            $i++;
-          }while(in_array($formatName,$existingFormatNames));
-          $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
-          $formatType=($datasourceColumn->type==DatasourceColumn::TYPE_STRING?Format::DATATYPE_VALUES:Format::DATATYPE_INTERVAL);
-          $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$datasourceColumnValuesStatistic,$formatType,false,$this->user->getId());
-          $datasourceColumn->format=$format;
-          $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
-        }
-      }
-    }
-    */
-    #endregion kontrola, jestli je daný datový zdroj namapován na knowledge base
-
     $this->template->datasource=$datasource;
+
+    $availableMinerTypes = $this->minersFacade->getAvailableMinerTypes($datasource->type);
+    if (empty($availableMinerTypes)){
+      //nebyl nalezen žádný odpovídající miner
+      $this->flashMessage('No suitable mining service found. Please update the configuration for support of this datasource type!','error');
+      $this->redirect('default');
+    }
+
     /** @var Form $form */
     $form=$this->getComponent('newMinerForm');
     $dateTime=new \DateTime();
     $form->setDefaults([
       'datasource'=>$datasource->datasourceId,
-      'datasourceName'=>$datasource->type.': '.$datasource->getName(),
-      'name'=>$datasource->getName().' '.$dateTime->format('Y-m-d H:i:s')
+      'datasourceName'=>$datasource->type.': '.$datasource->name,
+      'name'=>$datasource->name.' '.$dateTime->format('Y-m-d H:i:s')
     ]);
+    /** @var SelectBox $typeSelect */
+    $typeSelect=$form->getComponent('type');
+    $typeSelect->setItems($availableMinerTypes);
   }
 
   /**
@@ -134,8 +114,7 @@ class DataPresenter extends BasePresenter{
       throw new \Exception('No miner type found! Please check the configuration...');
     }
     $form->addSelect('type','Miner type:',$availableMinerTypes)
-      ->setAttribute('class','normalWidth')
-      ->setDefaultValue(Miner::DEFAULT_TYPE);
+      ->setAttribute('class','normalWidth');
 
     $form->addSubmit('submit','Create miner...')
       ->onClick[]=function(SubmitButton $submitButton){
