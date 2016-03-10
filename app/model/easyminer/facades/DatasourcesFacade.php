@@ -204,7 +204,15 @@ class DatasourcesFacade {
   public function updateDatasourceColumns(Datasource &$datasource, User $user) {
     $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(), $user);
     $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->name);
-    $datasource->size=$dbDatasource->size;
+    if ($datasource->size!=$dbDatasource->size){
+      $datasource->size=$dbDatasource->size;
+    }
+    if ($dbDatasource->name!=$datasource->name){
+      $datasource->name=$dbDatasource->name;
+    }
+    if ($datasource->isModified()){
+      $this->saveDatasource($datasource);
+    }
     $dbFields=$database->getDbFields($dbDatasource);
 
     #region připravení seznamu aktuálně existujících datasourceColumns
@@ -407,6 +415,15 @@ class DatasourcesFacade {
       $user=$user->userId;
     }
     return $datasource->user->userId==$user;
+  }
+
+  /**
+   * Funkce pro uložení Datasource
+   * @param Datasource $datasource
+   * @return int
+   */
+  public function saveDatasource(Datasource $datasource) {
+    return $this->datasourcesRepository->persist($datasource);
   }
 
 
