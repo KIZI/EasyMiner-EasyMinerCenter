@@ -65,6 +65,7 @@ class DatasourcesFacade {
     #region připravení seznamu externích
     /** @var DbDatasource[] $dbDatasources */
     $dbDatasources=[];
+    $updatableDbTypes=[];
     foreach(self::$dbTypesWithRemoteDatasources as $dbType){
       if (in_array($dbType,$supportedDbTypes)){
         //načteme datové zdroje ze vzdálené databáze
@@ -75,6 +76,7 @@ class DatasourcesFacade {
             $dbDatasources[$remoteDbDatasource->type.'-'.$remoteDbDatasource->id]=$remoteDbDatasource;
           }
         }
+        $updatableDbTypes[]=$dbType;
       }
     }
     #endregion připravení seznamu externích zdrojů
@@ -87,31 +89,42 @@ class DatasourcesFacade {
     $updatedDbDatasourcesIds=[];
     if (!empty($datasources)&&!empty($dbDatasources)){
       //zkusíme najít příslušné překrývající se datové zdroje
-      foreach($datasources as $datasource){
+      foreach($datasources as $key=>$datasource){
+        if (!in_array($datasource->type,$updatableDbTypes)){
+          unset($datasources[$key]);
+          continue;//ignorujeme datové zdroje, které nelze tímto způsobem aktualizovat
+        }
         foreach($dbDatasources as $dbDatasource){
           if ($datasource->dbDatasourceId==$dbDatasource->id){
             if ($datasource->name!=$dbDatasource->name){
               //aktualizace názvu datového zdroje (došlo k jeho přejmenování) a uložení
               $datasource->name=$dbDatasource->name;
-              $this->datasourcesRepository->persist($datasource);
+            }
+            if (!$datasource->available){
+              $datasource->available=true;
+            }
+            if ($datasource->isModified()){
+              $this->saveDatasource($datasource);
             }
             $updatedDatasourcesIds[]=$datasource->dbDatasourceId;
             $updatedDbDatasourcesIds[]=$dbDatasource->id;
-            continue;
+            unset($datasources[$key]);
+            break;
           }
         }
       }
     }
+
     if (!empty($datasources)){
       foreach($datasources as $datasource){
         if($datasource->available && !in_array($datasource->dbDatasourceId,$updatedDatasourcesIds)){
-          //TODO výhledově podporovat datové zdroje na různých URL (aktuálně je přístup jen k výchozí vzdálené DB)
           //označení datového zdroje, který již není dostupný
           $datasource->available=false;
-          $this->datasourcesRepository->persist($datasource);
+          $this->saveDatasource($datasource);
         }
       }
     }
+
     if (!empty($dbDatasources)){
       $defaultDbConnections=[];
       foreach($dbDatasources as $dbDatasource){
