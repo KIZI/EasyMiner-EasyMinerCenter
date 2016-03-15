@@ -4,8 +4,11 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
@@ -27,9 +30,73 @@ class DataPresenter extends BasePresenter{
   private $fileImportsFacade;
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
+  /** @var  MetasourcesFacade $metasourcesFacade */
+  private $metasourcesFacade;
 
 
   #region vytvoření nového mineru
+
+  /**
+   * Akce pro inicializaci mineru (vytvoření metasource)
+   * @param int $id
+   * @throws BadRequestException
+   */
+  public function actionInitMiner($id) {
+    //najdeme miner a zkontroluejem oprávnění
+    $miner=$this->findMinerWithCheckAccess($id);
+    //zkontrolujeme stav metasource
+    if ($miner->metasource){
+      //jde o miner s existujícím metasource => zkontrolujeme jeho stav
+      switch ($miner->metasource->state){
+        case Metasource::STATE_AVAILABLE:
+          $this->redirect('openMiner',['id'=>$id]);
+          return;
+        case Metasource::STATE_PREPARATION:
+          $metasourceTasks=$miner->metasource->metasourceTasks;
+          if (!empty($metasourceTasks)){
+            foreach($metasourceTasks as $metasourceTaskItem){
+              if (!$metasourceTaskItem->attribute){
+                $metasourceTask=$metasourceTaskItem;
+                break;
+              }
+            }
+          }
+          break;
+        case Metasource::STATE_UNAVAILABLE:
+          throw new BadRequestException('Requested miner is not available!');
+      }
+    }
+    if (empty($metasourceTask)){
+      //jde o miner bez metasource
+      $metasourceTask=$this->metasourcesFacade->startMinerMetasourceInitialization($miner);
+    }
+    $this->template->miner=$miner;
+    $this->template->metasourceTask=$metasourceTask;
+  }
+
+  /**
+   * Akce pro inicializaci mineru (vytvoření metasource) - může trvat delší dobu...
+   * @param int $id - ID mineru
+   * @param int $task - ID dlouhotrvající úlohy
+   * @throws BadRequestException
+   * @throws \Exception
+   */
+  public function actionInitMinerMetasource($id,$task) {
+    $miner = $this->findMinerWithCheckAccess($id);
+    $metasourceTask=$this->metasourcesFacade->findMetasourceTask($task);
+    $metasourceTask=$this->metasourcesFacade->initializeMinerMetasource($miner, $metasourceTask);
+    if ($metasourceTask->state==MetasourceTask::STATE_DONE){
+      //úloha již doběhla - přesměrujeme uživatele na vytvořený miner
+      $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
+      $this->redirect('openMiner',['id'=>$id]);
+    }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
+      //úloha je v průběhu
+      $this->sendJsonResponse(['message'=>$metasourceTask->getPpTask()->statusMessage,'state'=>$metasourceTask->state]);
+    }else{
+      throw new BadRequestException();
+    }
+  }
+
 
   /**
    * Akce pro vytvoření nového mineru - výchozí pohled...
@@ -128,7 +195,7 @@ class DataPresenter extends BasePresenter{
       $miner->created=new \DateTime();
       $miner->type=$values['type'];
       $this->minersFacade->saveMiner($miner);
-      $this->redirect('Data:openMiner',array('id'=>$miner->minerId));
+      $this->redirect('Data:initMiner',['id'=>$miner->minerId]);
     };
     $form->addSubmit('storno','storno')
       ->setValidationScope(array())
@@ -308,13 +375,17 @@ class DataPresenter extends BasePresenter{
   public function actionOpenMiner($id){
     $miner=$this->findMinerWithCheckAccess($id);
 
+    if (!$miner->metasource){
+      $this->redirect('initMiner',['id'=>$id]);
+      //TODO kontrola metasource... (jestli je dostupný dataset na preprocessing službě atp.)
+    }
+
     //zaktualizujeme info o posledním otevření mineru
     $miner->lastOpened=new \DateTime();
     $this->minersFacade->saveMiner($miner);
 
     $this->redirect('MiningUi:default',['id_dm'=>$miner->minerId]);
   }
-
   #endregion otevření mineru
 
   #region funkce pro přístup k datům
@@ -344,6 +415,12 @@ class DataPresenter extends BasePresenter{
    */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade) {
     $this->datasourcesFacade=$datasourcesFacade;
+  }
+  /**
+   * @param MetasourcesFacade $metasourcesFacade
+   */
+  public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade) {
+    $this->metasourcesFacade=$metasourcesFacade;
   }
   #endregion injections
 }

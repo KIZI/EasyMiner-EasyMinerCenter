@@ -4,6 +4,7 @@ namespace EasyMinerCenter\Model\Preprocessing\Databases;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 
 /**
  * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
@@ -27,6 +28,15 @@ interface IPreprocessing {
    * @return PpDataset
    */
   public function getPpDataset($ppDatasetId);
+
+  /**
+   * Funkce pro inicializaci preprocessind datasetu
+   *
+   * @param PpDataset|null $ppDataset = null
+   * @param PpTask|null $ppTask = null
+   * @return PpTask|PpDataset - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   */
+  public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null);
 
   /**
    * Funkce vracející seznam sloupců v datovém zdroji

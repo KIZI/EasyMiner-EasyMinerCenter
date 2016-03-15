@@ -1,0 +1,24 @@
+{* View for upload form *}
+{block title}{_'Miner initialization'}{/block}
+
+{block scripts}
+  {include parent}
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/backgroundTask.js"></script>
+  <script type="text/javascript">
+    var requestUrl={link initMinerMetasource id=>$miner->minerId,task=>$metasourceTask->metasourceTaskId};
+  </script>
+{/block}
+
+{block content}
+  <noscript>
+    <div id="mainBlock">
+      <h1>Enable javascript!</h1>
+      <p>For upload of your data set, it is required to have javascript support.</p>
+    </div>
+  </noscript>
+
+  <div id="uploadProgressBlock">
+    <h1>{_'Miner initialization...'}</h1>
+    <p class="message"></p>
+    <div class="progressBar"></div>
+  </div>

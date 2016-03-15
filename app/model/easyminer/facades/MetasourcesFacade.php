@@ -3,12 +3,17 @@
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Repositories\AttributesRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\MetasourceTasksRepository;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 
 /**
  * Class MetasourcesFacade - fasáda pro práci s jednotlivými metasources (datasety)
@@ -23,6 +28,8 @@ class MetasourcesFacade {
   private $attributesRepository;
   /** @var MetasourcesRepository $metasourcesRepository*/
   private $metasourcesRepository;
+  /** @var MetasourceTasksRepository $metasourceTasksRepository */
+  private $metasourceTasksRepository;
   /** @var DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
 
@@ -47,25 +54,6 @@ class MetasourcesFacade {
     }
     $rowsCount = $metasource->size;
     return $output;
-////    #region atributy
-////
-////
-////    $this->databasesFacade->openDatabase($metasource->getDbConnection());
-////    foreach($metasource->attributes as $attribute) {
-////      $valuesArr=array();
-////      try{
-////        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name,true);
-////        if (!empty($valuesStatistics->valuesArr)){
-////          foreach ($valuesStatistics->valuesArr as $value=>$count){
-////            $valuesArr[]=$value;
-////          }
-////        }
-////      }catch (\Exception $e){}
-////      $output['transformationDictionary'][$attribute->name]=array('choices'=>$valuesArr);
-////    }
-////    #endregion atributy
-////
-////    return $output;
   }
 
   /**
@@ -75,6 +63,40 @@ class MetasourcesFacade {
    */
   public function findMetasource($id) {
     return $this->metasourcesRepository->find($id);
+  }
+
+  /**
+   * Funkce pro nalezení MetasourceTask podle ID
+   * @param int $id
+   * @return MetasourceTask
+   * @throws \EasyMinerCenter\Exceptions\EntityNotFoundException
+   */
+  public function findMetasourceTask($id) {
+    return $this->metasourceTasksRepository->find($id);
+  }
+
+  /**
+   * Funkce pro uložení MetasourceTask
+   * @param MetasourceTask $metasourceTask
+   */
+  public function saveMetasourceTask(MetasourceTask $metasourceTask) {
+    $this->metasourcesRepository->persist($metasourceTask);
+  }
+
+  /**
+   * @param Metasource $metasource
+   */
+  public function saveMetasource(Metasource $metasource) {
+    $this->metasourcesRepository->persist($metasource);
+  }
+
+  /**
+   * @param MetasourceTask $metasourceTask
+   * @return int
+   * @throws \LeanMapper\Exception\InvalidStateException
+   */
+  public function deleteMetasourceTask(MetasourceTask $metasourceTask) {
+    return $this->metasourceTasksRepository->delete($metasourceTask);
   }
 
   /**
@@ -193,30 +215,84 @@ class MetasourcesFacade {
    * @param PreprocessingFactory $preprocessingFactory
    * @param AttributesRepository $attributesRepository
    * @param MetasourcesRepository $metasourcesRepository
+   * @param MetasourceTasksRepository $metasourceTasksRepository
    * @param DatasourcesFacade $datasourcesFacade
    */
-  public function __construct(PreprocessingFactory $preprocessingFactory, AttributesRepository $attributesRepository, MetasourcesRepository $metasourcesRepository, DatasourcesFacade $datasourcesFacade) {
+  public function __construct(PreprocessingFactory $preprocessingFactory, AttributesRepository $attributesRepository, MetasourcesRepository $metasourcesRepository, MetasourceTasksRepository $metasourceTasksRepository, DatasourcesFacade $datasourcesFacade) {
     $this->preprocessingFactory=$preprocessingFactory;
     $this->attributesRepository=$attributesRepository;
     $this->metasourcesRepository=$metasourcesRepository;
+    $this->metasourceTasksRepository=$metasourceTasksRepository;
     $this->datasourcesFacade=$datasourcesFacade;
   }
 
   /**
    * Funkce pro inicializaci Metasource pro konkrétní miner
    * @param Miner $miner
-   * @return Metasource
+   * @return MetasourceTask
    */
-  public function initMetasourceForMiner(Miner $miner) {
-    //TODO inicializace metasource pomocí ovladače preprocessingu
+  public function startMinerMetasourceInitialization(Miner $miner) {
+    //vytvoření úlohy pro
     $ppType = $this->preprocessingFactory->getPreprocessingTypeByDatabaseType($miner->datasource->type);
-    /** @var IPreprocessing $preprocessing */
-    $preprocessing = $this->preprocessingFactory->getPreprocessingInstanceWithDefaultPpConnection($ppType, $miner->user);
-
+    /** @var PpConnection $ppConnection - DB/API connection for preprocessing */
+    $ppConnection = $this->preprocessingFactory->getDefaultPpConnection($ppType, $miner->user);
     $metasource=Metasource::newFromPpConnection($ppConnection);
     $metasource->datasource=$miner->datasource;
-    $metasource->available=true;
-    $metasourceId=$this->metasourcesRepository->persist($metasource);
-    return $this->metasourcesRepository->find($metasourceId);
+    $metasource->state=Metasource::STATE_PREPARATION;
+    $this->metasourcesRepository->persist($metasource);
+
+    $metasourceTask = new MetasourceTask();
+    $metasourceTask->state=MetasourceTask::STATE_NEW;
+    $metasourceTask->metasource=$metasource;
+    $this->saveMetasourceTask($metasourceTask);
+    return $metasourceTask;
   }
+
+  /**
+   * Funkce pro inicializaci metasource pomocí preprocessing driveru
+   *
+   * @param Miner $miner
+   * @param MetasourceTask $metasourceTask
+   * @return MetasourceTask
+   * @throws \Exception
+   */
+  public function initializeMinerMetasource(Miner $miner, MetasourceTask $metasourceTask) {
+    $metasource=$metasourceTask->metasource;
+    if ($miner->metasource->metasourceId!=$metasource->metasourceId){
+      throw new \InvalidArgumentException('Different metasource confing in miner and metasource task!');
+    }
+
+    $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(), $miner->user);
+    if ($metasourceTask->state==MetasourceTask::STATE_NEW){
+      //inicializace
+      $datasource=$metasource->datasource;
+      $result=$preprocessing->createPpDataset(new PpDataset(null,$miner->name,$datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->dbTable,null,null),null);
+    }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
+      //kontrola stavu
+      $result=$preprocessing->createPpDataset(null,$metasourceTask->getPpTask());
+    }else{
+      return $metasourceTask;
+    }
+
+    if ($result instanceof PpTask){
+      //byla vytvořena dlouhotrvající úloha
+      $metasourceTask->state=MetasourceTask::STATE_IN_PROGRESS;
+      $metasourceTask->setPpTask($result);
+      $this->saveMetasourceTask($metasourceTask);
+    }elseif($result instanceof PpDataset){
+      //byl dovytvořen dataset
+      $metasource->ppDatasetId=$result->id;
+      $metasource->size=$result->size;
+      $metasource->type=$result->type;
+      $this->saveMetasource($metasource);
+      $metasourceTask->state=MetasourceTask::STATE_DONE;
+      $this->saveMetasourceTask($metasourceTask);
+    }else{
+      throw new \Exception('Unexpected type of result!');
+    }
+
+    return $metasourceTask;
+  }
+
+
 }

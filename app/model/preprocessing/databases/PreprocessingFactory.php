@@ -115,17 +115,6 @@ class PreprocessingFactory {
     return self::$ppTypeClasses[$ppType];
   }
 
-  /**
-   * Funkce vracející výchozí připojení k databázi
-   *
-   * @param string $ppType
-   * @param User $user
-   * @return IPreprocessing
-   */
-  public function getPreprocessingInstanceWithDefaultPpConnection($ppType, User $user) {
-    return $this->getPreprocessingInstance($this->getDefaultPpConnection($ppType, $user), $user);
-  }
-
 
   //TODO doplnit další funkce...
 

@@ -97,10 +97,6 @@ class MinersFacade {
     $result=$this->minersRepository->persist($miner);
     if (empty($miner->minerId)){$miner->minerId=$result;}
     $miner=$this->findMiner($miner->minerId);
-    if (empty($miner->metasource)){
-      $miner->metasource=$this->metasourcesFacade->initMetasourceForMiner($miner);
-      return $this->saveMiner($miner);
-    }
     return $result;
   }
 

@@ -173,6 +173,7 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Repositories\KnowledgeBasesRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\PreprocessingsRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\UserForgottenPasswordsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\MetasourceTasksRepository
 
 	- EasyMinerCenter\Model\Preprocessing\PhpDatabasePreprocessing
 

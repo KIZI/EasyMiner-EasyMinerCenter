@@ -12,7 +12,7 @@ use LeanMapper\Entity;
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
  * @property int|null $ppDatasetId = null
- * @property bool $available = true
+ * @property string $state = m:Enum('available','unavailable','unlimited')
  * @property Datasource|null $datasource = null m:hasOne
  * @property string $dbServer
  * @property string|null $dbApi = null
@@ -21,12 +21,17 @@ use LeanMapper\Entity;
  * @property string $dbName
  * @property string $name
  * @property int|null $size = null
+ * @property-read MetasourceTask[] $metasourceTasks m:belongToMany
  * @property-read Task[] $tasks m:belongsToMany
  * @property-read Attribute[] $attributes m:belongsToMany
  * @property-read PpConnection $ppConnection
  * @property-read string $dbTable
  */
 class Metasource extends Entity{
+
+  const STATE_AVAILABLE='available';
+  const STATE_UNAVAILABLE='unavailable';
+  const STATE_PREPARATION='preparation';
 
   /**
    * Funkce pro připravení entity nového Metasource podle DbConnection
