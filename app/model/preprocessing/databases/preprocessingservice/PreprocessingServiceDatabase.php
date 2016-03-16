@@ -6,6 +6,7 @@ use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
 
@@ -15,7 +16,7 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\Model\Data\Databases\DataService
  * @author Stanislav Vojíř
  */
-abstract class PreprocessingServiceDatabase implements IPreprocessing {
+class PreprocessingServiceDatabase implements IPreprocessing {
   /** @var  string $apiKey */
   private $apiKey;
   /** @var  PpConnection $ppConnection */
@@ -172,4 +173,29 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     return $responseData;
   }
   #endregion funkce pro práci s RESTFUL API
+
+  /**
+   * Funkce pro inicializaci preprocessind datasetu
+   *
+   * @param PpDataset|null $ppDataset = null
+   * @param PpTask|null $ppTask = null
+   * @return PpTask|PpDataset - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   */
+  public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null) {
+    // TODO: Implement createPpDataset() method.
+  }
+
+  /**
+   * Funkce pro odstranění preprocessing datasetu
+   *
+   * @param PpDataset $ppDataset
+   */
+  public function deletePpDataset(PpDataset $ppDataset) {
+    // TODO: Implement deletePpDataset() method.
+  }
+
+
+  public static function getPpTypeName() {/*TODO: remove*/}
+  public static function getPpType() {/*TODO: remove*/}
+
 }

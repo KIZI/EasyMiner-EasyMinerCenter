@@ -21,8 +21,7 @@ use LeanMapper\Entity;
  * @property string $dbName
  * @property string $name
  * @property int|null $size = null
- * @property-read MetasourceTask[] $metasourceTasks m:belongToMany
- * @property-read Task[] $tasks m:belongsToMany
+ * @property-read MetasourceTask[] $metasourceTasks m:belongsToMany
  * @property-read Attribute[] $attributes m:belongsToMany
  * @property-read PpConnection $ppConnection
  * @property-read string $dbTable
@@ -40,6 +39,7 @@ class Metasource extends Entity{
    */
   public static function newFromPpConnection(PpConnection $ppConnection) {
     $metasource = new Metasource();
+    $metasource->type=$ppConnection->type;
     $metasource->dbName=$ppConnection->dbName;
     $metasource->dbServer=$ppConnection->dbServer;
     $metasource->dbApi = $ppConnection->dbApi;

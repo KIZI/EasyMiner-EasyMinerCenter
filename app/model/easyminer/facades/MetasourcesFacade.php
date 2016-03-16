@@ -80,7 +80,7 @@ class MetasourcesFacade {
    * @param MetasourceTask $metasourceTask
    */
   public function saveMetasourceTask(MetasourceTask $metasourceTask) {
-    $this->metasourcesRepository->persist($metasourceTask);
+    $this->metasourceTasksRepository->persist($metasourceTask);
   }
 
   /**
@@ -228,10 +228,12 @@ class MetasourcesFacade {
 
   /**
    * Funkce pro inicializaci Metasource pro konkrétní miner
+   *
    * @param Miner $miner
+   * @param MinersFacade $minersFacade
    * @return MetasourceTask
    */
-  public function startMinerMetasourceInitialization(Miner $miner) {
+  public function startMinerMetasourceInitialization(Miner $miner, MinersFacade $minersFacade) {
     //vytvoření úlohy pro
     $ppType = $this->preprocessingFactory->getPreprocessingTypeByDatabaseType($miner->datasource->type);
     /** @var PpConnection $ppConnection - DB/API connection for preprocessing */
@@ -239,8 +241,14 @@ class MetasourcesFacade {
     $metasource=Metasource::newFromPpConnection($ppConnection);
     $metasource->datasource=$miner->datasource;
     $metasource->state=Metasource::STATE_PREPARATION;
-    $this->metasourcesRepository->persist($metasource);
+    $metasource->user=$miner->user;
+    $this->saveMetasource($metasource);
 
+    //připojení metasource k mineru
+    $miner->metasource=$metasource;
+    $minersFacade->saveMiner($miner);
+
+    //vytvoření úlohy, v rámci které dojde k inicializaci
     $metasourceTask = new MetasourceTask();
     $metasourceTask->state=MetasourceTask::STATE_NEW;
     $metasourceTask->metasource=$metasource;
@@ -292,6 +300,33 @@ class MetasourcesFacade {
     }
 
     return $metasourceTask;
+  }
+
+  /**
+   * Funkce pro kontrolu dostupnosti metasource a případnou aktualizaci seznamu atributů
+   * @param Metasource $metasource
+   * @throws \Exception
+   */
+  public function checkMetasourceState(Metasource $metasource) {
+    $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(),$metasource->user);
+    $ppDataset = $preprocessing->getPpDataset($metasource->ppDatasetId?$metasource->ppDatasetId:$metasource->getDbTable());
+    //TODO kontrola, jestli je ppDataset dostupný!
+    $ppAttributes=$preprocessing->getPpAttributes($ppDataset);
+    //TODO aktualizace seznamu sloupců
+
+  }
+
+  /**
+   * Funkce pro smazání metasource
+   * @param Metasource $metasource
+   * @return int
+   * @throws \LeanMapper\Exception\InvalidStateException
+   */
+  public function deleteMetasource(Metasource $metasource) {
+    $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(),$metasource->user);
+    $ppDataset = new PpDataset($metasource->ppDatasetId,$metasource->name,null,$metasource->type,$metasource->size);
+    $preprocessing->deletePpDataset($ppDataset);
+    return $this->metasourcesRepository->delete($metasource);
   }
 
 

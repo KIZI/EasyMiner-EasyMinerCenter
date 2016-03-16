@@ -15,6 +15,7 @@ use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
+use Nette\InvalidStateException;
 
 /**
  * Class DataPresenter
@@ -68,7 +69,7 @@ class DataPresenter extends BasePresenter{
     }
     if (empty($metasourceTask)){
       //jde o miner bez metasource
-      $metasourceTask=$this->metasourcesFacade->startMinerMetasourceInitialization($miner);
+      $metasourceTask=$this->metasourcesFacade->startMinerMetasourceInitialization($miner, $this->minersFacade);
     }
     $this->template->miner=$miner;
     $this->template->metasourceTask=$metasourceTask;
@@ -88,7 +89,7 @@ class DataPresenter extends BasePresenter{
     if ($metasourceTask->state==MetasourceTask::STATE_DONE){
       //úloha již doběhla - přesměrujeme uživatele na vytvořený miner
       $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
-      $this->redirect('openMiner',['id'=>$id]);
+      $this->sendJsonResponse(['redirect'=>$this->link('openMiner',['id'=>$id])]);
     }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
       //úloha je v průběhu
       $this->sendJsonResponse(['message'=>$metasourceTask->getPpTask()->statusMessage,'state'=>$metasourceTask->state]);
@@ -376,8 +377,33 @@ class DataPresenter extends BasePresenter{
     $miner=$this->findMinerWithCheckAccess($id);
 
     if (!$miner->metasource){
+      //přesměrování na skript přípravy metasource...
       $this->redirect('initMiner',['id'=>$id]);
-      //TODO kontrola metasource... (jestli je dostupný dataset na preprocessing službě atp.)
+      return;
+    }else{
+      //kontrola stavu metasource...
+      $metasource=$miner->metasource;
+      if (!empty($metasource->metasourceTasks)){
+        $metasourceTasks=$metasource->metasourceTasks;
+        foreach($metasourceTasks as $metasourceTask){
+          if ($metasourceTask->attribute==null){
+            //přesměrování na skript přípravy metasource...
+            $this->redirect('initMiner',['id'=>$id]);
+            return;
+          }
+        }
+      }
+      $attributesCount=count($metasource->attributes);
+      try{
+        $this->metasourcesFacade->checkMetasourceState($metasource);
+      }catch (\Exception $e){
+        if (!$attributesCount==0){
+          $this->metasourcesFacade->deleteMetasource($metasource);
+          $this->redirect('initMiner',['id'=>$id]);
+        }else{
+          throw new InvalidStateException('Requested miner is not available! (metasource error)',$e);
+        }
+      }
     }
 
     //zaktualizujeme info o posledním otevření mineru

@@ -5,7 +5,13 @@
   {include parent}
   <script type="text/javascript" src="{$basePath}/js/EasyMiner/backgroundTask.js"></script>
   <script type="text/javascript">
-    var requestUrl={link initMinerMetasource id=>$miner->minerId,task=>$metasourceTask->metasourceTaskId};
+    $(document).ready(function(){
+      var backgroundTask = new BackgroundTask({
+        url:{link initMinerMetasource id=>$miner->minerId,task=>$metasourceTask->metasourceTaskId},
+        messageTarget:'#uploadProgressBlock .message'
+      });
+      backgroundTask.run();
+    });
   </script>
 {/block}
 
@@ -17,7 +23,7 @@
     </div>
   </noscript>
 
-  <div id="uploadProgressBlock">
+  <div id="backgroundTaskBlock">
     <h1>{_'Miner initialization...'}</h1>
     <p class="message"></p>
     <div class="progressBar"></div>

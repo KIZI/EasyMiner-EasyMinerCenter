@@ -1,7 +1,6 @@
 <?php
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
@@ -42,11 +41,8 @@ class MiningUiPresenter extends BasePresenter{
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    $minerType=Miner::DEFAULT_TYPE;
-    if ($miner){
-      $miner=$this->findMinerWithCheckAccess($miner);
-      $minerType=$miner->type;
-    }
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $minerType=$miner->type;
     $FLPathElement='FLPath_'.Strings::upper($minerType);
 
     //------------------------------------------------------------------------------------------------------------------
@@ -94,11 +90,9 @@ class MiningUiPresenter extends BasePresenter{
 
   /**
    * Akce pro zobrazení EasyMiner-MiningUI
+   * @param int $miner
    */
-  public function renderDefault($id_dm,$miner) {
-    if (empty($miner)){
-      $miner=$id_dm;
-    }
+  public function renderDefault($miner) {
 
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->template->miner=$miner;

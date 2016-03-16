@@ -39,6 +39,13 @@ interface IPreprocessing {
   public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null);
 
   /**
+   * Funkce pro odstranění preprocessing datasetu
+   *
+   * @param PpDataset $ppDataset
+   */
+  public function deletePpDataset(PpDataset $ppDataset);
+
+  /**
    * Funkce vracející seznam sloupců v datovém zdroji
    *
    * @param PpDataset $ppDataset
