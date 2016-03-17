@@ -3,10 +3,13 @@
 namespace EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
+use EasyMinerCenter\Model\Preprocessing\Exceptions\DatasetNotFoundException;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
+use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingCommunicationException;
+use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingException;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
 
@@ -48,7 +51,7 @@ class PreprocessingServiceDatabase implements IPreprocessing {
    *
    * @param int|string $ppDatasetId
    * @return PpDataset
-   * @throws EntityNotFoundException
+   * @throws PreprocessingException
    */
   public function getPpDataset($ppDatasetId) {
     try{
@@ -58,10 +61,10 @@ class PreprocessingServiceDatabase implements IPreprocessing {
       if(!empty($responseData) && ($responseCode==200)) {
         return new PpDataset($responseData['id'], $responseData['name'], $responseData['dataSource'], $responseData['type'], $responseData['size']);
       }else{
-        throw new \Exception('responseCode: '.$responseCode);
+        throw new PreprocessingCommunicationException('responseCode: '.$responseCode);
       }
     }catch (\Exception $e){
-      throw new EntityNotFoundException('Requested PpDataset was not found.');
+      throw new DatasetNotFoundException($e);
     }
   }
 
@@ -70,7 +73,7 @@ class PreprocessingServiceDatabase implements IPreprocessing {
    *
    * @param PpDataset $ppDataset
    * @return PpAttribute[]
-   * @throws EntityNotFoundException
+   * @throws PreprocessingException
    */
   public function getPpAttributes(PpDataset $ppDataset) {
     try{
@@ -85,10 +88,10 @@ class PreprocessingServiceDatabase implements IPreprocessing {
         }
         return $result;
       }else{
-        throw new \Exception('responseCode: '.$responseCode);
+        throw new PreprocessingCommunicationException('responseCode: '.$responseCode);
       }
     }catch (\Exception $e){
-      throw new EntityNotFoundException('Requested DbDatasource was not found.');
+      throw new PreprocessingException();
     }
   }
 
@@ -166,8 +169,9 @@ class PreprocessingServiceDatabase implements IPreprocessing {
 
     if(curl_errno($ch)){
       $exception=curl_error($ch);
+      $exceptionNumber=curl_errno($ch);
       curl_close($ch);
-      throw new \Exception($exception);
+      throw new PreprocessingCommunicationException($exception,$exceptionNumber);
     }
     curl_close($ch);
     return $responseData;
@@ -189,9 +193,14 @@ class PreprocessingServiceDatabase implements IPreprocessing {
    * Funkce pro odstranění preprocessing datasetu
    *
    * @param PpDataset $ppDataset
+   * @throws DatasetNotFoundException
+   * @throws PreprocessingCommunicationException
    */
   public function deletePpDataset(PpDataset $ppDataset) {
-    // TODO: Implement deletePpDataset() method.
+    $this->curlRequestResponse($this->getRequestUrl('/dataset/'.$ppDataset->id),null,'DELETE',['Accept'=>'application/json; charset=utf8'], $responseCode);
+    if ($responseCode!=200){
+      throw new DatasetNotFoundException();
+    }
   }
 
 
