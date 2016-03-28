@@ -140,6 +140,8 @@ abstract class DataServiceDatabase implements IDatabase {
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ($method?$method:"POST"));
       curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
       $headersArr['Content-length']=strlen($postData);
+    }else{
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ($method?$method:"GET"));
     }
 
     $httpHeadersArr=[];

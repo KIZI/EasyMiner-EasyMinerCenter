@@ -1,7 +1,6 @@
 <?php
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService;
-use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\DatasetNotFoundException;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
@@ -11,6 +10,7 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingCommunicationException;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingException;
 use Nette\Utils\Json;
+use Nette\Utils\JsonException;
 use Nette\Utils\Strings;
 
 /**
@@ -132,10 +132,10 @@ class PreprocessingServiceDatabase implements IPreprocessing {
    * @param string $url
    * @param string $postData = ''
    * @param string|null $method = 'GET'
-   * @param array $headersArr=[]
+   * @param array $headersArr =[]
    * @param int|null &$responseCode - proměnná pro vrácení stavového kódu odpovědi
    * @return string - response data
-   * @throws \Exception - curl error
+   * @throws PreprocessingCommunicationException
    */
   private function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], &$responseCode=null){
     $ch = curl_init($url);
@@ -151,9 +151,11 @@ class PreprocessingServiceDatabase implements IPreprocessing {
     }
     if ($postData!=''){
       curl_setopt($ch,CURLOPT_POST,true);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ($method?$method:"POST"));
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ($method?$method:'POST'));
       curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
       $headersArr['Content-length']=strlen($postData);
+    }else{
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ($method?$method:'GET'));
     }
 
     $httpHeadersArr=[];
@@ -183,10 +185,39 @@ class PreprocessingServiceDatabase implements IPreprocessing {
    *
    * @param PpDataset|null $ppDataset = null
    * @param PpTask|null $ppTask = null
-   * @return PpTask|PpDataset - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   * @return PpDataset|PpTask - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   * @throws PreprocessingCommunicationException
    */
   public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null) {
-    // TODO: Implement createPpDataset() method.
+    if ($ppTask){
+      //jde o již běžící úlohu
+
+
+      //TODO
+    }elseif($ppDataset){
+      //jde o novou inicializaci datasetu
+      $response=$this->curlRequestResponse($ppTask->getNextLocation(),null,'DELETE',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      try{
+        $response=Json::decode($response,Json::FORCE_ARRAY);
+      }catch (JsonException $e){
+        throw new PreprocessingCommunicationException('Response encoding failed.',$e);
+      }
+      switch ($responseCode){
+        case 200:
+          //úloha byla úspěšně dokončena
+          return new PpDataset($response['id'],$response['name'],$response['dataSource'],$response['type'],$response['size']);
+        case 201:
+          //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
+          return new PpTask($response);
+        case 400:
+        case 500:
+        case 404:
+        default:
+          throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
+      }
+    }else{
+      throw new \BadFunctionCallException('createPpDataset - it is necessary to set up a ppDataset or a ppTask');
+    }
   }
 
   /**
