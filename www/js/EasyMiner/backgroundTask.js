@@ -14,14 +14,17 @@ var BackgroundTask = function(params){
    * @param url : string
    */
   var sendTaskRequest = function(url){
-    jQuery.getJSON(url, function(data){
-      $(messageTarget).html(data.message);
-      if (data.redirect!=''){
-        location.href=data.redirect;
-      }else{
-        setTimeout(sendTaskRequest, sleepInterval);
+    jQuery.getJSON(
+      url,
+      function(data){
+        $(messageTarget).html(data.message);
+        if (data.redirect!=''){
+          location.href=data.redirect;
+        }else{
+          setTimeout(sendTaskRequest, sleepInterval);
+        }
       }
-    })
+    )
       .fail(function(){
         $(messageTarget).html('ERROR: '+data.message);
       });

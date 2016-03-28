@@ -25,8 +25,6 @@ class PreprocessingServiceDatabase implements IPreprocessing {
   /** @var  PpConnection $ppConnection */
   private $ppConnection;
 
-  //TODO implement
-
   /**
    * Funkce vracející seznam datových zdrojů v DB
    *
@@ -191,32 +189,48 @@ class PreprocessingServiceDatabase implements IPreprocessing {
   public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null) {
     if ($ppTask){
       //jde o již běžící úlohu
-
-
-      //TODO
+      $response=$this->curlRequestResponse(
+        $ppTask->getNextLocation(),
+        null,
+        'GET',
+        ['Accept'=>'application/json; charset=utf8'],
+        $responseCode
+      );
     }elseif($ppDataset){
       //jde o novou inicializaci datasetu
-      $response=$this->curlRequestResponse($ppTask->getNextLocation(),null,'DELETE',['Accept'=>'application/json; charset=utf8'], $responseCode);
-      try{
-        $response=Json::decode($response,Json::FORCE_ARRAY);
-      }catch (JsonException $e){
-        throw new PreprocessingCommunicationException('Response encoding failed.',$e);
-      }
-      switch ($responseCode){
-        case 200:
-          //úloha byla úspěšně dokončena
-          return new PpDataset($response['id'],$response['name'],$response['dataSource'],$response['type'],$response['size']);
-        case 201:
-          //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
-          return new PpTask($response);
-        case 400:
-        case 500:
-        case 404:
-        default:
-          throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
-      }
+      $response=$this->curlRequestResponse(
+        $this->getRequestUrl('/dataset'),
+        http_build_query(['dataSource'=>$ppDataset->dataSource,'name'=>$ppDataset->name]),
+        'POST',
+        ['Accept'=>'application/json; charset=utf8', 'Content-Type'=>'application/x-www-form-urlencoded'],
+        $responseCode
+      );
     }else{
       throw new \BadFunctionCallException('createPpDataset - it is necessary to set up a ppDataset or a ppTask');
+    }
+
+
+
+    try{
+      $response=Json::decode($response,Json::FORCE_ARRAY);
+    }catch (JsonException $e){
+      throw new PreprocessingCommunicationException('Response encoding failed.',$e);
+    }
+    switch ($responseCode){
+      case 200:
+        //úloha byla úspěšně dokončena
+        return new PpDataset($response['id'],$response['name'],$response['dataSource'],$response['type'],$response['size']);
+      case 201:
+        //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
+        return new PpTask($response);
+      case 202:
+        //jde o vytvoření nové dlouhotrvající úlohy
+        return new PpTask($response);
+      case 400:
+      case 500:
+      case 404:
+      default:
+        throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
     }
   }
 
