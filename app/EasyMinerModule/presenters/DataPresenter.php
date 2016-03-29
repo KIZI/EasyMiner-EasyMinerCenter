@@ -89,7 +89,7 @@ class DataPresenter extends BasePresenter{
     if ($metasourceTask->state==MetasourceTask::STATE_DONE){
       //úloha již doběhla - přesměrujeme uživatele na vytvořený miner
       $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
-      $this->sendJsonResponse(['redirect'=>$this->link('openMiner',['id'=>$id])]);
+      $this->sendJsonResponse(['redirect'=>$this->link('openMiner',['id'=>$miner->minerId])]);
     }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
       //úloha je v průběhu
       $this->sendJsonResponse(['message'=>$metasourceTask->getPpTask()->statusMessage,'state'=>$metasourceTask->state]);
@@ -264,7 +264,7 @@ class DataPresenter extends BasePresenter{
     }
     foreach($columns as $column) {
       $resultArr['columnNames'][]=$column->name;
-      $resultArr['dataTypes'][]=($column->dataType==DbField::TYPE_NOMINAL?'nominal':'numeric');
+      $resultArr['dataTypes'][]=($column->type==DbField::TYPE_NOMINAL?'nominal':'numeric');
     }
     //načtení potřebných řádků...
     $resultArr['data']=$this->fileImportsFacade->getRowsFromCSV($file,$rowsCount,$delimiter,$enclosure,$escapeCharacter,$nullValue,1);
@@ -410,7 +410,7 @@ class DataPresenter extends BasePresenter{
     $miner->lastOpened=new \DateTime();
     $this->minersFacade->saveMiner($miner);
 
-    $this->redirect('MiningUi:default',['id_dm'=>$miner->minerId]);
+    $this->redirect('MiningUi:',['id'=>$miner->minerId]);
   }
   #endregion otevření mineru
 

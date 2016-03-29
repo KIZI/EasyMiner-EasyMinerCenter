@@ -209,8 +209,6 @@ class PreprocessingServiceDatabase implements IPreprocessing {
       throw new \BadFunctionCallException('createPpDataset - it is necessary to set up a ppDataset or a ppTask');
     }
 
-
-
     try{
       $response=Json::decode($response,Json::FORCE_ARRAY);
     }catch (JsonException $e){

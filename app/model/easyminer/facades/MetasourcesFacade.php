@@ -14,6 +14,7 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
+use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingCommunicationException;
 
 /**
  * Class MetasourcesFacade - fasáda pro práci s jednotlivými metasources (datasety)
@@ -277,7 +278,19 @@ class MetasourcesFacade {
       $result=$preprocessing->createPpDataset(new PpDataset(null,$miner->name,$datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->dbTable,null,null),null);
     }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
       //kontrola stavu
-      $result=$preprocessing->createPpDataset(null,$metasourceTask->getPpTask());
+      try{
+        $result=$preprocessing->createPpDataset(null,$metasourceTask->getPpTask());
+      }catch (PreprocessingCommunicationException $e){
+        if($e->getCode()==404){
+          //pokud nebyla nalezena běžící preprocessing úloha, zkusíme inicializovat novou
+          $this->deleteMetasourceTask($metasourceTask);//smažeme stávající MetasourceTask
+          //odešleme požadavek na vytvoření nového datasetu
+          $datasource=$metasource->datasource;
+          $result=$preprocessing->createPpDataset(new PpDataset(null,$miner->name,$datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->dbTable,null,null),null);
+        }else{
+          throw $e;
+        }
+      }
     }else{
       return $metasourceTask;
     }
@@ -289,6 +302,7 @@ class MetasourcesFacade {
       $this->saveMetasourceTask($metasourceTask);
     }elseif($result instanceof PpDataset){
       //byl dovytvořen dataset
+      $metasource->state=MetasourceTask::STATE_DONE;
       $metasource->ppDatasetId=$result->id;
       $metasource->size=$result->size;
       $metasource->type=$result->type;

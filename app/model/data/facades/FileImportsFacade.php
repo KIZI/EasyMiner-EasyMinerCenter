@@ -1,6 +1,7 @@
 <?php
 namespace EasyMinerCenter\Model\Data\Facades;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
 use EasyMinerCenter\Model\Data\Files\ZipImport;
 use Nette\Application\ApplicationException;
@@ -197,7 +198,7 @@ class FileImportsFacade {
    * @param string $enclosure
    * @param string $escapeCharacter
    * @param int $analyzeRowsCount = max(self::CSV_ANALYZE_ROWS,given value)
-   * @return \EasyMinerCenter\Model\Data\Entities\DbColumn[]
+   * @return DbField[]
    */
   public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=self::CSV_ANALYZE_ROWS){
     return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter,max($analyzeRowsCount,self::CSV_ANALYZE_ROWS));

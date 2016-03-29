@@ -1,7 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\Model\Data\Files;
-use EasyMinerCenter\Model\Data\Entities\DbColumn;
+use EasyMinerCenter\Model\Data\Entities\DbField;
 use Nette\Utils\Strings;
 
 /**
@@ -211,7 +211,7 @@ class CsvImport {
    * @param string $enclosure  = '"'
    * @param string $escapeCharacter = '\\'
    * @param int $analyzeRowsCount=100
-   * @return DbColumn[]
+   * @return DbField[]
    */
   public static function analyzeCSVColumns($filename, $delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=100){
     $columnNamesArr=self::getColsNamesInCsv($filename,$delimiter,$enclosure,$escapeCharacter);
@@ -253,18 +253,13 @@ class CsvImport {
     //shromáždíme informace
     $outputArr=array();
     for ($i=0;$i<$columnsCount;$i++){
-      if ($numericalArr[$i]==2){
-        $datatype=DbColumn::TYPE_FLOAT;
-      }elseif ($numericalArr[$i]==1){
-        $datatype=DbColumn::TYPE_INTEGER;
+      if ($numericalArr[$i]==2||$numericalArr[$i]==1){
+        $datatype=DbField::TYPE_NUMERIC;
       }else{
-        $datatype=DbColumn::TYPE_STRING;
+        $datatype=DbField::TYPE_NOMINAL;
       }
-      $dbColumn=new DbColumn();
-      $dbColumn->dataType=$datatype;
-      $dbColumn->strLength=$strlenArr[$i];
-      $dbColumn->name=$columnNamesArr[$i];
-      $outputArr[$i]=$dbColumn;
+
+      $outputArr[$i]=new DbField(null,null,$columnNamesArr[$i],$datatype,null);
     }
     fclose($file);
     return $outputArr;

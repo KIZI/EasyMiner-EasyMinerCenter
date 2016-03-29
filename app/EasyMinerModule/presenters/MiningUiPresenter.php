@@ -90,11 +90,11 @@ class MiningUiPresenter extends BasePresenter{
 
   /**
    * Akce pro zobrazení EasyMiner-MiningUI
-   * @param int $miner
+   * @param int $id
    */
-  public function renderDefault($miner) {
+  public function renderDefault($id) {
 
-    $miner=$this->findMinerWithCheckAccess($miner);
+    $miner=$this->findMinerWithCheckAccess($id);
     $this->template->miner=$miner;
 
     $this->template->javascriptFiles = MiningUIIntegration::$javascriptFiles;

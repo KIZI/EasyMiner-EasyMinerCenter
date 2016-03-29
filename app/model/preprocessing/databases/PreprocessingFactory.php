@@ -69,7 +69,7 @@ class PreprocessingFactory {
     $config=$this->getPreprocessingDatabaseConfig($ppType);
     $ppConnection = new PpConnection();
     $ppConnection->type=$ppType;
-    $ppConnection->dbApi=!empty($config['api'])?$config['api']:null;
+    $ppConnection->dbApi=!empty($config['preprocessingApi'])?$config['preprocessingApi']:null;
     $ppConnection->dbServer=!empty($config['server'])?$config['server']:null;
     $ppConnection->dbPort=!empty($config['port'])?$config['port']:null;
     //konfigurace připojení k DB

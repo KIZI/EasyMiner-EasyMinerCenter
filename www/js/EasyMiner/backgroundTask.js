@@ -10,23 +10,25 @@ var BackgroundTask = function(params){
   var messageTarget = params.messageTarget;
   var self=this;
 
-  /**
-   * @param url : string
-   */
-  var sendTaskRequest = function(url){
+  var sendTaskRequest = function(){
+    console.log('function sendTaskRequest');
     jQuery.getJSON(
       url,
       function(data){
-        $(messageTarget).html(data.message);
-        if (data.redirect!=''){
-          location.href=data.redirect;
-        }else{
-          setTimeout(sendTaskRequest, sleepInterval);
+        if (data!=undefined){
+          $(messageTarget).html(data.message);
+          if (data.redirect!=undefined && data.redirect!=''){
+            location.href=data.redirect;
+            return;
+          }
         }
+        setTimeout(function(){
+          sendTaskRequest();
+        }, sleepInterval);
       }
     )
-      .fail(function(){
-        $(messageTarget).html('ERROR: '+data.message);
+      .fail(function(data){
+        $(messageTarget).html('ERROR: '+data.responseText);
       });
   };
 
