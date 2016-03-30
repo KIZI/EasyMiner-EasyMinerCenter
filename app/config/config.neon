@@ -44,6 +44,8 @@ parameters:
             pooler: task
         driver_r:
             class: EasyMinerCenter\Model\Mining\R\RDriver
+        driver_cloud:
+            class: EasyMinerCenter\Model\Mining\Cloud\CloudDriver
     scorerDriverFactory:
         driver_modelTester:
             class: EasyMinerCenter\Model\Scoring\ModelTester\ModelTesterScorer

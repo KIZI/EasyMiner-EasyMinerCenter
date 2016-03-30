@@ -174,7 +174,7 @@ class CloudDriver implements IMiningDriver{//TODO implement...
 
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
-   * @throws \Exception
+   * @return true
    */
   public function checkMinerState(User $user){
     return true;
