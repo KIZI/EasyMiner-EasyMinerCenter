@@ -77,4 +77,12 @@ interface IPreprocessing {
    */
   public static function getPpType();
 
+
+  /**
+   * Funkce vracející přehled podporovaných typů preprocessingu
+   *
+   * @return string[]
+   */
+  public static function getSupportedPreprocessingTypes();
+
 } 

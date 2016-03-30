@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\DatasetNotFoundException;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
@@ -246,8 +247,18 @@ class PreprocessingServiceDatabase implements IPreprocessing {
     }
   }
 
+  /**
+   * Funkce vracející přehled podporovaných typů preprocessingu
+   *
+   * @return string[]
+   */
+  public static function getSupportedPreprocessingTypes() {
+    return [Preprocessing::TYPE_EACHONE];
+  }
+
 
   public static function getPpTypeName() {/*TODO: remove*/}
   public static function getPpType() {/*TODO: remove*/}
+
 
 }

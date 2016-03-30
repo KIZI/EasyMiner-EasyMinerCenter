@@ -2,7 +2,6 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-use EasyMinerCenter\Model\Data\Entities\DbColumnValuesStatistic;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Format;
 use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
@@ -62,6 +61,19 @@ class MetaAttributesFacade {
   }
 
   /**
+   * Funkce pro základní vytvoření nového formátu na základě datového sloupce
+   * @param DatasourceColumn $datasourceColumn
+   * @param User $user
+   * @return Format
+   */
+  public function simpleCreateMetaAttributeWithFormatFromDatasourceColumn(DatasourceColumn $datasourceColumn, User $user) {
+    //XXX jen pracovní implementace, bude nutno upravit v závislosti na
+    $metaAttribute=$this->findOrCreateMetaAttributeWithName($datasourceColumn->name);
+    $datasource=$datasourceColumn->datasource;
+    return $this->createFormatFromDatasourceColumn($metaAttribute,$datasource->name,$datasourceColumn,/*TODO statistics*/null,'values',false,$user);
+  }
+
+  /**
    * @param int $id
    * @return MetaAttribute
    */
@@ -114,17 +126,14 @@ class MetaAttributesFacade {
    * @param DbColumnValuesStatistic $columnValuesStatistic
    * @param string $formatType=values - 'interval'|'values'
    * @param bool $formatShared=false
-   * @param User|int $user
+   * @param User $user
    * @return Format
    */
-  public function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,DbColumnValuesStatistic $columnValuesStatistic,$formatType='values', $formatShared=false, $user){
+  public function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,/*TODO*/ $columnValuesStatistic=null,$formatType='values', $formatShared=false, User $user){
     $format=new Format();
     $format->dataType=(Strings::lower($formatType)=='interval'?Format::DATATYPE_INTERVAL:Format::DATATYPE_VALUES);
     $format->name=$formatName;
     $format->metaAttribute=$metaAttribute;
-    if (!($user instanceof User)){
-      $user=$this->usersFacade->findUser($user);
-    }
     $format->user=$user;
     if ($formatShared){
       $format->shared=true;
@@ -132,12 +141,16 @@ class MetaAttributesFacade {
       $format->shared=false;
     }
     $this->saveFormat($format);
-    $this->updateFormatFromDatasourceColumn($format,$datasourceColumn,$columnValuesStatistic);
+    if ($columnValuesStatistic!=null){
+      //FIXME opravit - jen dočasné vyřazení statistik z celého procesu
+      $this->updateFormatFromDatasourceColumn($format,$datasourceColumn,$columnValuesStatistic);
+    }
     return $format;
   }
 
   /**
    * Funkce pro aktualizaci formátu na základě hodnot z daného DatasourceColumn
+   * TODO implementovat...
    * @param Format $format
    * @param DatasourceColumn $datasourceColumn
    * @param DbColumnValuesStatistic $columnValuesStatistic

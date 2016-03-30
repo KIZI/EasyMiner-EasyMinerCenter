@@ -101,6 +101,18 @@ class MetasourcesFacade {
   }
 
   /**
+   * Funkce vracející přehled typů preprocessingů, které jsou podporované daným ovladačem preprocessingu
+   * @param Metasource $metasource
+   * @param User $user
+   * @return string[]
+   */
+  public function getSupportedPreprocessingTypes(Metasource $metasource, User $user) {
+    /** @var IPreprocessing $preprocessing */
+    $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(), $user);
+    return $preprocessing->getSupportedPreprocessingTypes();
+  }
+
+  /**
    * Funkce pro aktualizaci info o atributech v DB
    * @param Metasource &$metasource
    * @param User $user

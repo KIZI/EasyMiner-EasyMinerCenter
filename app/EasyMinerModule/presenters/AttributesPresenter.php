@@ -271,10 +271,19 @@ class AttributesPresenter extends BasePresenter{
       throw new BadRequestException($this->translate('Requested data field not found!'),404);
     }
     $this->template->datasourceColumn=$datasourceColumn;
+
     $format=$datasourceColumn->format;
+    $currentUser=$this->getCurrentUser();
+
+    if (!$format){
+      //inicializace formátu (přiřazení metaatributu)
+      //TODO implementovat podporu automatického mapování
+      $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $currentUser);
+    }
+
     $this->template->format=$format;
-    $this->template->metaAttributeName=$format->metaAttribute->name;
     $this->template->preprocessings=$this->metaAttributesFacade->findPreprocessingsForUser($format,$this->user->id);
+    $this->template->supportedPreprocessingTypes=$this->metasourcesFacade->getSupportedPreprocessingTypes($miner->metasource, $currentUser);
   }
 
 

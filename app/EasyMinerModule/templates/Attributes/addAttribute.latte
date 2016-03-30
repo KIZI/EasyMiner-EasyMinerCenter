@@ -12,6 +12,7 @@
       {/if}
     </p>
 
+    {if (!empty($format->values) || !empty($format->intervals))}
     <div class="formatValues">
       <strong>{_'Format values:'}</strong>
       {foreach $format->values as $value}
@@ -21,14 +22,21 @@
         <span>{$interval}</span>
       {/foreach}
     </div>
+    {/if}
 
     <h2>{_'New preprocessing'}</h2>
     <div class="actionsDiv bigButtons">
       {if $format->dataType==\EasyMinerCenter\Model\EasyMiner\Entities\Format::DATATYPE_INTERVAL}
-        <a href="{link newPreprocessingIntervalEnumeration miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Interval enumeration'}</a>
-        <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equidistant intervals'}</a>
+        {if in_array(\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::TYPE_INTERVAL_ENUMERATION,$supportedPreprocessingTypes)}
+          <a href="{link newPreprocessingIntervalEnumeration miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Interval enumeration'}</a>
+        {/if}
+        {if in_array(\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::TYPE_EQUIDISTANT_INTERVALS,$supportedPreprocessingTypes)}
+          <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equidistant intervals'}</a>
+        {/if}
       {/if}
-      <a href="{link newPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,type=>'nominalEnumeration'}">{_'Nominal enumeration'}</a>
+      {if in_array(\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::TYPE_NOMINAL_ENUMERATION,$supportedPreprocessingTypes)}
+        <a href="{link newPreprocessing miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId,type=>'nominalEnumeration'}">{_'Nominal enumeration'}</a>
+      {/if}
       {if !empty($preprocessings)}
         {foreach $preprocessings as $preprocessing}
           {if $preprocessing->specialType==\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::SPECIALTYPE_EACHONE}
@@ -37,7 +45,7 @@
           {/if}
         {/foreach}
       {/if}
-      {if !isset($preprocessingEachOne) || !$preprocessingEachOne}
+      {if ((!isset($preprocessingEachOne) || !$preprocessingEachOne) && in_array(\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::TYPE_EACHONE,$supportedPreprocessingTypes))}
         <a href="{link newPreprocessingEachOne miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Each value - one bin'}</a>
       {/if}
     </div>

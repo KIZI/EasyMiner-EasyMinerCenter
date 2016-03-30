@@ -2,6 +2,9 @@
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases\MySQL;
 
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
+use Nette\NotImplementedException;
 use Nette\NotSupportedException;
 use Nette\Utils\Strings;
 use \PDO;
@@ -91,6 +94,15 @@ class MySQLDatabase implements IPreprocessing{
     $this->db=new PDO($ppConnection->getPDOConnectionString(),$ppConnection->dbUsername,$ppConnection->dbPassword,array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
   }
 
+  /**
+   * Funkce vracející přehled podporovaných typů preprocessingu
+   *
+   * @return string[]
+   */
+  public static function getSupportedPreprocessingTypes() {
+    return [Preprocessing::TYPE_EACHONE, Preprocessing::TYPE_EQUIDISTANT_INTERVALS, Preprocessing::TYPE_INTERVAL_ENUMERATION, Preprocessing::TYPE_NOMINAL_ENUMERATION];
+  }
+
   #region funkce vracející identifikační konstanty
   /**
    * Funkce vracející uživatelsky srozumitelný název databáze
@@ -110,4 +122,25 @@ class MySQLDatabase implements IPreprocessing{
     return self::PP_TYPE_NAME;
   }
   #endregion
+  /**
+   * Funkce pro inicializaci preprocessind datasetu
+   *
+   * @param PpDataset|null $ppDataset = null
+   * @param PpTask|null $ppTask = null
+   * @return PpTask|PpDataset - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   */
+  public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null) {
+    throw new NotImplementedException();
+    // TODO: Implement createPpDataset() method.
+  }
+
+  /**
+   * Funkce pro odstranění preprocessing datasetu
+   *
+   * @param PpDataset $ppDataset
+   */
+  public function deletePpDataset(PpDataset $ppDataset) {
+    throw new NotImplementedException();
+    // TODO: Implement deletePpDataset() method.
+  }
 }

@@ -23,6 +23,12 @@ class Preprocessing extends Entity{
   const SPECIALTYPE_EACHONE='eachOne';
   const NEW_PREPROCESSING_EACHONE_NAME="Each value - one bin";
 
+  const TYPE_EACHONE=self::SPECIALTYPE_EACHONE;
+  const TYPE_NOMINAL_ENUMERATION='nominalEnumeration';
+  const TYPE_INTERVAL_ENUMERATION='intervalEnumeration';
+  const TYPE_EQUIDISTANT_INTERVALS='equidistantIntervals';
+
+
   /**
    * Funkce vracející seznam speciálních typů preprocessingu
    * @return string[]
