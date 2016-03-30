@@ -15,6 +15,7 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingCommunicationException;
+use Nette\NotImplementedException;
 
 /**
  * Class MetasourcesFacade - fasáda pro práci s jednotlivými metasources (datasety)
@@ -239,6 +240,8 @@ class MetasourcesFacade {
     $this->datasourcesFacade=$datasourcesFacade;
   }
 
+  #region inicializace metasource
+
   /**
    * Funkce pro inicializaci Metasource pro konkrétní miner
    *
@@ -263,6 +266,7 @@ class MetasourcesFacade {
 
     //vytvoření úlohy, v rámci které dojde k inicializaci
     $metasourceTask = new MetasourceTask();
+    $metasourceTask->type=MetasourceTask::TYPE_INITIALIZATION;
     $metasourceTask->state=MetasourceTask::STATE_NEW;
     $metasourceTask->metasource=$metasource;
     $this->saveMetasourceTask($metasourceTask);
@@ -328,6 +332,9 @@ class MetasourcesFacade {
     return $metasourceTask;
   }
 
+
+  #endregion inicializace metasource
+
   /**
    * Funkce pro kontrolu dostupnosti metasource a případnou aktualizaci seznamu atributů
    * @param Metasource $metasource
@@ -353,6 +360,105 @@ class MetasourcesFacade {
     $ppDataset = new PpDataset($metasource->ppDatasetId,$metasource->name,null,$metasource->type,$metasource->size);
     $preprocessing->deletePpDataset($ppDataset);
     return $this->metasourcesRepository->delete($metasource);
+  }
+
+
+  #region preprocessing atributů
+
+  /**
+   * Funkce pro přípravu úlohy pro preprocessing atributů
+   *
+   * @param Metasource $metasource
+   * @param Attribute[] $attributes
+   * @return MetasourceTask
+   */
+  public function startAttributesPreprocessing(Metasource $metasource,array $attributes) {
+    if (empty($attributes)){
+      throw new \BadMethodCallException('No attributes found.');
+    }
+
+    //vytvoření úlohy, v rámci které dojde k preprocessingu
+    $metasourceTask = new MetasourceTask();
+    $metasourceTask->type=MetasourceTask::TYPE_PREPROCESSING;
+    $metasourceTask->state=MetasourceTask::STATE_NEW;
+    $metasourceTask->metasource=$metasource;
+    foreach($attributes as $attribute){
+      if ($attribute instanceof Attribute){
+        $metasourceTask->attributes[]=$attribute;
+      }else{
+        throw new \BadMethodCallException('Requested attribute not found!');
+      }
+    }
+    $this->saveMetasourceTask($metasourceTask);
+    return $metasourceTask;
+  }
+
+  /**
+   * Funkce pro preprocessing atributů pomocí preprocessing driveru
+   *
+   * @param MetasourceTask $metasourceTask
+   * @return MetasourceTask
+   * @throws \Exception
+   */
+  public function preprocessAttributes(MetasourceTask $metasourceTask) {
+    $metasource=$metasourceTask->metasource;
+    $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->ppConnection, $metasource->user);
+
+    if ($metasourceTask->state==MetasourceTask::STATE_NEW){
+      //spuštění nového preprocessingu
+      $result=$preprocessing->createAttributes($metasourceTask->attributes,null);
+    }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
+      //zjištění stavu probíhajícího preprocessingu
+      try{
+        $result=$preprocessing->createAttributes(null,$metasourceTask->getPpTask());
+      }catch (PreprocessingCommunicationException $e){
+        if($e->getCode()==404){
+          //pokud úloha nebyla nalezena, označíme ji jako dokončenou...
+          $metasourceTask->state=MetasourceTask::STATE_DONE;
+          return $metasourceTask;
+        }else{
+          throw $e;
+        }
+      }
+    }else{
+      return $metasourceTask;
+    }
+
+    if ($result instanceof PpTask){
+      $metasourceTask->state=MetasourceTask::STATE_IN_PROGRESS;
+      $metasourceTask->setPpTask($result);
+      $this->saveMetasourceTask($metasourceTask);
+      return $metasourceTask;
+    }elseif(is_array($result)){
+      //TODO zpracování odpovědi - pole s atributy...
+      exit(var_dump($result));
+
+
+    }else{
+      throw new \Exception('Unexpected type of result!');
+    }
+  }
+
+
+  #endregion inicializace metasource
+
+
+
+  /**
+   * @param Metasource $metasource
+   * @param Attribute|int $attribute
+   */
+  public function prepareAttribute(Metasource $metasource, Attribute $attribute){
+    //FIXME implementovat...
+    if ($attribute instanceof Attribute){
+      if ($attribute->isDetached() || $attribute->isModified()){
+        $this->metasourcesFacade->saveAttribute($attribute);
+      }
+    }else{
+      $attribute=$this->metasourcesFacade->findAttribute($attribute);
+    }
+    $this->preprocessingDriver->generateAttribute($attribute);
+    //TODO nechat mining driver zkontrolovat existenci všech atributů
   }
 
 

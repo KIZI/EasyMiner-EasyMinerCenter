@@ -8,7 +8,6 @@ var BackgroundTask = function(params){
   var url=params.url;
   var sleepInterval = params.sleep ? params.sleep : 500;
   var messageTarget = params.messageTarget;
-  var self=this;
 
   var sendTaskRequest = function(){
     console.log('function sendTaskRequest');

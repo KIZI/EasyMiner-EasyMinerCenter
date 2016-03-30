@@ -1,6 +1,8 @@
 <?php
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService;
+use EasyMinerCenter\app\model\preprocessing\databases\preprocessingservice\PreprocessingPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\DatasetNotFoundException;
@@ -207,7 +209,7 @@ class PreprocessingServiceDatabase implements IPreprocessing {
         $responseCode
       );
     }else{
-      throw new \BadFunctionCallException('createPpDataset - it is necessary to set up a ppDataset or a ppTask');
+      throw new \BadMethodCallException('createPpDataset - it is necessary to set up a ppDataset or a ppTask');
     }
 
     try{
@@ -254,6 +256,72 @@ class PreprocessingServiceDatabase implements IPreprocessing {
    */
   public static function getSupportedPreprocessingTypes() {
     return [Preprocessing::TYPE_EACHONE];
+  }
+
+  /**
+   * Funkce pro inicializaci preprocessingu atributů
+   *
+   * @param Attribute[] $attributes
+   * @param PpTask $ppTask = null
+   * @return PpAttribute[]|PpTask
+   * @throws PreprocessingCommunicationException
+   */
+  public function createAttributes(array $attributes=null, PpTask $ppTask=null) {
+    if ($ppTask){
+      //jde o již běžící úlohu
+      $response=$this->curlRequestResponse(
+        $ppTask->getNextLocation(),
+        null,
+        'GET',
+        ['Accept'=>'application/json; charset=utf8'],
+        $responseCode
+      );
+    }elseif(!empty($attributes)){
+      //jde o novou inicializaci datasetu - nejprve sestavíme PMML a zjistíme referenci na metasource
+      $metasource=$attributes[0]->metasource;
+      $preprocessingPmml=PreprocessingPmmlSerializer::preparePreprocessingPmml($attributes);
+
+      //odeslání požadavku na preprocessing
+      $response=$this->curlRequestResponse(
+        $this->getRequestUrl('/dataset/'.$metasource->ppDatasetId.'/attribute'),
+        $preprocessingPmml,
+        'POST',
+        ['Accept'=>'application/json; charset=utf8', 'Content-Type'=>'application/xml; charset=utf-8'],
+        $responseCode
+      );
+    }else{
+      throw new \BadMethodCallException('createAttributes - it is necessary to set up array of attributes or a ppTask');
+    }
+
+    try{
+      $response=Json::decode($response,Json::FORCE_ARRAY);
+    }catch (JsonException $e){
+      throw new PreprocessingCommunicationException('Response encoding failed.',$e);
+    }
+    switch ($responseCode){
+      case 200:
+        //úloha byla úspěšně dokončena
+        /** @var PpAttribute[] $result */
+        $result=[];
+        if (!empty($response) && is_array($response)){
+          foreach($response as $responseItem){
+            $result[]=new PpAttribute($responseItem['id'],$responseItem['dataset'],$responseItem['field'],$responseItem['name'],$responseItem['type'],$responseItem['uniqueValuesSize']);
+          }
+        }
+        return $result;
+      case 201:
+        //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
+        return new PpTask($response);
+      case 202:
+        //jde o vytvoření nové dlouhotrvající úlohy
+        return new PpTask($response);
+      case 400:
+      case 500:
+      case 404:
+      default:
+        throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
+    }
+
   }
 
 

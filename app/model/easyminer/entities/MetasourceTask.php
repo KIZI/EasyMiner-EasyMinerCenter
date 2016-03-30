@@ -11,8 +11,9 @@ use Nette\Utils\JsonException;
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $metasourceTaskId = null
  * @property Metasource $metasource m:hasOne
- * @property Attribute|null $attribute m:hasOne
+ * @property Attribute[] $attributes m:hasMany
  * @property string $state = m:enum(self::STATE_*)
+ * @property string $type = m:enum(self::TYPE_*)
  * @property string $params = ''
  * @property-read PpTask $ppTask
  */
@@ -21,6 +22,9 @@ class MetasourceTask extends Entity{
   const STATE_NEW='new';
   const STATE_IN_PROGRESS='in_progress';
   const STATE_DONE='done';
+
+  const TYPE_INITIALIZATION='initialization';
+  const TYPE_PREPROCESSING='preprocessing';
 
   private $params='';
 

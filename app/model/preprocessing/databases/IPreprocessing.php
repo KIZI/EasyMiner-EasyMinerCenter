@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases;
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
@@ -52,6 +53,15 @@ interface IPreprocessing {
    * @return PpAttribute[]
    */
   public function getPpAttributes(PpDataset $ppDataset);
+
+  /**
+   * Funkce pro inicializaci preprocessingu atributů
+   *
+   * @param Attribute[] $attributes
+   * @param PpTask $ppTask = null
+   * @return PpTask|PpAttribute[]
+   */
+  public function createAttributes(array $attributes = null, PpTask $ppTask = null);
 
   /**
    * Konstruktor zajišťující připojení k databázi

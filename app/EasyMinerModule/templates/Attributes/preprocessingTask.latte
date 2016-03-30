@@ -1,5 +1,5 @@
 {* View for upload form *}
-{block title}{_'Miner initialization'}{/block}
+{block title}{_'Preprocessing in progress'}{/block}
 
 {block scripts}
   {include parent}
@@ -7,7 +7,7 @@
   <script type="text/javascript">
     $(document).ready(function(){
       var backgroundTask = new BackgroundTask({
-        url:{link initMinerMetasource id=>$miner->minerId,task=>$metasourceTask->metasourceTaskId},
+        url:{link initMinerMetasource id=>$metasourceTask->metasourceTaskId},
         messageTarget:'#backgroundTaskBlock .message'
       });
       backgroundTask.run();
@@ -19,12 +19,12 @@
   <noscript>
     <div id="mainBlock">
       <h1>Enable javascript!</h1>
-      <p>For upload of your data set, it is required to have javascript support.</p>
+      <p>For preprocessing, it is required to have javascript support.</p>
     </div>
   </noscript>
 
   <div id="backgroundTaskBlock">
-    <h1>{_'Miner initialization...'}</h1>
+    <h1>{_'Data preprocessing...'}</h1>
     <p class="message"></p>
     <div class="progressBar"></div>
   </div>

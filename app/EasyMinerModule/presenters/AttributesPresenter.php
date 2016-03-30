@@ -8,6 +8,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Format;
 use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\Value;
@@ -33,6 +34,7 @@ use Nette\Utils\Strings;
 class AttributesPresenter extends BasePresenter{
   use MinersFacadeTrait;
   use UsersTrait;
+  use ResponsesTrait;
 
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
@@ -99,12 +101,12 @@ class AttributesPresenter extends BasePresenter{
     $this->template->preprocessing=$preprocessing;
     /** @var Form $form */
     $form=$this->getComponent('newAttributeForm');
-    $form->setDefaults(array(
+    $form->setDefaults([
       'miner'=>$miner->minerId,
       'column'=>$column,
       'preprocessing'=>$preprocessing->preprocessingId,
       'attributeName'=>$datasourceColumn->name
-    ));
+    ]);
   }
 
   /**
@@ -279,6 +281,8 @@ class AttributesPresenter extends BasePresenter{
       //inicializace formátu (přiřazení metaatributu)
       //TODO implementovat podporu automatického mapování
       $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $currentUser);
+      $datasourceColumn->format=$format;
+      $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
     }
 
     $this->template->format=$format;
@@ -352,6 +356,8 @@ class AttributesPresenter extends BasePresenter{
 
     if ($type==Preprocessing::SPECIALTYPE_EACHONE){
       #region preprocessing eachOne
+      $newAttributesArr=[];
+      $metasource=$miner->metasource;
       foreach($columns as $column){
         $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
         $this->template->datasourceColumn=$datasourceColumn;
@@ -359,25 +365,53 @@ class AttributesPresenter extends BasePresenter{
         $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
         //připravíme příslušný atribut
         $attribute=new Attribute();
-
-        $attribute->metasource=$miner->metasource;
+        $attribute->metasource=$metasource;
         $attribute->datasourceColumn=$datasourceColumn;
         $attribute->name=$this->minersFacade->prepareNewAttributeName($miner,$datasourceColumn->name);
         $attribute->type=$attribute->datasourceColumn->type;
         $attribute->preprocessing=$preprocessing;
-        $this->minersFacade->prepareAttribute($miner,$attribute);
+        $attribute->active=false;
         $this->metasourcesFacade->saveAttribute($attribute);
+        $newAttributesArr[]=$attribute;
       }
-      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
+      $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($metasource,$newAttributesArr);
+      $this->redirect('preprocessingTask',['id'=>$metasourceTask->metasourceTaskId]);
       #endregion
     }else{
       throw new NotImplementedException();
     }
-
-    //TODO předzpracování příslušných atributů...
-    $this->redirect('reloadUI');
   }
-  
+
+  /**
+   * Akce pro vykreslení "čekací" šablony
+   * @param $id
+   */
+  public function renderPreprocessingTask($id) {
+    $this->template->metasourceTask=$this->metasourcesFacade->findMetasourceTask($id);
+  }
+
+  /**
+   * Akce pro inicializaci mineru (vytvoření metasource)
+   * @param int $id - ID úlohy
+   * @throws BadRequestException
+   */
+  public function actionPreprocessingTaskRun($id) {
+    $metasourceTask=$this->metasourcesFacade->findMetasourceTask($id);
+    $metasourceTask=$this->metasourcesFacade->preprocessAttributes($metasourceTask);
+    switch($metasourceTask->state){
+      case MetasourceTask::STATE_DONE:
+        //úloha byla dončena => smažeme ji a necháme přenačíst UI
+        $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
+        $this->sendJsonResponse(['redirect'=>$this->link('reloadUI')]);
+        return;
+      case MetasourceTask::STATE_IN_PROGRESS:
+        $this->sendJsonResponse(['message'=>$metasourceTask->getPpTask()->statusMessage,'state'=>$metasourceTask->state]);
+        return;
+      default:
+        throw new BadRequestException();
+    }
+  }
+
 
   /**
    * Funkce pro načtení příslušného DatasourceColumn, případně vrácení chyby
@@ -1041,13 +1075,15 @@ class AttributesPresenter extends BasePresenter{
       $values=$button->form->values;
       $miner=$this->findMinerWithCheckAccess($values->miner);
       $this->minersFacade->checkMinerMetasource($miner);
+      $currentUser=$this->getCurrentUser();
       $attribute=new Attribute();
       $attribute->metasource=$miner->metasource;
       $attribute->datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,$values->column);
       $attribute->name=$values->attributeName;
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessing=$this->metaAttributesFacade->findPreprocessing($values->preprocessing);
-      $this->minersFacade->prepareAttribute($miner,$attribute);
+      //FIXME tady je to potřeba předělat... (může to trvat dlouho => je potřeba vytvořit metasource task a poté ji spustit...)
+      $this->metasourcesFacade->prepareAttribute($miner->metasource, $attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
       $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 

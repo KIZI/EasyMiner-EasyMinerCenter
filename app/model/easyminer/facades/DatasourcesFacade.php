@@ -350,6 +350,16 @@ class DatasourcesFacade {
   }
 
   /**
+   * Funkce pro uložení entity DatasourceColumn
+   * @param DatasourceColumn $datasourceColumn
+   * @return int|bool
+   */
+  public function saveDatasourceColumn(DatasourceColumn &$datasourceColumn){
+    $result = $this->datasourceColumnsRepository->persist($datasourceColumn);
+    return $result;
+  }
+
+  /**
    * Funkce pro nalezení DatasourceColumn podle ID sloupce v datové službě
    * @param Datasource $datasource
    * @param int $dbDatasourceFieldId
@@ -500,15 +510,7 @@ class DatasourcesFacade {
 #  }
 #
 #
-#  /**
-#   * Funkce pro uložení entity DatasourceColumn
-#   * @param DatasourceColumn $datasourceColumn
-#   * @return int|bool
-#   */
-#  public function saveDatasourceColumn(DatasourceColumn &$datasourceColumn){
-#  $result = $this->datasourceColumnsRepository->persist($datasourceColumn);
-#  return $result;
-#  }
+#
 #
 #  /**
 #   * @param Datasource|int $datasource

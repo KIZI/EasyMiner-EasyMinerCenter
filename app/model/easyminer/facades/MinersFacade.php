@@ -142,25 +142,6 @@ class MinersFacade {
   }
 
   /**
-   * @param Miner|int $miner
-   * @param Attribute|int $attribute
-   */
-  public function prepareAttribute($miner,$attribute){
-    if (!$miner instanceof Miner){
-      /*$miner=*/$this->findMiner($miner);//kontrola existence daného mineru
-    }
-    if ($attribute instanceof Attribute){
-      if ($attribute->isDetached() || $attribute->isModified()){
-        $this->metasourcesFacade->saveAttribute($attribute);
-      }
-    }else{
-      $attribute=$this->metasourcesFacade->findAttribute($attribute);
-    }
-    $this->preprocessingDriver->generateAttribute($attribute);
-    //TODO nechat mining driver zkontrolovat existenci všech atributů
-  }
-
-  /**
    * Funkce pro připravení nového názvu atributu (takového, který se zatím v seznamu atributů nevyskytuje)
    * @param $miner
    * @param $newAttributeName
