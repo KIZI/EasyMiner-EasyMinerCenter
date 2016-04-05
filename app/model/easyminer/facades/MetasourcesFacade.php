@@ -442,24 +442,4 @@ class MetasourcesFacade {
 
   #endregion inicializace metasource
 
-
-
-  /**
-   * @param Metasource $metasource
-   * @param Attribute|int $attribute
-   */
-  public function prepareAttribute(Metasource $metasource, Attribute $attribute){
-    //FIXME implementovat...
-    if ($attribute instanceof Attribute){
-      if ($attribute->isDetached() || $attribute->isModified()){
-        $this->metasourcesFacade->saveAttribute($attribute);
-      }
-    }else{
-      $attribute=$this->metasourcesFacade->findAttribute($attribute);
-    }
-    $this->preprocessingDriver->generateAttribute($attribute);
-    //TODO nechat mining driver zkontrolovat existenci všech atributů
-  }
-
-
 }

@@ -321,7 +321,6 @@ class PreprocessingServiceDatabase implements IPreprocessing {
       default:
         throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
     }
-
   }
 
 

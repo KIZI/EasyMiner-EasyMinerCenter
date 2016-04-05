@@ -1075,19 +1075,17 @@ class AttributesPresenter extends BasePresenter{
       $values=$button->form->values;
       $miner=$this->findMinerWithCheckAccess($values->miner);
       $this->minersFacade->checkMinerMetasource($miner);
-      $currentUser=$this->getCurrentUser();
       $attribute=new Attribute();
       $attribute->metasource=$miner->metasource;
       $attribute->datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,$values->column);
       $attribute->name=$values->attributeName;
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessing=$this->metaAttributesFacade->findPreprocessing($values->preprocessing);
-      //FIXME tady je to potřeba předělat... (může to trvat dlouho => je potřeba vytvořit metasource task a poté ji spustit...)
-      $this->metasourcesFacade->prepareAttribute($miner->metasource, $attribute);
+      $attribute->active=false;
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
-      $this->redirect('reloadUI');
+      $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
+      $this->redirect('preprocessingTask',['id'=>$metasourceTask->metasourceTaskId]);
     };
     $storno=$form->addSubmit('storno','storno');
     $storno->setValidationScope(array());
