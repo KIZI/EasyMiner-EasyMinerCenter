@@ -386,10 +386,12 @@ class DataPresenter extends BasePresenter{
       if (!empty($metasource->metasourceTasks)){
         $metasourceTasks=$metasource->metasourceTasks;
         foreach($metasourceTasks as $metasourceTask){
-          if ($metasourceTask->attribute==null){
+          if ($metasourceTask->type==MetasourceTask::TYPE_INITIALIZATION){
             //přesměrování na skript přípravy metasource...
             $this->redirect('initMiner',['id'=>$id]);
             return;
+          }elseif($metasourceTask->type==MetasourceTask::TYPE_PREPROCESSING && !empty($metasourceTask->attributes)){
+            //TODO nutnost přesměrování na inicializaci atributů
           }
         }
       }

@@ -15,7 +15,6 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingCommunicationException;
-use Nette\NotImplementedException;
 
 /**
  * Class MetasourcesFacade - fasáda pro práci s jednotlivými metasources (datasety)
@@ -221,8 +220,8 @@ class MetasourcesFacade {
    * @return Attribute
    */
   public function saveAttribute(Attribute $attribute) {
-    $attributeId=$this->attributesRepository->persist($attribute);
-    return $this->attributesRepository->find($attributeId);
+    $this->attributesRepository->persist($attribute);
+    return $attribute;
   }
 
   /**
@@ -382,9 +381,10 @@ class MetasourcesFacade {
     $metasourceTask->type=MetasourceTask::TYPE_PREPROCESSING;
     $metasourceTask->state=MetasourceTask::STATE_NEW;
     $metasourceTask->metasource=$metasource;
+    $this->saveMetasourceTask($metasourceTask);
     foreach($attributes as $attribute){
       if ($attribute instanceof Attribute){
-        $metasourceTask->attributes[]=$attribute;
+        $metasourceTask->addToAttributes($attribute);
       }else{
         throw new \BadMethodCallException('Requested attribute not found!');
       }
@@ -431,9 +431,21 @@ class MetasourcesFacade {
       return $metasourceTask;
     }elseif(is_array($result)){
       //TODO zpracování odpovědi - pole s atributy...
-      exit(var_dump($result));
-
-
+      //připravíme pracovní pole přiřazující fieldId k jednotlivým názvům vytvořených atributů
+      $resultAttributes=[];
+      foreach($result as $resultItem){
+        $resultAttributes[$resultItem->name]=$resultItem->id;
+      }
+      $attributes=$metasourceTask->attributes;
+      foreach($attributes as $attribute){
+        if (isset($resultAttributes[$attribute->name])){
+          $attribute->ppDatasetAttributeId=$resultAttributes[$attribute->name];
+          $attribute->active=true;
+          $this->saveAttribute($attribute);
+        }
+      }
+      $metasourceTask->state=MetasourceTask::STATE_DONE;
+      return $metasourceTask;
     }else{
       throw new \Exception('Unexpected type of result!');
     }

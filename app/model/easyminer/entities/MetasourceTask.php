@@ -16,6 +16,9 @@ use Nette\Utils\JsonException;
  * @property string $type = m:enum(self::TYPE_*)
  * @property string $params = ''
  * @property-read PpTask $ppTask
+ * 
+ * @method addToAttributes($attribute)
+ * @method removeFromAttributes($attribute)
  */
 class MetasourceTask extends Entity{
 

@@ -10,7 +10,6 @@ var BackgroundTask = function(params){
   var messageTarget = params.messageTarget;
 
   var sendTaskRequest = function(){
-    console.log('function sendTaskRequest');
     jQuery.getJSON(
       url,
       function(data){
