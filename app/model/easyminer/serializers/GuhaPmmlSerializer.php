@@ -160,9 +160,9 @@ class GuhaPmmlSerializer {
       }
     }
     if (!empty($datasetExtension)){
-      $datasetExtension['value']=$this->miner->metasource->attributesTable;
+      $datasetExtension['value']=$this->miner->metasource->name;
     }else{
-      $this->addExtensionElement($header,'dataset',$this->miner->metasource->attributesTable);
+      $this->addExtensionElement($header,'dataset',$this->miner->metasource->name);
     }
   }
 
