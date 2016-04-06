@@ -28,8 +28,6 @@ class TasksPresenter  extends BasePresenter{
   private $rulesFacade;
   /** @var TasksFacade $tasksFacade */
   private $tasksFacade;
-  /** @var  DatabaseFactory $databaseFactory */
-  private $databaseFactory;
   /** @var XmlTransformator $xmlTransformator */
   private $xmlTransformator;
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
@@ -355,13 +353,6 @@ class TasksPresenter  extends BasePresenter{
    */
   public function injectTasksFacade(TasksFacade $tasksFacade){
     $this->tasksFacade=$tasksFacade;
-  }
-
-  /**
-   * @param DatabaseFactory $databaseFactory
-   */
-  public function injectDatabaseFactory(DatabaseFactory $databaseFactory){
-    $this->databaseFactory=$databaseFactory;
   }
 
   /**

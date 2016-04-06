@@ -74,7 +74,7 @@ class Task extends Entity{
    * @throws \Nette\Utils\JsonException
    */
   public function setTaskSettings($settings) {
-    if (!empty($settings) && is_array($settings) || is_object($settings)){
+    if (!empty($settings) && (is_array($settings) || is_object($settings))){
       $settings=Json::encode($settings);
     }
     $this->taskSettingsJson=$settings;

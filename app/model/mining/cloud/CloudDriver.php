@@ -90,16 +90,15 @@ class CloudDriver implements IMiningDriver{//TODO implement...
     #region kontrola zadání úlohy v JSONu
     $taskSettingsJson=new TaskSettingsJson($this->task->taskSettingsJson);
     $this->checkRequiredIMs($taskSettingsJson);
+    $this->task->setTaskSettings($taskSettingsJson->getJsonData());
     #endregion
 
-    #region serializace zadání v PMML
-    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($this->task);
-    $pmmlSerializer->appendMetabaseInfo();
-    $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
-    $taskSettingsSerializer->settingsFromJson($taskSettingsJson->getJsonString());
-    #endregion
+    //serializace zadání v PMML
+    $cloudDriverGuhaPmmlSerializer=$this->xmlSerializersFactory->createCloudDriverGuhaPmmlSerializer($this->task);
+    $cloudDriverGuhaPmmlSerializer->appendTaskSettings();
 
-    $pmml=$taskSettingsSerializer->getPmml();
+    $pmml=$cloudDriverGuhaPmmlSerializer->getPmml();
+
     //import úlohy a spuštění dolování...
     $numRequests=1;
     sendStartRequest:

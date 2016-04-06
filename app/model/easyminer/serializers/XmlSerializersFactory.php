@@ -34,4 +34,13 @@ class XmlSerializersFactory {
     return new GuhaPmmlSerializer($task, $pmml, $this->databaseFactory, $this->appVersion);
   }
 
+  /**
+   * @param Task $task
+   * @param \SimpleXMLElement|null $pmml
+   * @return CloudDriverGuhaPmmlSerializer
+   */
+  public function createCloudDriverGuhaPmmlSerializer(Task $task, $pmml=null){
+    return new CloudDriverGuhaPmmlSerializer($task, $pmml, $this->databaseFactory, $this->appVersion);
+  }
+
 }

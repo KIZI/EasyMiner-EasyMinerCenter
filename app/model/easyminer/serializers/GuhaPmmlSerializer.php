@@ -19,35 +19,37 @@ use Nette\Utils\Strings;
  */
 class GuhaPmmlSerializer {
   /** @var  \SimpleXMLElement $pmml */
-  private $pmml;
+  protected $pmml;
   /** @var  Task $task */
-  private $task;
+  protected $task;
   /** @var  Miner $miner */
-  private $miner;
+  protected $miner;
   /** @var string $appVersion */
   public $appVersion='';
 
   const PMML_XMLNS='http://www.dmg.org/PMML-4_0';
 
   /** @var  DatabaseFactory $databaseFactory */
-  private $databaseFactory;
+  protected $databaseFactory;
 
   /** @var  \SimpleXMLElement $BBAsWorkXml */
-  private $BBAsWorkXml;
+  protected $BBAsWorkXml;
   /** @var  \SimpleXMLElement $DBAsWorkXml */
-  private $DBAsWorkXml;
+  protected $DBAsWorkXml;
   /** @var  \SimpleXMLElement $associationRulesWorkXml */
-  private $associationRulesWorkXml;
+  protected $associationRulesWorkXml;
   /** @var int[] $serializedCedents  pole s indexy dílčích cedentů, které už byly serializovány */
-  private $serializedCedentsArr;
+  protected $serializedCedentsArr;
   /** @var int[] $serializedRuleAttributesArr  pole s indexy dílčích ruleAttributes, které už byly serializovány */
-  private $serializedRuleAttributesArr;
+  protected $serializedRuleAttributesArr;
   /** @var  array $connectivesArr pole s překladem spojek pro serializaci */
-  private $connectivesArr;
-  private $dataTypesTransformationArr=[
+  protected $connectivesArr;
+  protected $dataTypesTransformationArr=[
     'int'=>'integer',
     'float'=>'float',
-    'string'=>'string'
+    'string'=>'string',
+    'nominal'=>'string',
+    'numeric'=>'float'
   ];
   /**
    * @return \SimpleXMLElement
@@ -133,7 +135,7 @@ class GuhaPmmlSerializer {
   /**
    * Funkce připravující prázdný PMML dokument
    */
-  private function prepareBlankPmml(){
+  protected function prepareBlankPmml(){
     $this->pmml = simplexml_load_string('<'.'?xml version="1.0" encoding="UTF-8"?>
       <'.'?oxygen SCHSchema="http://easyminer.eu/schemas/GUHARestr0_1.sch"?>
       <PMML xmlns="'.self::PMML_XMLNS.'" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmml="http://www.dmg.org/PMML-4_0" xsi:schemaLocation="http://www.dmg.org/PMML-4_0 http://easyminer.eu/schemas/PMML4.0+GUHA0.1.xsd">
@@ -159,6 +161,14 @@ class GuhaPmmlSerializer {
         break;
       }
     }
+    $this->appendDatasetInfo($datasetExtension);
+  }
+
+  /**
+   * Funkce pro připojení informace o datasetu
+   * @param \SimpleXMLElement|null $datasetExtension
+   */
+  protected function appendDatasetInfo(\SimpleXMLElement $datasetExtension){
     if (!empty($datasetExtension)){
       $datasetExtension['value']=$this->miner->metasource->name;
     }else{
@@ -175,7 +185,7 @@ class GuhaPmmlSerializer {
    * @param string $extensionValue
    * @param string|null $extensionExtender
    */
-  private function addExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
+  protected function addExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
     if ($groupExtensions && count($parentSimpleXmlElement->Extension)>0){
       $siblinkElement = $parentSimpleXmlElement->Extension[0];
       $siblinkElementDom=dom_import_simplexml($siblinkElement);
@@ -205,7 +215,7 @@ class GuhaPmmlSerializer {
    * @param string|null $extensionExtender = null
    * @param bool $groupExtensions = true
    */
-  private function setExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
+  protected function setExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
     if ($extensionElement=$this->getExtensionElement($parentSimpleXmlElement,$extensionName)){
       //existuje příslušný element Extension
       $extensionElement['name']=$extensionName;
@@ -226,7 +236,7 @@ class GuhaPmmlSerializer {
    * @param string $extensionName
    * @return \SimpleXMLElement|null
    */
-  private function getExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement, $extensionName){
+  protected function getExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement, $extensionName){
     if (count($parentSimpleXmlElement->Extension)>0){
       foreach($parentSimpleXmlElement->Extension as $extension){
         if (@$extension['name']==$extensionName){
