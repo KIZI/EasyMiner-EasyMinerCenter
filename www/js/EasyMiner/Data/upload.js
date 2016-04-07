@@ -97,7 +97,7 @@ var DataUpload=function(){
    * Funkce pro vygenerování formuláře pro konfiguraci datových sloupců a jeho zobrazení
    */
   this.showColumnsConfigBlock=function(){
-    const VALIDATION_ATTRIBUTES='required data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":pattern","msg":"Attribute name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Attribute name can contain only letters, numbers and _ and has start with a letter."';
+    const VALIDATION_ATTRIBUTES='required data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":UniqueNamesValidator","msg":"This name is already used."},{"op":":pattern","msg":"Attribute name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Attribute name can contain only letters, numbers and _ and has start with a letter."';
 
     //připravení položek příslušného formuláře...
     var listBlock=this.jqElements.uploadColumnsListBlock;
@@ -105,7 +105,7 @@ var DataUpload=function(){
     for (var i in columnNames){
       //položka konkrétního sloupce
       var columnDetailsTr=$('<tr></tr>');
-      var nameInput=$('<input type="text" id="column_'+i+'_name" '+VALIDATION_ATTRIBUTES+' />').val(columnNames[i]);
+      var nameInput=$('<input type="text" id="column_'+i+'_name" '+VALIDATION_ATTRIBUTES+' />').val(columnNames[i]).addClass('columnName');
       columnDetailsTr.append($('<td></td>').html(nameInput));
       var dataTypeSelect=$('<select id="column_'+i+'_type"><option value="nominal">nominal [ABC]</option><option value="numeric">numerical [123]</option><option value="null">--ignore--</option></select>');
       dataTypeSelect.val(columnDataTypes[i]);
@@ -336,13 +336,23 @@ var DataUpload=function(){
     var form=self.jqElements.uploadColumnsBlock.find('form');
     form.addClass('ajax');
     form.submit(function(e){
+      //TODO přesunout inicializaci formuláře na lepší místo... (takhle se vykonává až při odeslání)
+      Nette.validators.UniqueNamesValidator=function(elem, arg, value){
+        var namesArr=[];
+        $('#'+elem.form.id+' input.columnName').each(function(){
+          if (elem.id==$(this).attr('id')){return;}
+          var name=$(this).val();
+          namesArr[name]=name;
+        });
+        //console.log(namesArr);
+        return !namesArr.hasOwnProperty(value);
+      };
       Nette.initForm(this);
       e.preventDefault();
       e.stopPropagation();
       Nette.validateForm(this);
 
-      
-
+      alert('upload');
       //TODO kontrola shodnosti názvu sloupců
       //FIXME self.submitAllData();
     })
