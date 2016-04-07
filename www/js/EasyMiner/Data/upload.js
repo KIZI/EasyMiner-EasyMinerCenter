@@ -132,6 +132,8 @@ var DataUpload=function(){
     this.jqElements.uploadProgressBlock.hide();
     this.jqElements.uploadConfigBlock.hide();
     this.jqElements.uploadColumnsBlock.show();
+
+    Nette.initForm(self.jqElements.uploadColumnsBlock.find('form').get(0));
   };
 
   /**
@@ -335,25 +337,28 @@ var DataUpload=function(){
   var initColumnsConfigFormActions=function(){
     var form=self.jqElements.uploadColumnsBlock.find('form');
     form.addClass('ajax');
+    /**
+     * Funkce pro validaci unikátnosti zadaných jmen sloupců
+     * @return {boolean}
+     */
+    Nette.validators.UniqueNamesValidator=function(elem, arg, value){
+      var namesArr=[];
+      $('#'+elem.form.id+' input.columnName').each(function(){
+        if (elem.id==$(this).attr('id')){return;}
+        var name=$(this).val();
+        namesArr[name]=name;
+      });
+      //console.log(namesArr);
+      return !namesArr.hasOwnProperty(value);
+    };
+
+    //submit akce
     form.submit(function(e){
-      //TODO přesunout inicializaci formuláře na lepší místo... (takhle se vykonává až při odeslání)
-      Nette.validators.UniqueNamesValidator=function(elem, arg, value){
-        var namesArr=[];
-        $('#'+elem.form.id+' input.columnName').each(function(){
-          if (elem.id==$(this).attr('id')){return;}
-          var name=$(this).val();
-          namesArr[name]=name;
-        });
-        //console.log(namesArr);
-        return !namesArr.hasOwnProperty(value);
-      };
-      Nette.initForm(this);
       e.preventDefault();
       e.stopPropagation();
       Nette.validateForm(this);
 
       alert('upload');
-      //TODO kontrola shodnosti názvu sloupců
       //FIXME self.submitAllData();
     })
   };
