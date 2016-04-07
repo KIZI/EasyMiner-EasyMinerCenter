@@ -97,13 +97,15 @@ var DataUpload=function(){
    * Funkce pro vygenerování formuláře pro konfiguraci datových sloupců a jeho zobrazení
    */
   this.showColumnsConfigBlock=function(){
+    const VALIDATION_ATTRIBUTES='required data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":pattern","msg":"Attribute name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Attribute name can contain only letters, numbers and _ and has start with a letter."';
+
     //připravení položek příslušného formuláře...
     var listBlock=this.jqElements.uploadColumnsListBlock;
     var listBlockTable=$('<table><tr><th>'+'Column name'+'</th><th>'+'Data type'+'</th><th>'+'Values from first rows...'+'</th></tr></table>');
     for (var i in columnNames){
       //položka konkrétního sloupce
       var columnDetailsTr=$('<tr></tr>');
-      var nameInput=$('<input type="text" id="column_'+i+'_name" required />').val(columnNames[i]);//TODO připojení kontrol na tvar názvů sloupců
+      var nameInput=$('<input type="text" id="column_'+i+'_name" '+VALIDATION_ATTRIBUTES+' />').val(columnNames[i]);
       columnDetailsTr.append($('<td></td>').html(nameInput));
       var dataTypeSelect=$('<select id="column_'+i+'_type"><option value="nominal">nominal [ABC]</option><option value="numeric">numerical [123]</option><option value="null">--ignore--</option></select>');
       dataTypeSelect.val(columnDataTypes[i]);
@@ -334,11 +336,15 @@ var DataUpload=function(){
     var form=self.jqElements.uploadColumnsBlock.find('form');
     form.addClass('ajax');
     form.submit(function(e){
+      Nette.initForm(this);
       e.preventDefault();
       e.stopPropagation();
-      //TODO kontrola názvů sloupců...
       Nette.validateForm(this);
-      //XXX self.submitAllData();
+
+      
+
+      //TODO kontrola shodnosti názvu sloupců
+      //FIXME self.submitAllData();
     })
   };
 
