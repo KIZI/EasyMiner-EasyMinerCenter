@@ -56,7 +56,7 @@ class DataPresenter extends BasePresenter{
           $metasourceTasks=$miner->metasource->metasourceTasks;
           if (!empty($metasourceTasks)){
             foreach($metasourceTasks as $metasourceTaskItem){
-              if (!$metasourceTaskItem->attribute){
+              if (!$metasourceTaskItem->attribute){//TODO tohle je potřeba opravit (došlo ke změně konstrukce MetasourceTask, žádný attribute už tam není)
                 $metasourceTask=$metasourceTaskItem;
                 break;
               }
@@ -161,6 +161,7 @@ class DataPresenter extends BasePresenter{
     $form->addText('datasourceName','Datasource:')
       ->setAttribute('class','noBorder normalWidth')
       ->setAttribute('readonly');
+    /** @noinspection PhpUndefinedMethodInspection */
     $form->addText('name', 'Miner name:')
       ->setRequired('Input the miner name!')
       ->setAttribute('autofocus')
@@ -216,11 +217,24 @@ class DataPresenter extends BasePresenter{
 
   #region upload datasetu
 
+  /**
+   * Akce pro dokončení uploadu datasetu (zpracování získaného JSONu, přechod na vytvoření nového datového zdroje)
+   * @param string $uploadConfig
+   * @param string $dataServiceResult
+   */
+  public function actionUploadFinish($uploadConfig,$dataServiceResult){
+    exit(var_dump($dataServiceResult));
+    //TODO přidání datasource
+    //TODO přejmenování sloupců v DB dle zadání pro upload
+    //TODO přesměrování na vytvoření nového mineru
+  }
+
+
   public function renderUpload() {
     //akce pro upload souboru...
     /** @noinspection PhpUndefinedFieldInspection */
     $this->template->apiKey=$this->user->getIdentity()->apiKey;
-    $this->template->dataServiceUrl='http://br-dev.lmcloud.vse.cz/easyminer-data/api/v1/';//TOOD načtení URL z configu
+    $this->template->dataServiceUrlsByDbTypes=$this->datasourcesFacade->getDataServiceUrlsByDbTypes();
   }
 
   /**
@@ -272,6 +286,9 @@ class DataPresenter extends BasePresenter{
     $this->sendJsonResponse($resultArr);
   }
 
+  /**
+   * Akce která přijme kousek dat určený pro vytvoření náhledu a uloží ho do souboru
+   */
   public function actionUploadPreview() {
     $previewRawData=$this->getHttpRequest()->getRawBody();
     //TODO inicializace uploadu pomocí datové služby...
@@ -289,7 +306,7 @@ class DataPresenter extends BasePresenter{
     $form->addUpload('file','Upload file:')
       ->setRequired('Je nutné vybrat soubor pro import!')
     ;
-    $dbTypes=$this->datasourcesFacade->getDbTypes(true);//TODO
+    $dbTypes=$this->datasourcesFacade->getDbTypes(true);
     if (count($dbTypes)==1){
       reset($dbTypes);
       $form->addHidden('dbType',key($dbTypes));
@@ -310,20 +327,13 @@ class DataPresenter extends BasePresenter{
   public function createComponentUploadConfigForm() {
     $form = new Form();
     $form->setTranslator($this->translator);
-//    $tableName=$form->addText('table','Table name:')
-//      ->setRequired('Input table name!');
-//    $tableName->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
-//      ->addRule(Form::MIN_LENGTH,'Min length of the table name is %s characters!',3)
-//      ->addRule(Form::PATTERN,'Table name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z0-9_]+')
-//      /*TODO kontrola existence DB tabulky
-//      ->addRule(function(TextInput $control)use($presenter){
-//        $formValues=$control->form->getValues(true);
-//        $csvColumnsCount=$presenter->fileImportsFacade->getColsCountInCSV($formValues['file'],$formValues['separator'],$formValues['enclosure'],$formValues['escape']);
-//        $databaseType=$presenter->databasesFacade->prefferedDatabaseType($csvColumnsCount);
-//        $newDatasource=$presenter->datasourcesFacade->prepareNewDatasourceForUser($this->usersFacade->findUser($presenter->user->id),$databaseType);
-//        $presenter->databasesFacade->openDatabase($newDatasource->getDbConnection());
-//        return (!$presenter->databasesFacade->checkTableExists($control->value));
-//      },'Table with this name already exists!')*/;
+    $name=$form->addText('name','Datasource:')
+      ->setAttribute('title','Datasource name')
+      ->setRequired('Input datasource name!');
+    /** @noinspection PhpUndefinedMethodInspection */
+    $name->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
+      ->addRule(Form::MIN_LENGTH,'Min length of the table name is %s characters!',3)
+      ->addRule(Form::PATTERN,'Datasource name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z0-9_]+');
 
     $form->addSelect('separator','Separator:',[
       ','=>'Comma (,)',

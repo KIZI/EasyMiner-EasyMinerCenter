@@ -47,13 +47,31 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce vrace
+   * Funkce vracející preferovaný typ databáze
    * @return string
    */
-  public function getPreferredDbType() {
+  public function getPreferredDbType(){
     //TODO implementovat načtení výchozího typu databáze z konfigurace
     return DbConnection::TYPE_LIMITED;
   }
+
+  /**
+   * Funkce vracející URL pro přímý přístup ke službám pro práci s databázemi (využíváno v JS pro upload dat)
+   * @return array
+   * @throws \Exception
+   */
+  public function getDataServiceUrlsByDbTypes(){
+    $dbTypes=$this->getDbTypes();
+    if (!empty($dbTypes)){
+      foreach($dbTypes as $dbType=>&$value){
+        //zjistíme URL pro každou z datových služeb
+        $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
+        $value=!empty($databaseConfig['api'])?$databaseConfig['api']:'local';
+      }
+    }
+    return $dbTypes;
+  }
+
 
   /**
    * Funkce pro aktualizaci informací o vzdálených datových zdrojích
@@ -448,6 +466,7 @@ class DatasourcesFacade {
   public function saveDatasource(Datasource $datasource) {
     return $this->datasourcesRepository->persist($datasource);
   }
+
 
 
 #  /**

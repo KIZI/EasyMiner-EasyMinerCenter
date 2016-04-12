@@ -51,14 +51,6 @@ var FileUploader=function(params){
    */
   this.onShowMessage=function(){};
 
-  /**
-   * TODO remove function
-   * @param message
-   */
-  var specialLog=function(message){
-    console.log(message);
-  };
-
   const SLOW_DOWN_INTERVAL=500;//interval pro zpomalení uploadu (v milisekundách)
   const CODE_SLOW_DOWN=429;
   const CODE_CONTINUE=202;
@@ -76,7 +68,7 @@ var FileUploader=function(params){
     jQuery.ajax(ajaxUrl,{
       type: 'post',
       data: ajaxData,
-      contentType: 'application/json',
+      contentType: 'application/json; charset=utf-8',
       success: function(result){
         //došlo k úspěšné inicializaci -> uložíme si ID uploadu a zahájíme posílání...
         uploadId=result;
@@ -162,7 +154,6 @@ var FileUploader=function(params){
         if (xhr.status==CODE_OK){
           self.onUploadFinished(result);
         }else{
-          specialLog("slowDown");
           setTimeout(function(){
             sendLastChunk();
           },SLOW_DOWN_INTERVAL);

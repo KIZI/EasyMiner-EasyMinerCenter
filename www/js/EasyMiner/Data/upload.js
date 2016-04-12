@@ -16,8 +16,8 @@ var DataUpload=function(){
     uploadProgressBar:  null,
     uploadColumnsListBlock:null,
 
+    nameInput: null,
     databaseTypeInput: null,
-    tableNameInput: null,
     escapeCharacterInput: null,
     delimiterInput: null,
     nullValueInput: null,
@@ -25,10 +25,11 @@ var DataUpload=function(){
     enclosureInput: null,
     localeInput: null
   };
-  this.dataServiceUrl=null;
+  this.dataServiceUrlsByDbTypes=null;
   this.apiKey=null;
   this.previewUrl=null;
   this.uploadPreviewDataUrl=null;
+  this.fileCompression='';
   /**
    * @type {FileUploader}
    */
@@ -86,11 +87,44 @@ var DataUpload=function(){
   this.showUploadConfigBlock=function(){
     //skrytí případných flash zpráv
     this.jqElements.flashMessages.hide();
+    //vygenerování výchozího jména uploadovaného datasource
+    this.processFileName(this.fileInputElement.files[0].name);
     //zobrazení potřebných bloků
     this.jqElements.uploadFormBlock.hide();
     this.jqElements.uploadColumnsBlock.hide();
     this.jqElements.uploadProgressBlock.hide();
     this.jqElements.uploadConfigBlock.show();
+  };
+
+  /**
+   * Funkce pro zpracování jména nahrávaného souboru - určení komprese a určení jména nahrávané tabulky
+   * @param filename : string
+   */
+  this.processFileName=function(filename){
+    var lastDotPosition=filename.lastIndexOf('.');
+    var name=filename.substring(0,lastDotPosition);
+    var ext =filename.substring(lastDotPosition+1);
+    //zpracování jména souboru na název tabulky v DB
+    name=seoUrl(name);
+    ext=ext.toLowerCase();
+    //přiřazení získaných hodnot do inputu a do proměnné s info o kompresi
+    this.jqElements.nameInput.val(name);
+    switch (ext){
+      case 'zip':
+        this.fileCompression='zip';
+        break;
+      case 'gzip':
+      case 'gz':
+      case 'tgz':
+        this.fileCompression='gzip';
+        break;
+      case 'bzip':
+      case 'bz2':
+        this.fileCompression='bzip2';
+        break;
+      default:
+        this.fileCompression='';
+    }
   };
 
   /**
@@ -197,8 +231,8 @@ var DataUpload=function(){
    * Funkce pro nahrání celého souboru
    */
   this.submitAllData=function(){
-    //TODO odeslání všech potřebných dat
     //inicializace file uploaderu
+    fileUploader.setDataServiceUrl(this.dataServiceUrlsByDbTypes[self.jqElements.databaseTypeInput.val()]);//nastavení URL dle zvoleného typu databáze
     fileUploader.onUploadStart=function(){
       //zobrazení upload bloku a spuštění uploadu
       self.jqElements.uploadFormBlock.hide();
@@ -206,15 +240,18 @@ var DataUpload=function(){
       self.jqElements.uploadConfigBlock.hide();
       self.jqElements.uploadProgressBlock.show();
     };
-    fileUploader.onUploadFinished=function(){
+    fileUploader.onUploadFinished=function(result){
       //TODO redirect...
       console.log('upload finished -> go to new miner creation...');
+      console.log(result);//XXX
     };
     fileUploader.onProgressUpdate=function(){
       var progressState=fileUploader.getProgressState();
       //TODO doplnění pozadí u progress baru
       self.jqElements.uploadProgressBar.text(Math.round(progressState*100)+'%');
     };
+    console.log('---sem---');
+    console.log(this.getInputParams());
     fileUploader.startUpload('upload',this.getInputParams());
   };
 
@@ -224,7 +261,7 @@ var DataUpload=function(){
    */
   this.getInputParams=function(){
     var result={
-      "name": "testFile",//TODO odkud bude brán název souboru?
+      "name": this.jqElements.nameInput.val(),
       "mediaType": "csv",
       "dbType": this.jqElements.databaseTypeInput.val(),
       "separator": this.jqElements.delimiterInput.val(),
@@ -236,9 +273,8 @@ var DataUpload=function(){
       columnNames: columnNames,
       dataTypes: columnDataTypes
     };
-    var compression=false;/*TODO vyřešení, jestli je příslušný soubor komprimovaný*/
-    if (compression){
-      result['compression']='zip';
+    if (this.fileCompression){
+      result['compression']=this.fileCompression;
     }
     return result;
   };
@@ -358,8 +394,7 @@ var DataUpload=function(){
       e.stopPropagation();
       Nette.validateForm(this);
 
-      alert('upload');
-      //FIXME self.submitAllData();
+      self.submitAllData();
     })
   };
 
@@ -368,7 +403,6 @@ var DataUpload=function(){
    */
   var initFileUploader=function(){
     fileUploader=new FileUploader({
-      dataServiceUrl:self.dataServiceUrl,
       apiKey:self.apiKey,
       inputElementId:self.fileInputElement.id,
       onProgressUpdate:function(){//TODO
@@ -405,7 +439,7 @@ $(document).ready(function(){
     uploadProgressBar:  uploadProgressBlock.find('.progressBar'),
 
     databaseTypeInput: uploadFormBlock.find('[name="dbType"]'),
-    tableNameInput: null,//XXX
+    nameInput: uploadConfigBlock.find('[name="name"]'),
     escapeCharacterInput: uploadConfigBlock.find('[name="escape"]'),
     delimiterInput: uploadConfigBlock.find('[name="separator"]'),
     nullValueInput: uploadConfigBlock.find('[name="nullValue"]'),
@@ -416,9 +450,42 @@ $(document).ready(function(){
     flashMessages: $('.flash')
   };
 
-  dataUpload.dataServiceUrl=dataServiceUrl;
+  dataUpload.dataServiceUrlsByDbTypes=dataServiceUrlsByDbTypes;
   dataUpload.apiKey=apiKey;
   dataUpload.previewUrl=previewUrl;
   dataUpload.uploadPreviewDataUrl=uploadPreviewDataUrl;
   dataUpload.init();
 });
+
+
+/**
+ * Funkce pro vytvoření SEO URL ze zadaného řetězce
+ * @param str
+ * @returns string
+ */
+function seoUrl(str) {
+  str = str.toLowerCase();
+  str = strtr(str,String.fromCharCode(283,353,269,345,382,253,225,237,233,357,367,250,243,271,328,318,314),String.fromCharCode(101,115,99,114,122,121,97,105,101,116,117,117,111,100,110,108,108));
+  str = str.replace(/[^0-9A-Za-z]{1,}?/g, ' ').replace(/^\s*|\s*$/g,"").replace(/[\s]+/g, '-');
+
+  return str;
+}
+
+/**
+ * Funkce strtr odpovida teto funkci z PHP
+ */
+function strtr(s, from, to) {
+  var out = "";
+  // slow but simple :^)
+  top:
+    for(var i=0; i < s.length; i++) {
+      for(var j=0; j < from.length; j++) {
+        if(s.charAt(i) == from.charAt(j)) {
+          out += to.charAt(j);
+          continue top;
+        }
+      }
+      out += s.charAt(i);
+    }
+  return out;
+}
