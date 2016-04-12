@@ -47,9 +47,15 @@ var FileUploader=function(params){
    */
   this.onUploadStop=function(){};
   /**
+   * Custom function triggered after last file send.
+   */
+  this.onFileSent=function(){};
+  /**
    * Custom function triggered on message alert
    */
   this.onShowMessage=function(){};
+
+
 
   const SLOW_DOWN_INTERVAL=500;//interval pro zpomalení uploadu (v milisekundách)
   const CODE_SLOW_DOWN=429;
@@ -80,7 +86,7 @@ var FileUploader=function(params){
       error: function(xhr, status, error){
         //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
         showMessage("Upload failed: "+error);
-        self.stop();
+        self.stopUpload();
       }
     });
   };
@@ -95,7 +101,10 @@ var FileUploader=function(params){
         data: fileReader.result,
         contentType: 'text/plain',
         success: function(result,status,xhr){
-          //TODO kontrola návratového kódu
+          if (xhr.status==CODE_CONTINUE){
+            //pokud máme pokračovat, zobrazíme stavovou zprávu
+            showMessage(result);
+          }
           //došlo k vrácení odpovědi
           self.onProgressUpdate();
           lastUploadedChunkId++;
@@ -111,7 +120,7 @@ var FileUploader=function(params){
             },SLOW_DOWN_INTERVAL);
           }else{
             showMessage("Upload failed: "+error);
-            self.stop();
+            self.stopUpload();
           }
         }
       });
@@ -119,7 +128,7 @@ var FileUploader=function(params){
     fileReader.onerror=function(){
       //akce volaná při chybě čtení souboru
       showMessage("File read failed!","error");
-      self.stop();
+      self.stopUpload();
     };
   };
 
@@ -152,8 +161,14 @@ var FileUploader=function(params){
       success: function(result,status,xhr){
         //došlo k vrácení odpovědi
         if (xhr.status==CODE_OK){
+          showMessage("File uploaded successfully, data preparation in progress...");
+          self.onFileSent();
           self.onUploadFinished(result);
         }else{
+          if(xhr.status==CODE_CONTINUE){
+            self.onFileSent();
+            showMessage(result);
+          }
           setTimeout(function(){
             sendLastChunk();
           },SLOW_DOWN_INTERVAL);
@@ -168,7 +183,7 @@ var FileUploader=function(params){
           },SLOW_DOWN_INTERVAL);
         }else{
           showMessage("Upload failed: "+error);
-          self.stop();
+          self.stopUpload();
         }
       }
     });
@@ -207,7 +222,6 @@ var FileUploader=function(params){
     }else{
       uploadRequestUrl=requestUrl;
     }
-    //TODO detekce komprese souboru (a případné připojení příslušného parametru)
     start(uploadFileParams);
   };
 

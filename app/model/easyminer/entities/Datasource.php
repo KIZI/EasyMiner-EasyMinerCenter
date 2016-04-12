@@ -49,6 +49,7 @@ class Datasource extends Entity{
    */
   public static function newFromDbConnection(DbConnection $dbConnection) {
     $datasource = new Datasource();
+    $datasource->type=$dbConnection->type;
     $datasource->dbName=$dbConnection->dbName;
     $datasource->dbServer=$dbConnection->dbServer;
     $datasource->dbApi = $dbConnection->dbApi;

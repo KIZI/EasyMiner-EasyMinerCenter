@@ -13,7 +13,9 @@ var DataUpload=function(){
     uploadConfigPreviewBlock: null,
     uploadColumnsBlock: null,
     uploadProgressBlock:null,
+    uploadProgress:null,
     uploadProgressBar:  null,
+    uploadProgressMessage: null,
     uploadColumnsListBlock:null,
 
     nameInput: null,
@@ -29,6 +31,7 @@ var DataUpload=function(){
   this.apiKey=null;
   this.previewUrl=null;
   this.uploadPreviewDataUrl=null;
+  this.uploadFinishUrl=null;
   this.fileCompression='';
   /**
    * @type {FileUploader}
@@ -239,20 +242,89 @@ var DataUpload=function(){
       self.jqElements.uploadColumnsBlock.hide();
       self.jqElements.uploadConfigBlock.hide();
       self.jqElements.uploadProgressBlock.show();
+      self.jqElements.uploadProgress.show();
+    };
+    fileUploader.onFileSent=function(){
+      self.jqElements.uploadProgress.hide();
+    };
+    fileUploader.onUploadStop=function(){
+      showMessage('Upload stopped.','warn');
+      //zrušíme propojení funkcí z uploaderu
+      fileUploader.onShowMessage=function(){};
+      fileUploader.onProgressUpdate=function(){};
+      //skryjeme progress bar
+      self.jqElements.uploadProgress.hide();
     };
     fileUploader.onUploadFinished=function(result){
-      //TODO redirect...
-      console.log('upload finished -> go to new miner creation...');
-      console.log(result);//XXX
+      self.sendFinalRequest(result);
     };
     fileUploader.onProgressUpdate=function(){
       var progressState=fileUploader.getProgressState();
-      //TODO doplnění pozadí u progress baru
-      self.jqElements.uploadProgressBar.text(Math.round(progressState*100)+'%');
+      var percents=Math.round(progressState*100);
+      self.jqElements.uploadProgressBar.html('<div class="bg" style="width:'+percents+'%;"></div><div>File upload: '+percents+'%</div>');
     };
-    console.log('---sem---');
-    console.log(this.getInputParams());
+    updateColumnNamesAndTypesFromConfigForm();
     fileUploader.startUpload('upload',this.getInputParams());
+  };
+
+  /**
+   * Funkce pro aktualizaci přehledu požadovaných názvů sloupců a datových typů
+   */
+  var updateColumnNamesAndTypesFromConfigForm=function(){
+    //načteme data z formuláře
+    var columnsData=[];
+    self.jqElements.uploadColumnsListBlock.find('input[type="text"]').each(function(){
+      var thisItem=$(this);
+      var nameArr = thisItem.attr('id').split('_');
+      if (nameArr[0]=='column' && nameArr.hasOwnProperty('2') && nameArr[2]=='name'){
+        columnsData.push([thisItem.val(), $('#column_'+nameArr[1]+'_type').val()]);
+      }
+    });
+    //připravíme pole s názvy a datovými typy pro upload
+    columnNames=[];
+    columnDataTypes=[];
+    jQuery.each(columnsData,function(){
+      var thisItem=$(this);
+      columnNames.push(thisItem[0]);
+      columnDataTypes.push(thisItem[1]);
+    });
+  };
+
+  /**
+   * Funkce pro odeslání finálního requestu
+   * @param dataServiceResponse : object
+   */
+  this.sendFinalRequest=function(dataServiceResponse){
+    //odeslání requestu pro finalizaci nahrávání dat (vytvoření datasetu)
+    jQuery.ajax(self.uploadFinishUrl,{
+      type: 'post',
+      data: {
+        'uploadConfig': JSON.stringify(self.getInputParams()),
+        'dataServiceResult': JSON.stringify(dataServiceResponse)
+      },
+      success: function(result){
+        if (result.hasOwnProperty('message')){
+          showMessage(result.message, 'info');
+        }
+        if (result.hasOwnProperty('redirect')){
+          location.href=result.redirect;
+        }
+      },
+      error: function(xhr, status, error){
+        //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
+        showMessage("Upload failed: "+error, 'error');
+      }
+    });
+  };
+
+  /**
+   * Funkce pro zobrazení info zprávy
+   * @param message : string
+   * @param type : string
+   */
+  var showMessage=function(message, type){
+    var messageElement=$('<div class="'+type+'"></div>').html(message);
+    self.jqElements.uploadProgressMessage.html(messageElement);
   };
 
   /**
@@ -304,6 +376,7 @@ var DataUpload=function(){
     };
     fileReader.onerror=function(){
       //FIXME zpráva o chybě při přístupu k souboru...
+      alert('Requested file is not readable!');
     };
     var file=this.fileInputElement.files[0];
     fileReader.readAsBinaryString(file.slice(0,UPLOAD_PREVIEW_BYTES));
@@ -405,14 +478,16 @@ var DataUpload=function(){
     fileUploader=new FileUploader({
       apiKey:self.apiKey,
       inputElementId:self.fileInputElement.id,
-      onProgressUpdate:function(){//TODO
-        console.log('progress update..');
-      },/*TODO
-       onShowMessage: function(){
-
-       },*/
+      onShowMessage: function(message, type){
+        showMessage(message, type);
+      }
     });
-  }
+    self.jqElements.uploadProgress.find('a.stopButton').click(function(){
+      $(this).hide();
+      showMessage('Upload stopped.','warn');
+      fileUploader.stopUpload();
+    });
+  };
   //endregion init
 };
 
@@ -426,6 +501,7 @@ $(document).ready(function(){
   dataUpload.fileInputElement=uploadFormBlock.find('form input[type="file"]').get(0);
   $('form').addClass('ajax');
 
+  var uploadProgress=uploadProgressBlock.find('.progress');
   dataUpload.jqElements={
     uploadFormBlock:    uploadFormBlock,
 
@@ -436,7 +512,9 @@ $(document).ready(function(){
     uploadColumnsListBlock: $('#uploadColumnsListBlock'),
 
     uploadProgressBlock:uploadProgressBlock,
-    uploadProgressBar:  uploadProgressBlock.find('.progressBar'),
+    uploadProgress: uploadProgress,
+    uploadProgressBar:  uploadProgress.find('.progressBar'),
+    uploadProgressMessage: uploadProgressBlock.find('.message'),
 
     databaseTypeInput: uploadFormBlock.find('[name="dbType"]'),
     nameInput: uploadConfigBlock.find('[name="name"]'),
@@ -447,13 +525,14 @@ $(document).ready(function(){
     enclosureInput: uploadConfigBlock.find('[name="enclosure"]'),
     localeInput: uploadConfigBlock.find('[name="locale"]'),
 
-    flashMessages: $('.flash')
+    flashMessages: $('.flash')//blok klasických flash zpráv v rámci Nette
   };
 
   dataUpload.dataServiceUrlsByDbTypes=dataServiceUrlsByDbTypes;
   dataUpload.apiKey=apiKey;
   dataUpload.previewUrl=previewUrl;
   dataUpload.uploadPreviewDataUrl=uploadPreviewDataUrl;
+  dataUpload.uploadFinishUrl=uploadFinishUrl;
   dataUpload.init();
 });
 

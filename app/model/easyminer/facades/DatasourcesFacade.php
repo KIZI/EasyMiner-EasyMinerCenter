@@ -182,6 +182,31 @@ class DatasourcesFacade {
 
 
   /**
+   * Funkce pro vytvoření datového zdroje na základě DbDatasource, za využití výchozích informací pro připojení k dané DB
+   * @param DbDatasource $dbDatasource
+   * @param User $user
+   * @return Datasource
+   */
+  public function prepareNewDatasourceFromDbDatasource(DbDatasource $dbDatasource, User $user){
+    $dbConnection=$this->databaseFactory->getDefaultDbConnection($dbDatasource->type,$user);
+    $datasource=Datasource::newFromDbConnection($dbConnection);
+    $datasource->name=$dbDatasource->name;
+    $datasource->dbDatasourceId=$dbDatasource->id;
+    $datasource->user=$user;
+    return $datasource;
+  }
+
+  /**
+   * Funkce pro kontrolu názvů sloupců v datovém zdroji a jejich případné přejmenování
+   * @param Datasource $datasource
+   * @param array $columnNames
+   */
+  public function renameDatasourceColumns(Datasource $datasource, array $columnNames){
+    //TODO implementovat přejmenování sloupců
+  }
+
+
+  /**
    * @param DatabaseFactory $databaseFactory
    * @param DatasourcesRepository $datasourcesRepository
    * @param DatasourceColumnsRepository $datasourceColumnsRepository

@@ -1,6 +1,7 @@
 <?php
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
+use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
@@ -16,6 +17,7 @@ use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\InvalidStateException;
+use Nette\Utils\Json;
 
 /**
  * Class DataPresenter
@@ -221,12 +223,32 @@ class DataPresenter extends BasePresenter{
    * Akce pro dokončení uploadu datasetu (zpracování získaného JSONu, přechod na vytvoření nového datového zdroje)
    * @param string $uploadConfig
    * @param string $dataServiceResult
+   * @throws \Exception
+   * @throws \Nette\Utils\JsonException
    */
   public function actionUploadFinish($uploadConfig,$dataServiceResult){
-    exit(var_dump($dataServiceResult));
-    //TODO přidání datasource
-    //TODO přejmenování sloupců v DB dle zadání pro upload
-    //TODO přesměrování na vytvoření nového mineru
+    $uploadConfig=Json::decode($uploadConfig,Json::FORCE_ARRAY);
+    $dataServiceResult=Json::decode($dataServiceResult,Json::FORCE_ARRAY);
+    //vytvoření a uložení datasetu
+    if (!empty($dataServiceResult['id'])&&!empty($dataServiceResult['type'])&&!empty($dataServiceResult['name'])){
+      $dbDatasource=new DbDatasource(@$dataServiceResult['id'],@$dataServiceResult['name'],@$dataServiceResult['type'],@$dataServiceResult['size']);
+      $datasource=$this->datasourcesFacade->prepareNewDatasourceFromDbDatasource($dbDatasource,$this->getCurrentUser());
+      $this->datasourcesFacade->saveDatasource($datasource);
+    }else{
+      throw new \Exception('Upload finish failed.');
+    }
+
+    //aktualizace názvů datových sloupců
+    if (!empty($uploadConfig['columnNames'])){
+      $datasourceColumnNames=[];
+      //vytvoříme seznam sloupců
+      foreach($uploadConfig['dataTypes'] as $i=>$dataType){
+        $datasourceColumnNames[]=$uploadConfig['columnNames'][$i];
+      }
+      $this->datasourcesFacade->renameDatasourceColumns($datasource,$datasourceColumnNames);
+    }
+    //odeslání URL pro přesměrování...
+    $this->sendJsonResponse(['state'=>'OK','message'=>'Datasource created successfully.','redirect'=>$this->link('Data:newMinerFromDatasource',['datasource'=>$datasource->datasourceId])]);
   }
 
 

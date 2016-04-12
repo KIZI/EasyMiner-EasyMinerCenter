@@ -1500,6 +1500,27 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadProgressBlock > h2 {
   margin-top: 0;
 }
+#uploadProgressBlock .progressBar {
+  height: 2em;
+  position: relative;
+  border: 1px solid #d3d3d3;
+  width: 100%;
+  margin: 10px 0 5px 0;
+  padding: 3px 5px;
+}
+#uploadProgressBlock .progressBar .bg {
+  background: #d3d3d3;
+  width: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2em;
+  z-index: 1;
+}
+#uploadProgressBlock .progressBar div {
+  position: relative;
+  z-index: 2;
+}
 #backgroundTaskBlock {
   color: #434343;
   background-color: #fff;
