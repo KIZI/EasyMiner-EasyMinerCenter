@@ -229,10 +229,11 @@ class DataPresenter extends BasePresenter{
   public function actionUploadFinish($uploadConfig,$dataServiceResult){
     $uploadConfig=Json::decode($uploadConfig,Json::FORCE_ARRAY);
     $dataServiceResult=Json::decode($dataServiceResult,Json::FORCE_ARRAY);
+    $currentUser=$this->getCurrentUser();
     //vytvoření a uložení datasetu
     if (!empty($dataServiceResult['id'])&&!empty($dataServiceResult['type'])&&!empty($dataServiceResult['name'])){
       $dbDatasource=new DbDatasource(@$dataServiceResult['id'],@$dataServiceResult['name'],@$dataServiceResult['type'],@$dataServiceResult['size']);
-      $datasource=$this->datasourcesFacade->prepareNewDatasourceFromDbDatasource($dbDatasource,$this->getCurrentUser());
+      $datasource=$this->datasourcesFacade->prepareNewDatasourceFromDbDatasource($dbDatasource,$currentUser);
       $this->datasourcesFacade->saveDatasource($datasource);
     }else{
       throw new \Exception('Upload finish failed.');
@@ -243,9 +244,11 @@ class DataPresenter extends BasePresenter{
       $datasourceColumnNames=[];
       //vytvoříme seznam sloupců
       foreach($uploadConfig['dataTypes'] as $i=>$dataType){
-        $datasourceColumnNames[]=$uploadConfig['columnNames'][$i];
+        if ($dataType==DbField::TYPE_NOMINAL || $dataType==DbField::TYPE_NUMERIC){
+          $datasourceColumnNames[]=$uploadConfig['columnNames'][$i];
+        }
       }
-      $this->datasourcesFacade->renameDatasourceColumns($datasource,$datasourceColumnNames);
+      $this->datasourcesFacade->renameDatasourceColumns($datasource,$datasourceColumnNames,$currentUser);
     }
     //odeslání URL pro přesměrování...
     $this->sendJsonResponse(['state'=>'OK','message'=>'Datasource created successfully.','redirect'=>$this->link('Data:newMinerFromDatasource',['datasource'=>$datasource->datasourceId])]);

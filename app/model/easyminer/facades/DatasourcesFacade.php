@@ -12,6 +12,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository;
 use Nette\Application\BadRequestException;
+use Nette\NotImplementedException;
 
 /**
  * Class DatasourcesFacade - fasáda pro práci s datovými zdroji
@@ -200,9 +201,26 @@ class DatasourcesFacade {
    * Funkce pro kontrolu názvů sloupců v datovém zdroji a jejich případné přejmenování
    * @param Datasource $datasource
    * @param array $columnNames
+   * @param User $user
+   * @throws NotImplementedException
    */
-  public function renameDatasourceColumns(Datasource $datasource, array $columnNames){
-    //TODO implementovat přejmenování sloupců
+  public function renameDatasourceColumns(Datasource $datasource, array $columnNames,User $user){
+    $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(),$user);
+    $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId);
+    $dbFields=$database->getDbFields($dbDatasource);
+    if (!empty($datasource->datasourceColumns)){
+      throw new NotImplementedException('renameDatasourceColumns currently does not support existing datasources....');
+    }
+
+    if (!empty($dbFields)){
+      $i=0;
+      foreach($dbFields as $dbField){
+        if ($dbField->name!=$columnNames[$i]){
+          $database->renameDbField($dbField,$columnNames[$i]);
+        }
+        $i++;
+      }
+    }
   }
 
 

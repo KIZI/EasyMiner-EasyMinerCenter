@@ -582,4 +582,14 @@ class MySQLDatabase implements IDatabase{
   public static function getDbType() {
     return self::DB_TYPE;
   }
+
+  /**
+   * Funkce pro přejmenování datového sloupce
+   * @param DbField $dbField
+   * @param string $newName ='' (pokud není název vyplněn, je převzat název z DbField
+   * @return bool
+   */
+  public function renameDbField(DbField $dbField, $newName=''){
+    // TODO: Implement renameDbField() method.
+  }
 }

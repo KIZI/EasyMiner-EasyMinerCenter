@@ -280,13 +280,18 @@ var DataUpload=function(){
         columnsData.push([thisItem.val(), $('#column_'+nameArr[1]+'_type').val()]);
       }
     });
+
     //připravíme pole s názvy a datovými typy pro upload
     columnNames=[];
     columnDataTypes=[];
     jQuery.each(columnsData,function(){
       var thisItem=$(this);
       columnNames.push(thisItem[0]);
-      columnDataTypes.push(thisItem[1]);
+      if (thisItem[1]=='nominal' || thisItem[1]=='numeric'){
+        columnDataTypes.push(thisItem[1]);
+      }else{
+        columnDataTypes.push(null);
+      }
     });
   };
 

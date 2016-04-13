@@ -86,6 +86,22 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
+   * Funkce pro přejmenování datového sloupce
+   * @param DbField $dbField
+   * @param string $newName='' (pokud není název vyplněn, je převzat název z DbField
+   * @return bool
+   */
+  public function renameDbField(DbField $dbField, $newName=''){
+    $newName=trim($newName);
+    if (!$newName){
+      $newName=$dbField->name;
+    }
+    $this->curlRequestResponse($this->getRequestUrl('/datasource/'.$dbField->dataSource.'/field/'.$dbField->id),$newName,'PUT',['Content-Type'=>'text/plain;charset=utf-8'], $responseCode);
+    return ($responseCode==200);
+  }
+
+
+  /**
    * Konstruktor zajišťující připojení k databázi
    *
    * @param DbConnection $dbConnection

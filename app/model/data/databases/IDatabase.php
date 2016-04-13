@@ -59,4 +59,12 @@ interface IDatabase {
    */
   public static function getDbType();
 
+  /**
+   * Funkce pro přejmenování datového sloupce
+   * @param DbField $dbField
+   * @param string $newName='' (pokud není název vyplněn, je převzat název z DbField
+   * @return bool
+   */
+  public function renameDbField(DbField $dbField, $newName='');
+
 } 
