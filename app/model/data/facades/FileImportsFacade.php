@@ -215,14 +215,15 @@ class FileImportsFacade {
 
   /**
    * Funkce vracející nové pracovní jméno souboru
+   * @param  string $extension
    * @return string
    */
-  public function getTempFilename(){
+  public function getTempFilename($extension=''){
     $filename=time();
     while(file_exists($this->getFilePath($filename))){
       $filename.='x';
     }
-    return $filename;
+    return $filename.($extension?'.'.$extension:'');
   }
 
   public function getFilePath($filename){
@@ -239,12 +240,52 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro uložení obsahu dočasného souboru (s nově vygenerovaným dočasným názvem)
-   * @param string $fileContent
+   * Funkce pro uložení obsahu dočasného souboru (s nově vygenerovaným dočasným názvem), v případě komprese dojde k jeho rozbalení
+   * @param $fileContent
+   * @param string $compression
    * @return string
    */
-  public function saveTempFile($fileContent){
-    $filename=$this->getTempFilename();
+  public function saveTempFileWithDecompression($fileContent, $compression=''){
+    $compression=strtolower($compression);
+
+    switch($compression){
+      case 'zip':
+        $filename=$this->saveTempFile($fileContent,'zip');
+        return $this->unzipFile($filename);
+      default:
+        return $this->saveTempFile($fileContent);
+    }
+  }
+
+  /**
+   * Funkce pro rozbalení 1. souboru z archívu
+   * @param string $filename
+   * @return string
+   */
+  private function unzipFile($filename){
+    $zip=new \ZipArchive();
+    $filepath=$this->getFilePath($filename);
+
+    if ($zip->open($filepath)){
+      $compressedFilename = $zip->getNameIndex(0);
+      $filename2=$this->getTempFilename();
+      copy('zip://'.$filepath.'#'.$compressedFilename,$this->getFilePath($filename2));
+      $zip->close();
+      unlink($filepath);
+      return $filename2;
+    }else{
+      return $filename;
+    }
+  }
+
+  /**
+   * Funkce pro uložení obsahu dočasného souboru (s nově vygenerovaným dočasným názvem)
+   * @param string $fileContent
+   * @param string $extension
+   * @return string
+   */
+  public function saveTempFile($fileContent,$extension=''){
+    $filename=$this->getTempFilename($extension);
     file_put_contents($this->getFilePath($filename),$fileContent);
     return $filename;
   }

@@ -99,7 +99,8 @@ var FileUploader=function(params){
       jQuery.ajax(prepareUrl(uploadId),{
         type: 'post',
         data: fileReader.result,
-        contentType: 'text/plain',
+        //contentType: 'text/plain',
+        processData:false,
         success: function(result,status,xhr){
           if (xhr.status==CODE_CONTINUE){
             //pokud máme pokračovat, zobrazíme stavovou zprávu
@@ -146,7 +147,8 @@ var FileUploader=function(params){
     }
     self.onProgressUpdate();
     //načteme data (událost pro odeslání již je připojena k instanci objektu FileReader)
-    fileReader.readAsBinaryString(file.slice(dataStart,dataEnd));
+    fileReader.readAsArrayBuffer(file.slice(dataStart,dataEnd));
+    //fileReader.readAsBinaryString(file.slice(dataStart,dataEnd));
   };
 
   /**

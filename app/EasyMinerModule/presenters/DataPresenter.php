@@ -313,12 +313,12 @@ class DataPresenter extends BasePresenter{
 
   /**
    * Akce která přijme kousek dat určený pro vytvoření náhledu a uloží ho do souboru
+   * @param string $compression=''
    */
-  public function actionUploadPreview() {
+  public function actionUploadPreview($compression='') {
     $previewRawData=$this->getHttpRequest()->getRawBody();
-    //TODO inicializace uploadu pomocí datové služby...
 
-    $filename=$this->fileImportsFacade->saveTempFile($previewRawData);
+    $filename=$this->fileImportsFacade->saveTempFileWithDecompression($previewRawData,$compression);
     $this->sendJsonResponse(['file'=>$filename]);
   }
 

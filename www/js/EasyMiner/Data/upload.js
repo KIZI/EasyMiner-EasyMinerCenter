@@ -363,11 +363,12 @@ var DataUpload=function(){
     //region upload ukázkových dat
     var fileReader=new FileReader();
     fileReader.onload=function(){
-      jQuery.ajax(self.uploadPreviewDataUrl,{
+      jQuery.ajax(self.uploadPreviewDataUrl,{//TODO vyřešení komprese
         type: 'post',
         data: fileReader.result,
-        contentType: 'text/plain',
+        //contentType: 'text/plain',
         dataType: 'json',
+        processData:false,
         success: function(result){
           //soubor byl nahrán, chceme zobrazit ukázku dat...
           previewFileName=result.file;
@@ -384,7 +385,7 @@ var DataUpload=function(){
       alert('Requested file is not readable!');
     };
     var file=this.fileInputElement.files[0];
-    fileReader.readAsBinaryString(file.slice(0,UPLOAD_PREVIEW_BYTES));
+    fileReader.readAsArrayBuffer(file.slice(0,Math.min(UPLOAD_PREVIEW_BYTES,file.size)));
     //endregion
   };
 
