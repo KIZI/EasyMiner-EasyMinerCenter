@@ -574,3 +574,29 @@ function strtr(s, from, to) {
     }
   return out;
 }
+
+/**
+ * Funkce pro rozbalení části ZIP archívu
+ * @param file - soubor z input[type='file']
+ * @param contentSize : int
+ * @param resultFunction - funkce, která se má spustit po dokončení
+ */
+function getPartOfZipFile(file, contentSize, resultFunction){
+  var fileReader=new FileReader();
+  fileReader.readAsArrayBuffer(file.slice());
+  fileReader.onload=function(){
+    var zipArchive=new JSZip();
+    zipArchive.load(fileReader.result);
+    console.log(zipArchive);
+    var firstFile=null;
+    for(var name in zipArchive.files){
+      //noinspection JSUnfilteredForInLoop
+      var file=zipArchive.files[name];
+      if(!file.dir){
+        firstFile=file;
+        break;
+      }
+    }
+    resultFunction(firstFile.asUint8Array().slice(0, contentSize));
+  }
+}
