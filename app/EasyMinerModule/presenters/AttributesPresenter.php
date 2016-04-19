@@ -332,8 +332,18 @@ class AttributesPresenter extends BasePresenter{
       throw new BadRequestException('No data columns found.');
     }
     $datasourceColumnsIds=[];
+    $currentUser=$this->getCurrentUser();
     foreach($datasourceColumns as $datasourceColumn){
       $datasourceColumnsIds[]=$datasourceColumn->datasourceColumnId;
+
+      //kontrola, jestli je pro každý sloupec definován formát
+      if (empty($datasourceColumn->format)){
+        //inicializace formátu (přiřazení metaatributu)
+        //TODO podpora automatického mapování
+        $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $currentUser);
+        $datasourceColumn->format=$format;
+        $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
+      }
     }
     $this->template->datasourceColumns=$datasourceColumns;
     $this->template->datasourceColumnsIds=implode(',',$datasourceColumnsIds);
