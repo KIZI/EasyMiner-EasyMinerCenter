@@ -6,6 +6,7 @@ use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
+use Nette\NotImplementedException;
 use Nette\NotSupportedException;
 use Nette\Utils\Strings;
 use \PDO;
@@ -591,5 +592,13 @@ class MySQLDatabase implements IDatabase{
    */
   public function renameDbField(DbField $dbField, $newName=''){
     // TODO: Implement renameDbField() method.
+  }
+
+  /**
+   * Funkce pro rozbalení komprimovaných dat není podporována
+   * @throws NotImplementedException
+   */
+  public function unzipData($data, $compression){
+    throw  new NotImplementedException();
   }
 }

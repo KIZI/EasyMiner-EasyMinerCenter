@@ -254,12 +254,15 @@ class DataPresenter extends BasePresenter{
     $this->sendJsonResponse(['state'=>'OK','message'=>'Datasource created successfully.','redirect'=>$this->link('Data:newMinerFromDatasource',['datasource'=>$datasource->datasourceId])]);
   }
 
-
+  /**
+   * Akce pro zobrazení template pro upload dat
+   */
   public function renderUpload() {
     //akce pro upload souboru...
     /** @noinspection PhpUndefinedFieldInspection */
     $this->template->apiKey=$this->user->getIdentity()->apiKey;
     $this->template->dataServiceUrlsByDbTypes=$this->datasourcesFacade->getDataServiceUrlsByDbTypes();
+    $this->template->zipSupport=($this->datasourcesFacade->getDatabaseUnzipServiceType()!='');
   }
 
   /**
@@ -318,7 +321,13 @@ class DataPresenter extends BasePresenter{
   public function actionUploadPreview($compression='') {
     $previewRawData=$this->getHttpRequest()->getRawBody();
 
-    $filename=$this->fileImportsFacade->saveTempFileWithDecompression($previewRawData,$compression);
+    if ($compression!=''){
+      $previewRawData=$this->datasourcesFacade->unzipPreviewData($previewRawData,$compression,$this->getCurrentUser());
+    }
+
+    $filename=$this->fileImportsFacade->saveTempFile($previewRawData);
+
+
     $this->sendJsonResponse(['file'=>$filename]);
   }
 

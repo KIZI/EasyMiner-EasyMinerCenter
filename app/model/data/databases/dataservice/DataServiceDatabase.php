@@ -102,6 +102,51 @@ abstract class DataServiceDatabase implements IDatabase {
 
 
   /**
+   * Funkce pro rozbalení komprimovaných dat
+   * @param string $data
+   * @param string $compression
+   * @return string
+   */
+  public function unzipData($data, $compression){
+    #region zahájení uploadu
+    $uploadStartConfig=[
+      'mediaType'=>'csv',
+      'maxLines'=>20,
+      'compression'=>strtolower($compression)
+    ];
+    $uploadStartConfig=Json::encode($uploadStartConfig);
+    $requestCount=0;
+    do{
+      $uploadId=$this->curlRequestResponse($this->getRequestUrl('/upload/preview/start'),$uploadStartConfig,'POST',['Content-Type'=>'application/json;charset=utf-8'], $responseCode);
+      if ($requestCount>0){
+        usleep(300);
+      }
+      $requestCount++;
+    }while($responseCode!=200 & $requestCount<5);
+    if ($responseCode!=200){
+      throw new \Exception('Preview upload failed.');
+    }
+    #endregion zahájení uploadu
+    $response=$this->curlRequestResponse($this->getRequestUrl('/upload/preview/').$uploadId,$data,'POST',['Content-Type'=>'text/plain'],$responseCode);
+
+    do{
+      switch($responseCode){
+        case 200:
+          return $response;
+        case 202:
+          usleep(300);
+          $response=$this->curlRequestResponse($this->getRequestUrl('/upload/preview/').$uploadId,'','POST',['Content-Type'=>'text/plain'],$responseCode);
+          $repeat=true;
+          break;
+        default:
+          throw new \Exception('Preview upload failed.',$responseCode,$response);
+      }
+    }while($repeat);
+
+    return null;
+  }
+
+  /**
    * Konstruktor zajišťující připojení k databázi
    *
    * @param DbConnection $dbConnection

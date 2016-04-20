@@ -4,6 +4,8 @@ namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
+use EasyMinerCenter\Model\Data\Databases\DataService\LimitedDatabase;
+use EasyMinerCenter\Model\Data\Databases\DataService\UnlimitedDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
@@ -71,6 +73,38 @@ class DatasourcesFacade {
       }
     }
     return $dbTypes;
+  }
+
+  /**
+   * Funkce vracející typ databáze, která umožňuje unzip (pokud je nějaká taková dostupná)
+   * @return null|string
+   */
+  public function getDatabaseUnzipServiceType(){
+    $dbTypes=$this->getDbTypes();
+    if (isset($dbTypes[LimitedDatabase::DB_TYPE])){
+      return LimitedDatabase::DB_TYPE;
+    }elseif(isset($dbTypes[UnlimitedDatabase::DB_TYPE])){
+      return UnlimitedDatabase::DB_TYPE;
+    }else{
+      return null;
+    }
+  }
+
+  /**
+   * Funkce pro rozbalení dat
+   * @param string $data
+   * @param string $compression
+   * @param User $user
+   * @return string
+   * @throws \Exception
+   */
+  public function unzipPreviewData($data, $compression, User $user){
+    $dbType=$this->getDatabaseUnzipServiceType();
+    if (!$dbType){
+      throw new \Exception('No database with unzip support found.');
+    }
+    $database=$this->databaseFactory->getDatabaseInstanceWithDefaultDbConnection($dbType,$user);
+    return $database->unzipData($data, $compression);
   }
 
 

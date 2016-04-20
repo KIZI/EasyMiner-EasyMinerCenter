@@ -7,9 +7,10 @@
   <script type="text/javascript" src="{$basePath}/js/EasyMiner/Data/upload.js"></script>
   <script type="text/javascript">
     var apiKey={$apiKey};
+    var zipSupport={$zipSupport};
     var dataServiceUrlsByDbTypes={$dataServiceUrlsByDbTypes};
     var previewUrl={link previewData file=>'__FILE__',delimiter=>'__DELIMITER__',encoding=>'__ENCODING__',enclosure=>'__ENCLOSURE__',escapeCharacter=>'__ESCAPE_CHARACTER__',nullValue=>'__NULL_VALUE__',locale=>'__LOCALE__'};
-    var uploadPreviewDataUrl={link uploadPreview};
+    var uploadPreviewDataUrl={link uploadPreview compression=>'__COMPRESSION__'};
     var uploadFinishUrl={link uploadFinish};
   </script>
 {/block}

@@ -67,4 +67,12 @@ interface IDatabase {
    */
   public function renameDbField(DbField $dbField, $newName='');
 
+  /**
+   * Funkce pro rozbalení komprimovaných dat
+   * @param string $data
+   * @param string $compression
+   * @return string
+   */
+  public function unzipData($data, $compression);
+
 } 

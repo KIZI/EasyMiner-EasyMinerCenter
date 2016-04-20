@@ -31,6 +31,7 @@ var DataUpload=function(){
   this.apiKey=null;
   this.previewUrl=null;
   this.uploadPreviewDataUrl=null;
+  this.zipSupport=false;
   this.uploadFinishUrl=null;
   this.fileCompression='';
   /**
@@ -360,10 +361,17 @@ var DataUpload=function(){
    * Funkce pro upload ukázkových dat
    */
   this.uploadPreviewData=function(){
+    //TODO vyřešení komprese v případě, kdy není zipSupport na serveru
     //region upload ukázkových dat
     var fileReader=new FileReader();
     fileReader.onload=function(){
-      jQuery.ajax(self.uploadPreviewDataUrl,{//TODO vyřešení komprese
+      var url='';
+      if (self.fileCompression && self.zipSupport){
+        url=self.uploadPreviewDataUrl.replace('__COMPRESSION__',self.fileCompression);
+      }else{
+        url=self.uploadPreviewDataUrl.replace('__COMPRESSION__','');
+      }
+      jQuery.ajax(url,{
         type: 'post',
         data: fileReader.result,
         //contentType: 'text/plain',
@@ -385,6 +393,7 @@ var DataUpload=function(){
       alert('Requested file is not readable!');
     };
     var file=this.fileInputElement.files[0];
+    this.processFileName(file.name);
     fileReader.readAsArrayBuffer(file.slice(0,Math.min(UPLOAD_PREVIEW_BYTES,file.size)));
     //endregion
   };
@@ -538,6 +547,7 @@ $(document).ready(function(){
   dataUpload.apiKey=apiKey;
   dataUpload.previewUrl=previewUrl;
   dataUpload.uploadPreviewDataUrl=uploadPreviewDataUrl;
+  dataUpload.zipSupport=zipSupport;
   dataUpload.uploadFinishUrl=uploadFinishUrl;
   dataUpload.init();
 });
