@@ -13,7 +13,6 @@ use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository;
-use Nette\Application\BadRequestException;
 use Nette\NotImplementedException;
 
 /**
@@ -467,11 +466,9 @@ class DatasourcesFacade {
 
   /**
    * Funkce pro připravení parametrů nového datového zdroje pro daného uživatele...
-   * @param User $user
    * @param string $dbType
-   * @throws BadRequestException
-   * @throws \Exception
-   * @throws \Nette\Application\ApplicationException
+   * @param User $user
+   * @param bool $ignoreCheck
    * @return Datasource
    */
   public function prepareNewDatasourceForUser($dbType, User $user,$ignoreCheck=false){
@@ -479,22 +476,13 @@ class DatasourcesFacade {
     $datasource = Datasource::newFromDbConnection($defaultDbConnection);
     if ($dbType==DbConnection::TYPE_UNLIMITED){return $datasource;}
 
-    if ($ignoreCheck){//FIXME
+
+    if ($ignoreCheck){
       return $datasource;
     }
+    
+    $this->databaseFactory->checkDatabaseAvailability($defaultDbConnection,$user);
 
-    //FIXME aktualizovat pro kompatibilitu s datovou službou
-    /*TODO tato kontrola by neměla být prováděna při každém requestu...
-    try{
-      $database=$this->databaseFactory->getDatabaseInstance($defaultDbConnection,$user);
-      $this->databasesFacade->openDatabase($defaultDbConnection);
-    }catch (\Exception $e){
-      //pokud došlo k chybě, pokusíme se vygenerovat uživatelský účet a databázi
-      $this->databasesFacade->openDatabase($this->getAdminDbConnection($dbType));
-      if (!$this->databasesFacade->createUserDatabase($defaultDbConnection)){
-        throw new \Exception('Database creation failed!');
-      }
-    }*/
     return $datasource;
   }
 

@@ -4,6 +4,8 @@ namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
 use Nette\Utils\DateTime;
+use Nette\Utils\Json;
+use Nette\Utils\JsonException;
 use Nette\Utils\Strings;
 
 /**
@@ -33,7 +35,44 @@ class User extends Entity{
    * @param string $password
    */
   public function setDbPassword($password){
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->row->db_password=StringsHelper::encodePassword($password);
+  }
+
+  /**
+   * Funkce pro nastavení timestampu poslední kontroly přístupu do DB
+   * @param string $dbType
+   * @param int $timestamp
+   */
+  public function setLastDbCheck($dbType,$timestamp){
+    $data=$this->getLastDbCheck();
+    $data[$dbType]=$timestamp;
+    try{
+      /** @noinspection PhpUndefinedFieldInspection */
+      $this->row->last_db_check=Json::encode($data);
+    }catch(JsonException $e){
+      /** @noinspection PhpUndefinedFieldInspection */
+      $this->row->last_db_check='';
+    }
+  }
+
+  /**
+   * Funkce pro zjištění timestampu poslední kontroly přístupu do DB
+   * @param null|string $dbType
+   * @return int|array
+   */
+  public function getLastDbCheck($dbType=null){
+    try{
+      /** @noinspection PhpUndefinedFieldInspection */
+      $data=Json::decode($this->row->last_db_check,Json::FORCE_ARRAY);
+    }catch(JsonException $e){
+      $data=[];
+    }
+    if ($dbType){
+      return intval($data[$dbType]);
+    }else{
+      return $data;
+    }
   }
 
   /**

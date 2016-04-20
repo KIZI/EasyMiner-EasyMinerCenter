@@ -2,6 +2,8 @@
 
 namespace EasyMinerCenter\Model\Data\Databases;
 
+use EasyMinerCenter\Model\Data\Databases\DataService\UnlimitedDatabase;
+use EasyMinerCenter\Model\Data\Databases\MySQL\MySQLDatabaseConstructor;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 
@@ -11,6 +13,8 @@ use EasyMinerCenter\Model\EasyMiner\Entities\User;
 *@package EasyMinerCenter\Model\Data\Databases
  */
 class DatabaseFactory {
+  const DB_AVAILABILITY_CHECK_INTERVAL=600;//interval mezi kontrolami přístupu k DB (v sekundách)
+
   /** @var array $dbTypeConfig - konfigurace jednotlivých tříd ovladačů databází */
   private static $dbTypeClasses=[
     DbConnection::TYPE_MYSQL=>'\EasyMinerCenter\Model\Data\Databases\MySQL\MySQLDatabase',
@@ -84,6 +88,25 @@ class DatabaseFactory {
   }
 
   /**
+   * Funkce vracející administrátorské připojení k databázi
+   * @param string $dbType
+   * @return DbConnection
+   */
+  public function getAdminDbConnection($dbType) {
+    $config=$this->getDatabaseConfig($dbType);
+    $dbConnection = new DbConnection();
+    $dbConnection->type=$dbType;
+    $dbConnection->dbApi=!empty($config['api'])?$config['api']:null;
+    $dbConnection->dbServer=!empty($config['server'])?$config['server']:null;
+    $dbConnection->dbPort=!empty($config['port'])?$config['port']:null;
+    //konfigurace připojení k DB
+    $dbConnection->dbName=null;
+    $dbConnection->dbUsername=@$config['username'];
+    $dbConnection->dbPassword=@$config['password'];
+    return $dbConnection;
+  }
+  
+  /**
    * Funkce vracející připojení k databázi
    *
    * @param DbConnection $dbConnection
@@ -135,4 +158,25 @@ class DatabaseFactory {
     }
     throw new \Exception('Database '.$dbType.' is not configured!');
   }
+
+  /**
+   * Funkce pro kontrolu dostupnosti databáze a její případné vytvoření
+   * @param DbConnection $dbConnection
+   * @param User $user
+   * @return bool
+   */
+  public function checkDatabaseAvailability(DbConnection $dbConnection, User $user){
+    if ($dbConnection->type==UnlimitedDatabase::DB_TYPE){
+      return true;
+    }elseif(MySQLDatabaseConstructor::isDatabaseAvailable($dbConnection)){
+      return true;
+    }else{
+      //vytvoření nové DB
+      $mysqlDatabaseConstructor=new MySQLDatabaseConstructor($this->getAdminDbConnection($dbConnection->type));
+      $result=$mysqlDatabaseConstructor->createUserDatabase($dbConnection);
+      unset($mysqlDatabaseConstructor);
+      return $result;
+    }
+  }
+
 }

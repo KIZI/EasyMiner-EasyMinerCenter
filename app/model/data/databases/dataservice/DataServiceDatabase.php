@@ -106,6 +106,8 @@ abstract class DataServiceDatabase implements IDatabase {
    * @param string $data
    * @param string $compression
    * @return string
+   * @throws \Exception
+   * @throws \Nette\Utils\JsonException
    */
   public function unzipData($data, $compression){
     #region zahájení uploadu

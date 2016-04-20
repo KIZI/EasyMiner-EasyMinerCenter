@@ -27,7 +27,7 @@ class DbConnection{
    * @return string
    */
   public function getConnectionString() {
-    return $this->type.':dbname='.$this->dbName.(!empty($this->dbServer)?';host='.$this->dbServer:'').(!empty($this->dbApi)?';api='.$this->dbApi:'').';port='.$this->dbPort.';charset=utf8;user='.$this->dbUsername;
+    return $this->type.(!empty($this->dbName)?':dbname='.$this->dbName:'').(!empty($this->dbServer)?';host='.$this->dbServer:'').(!empty($this->dbApi)?';api='.$this->dbApi:'').';port='.$this->dbPort.';charset=utf8;user='.$this->dbUsername;
   }
 
   /**

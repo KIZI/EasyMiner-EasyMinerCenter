@@ -54,11 +54,20 @@ class DatabasesPresenter extends BaseResourcePresenter {
   public function actionRead($dbType) {//TODO opravit
     $this->setXmlMapperElements('database');
     $dbType=strtolower($dbType);
-    if ($this->currentUser->userId=='8'){
+    if ($this->currentUser->userId=='8'){//FIXME tohle tu být nemá...
       $this->currentUser->setDbPassword('yOhf953a');
     }
+    //kontrola toho, kdy byl naposled kontrolován přístup k DB
+    if ($this->currentUser->getLastDbCheck($dbType)<time()-DatabaseFactory::DB_AVAILABILITY_CHECK_INTERVAL){
+      $this->currentUser->setLastDbCheck($dbType,time());
+      $this->usersFacade->saveUser($this->currentUser);
+      $dbAvailabilityCheck=true;
+    }else{
+      $dbAvailabilityCheck=false;
+    }
+    
     //připravení informací o datovém zdroji pro konkrétního uživatele...
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($dbType, $this->currentUser,true);//FIXME parametr pro zrušení kontroly dostupnosti databáze
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($dbType, $this->currentUser,$dbAvailabilityCheck);
 
     $dbConnection=$datasource->getDbConnection();
     #region sestavení data arr
