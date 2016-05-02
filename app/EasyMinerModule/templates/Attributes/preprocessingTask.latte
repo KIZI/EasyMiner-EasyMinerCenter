@@ -11,6 +11,8 @@
         messageTarget:'#backgroundTaskBlock .message'
       });
       backgroundTask.run();
+
+      parent.removeOverlayClose();//zabránění zavření okna pomocí javascriptu
     });
   </script>
 {/block}

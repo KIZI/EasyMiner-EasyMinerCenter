@@ -26,7 +26,7 @@ var BackgroundTask = function(params){
       }
     )
       .fail(function(data){
-        $(messageTarget).html('ERROR: '+data.responseText);
+        $(messageTarget).html('<div class="error">ERROR occured during preprocessing task.</div><div style="text-align:center;"><a href="#" onclick="parent.reload();" class="button" >OK</a></div>');
       });
   };
 
