@@ -1522,19 +1522,9 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   z-index: 2;
 }
 #backgroundTaskBlock {
-  color: #434343;
-  background-color: #fff;
-  border: none;
-  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
-  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
-  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
-  padding: 20px;
-  margin: 10px 10px 10px 0;
+  padding-bottom: 100px;
+  background: transparent url("../images/icons/icon-loading-bw-72.gif") no-repeat bottom center;
 /*TODO doplnit další styly...*/
-}
-#backgroundTaskBlock > h1,
-#backgroundTaskBlock > h2 {
-  margin-top: 0;
 }
 #newMinerPage {
   width: auto;
