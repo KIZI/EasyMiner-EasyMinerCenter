@@ -22,7 +22,7 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\Model\Data\Databases\DataService
  * @author Stanislav Vojíř
  */
-class PreprocessingServiceDatabase implements IPreprocessing {
+abstract class PreprocessingServiceDatabase implements IPreprocessing {
   /** @var  string $apiKey */
   private $apiKey;
   /** @var  PpConnection $ppConnection */
@@ -218,9 +218,12 @@ class PreprocessingServiceDatabase implements IPreprocessing {
       throw new PreprocessingCommunicationException('Response encoding failed.',$e);
     }
     switch ($responseCode){
+      /** @noinspection PhpMissingBreakStatementInspection */
       case 200:
-        //úloha byla úspěšně dokončena
-        return new PpDataset($response['id'],$response['name'],$response['dataSource'],$response['type'],$response['size']);
+        if (!empty($response['id'])){
+          //úloha byla úspěšně dokončena
+          return new PpDataset($response['id'],$response['name'],$response['dataSource'],$response['type'],$response['size']);
+        }
       case 201:
         //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
         return new PpTask($response);
@@ -299,16 +302,19 @@ class PreprocessingServiceDatabase implements IPreprocessing {
       throw new PreprocessingCommunicationException('Response encoding failed.',$e);
     }
     switch ($responseCode){
+      /** @noinspection PhpMissingBreakStatementInspection */
       case 200:
-        //úloha byla úspěšně dokončena
-        /** @var PpAttribute[] $result */
-        $result=[];
-        if (!empty($response) && is_array($response)){
-          foreach($response as $responseItem){
-            $result[]=new PpAttribute($responseItem['id'],$responseItem['dataset'],$responseItem['field'],$responseItem['name'],$responseItem['type'],$responseItem['uniqueValuesSize']);
+        if (empty($response['statusLocation']) && empty($response['resultLocation'])){
+          //úloha byla úspěšně dokončena
+          /** @var PpAttribute[] $result */
+          $result=[];
+          if (!empty($response) && is_array($response)){
+            foreach($response as $responseItem){
+              $result[]=new PpAttribute($responseItem['id'],$responseItem['dataset'],$responseItem['field'],$responseItem['name'],$responseItem['type'],$responseItem['uniqueValuesSize']);
+            }
           }
+          return $result;
         }
-        return $result;
       case 201:
         //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
         return new PpTask($response);
@@ -322,10 +328,5 @@ class PreprocessingServiceDatabase implements IPreprocessing {
         throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
     }
   }
-
-
-  public static function getPpTypeName() {/*TODO: remove*/}
-  public static function getPpType() {/*TODO: remove*/}
-
 
 }
