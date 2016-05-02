@@ -69,7 +69,7 @@ class User extends Entity{
       $data=[];
     }
     if ($dbType){
-      return intval($data[$dbType]);
+      return intval(@$data[$dbType]);
     }else{
       return $data;
     }
