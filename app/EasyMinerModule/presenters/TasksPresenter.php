@@ -2,7 +2,6 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\Libs\RequestHelper;
-use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
@@ -336,7 +335,7 @@ class TasksPresenter  extends BasePresenter{
    * @return string
    */
   private function getBackgroundImportLink(Task $task){
-    $this->absoluteUrls=false;
+    $this->absoluteUrls=true;
     return $this->link('importMiningResults',['task'=>$task->taskId]);
   }
 
