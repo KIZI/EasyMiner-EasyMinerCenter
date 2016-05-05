@@ -167,7 +167,11 @@ class MetasourcesFacade {
         }elseif(!empty($ppAttribute->name) && isset($existingAttributesByName[$ppAttribute->name])){
           //sloupec najdeme podle jména
           $attribute=$existingAttributesByName[$ppAttribute->name];
-          if (!$attribute->active){
+          if (!empty($ppAttribute->id) && $attribute->ppDatasetAttributeId!=$ppAttribute->id){
+            $attribute->ppDatasetAttributeId=$ppAttribute->id;
+            $attribute->active=true;
+            $this->saveAttribute($attribute);
+          }elseif (!$attribute->active){
             $attribute->active=true;
             $this->saveAttribute($attribute);
           }
@@ -194,6 +198,7 @@ class MetasourcesFacade {
     }
     #endregion
     #region deaktivace již neexistujících sloupců
+    //TODO kontrola, jestli je není možné kompletně smazat (pokud ještě nebyly dovytvořeny v rámci preprocessingu)
     if (!empty($existingAttributesByPpDatasetAttributeId)){
       foreach($existingAttributesByPpDatasetAttributeId as &$attribute){
         if ($attribute->active){
@@ -211,8 +216,32 @@ class MetasourcesFacade {
       }
     }
     #endregion
+
     //aktualizace datového zdroje z DB
     $metasource=$this->findMetasource($metasource->metasourceId);
+
+    #region vyčištění preprocessing úloh
+    if (!empty($metasource->metasourceTasks)){
+      $attributesArr=$metasource->getAttributesArr();
+      if (!empty($attributesArr)){
+        foreach($metasource->metasourceTasks as $metasourceTask){
+          if ($metasourceTask->type==MetasourceTask::TYPE_PREPROCESSING){
+            if (!empty($metasourceTask->attributes)){
+              $finished=true;
+              foreach($metasourceTask->attributes as $taskAttribute){
+                if (!$taskAttribute->active){
+                  $finished=false;
+                }
+              }
+              if ($finished){
+                $this->metasourceTasksRepository->delete($metasourceTask);
+              }
+            }
+          }
+        }
+      }
+    }
+    #endregion
   }
 
   /**
