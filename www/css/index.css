@@ -1495,6 +1495,8 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   padding: 20px;
   margin: 10px 10px 10px 0;
+  padding-bottom: 120px;
+  background: #fff url("../images/icons/icon-loading-bw-72.gif") no-repeat bottom 20px center;
 }
 #uploadProgressBlock > h1,
 #uploadProgressBlock > h2 {
@@ -1524,7 +1526,22 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #backgroundTaskBlock {
   padding-bottom: 100px;
   background: transparent url("../images/icons/icon-loading-bw-72.gif") no-repeat bottom center;
-/*TODO doplnit další styly...*/
+}
+#backgroundTaskBlock.fullscreen {
+  color: #434343;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 10px 10px 10px 0;
+  padding-bottom: 120px;
+  background: #fff url("../images/icons/icon-loading-bw-72.gif") no-repeat bottom 20px center;
+}
+#backgroundTaskBlock.fullscreen > h1,
+#backgroundTaskBlock.fullscreen > h2 {
+  margin-top: 0;
 }
 #newMinerPage {
   width: auto;

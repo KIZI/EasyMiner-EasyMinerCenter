@@ -55,16 +55,18 @@ class MySQLDatabaseConstructor{
    */
   public function createUserDatabase(DbConnection $dbConnection) {
     $query1=$this->db->prepare('CREATE USER :username@"%" IDENTIFIED BY :password;');
-    $result1=$query1->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
-    $query2=$this->db->prepare("GRANT USAGE ON * . * TO :username@'%' IDENTIFIED BY :password WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;");
-    $result2=$query2->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
+    $result1=$query1->execute([':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword]);
+    $query2=$this->db->prepare('GRANT USAGE ON *.* TO :username@\'%\' IDENTIFIED BY :password WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;');
+    $result2=$query2->execute([':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword]);
     $query3=$this->db->prepare('CREATE DATABASE `'.$dbConnection->dbName.'` DEFAULT CHARACTER SET utf8 COLLATE utf8_czech_ci;');
     $result3=$query3->execute();
-    $query4=$this->db->prepare('GRANT ALL PRIVILEGES ON `'.$dbConnection->dbName.'`.* TO "'.$dbConnection->dbUsername.'"@"%";');
-    $result4=$query4->execute();
-    $query5=$this->db->prepare("GRANT FILE ON * . * TO :username@'%' IDENTIFIED BY :password;");
-    $result5=$query5->execute(array(':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword));
-    return ($result2 && $result3 && $result4);
+    $query4=$this->db->prepare('GRANT ALL PRIVILEGES ON `'.$dbConnection->dbName.'`.* TO :username@"%";');
+    $result4=$query4->execute([':username'=>$dbConnection->dbUsername]);
+    //TODO tady by měla být kontrola, jestli máme povolený file přístup...
+    $query5=$this->db->prepare('GRANT FILE ON *.* TO :username@\'%\' IDENTIFIED BY :password;');
+    $result5=$query5->execute([':username'=>$dbConnection->dbUsername,':password'=>$dbConnection->dbPassword]);
+
+    return ($result1 && $result3 && $result4);
   }
 
 }

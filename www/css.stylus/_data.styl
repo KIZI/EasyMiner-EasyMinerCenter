@@ -59,6 +59,8 @@ uploadConfigSelectWidth=200px
 
 #uploadProgressBlock
   block()
+  padding-bottom 120px
+  background white url('../images/icons/icon-loading-bw-72.gif') no-repeat bottom 20px center
   .progressBar
     height 2em
     position relative
@@ -81,7 +83,10 @@ uploadConfigSelectWidth=200px
 #backgroundTaskBlock
   padding-bottom 100px
   background transparent url('../images/icons/icon-loading-bw-72.gif') no-repeat bottom center
-  /*TODO doplnit další styly...*/
+  &.fullscreen
+    block()
+    padding-bottom 120px
+    background white url('../images/icons/icon-loading-bw-72.gif') no-repeat bottom 20px center
 
 /*styly pro šablony DataPresenteru*/
 

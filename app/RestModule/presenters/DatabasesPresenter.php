@@ -18,6 +18,7 @@ class DatabasesPresenter extends BaseResourcePresenter {
 
   /**
    * Akce pro ověření přihlášeného uživatele
+   * @param string $dbType
    * @SWG\Get(
    *   tags={"Databases"},
    *   path="/databases/{dbType}",
@@ -51,23 +52,20 @@ class DatabasesPresenter extends BaseResourcePresenter {
    *   )
    * )
    */
-  public function actionRead($dbType) {//TODO opravit
+  public function actionRead($dbType) {
     $this->setXmlMapperElements('database');
     $dbType=strtolower($dbType);
-    if ($this->currentUser->userId=='8'){//FIXME tohle tu být nemá...
-      $this->currentUser->setDbPassword('yOhf953a');
-    }
     //kontrola toho, kdy byl naposled kontrolován přístup k DB
     if ($this->currentUser->getLastDbCheck($dbType)<time()-DatabaseFactory::DB_AVAILABILITY_CHECK_INTERVAL){
       $this->currentUser->setLastDbCheck($dbType,time());
-      $this->usersFacade->saveUser($this->currentUser);
+      $this->usersFacade->saveUser($this->currentUser);//TODO tahle kontrola by ještě měla být optimalizovaná
       $dbAvailabilityCheck=true;
     }else{
       $dbAvailabilityCheck=false;
     }
     
     //připravení informací o datovém zdroji pro konkrétního uživatele...
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($dbType, $this->currentUser,$dbAvailabilityCheck);
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($dbType, $this->currentUser,!$dbAvailabilityCheck);
 
     $dbConnection=$datasource->getDbConnection();
     #region sestavení data arr

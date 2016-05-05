@@ -175,6 +175,7 @@ class DatabaseFactory {
       $mysqlDatabaseConstructor=new MySQLDatabaseConstructor($this->getAdminDbConnection($dbConnection->type));
       $result=$mysqlDatabaseConstructor->createUserDatabase($dbConnection);
       unset($mysqlDatabaseConstructor);
+      sleep(1);//zpoždění, aby byla dokončena inicializace uživatelského účtu v DB
       return $result;
     }
   }
