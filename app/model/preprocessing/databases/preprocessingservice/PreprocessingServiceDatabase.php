@@ -15,6 +15,8 @@ use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingException;
 use Nette\Utils\Json;
 use Nette\Utils\JsonException;
 use Nette\Utils\Strings;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 /**
  * Class PreprocessingServiceDatabase - třída zajišťující přístup k databázím dostupným prostřednictvím služby EasyMiner-Preprocessing
@@ -325,6 +327,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
       case 500:
       case 404:
       default:
+        Debugger::log($response,ILogger::EXCEPTION);
         throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
     }
   }
