@@ -21,7 +21,7 @@ use Nette\Security\IIdentity;
  * @SWG\Swagger(
  *   basePath="%BASE_PATH%",
  *   host="%HOST%",
- *   schemes={"http"},
+ *   schemes={"https","http"},
  *   @SWG\Info(
  *     title="EasyMinerCenter REST API",
  *     version="%VERSION%",
