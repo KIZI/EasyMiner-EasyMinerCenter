@@ -17,7 +17,6 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsJson;
-use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsSerializer;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Nette\InvalidArgumentException;
 use Nette\Utils\FileSystem;
@@ -30,7 +29,7 @@ use Tracy\ILogger;
  * @package EasyMinerCenter\Model\Mining\Cloud
  * @author Stanislav Vojíř
  */
-class CloudDriver implements IMiningDriver{//TODO implement...
+class CloudDriver implements IMiningDriver{
   /** @var  Task $task */
   private $task;
   /** @var  Miner $miner */
@@ -131,7 +130,6 @@ class CloudDriver implements IMiningDriver{//TODO implement...
           #region zjištění stavu úlohy, případně import pravidel
           $url=$this->getRemoteMinerUrl().'/'.$this->task->resultsUrl.'?apiKey='.$this->getApiKey();
           $response=self::curlRequestResponse($url,'',$this->getApiKey(),$responseCode);
-
           return $this->parseResponse($response,$responseCode);
           #endregion
         }catch (\Exception $e){
@@ -533,13 +531,18 @@ class CloudDriver implements IMiningDriver{//TODO implement...
         //pokud je odpověď ve vhodném formátu, uložíme k úloze info o tom, kde hledat dílčí odpověď
         $this->task->state=Task::STATE_IN_PROGRESS;
         if (!empty($body->miner->{'partial-result-url'})){
-          $resultUrl='partial-result/'.$body->miner->{'task-id'};
+          $resultUrl='partial-result/'.trim($body->miner->{'task-id'});//přidán trim kvůli chybnému chování minovací služby
         }
         return new TaskState(Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
       }
     }elseif($this->task->state==Task::STATE_IN_PROGRESS){
       #region zpracování již probíhající úlohy
       switch ($responseCode){
+        case 200:
+          //import kompletních výsledků
+          $taskState=$this->parseRulesPMML($response);
+          $taskState->state=Task::STATE_SOLVED;
+          return $taskState;
         case 204:
           //jde o úlohu, která aktuálně nemá žádné další výsledky
           return $this->task->getTaskState();
@@ -547,14 +550,35 @@ class CloudDriver implements IMiningDriver{//TODO implement...
           //import částečných výsledků
           return $this->parseRulesPMML($response);
         case 303:
-          //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
-          return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
+          if ($this->task->rulesCount>0){
+            //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
+            return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
+          }else{
+            try{
+              $body=simplexml_load_string($response);
+              //pokud je odpověď ve vhodném formátu, uložíme k úloze info o tom, kde hledat dílčí odpověď
+              if (!empty($body->miner->{'complete-result-url'})){
+                $this->task->resultsUrl='complete-result/'.trim($body->miner->{'task-id'});//přidán trim kvůli chybnému chování minovací služby
+              }else{
+                //pravděpodobně se tu vyskytla chyba...
+                return new TaskState(Task::STATE_FAILED);
+              }
+              return $this->checkTaskState();
+            }catch(\Exception $e){
+              Debugger::log($response,ILogger::ERROR);
+              return new TaskState(Task::STATE_FAILED);
+            }
+          }
         case 404:
           if ($this->task->state==Task::STATE_IN_PROGRESS && $this->task->rulesCount>0){
             return new TaskState(Task::STATE_INTERRUPTED,$this->task->rulesCount);
           }else{
             return new TaskState(Task::STATE_FAILED);
           }
+        default:
+          //pokud byl vrácen jiný stavový kód, kde pravděpodobně o chybu dolovací služby
+          Debugger::log($response,ILogger::ERROR);
+          return new TaskState(Task::STATE_FAILED);
       }
       #endregion zpracování již probíhající úlohy
     }

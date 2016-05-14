@@ -14,7 +14,7 @@ var FileUploader=function(params){
   /**
    * @type {number} maxFileSize=100MB Maximální velikost uploadovaných souborů
    */
-  var maxFileSize=1024*1024*100;
+  var maxFileSize=1024*1024*1000;
   /**
    * @type {int} chunkSize=300kB - Velikost jednoho uploadovaného bloku
    */
