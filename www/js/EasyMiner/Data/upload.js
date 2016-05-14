@@ -42,7 +42,7 @@ var DataUpload=function(){
    * Velikost nahrávaných dat při potřebě získání ukázky
    * @type {number}
    */
-  const UPLOAD_PREVIEW_BYTES=300000;
+  const UPLOAD_PREVIEW_BYTES=100000;
   /**
    * Identifikace nahraného souboru pro generování ukázky...
    * @type {string}

@@ -9,6 +9,8 @@ use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 /**
  * Class DataServiceDatabase - třída zajišťující přístup k databázím dostupným prostřednictvím služby EasyMiner-Data
@@ -141,7 +143,7 @@ abstract class DataServiceDatabase implements IDatabase {
           $repeat=true;
           break;
         default:
-          throw new \Exception('Preview upload failed.',$responseCode,$response);
+          throw new \Exception('Preview upload failed:'.$response,$responseCode);
       }
     }while($repeat);
 
