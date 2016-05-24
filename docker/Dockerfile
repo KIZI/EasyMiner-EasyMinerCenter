@@ -6,7 +6,7 @@ WORKDIR /var/www/html
 
 RUN apt-get update && \
     apt-get install -y git php5-curl php5-xsl php5-mysql mcrypt php5-mcrypt libmcrypt-dev libxslt-dev libcurl4-openssl-dev zziplib-bin zlib1g-dev && \
-    docker-php-ext-install -j$(nproc) curl xsl mysql mcrypt && \
+    docker-php-ext-install -j$(nproc) curl xsl mysql mcrypt zip && \
     a2enmod headers && \
     a2enmod rewrite
     
