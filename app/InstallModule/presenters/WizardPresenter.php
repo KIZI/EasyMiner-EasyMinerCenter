@@ -371,19 +371,38 @@ class WizardPresenter extends Presenter {
    */
   public function createComponentMainDatabaseForm() {
     $form=new Form();
-    $form->addSelect('driver', 'Database type:', ['mysqli'=>'MySQL']);
+
+    $autoCreateDatabase=$form->addSelect('auto_create_database','Do you already have main application datase?',[0=>'no',1=>'yes']);
+    $autoCreateDatabase->addCondition(Form::EQUAL,1)
+      ->toggle('server')
+      ->toggle('username')
+      ->toggle('password')
+      ->toggle('database');
+
+    $form->addHidden('driver', 'mysqli');
     $form->addText('host', 'Server:')
-      ->setRequired('Input the server address!');
+      ->setRequired('Input the server address!')
+      ->setOption('id','server');
     $form->addText('username', 'Database username:')
-      ->setRequired('Input the database username!');
-    $form->addText('password', 'Database password:');
+      ->setRequired('Input the database username!')
+      ->setOption('id','username');
+    $form->addText('password', 'Database password:')
+      ->setOption('id','password');
     $form->addText('database', 'Database name:')
+      ->setOption('id','database')
       ->setRequired('Input the name of a database for the application data!');
     $form->addSubmit('submit', 'Save & continue...')
       ->onClick[]=function (SubmitButton $submitButton) {
         $form=$submitButton->form;
         $databaseConfigArr=$form->getValues(true);
         $error=false;
+
+        if ($databaseConfigArr['auto_create_database']){
+          unset($databaseConfigArr['auto_create_database']);
+          //FIXME implementovat automatické vytvoření první DB
+        }
+
+
         try {
           $databaseManager=new DatabaseManager($databaseConfigArr);
           if(!$databaseManager->isConnected()) {
@@ -463,27 +482,7 @@ class WizardPresenter extends Presenter {
       ->onClick[]=function (SubmitButton $submitButton) {
       $form=$submitButton->form;
       $values=$form->getValues(true);
-      /*TODO doplnění kontroly správnosti přístupových údajů
-      try {
-        $databaseManager=new DatabaseManager($databaseConfigArr);
-        if(!$databaseManager->isConnected()) {
-          $error=true;
-        }
-      } catch(\Exception $e) {
-        $error=true;
-      }
-      if($error || empty($databaseManager)) {
-        $form->addError('Database connection failed! Please check, if the database exists and if it is accessible.');
-        return;
-      }
-      //create database
-      try{
-        $databaseManager->createDatabase();
-      }catch (\Exception $e){
-        $form->addError('Database structure creation failed! Please check, if the database exists and if it is empty.');
-        return;
-      }
-      */
+      /*TODO doplnění kontroly správnosti přístupových údajů */
       //save config and redirect
       $configManager=$this->createConfigManager();
       $values['api']=$configManager->data['parameters']['databases']['limited']['api'];
