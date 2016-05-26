@@ -265,7 +265,8 @@ class WizardPresenter extends Presenter {
         }else{
           $defaultsArr['allow_driverCloud']=1;
           $defaultsArr['driverCloudServer']=$configManagerValuesArr['driver_cloud']['server'].@$configManagerValuesArr['driver_cloud']['minerUrl'];
-          //FIXME konfigurace dalších služeb
+          $defaultsArr['dataServiceServer']=(!empty($configManagerValuesArr['databases']['limited']['api'])?$configManagerValuesArr['databases']['limited']['api']:@$configManagerValuesArr['databases']['unlimited']['api']);
+          $defaultsArr['preprocessingServiceServer']=(!empty($configManagerValuesArr['databases']['limited']['preprocessingApi'])?$configManagerValuesArr['databases']['limited']['preprocessingApi']:@$configManagerValuesArr['databases']['unlimited']['preprocessingApi']);
         }
         if (empty($configManagerValuesArr['driver_r']) || empty($configManagerValuesArr['driver_r']['server'])){
           $defaultsArr['allow_driverR']=0;
@@ -425,7 +426,7 @@ class WizardPresenter extends Presenter {
             $databaseManager=new DatabaseManager($databaseConfigArr);
             $databaseManager->createDatabase($createUsername, $createPassword, $createDatabase);
           }catch(\Exception $e){
-            $form->addError('Database auto-creation failed!');
+            $form->addError('Database auto-creation failed! '.$e->getMessage());
             return;
           }
           $databaseConfigArr['username']=$createUsername;
@@ -812,7 +813,7 @@ class WizardPresenter extends Presenter {
           $configArr=[
             'server'=>$serverUrl,
             'minerUrl'=>$minerPath,
-            'importsDirectory'=>$filesManager->getPath('writable','directories','importsR',true)
+            'importsDirectory'=>$filesManager->getPath('writable','directories','importsCloud',true)
           ];
           $configManager->data['parameters']['databases']['limited']['api']=rtrim($values['dataServiceServer'],'/');
           $configManager->data['parameters']['databases']['unlimited']['api']=rtrim($values['dataServiceServer'],'/');
