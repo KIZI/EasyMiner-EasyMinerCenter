@@ -372,8 +372,15 @@ class WizardPresenter extends Presenter {
   public function createComponentMainDatabaseForm() {
     $form=new Form();
 
-    $autoCreateDatabase=$form->addSelect('auto_create_database','Do you already have main application datase?',[0=>'no',1=>'yes']);
-    $autoCreateDatabase->addCondition(Form::EQUAL,1)
+    $autoCreateDatabase=$form->addSelect(
+      'auto_create_database',
+      'Do you already have main application datase?',
+      [
+        1=>'no, create it automatically',
+        0=>'yes'
+      ]
+    );
+    $autoCreateDatabase->addCondition(Form::EQUAL,0)
       ->toggle('server')
       ->toggle('username')
       ->toggle('password')
@@ -381,16 +388,19 @@ class WizardPresenter extends Presenter {
 
     $form->addHidden('driver', 'mysqli');
     $form->addText('host', 'Server:')
-      ->setRequired('Input the server address!')
-      ->setOption('id','server');
+      ->setOption('id','server')
+      ->addConditionOn($autoCreateDatabase,Form::EQUAL,0)
+        ->setRequired('Input the server address!');
     $form->addText('username', 'Database username:')
-      ->setRequired('Input the database username!')
-      ->setOption('id','username');
+      ->setOption('id','username')
+      ->addConditionOn($autoCreateDatabase,Form::EQUAL,0)
+        ->setRequired('Input the database username!');
     $form->addText('password', 'Database password:')
       ->setOption('id','password');
     $form->addText('database', 'Database name:')
       ->setOption('id','database')
-      ->setRequired('Input the name of a database for the application data!');
+      ->addConditionOn($autoCreateDatabase,Form::EQUAL,0)
+        ->setRequired('Input the name of a database for the application data!');
     $form->addSubmit('submit', 'Save & continue...')
       ->onClick[]=function (SubmitButton $submitButton) {
         $form=$submitButton->form;
@@ -399,11 +409,33 @@ class WizardPresenter extends Presenter {
 
         if ($databaseConfigArr['auto_create_database']){
           unset($databaseConfigArr['auto_create_database']);
-          //FIXME implementovat automatické vytvoření první DB
-        }
+          $configManager=$this->createConfigManager();
+          $databaseConfigArr=[
+            'driver'=>'mysqli',
+            'host'=>$configManager->data['parameters']['databases']['limited']['server'],
+            'username'=>$configManager->data['parameters']['databases']['limited']['username'],
+            'password'=>$configManager->data['parameters']['databases']['limited']['password'],
+            'encoding'=>'utf8'
+          ];
+          $createUsername=str_replace('*','000',$configManager->data['parameters']['databases']['limited']['_username']);
+          $createDatabase=str_replace('*','000',$configManager->data['parameters']['databases']['limited']['_database']);
+          $createPassword=DatabaseManager::getRandPassword();
 
-
+          try{
+            $databaseManager=new DatabaseManager($databaseConfigArr);
+            $databaseManager->createDatabase($createUsername, $createPassword, $createDatabase);
+          }catch(\Exception $e){
+            $form->addError('Database auto-creation failed!');
+            return;
+          }
+          $databaseConfigArr['username']=$createUsername;
+          $databaseConfigArr['password']=$createPassword;
+          $databaseConfigArr['database']=$createDatabase;
+        }//TODO doplnit ošetření situace, kdy daný uživatelský účet už existuje
+        #region
+        $error=false;
         try {
+          unset($databaseConfigArr['auto_create_database']);
           $databaseManager=new DatabaseManager($databaseConfigArr);
           if(!$databaseManager->isConnected()) {
             $error=true;
@@ -415,10 +447,11 @@ class WizardPresenter extends Presenter {
           $form->addError('Database connection failed! Please check, if the database exists and if it is accessible.');
           return;
         }
+        #endregion
         //create database
         try{
           /** @noinspection PhpUndefinedVariableInspection */
-          $databaseManager->createDatabase();
+          $databaseManager->createDatabaseStructure();
         }catch (\Exception $e){
           $form->addError('Database structure creation failed! Please check, if the database exists and if it is empty.');
           return;
@@ -538,6 +571,15 @@ class WizardPresenter extends Presenter {
       $values['preprocessingApi']=$configManager->data['parameters']['databases']['unlimited']['preprocessingApi'];
       $values['_password']=false;
       $configManager->data['parameters']['databases']['unlimited']=$values;
+      $configManager->saveConfig();
+      $this->redirect($this->getNextStep('dataUnlimited'));
+    };
+    $form->addSubmit('disable','Disable & continue...')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $submitButton){
+      //save config and redirect
+      $configManager=$this->createConfigManager();
+      $configManager->data['parameters']['databases']['unlimited']['server']='';
       $configManager->saveConfig();
       $this->redirect($this->getNextStep('dataUnlimited'));
     };
@@ -772,10 +814,10 @@ class WizardPresenter extends Presenter {
             'minerUrl'=>$minerPath,
             'importsDirectory'=>$filesManager->getPath('writable','directories','importsR',true)
           ];
-          $configManager->data['parameters']['limited']['api']=rtrim($values['dataServiceServer'],'/');
-          $configManager->data['parameters']['unlimited']['api']=rtrim($values['dataServiceServer'],'/');
-          $configManager->data['parameters']['limited']['preprocessingApi']=rtrim($values['preprocessingServiceServer'],'/');
-          $configManager->data['parameters']['unlimited']['preprocessingApi']=rtrim($values['preprocessingServiceServer'],'/');
+          $configManager->data['parameters']['databases']['limited']['api']=rtrim($values['dataServiceServer'],'/');
+          $configManager->data['parameters']['databases']['unlimited']['api']=rtrim($values['dataServiceServer'],'/');
+          $configManager->data['parameters']['databases']['limited']['preprocessingApi']=rtrim($values['preprocessingServiceServer'],'/');
+          $configManager->data['parameters']['databases']['unlimited']['preprocessingApi']=rtrim($values['preprocessingServiceServer'],'/');
         }else{
           $configArr=['server'=>''];
         }

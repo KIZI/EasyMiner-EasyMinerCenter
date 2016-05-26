@@ -20,6 +20,21 @@ class DatabaseManager {
   }
 
   /**
+   * Funkce pro vygenerování náhodného hesla
+   * @param int $length=6
+   * @return string
+   */
+  public static function getRandPassword($length=6){
+      $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      $size = strlen( $chars );
+      $str='';
+      for( $i = 0; $i < $length; $i++ ) {
+        $str .= $chars[ rand( 0, $size - 1 ) ];
+      }
+      return $str;
+  }
+
+  /**
    * Funkce pro kontrolu, jestli jsme připojeni k databázi
    * @return bool
    */
@@ -32,8 +47,21 @@ class DatabaseManager {
    * @throws \DibiException
    * @throws \RuntimeException
    */
-  public function createDatabase(){
+  public function createDatabaseStructure(){
     $this->connection->loadFile(__DIR__.'/../data/mysql.sql');
+  }
+
+  /**
+   * @param string $username
+   * @param string $password
+   * @param string $databaseName
+   */
+  public function createDatabase($username, $password, $databaseName){
+    //exit(var_dump('GRANT ALL PRIVILEGES ON '.$databaseName.'.* TO "'.$username.'"@"%" IDENTIFIED BY "'.$password.'" WITH GRANT OPTION'));
+    $this->connection->nativeQuery('GRANT ALL PRIVILEGES ON *.* TO "'.$username.'"@"%" IDENTIFIED BY "'.$password.'" WITH GRANT OPTION');
+    $this->connection->nativeQuery('CREATE DATABASE '.$databaseName);
+    $this->connection->nativeQuery("GRANT ALL PRIVILEGES ON ".$databaseName.".* TO '".$username."'@'%' IDENTIFIED BY '".$password."' WITH GRANT OPTION");
+    //TODO use $this->connection->driver->escape()
   }
 
 }

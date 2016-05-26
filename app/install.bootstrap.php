@@ -31,10 +31,10 @@ $configurator = new Nette\Configurator();
 $configurator->setTempDirectory(TEMP_DIRECTORY);
 
 #region logging
+$configurator->setDebugMode(false);
 if (is_dir(LOG_DIRECTORY) && is_writable(LOG_DIRECTORY)){
   $configurator->enableDebugger(__DIR__ . '/../log');
 }
-$configurator->setDebugMode(false);
 #endregion logging
 
 $robotLoader=$configurator->createRobotLoader();
