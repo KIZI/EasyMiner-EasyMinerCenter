@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `attributes` (
   `datasource_column_id` int(11) NOT NULL,
   `pp_dataset_attribute_id` int(11) DEFAULT NULL,
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
-  `type` enum('string','float','int') COLLATE utf8_czech_ci NOT NULL,
+  `type` enum('string','float','int','nominal','numeric') COLLATE utf8_czech_ci NOT NULL,
   `preprocessing_id` int(11) DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`attribute_id`),
