@@ -346,7 +346,7 @@ class MetasourcesFacade {
       $this->saveMetasourceTask($metasourceTask);
     }elseif($result instanceof PpDataset){
       //byl dovytvořen dataset
-      $metasource->state=MetasourceTask::STATE_DONE;
+      $metasource->state=Metasource::STATE_AVAILABLE;
       $metasource->ppDatasetId=$result->id;
       $metasource->size=$result->size;
       $metasource->type=$result->type;
