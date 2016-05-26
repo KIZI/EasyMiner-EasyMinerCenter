@@ -1,3 +1,6 @@
+# docker build -t easyminer-frontend  https://github.com/KIZI/EasyMiner-EasyMinerCenter.git#v2.3-cesnet:docker
+# docker run -d -p 8894:80 --name easyminer-frontend easyminer-frontend
+
 FROM php:5.6.21-apache
 
 MAINTAINER kizi "stanislav.vojir@gmail.com"
@@ -10,7 +13,7 @@ RUN apt-get update && \
     a2enmod headers && \
     a2enmod rewrite
     
-RUN git clone --recursive -b newDataService https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
+RUN git clone --recursive -b v2.3-cesnet https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
     chmod -R 777 easyminercenter/log && \
     chmod -R 777 easyminercenter/temp && \
     chmod 777 easyminercenter/www/images/users && \
