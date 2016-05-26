@@ -323,6 +323,7 @@ class UsersFacade implements IAuthenticator{
     $user->name=$params['name'];
     $user->active=true;
     $user->setDbPassword(StringsHelper::randString(8));
+    $user->lastLogin=new DateTime();
     $this->saveUser($user);
     return $user;
   }

@@ -14,10 +14,10 @@ use Nette\Utils\Strings;
  * @property int|null $userId
  * @property string $name
  * @property string $email
- * @property string $password
- * @property string|null $facebookId
- * @property string|null $googleId
- * @property string $apiKey
+ * @property string $password = ''
+ * @property string|null $facebookId = ''
+ * @property string|null $googleId = ''
+ * @property string $apiKey = ''
  * @property DateTime $lastLogin
  * @property bool $active = true
  * @property-read string $encodedApiKey
