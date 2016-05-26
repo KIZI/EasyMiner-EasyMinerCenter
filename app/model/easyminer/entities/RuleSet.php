@@ -11,8 +11,8 @@ use LeanMapper\Fluent;
  *
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $ruleSetId
- * @property string $name
- * @property string $description
+ * @property string $name = ''
+ * @property string $description = ''
  * @property int $rulesCount = 0
  * @property User $user m:hasOne
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
