@@ -62,12 +62,17 @@ class User extends Entity{
    * @return int|array
    */
   public function getLastDbCheck($dbType=null){
-    try{
-      /** @noinspection PhpUndefinedFieldInspection */
-      $data=Json::decode($this->row->last_db_check,Json::FORCE_ARRAY);
-    }catch(JsonException $e){
+    if (empty($this->row->last_db_check)){
       $data=[];
+    }else{
+      try{
+        /** @noinspection PhpUndefinedFieldInspection */
+        $data=Json::decode($this->row->last_db_check,Json::FORCE_ARRAY);
+      }catch(JsonException $e){
+        $data=[];
+      }
     }
+
     if ($dbType){
       return intval(@$data[$dbType]);
     }else{

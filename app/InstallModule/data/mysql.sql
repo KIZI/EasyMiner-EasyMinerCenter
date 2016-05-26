@@ -1,11 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 3.4.11.1deb2+deb7u3
--- http://www.phpmyadmin.net
---
--- Počítač: localhost
--- Vygenerováno: Čtv 26. kvě 2016, 18:44
--- Verze MySQL: 5.5.49
--- Verze PHP: 5.4.45-0+deb7u2
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -421,7 +413,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `email` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_password` varchar(300) COLLATE utf8_czech_ci NOT NULL COMMENT 'Heslo pro přístup k databázi s daty',
-  `last_db_check` varchar(100) COLLATE utf8_czech_ci NOT NULL COMMENT 'Informace o poslední kontrole přístupu k DB',
+  `last_db_check` varchar(100) COLLATE utf8_czech_ci NOT NULL DEFAULT '' COMMENT 'Informace o poslední kontrole přístupu k DB',
   `password` varchar(200) COLLATE utf8_czech_ci NOT NULL,
   `facebook_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `google_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
