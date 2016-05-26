@@ -58,7 +58,7 @@ class DataPresenter extends BasePresenter{
           $metasourceTasks=$miner->metasource->metasourceTasks;
           if (!empty($metasourceTasks)){
             foreach($metasourceTasks as $metasourceTaskItem){
-              if (!$metasourceTaskItem->attribute){//TODO tohle je potřeba opravit (došlo ke změně konstrukce MetasourceTask, žádný attribute už tam není)
+              if (empty($metasourceTaskItem->attributes)){//TODO tohle je potřeba opravit (došlo ke změně konstrukce MetasourceTask, žádný attribute už tam není)
                 $metasourceTask=$metasourceTaskItem;
                 break;
               }
