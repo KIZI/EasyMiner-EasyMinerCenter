@@ -9,6 +9,7 @@ writable:
         - "/temp/pmmlImports"
         importsLM: "/temp/pmmlImports/lm"
         importsR: "/temp/pmmlImports/r"
+        importsCloud: "/temp/pmmlImports/cloud"
         userPhotos: "/www/images/users"
     files:
         config: "/app/config/config.local.neon"

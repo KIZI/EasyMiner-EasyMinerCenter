@@ -33,10 +33,13 @@ class WizardPresenter extends Presenter {
     'files',        //kontrola přístupů k souborům a adresářům
     'timezone',     //nastavení časové zóny
     'https',        //nastavení zabazpečeného přístupu
-    'database',     //inicializace aplikační databáze
-    'dataMysql',    //přístupy k databázi pro uživatelská data
+    'miners',       //zadání přístupů k dolovacím serverům FIXME doplnit možnost konfigurace jednotlivých služeb
+//XXX    'dataMysql',    //přístupy k databázi pro uživatelská data
+    'dataLimited',    //přístupy k databázi pro uživatelská data
+    'dataUnlimited',   //přístupy k hadoop databázi pro uživatelská dataFIXME
+    'database',     //inicializace aplikační databáze FIXME doplnit možnost automatického vytvoření databáze
     'logins',       //typy přihlašování
-    'miners',       //zadání přístupů k dolovacím serverům
+    //FIXME doplnit možnost konfigurace dalších služeb
     'details',      //zadání dalších parametrů/detailů
     'setPassword',  //kontrola zadání přístupového hesla
     'finish'        //zpráva o dokončení
@@ -175,6 +178,38 @@ class WizardPresenter extends Presenter {
   }
 
   /**
+   * Akce pro zadání přístupu k MySQL databázi pro uživatelská data
+   */
+  public function actionDataLimited() {
+    $this->checkAccessRights();
+    $configManager=$this->createConfigManager();
+    if(!empty($configManager->data['parameters']['databases']['limited'])) {
+      //set currently defined database connection params
+      try{
+        /** @var Form $form */
+        $form=$this->getComponent('dataLimitedForm');
+        $form->setDefaults($configManager->data['parameters']['databases']['limited']);
+      }catch (\Exception $e){/*ignore error*/}
+    }
+  }
+
+  /**
+   * Akce pro zadání přístupu k MySQL databázi pro uživatelská data
+   */
+  public function actionDataUnlimited() {
+    $this->checkAccessRights();
+    $configManager=$this->createConfigManager();
+    if(!empty($configManager->data['parameters']['databases']['unlimited'])) {
+      //set currently defined database connection params
+      try{
+        /** @var Form $form */
+        $form=$this->getComponent('dataUnlimitedForm');
+        $form->setDefaults($configManager->data['parameters']['databases']['unlimited']);
+      }catch (\Exception $e){/*ignore error*/}
+    }
+  }
+
+  /**
    * Akce pro zadání způsobů přihlašování
    */
   public function actionLogins() {
@@ -225,6 +260,13 @@ class WizardPresenter extends Presenter {
         /** @var Form $form */
         $form=$this->getComponent('minersForm');
         $defaultsArr=[];
+        if (empty($configManagerValuesArr['driver_cloud']) || empty($configManagerValuesArr['driver_cloud']['server'])){
+          $defaultsArr['allow_driverCloud']=0;
+        }else{
+          $defaultsArr['allow_driverCloud']=1;
+          $defaultsArr['driverCloudServer']=$configManagerValuesArr['driver_cloud']['server'].@$configManagerValuesArr['driver_cloud']['minerUrl'];
+          //FIXME konfigurace dalších služeb
+        }
         if (empty($configManagerValuesArr['driver_r']) || empty($configManagerValuesArr['driver_r']['server'])){
           $defaultsArr['allow_driverR']=0;
         }else{
@@ -392,6 +434,118 @@ class WizardPresenter extends Presenter {
   }
 
   /**
+   * Formulář pro zadání přístupů k Limited DB pro uživatelská data
+   * @return Form
+   */
+  public function createComponentDataLimitedForm() {
+    $form=new Form();
+    $form->addText('server', 'Server:')
+      ->setRequired('Input the server address!');
+    $form->addText('username', 'Database administrator username:')
+      ->setRequired('Input the database administrator username!');
+    $form->addText('password', 'Database administrator password:');
+    $form->addText('_username', 'Database users´ names mask:')
+      ->setRequired("You have to input the mask for names of the user accounts!")
+      ->setDefaultValue('emc_*')
+      ->addRule(Form::PATTERN,'The mask has to contain only lower case letters, numbers and _, has to start with a letter and has to contain the char *.','^[a-z_]+[a-z0-9_]*\*[a-z0-9_]*$')
+      ->addRule(Form::MAX_LENGTH,'The max length of username pattern is %s characters.',12);
+    $form->addText('_database', 'User databases name mask:')
+      ->setRequired("You have to input the mask for names of the user databases!")
+      ->setDefaultValue('emc_*')
+      ->addRule(Form::PATTERN,'The mask has to contain only lower case letters, numbers and _, has to start with a letter and has to contain the char *.','^[a-z_]+[a-z0-9_]*\*[a-z0-9_]*$')
+      ->addRule(Form::MAX_LENGTH,'The max length of username pattern is %s characters.',60);
+    $form->addSelect('allowFileImport','Allow file imports:',[
+      0=>'no',
+      1=>'yes',
+    ]);
+
+    $form->addSubmit('submit', 'Save & continue...')
+      ->onClick[]=function (SubmitButton $submitButton) {
+      $form=$submitButton->form;
+      $values=$form->getValues(true);
+      /*TODO doplnění kontroly správnosti přístupových údajů
+      try {
+        $databaseManager=new DatabaseManager($databaseConfigArr);
+        if(!$databaseManager->isConnected()) {
+          $error=true;
+        }
+      } catch(\Exception $e) {
+        $error=true;
+      }
+      if($error || empty($databaseManager)) {
+        $form->addError('Database connection failed! Please check, if the database exists and if it is accessible.');
+        return;
+      }
+      //create database
+      try{
+        $databaseManager->createDatabase();
+      }catch (\Exception $e){
+        $form->addError('Database structure creation failed! Please check, if the database exists and if it is empty.');
+        return;
+      }
+      */
+      //save config and redirect
+      $configManager=$this->createConfigManager();
+      $values['api']=$configManager->data['parameters']['databases']['limited']['api'];
+      $values['preprocessingApi']=$configManager->data['parameters']['databases']['limited']['preprocessingApi'];
+      if ($values['allowFileImport']){
+        $values['allowFileImport']=true;
+      }else{
+        $values['allowFileImport']=false;
+      }
+      $configManager->data['parameters']['databases']['limited']=$values;
+      $configManager->saveConfig();
+      $this->redirect($this->getNextStep('dataLimited'));
+    };
+    $form->addSubmit('disable','Disable & continue...')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $submitButton){
+      //save config and redirect
+      $configManager=$this->createConfigManager();
+      $configManager->data['parameters']['databases']['limited']['server']='';
+      $configManager->saveConfig();
+      $this->redirect($this->getNextStep('dataLimited'));
+    };
+    return $form;
+  }
+
+  /**
+   * Formulář pro zadání přístupů k unlimited DB pro uživatelská data
+   * @return Form
+   */
+  public function createComponentDataUnlimitedForm() {
+    $form=new Form();
+    $form->addText('server', 'Server:')
+      ->setRequired('Input the server address!');
+    $form->addText('port', 'Port:');
+    $form->addText('_username', 'Database users´ names mask:')
+      ->setRequired("You have to input the mask for names of the user accounts!")
+      ->setDefaultValue('easyminer')
+      ->addRule(Form::PATTERN,'The mask has to contain only lower case letters, numbers and _, has to start with a letter and has to contain the char *.','^[a-z_]+[a-z0-9_]*[\*]?[a-z0-9_]*$')
+      ->addRule(Form::MAX_LENGTH,'The max length of username pattern is %s characters.',12);
+    $form->addText('_database', 'User databases name mask:')
+      ->setRequired("You have to input the mask for names of the user databases!")
+      ->setDefaultValue('emc_*')
+      ->addRule(Form::PATTERN,'The mask has to contain only lower case letters, numbers and _, has to start with a letter.','^[a-z_]+[a-z0-9_]*\*[a-z0-9_]*$$')
+      ->addRule(Form::MAX_LENGTH,'The max length of username pattern is %s characters.',60);
+
+    $form->addSubmit('submit', 'Save & continue...')
+      ->onClick[]=function (SubmitButton $submitButton) {
+      $form=$submitButton->form;
+      $values=$form->getValues(true);
+      //save config and redirect
+      $configManager=$this->createConfigManager();
+      $values['api']=$configManager->data['parameters']['databases']['unlimited']['api'];
+      $values['preprocessingApi']=$configManager->data['parameters']['databases']['unlimited']['preprocessingApi'];
+      $values['_password']=false;
+      $configManager->data['parameters']['databases']['unlimited']=$values;
+      $configManager->saveConfig();
+      $this->redirect($this->getNextStep('dataUnlimited'));
+    };
+    return $form;
+  }
+
+  /**
    * Formulář pro zadání přístupů k MySQL pro uživatelská data
    * @return Form
    */
@@ -534,6 +688,33 @@ class WizardPresenter extends Presenter {
   public function createComponentMinersForm() {
     $form=new Form();
 
+    $allowDriverCloud=$form->addSelect('allow_driverCloud','Allow Cloud backend:',[0=>'no',1=>'yes']);
+    $allowDriverCloud->addCondition(Form::EQUAL,1)
+      ->toggle('driverCloudServer',true)
+      ->toggle('dataServiceServer',true)
+      ->toggle('preprocessingServiceServer',true);
+    $form->addText('driverCloudServer','Miner URL:')
+      ->setOption('id','driverCloudServer')
+      ->addConditionOn($allowDriverCloud,Form::EQUAL,1)
+      ->setRequired('You have to input the address of Cloud backend!')
+      ->addRule(function(TextInput $textInput){
+        try{
+          return $this->miningDriverFactory->checkMinerServerState(Miner::TYPE_CLOUD,$textInput->value);
+        }catch (\Exception $e){
+          return false;
+        }
+      },'The Cloud backend is not accessible! Please check the configuration.');
+    $form->addText('dataServiceServer','Data service URL:')
+      ->setOption('id','dataServiceServer')
+      ->addConditionOn($allowDriverCloud,Form::EQUAL,1)
+      ->setRequired('You have to input the address of the Data service!');
+    $form->addText('preprocessingServiceServer','Preprocessing service URL:')
+      ->setOption('id','preprocessingServiceServer')
+      ->setAttribute('class','withSpace')
+      ->addConditionOn($allowDriverCloud,Form::EQUAL,1)
+      ->setRequired('You have to input the address of the Preprocessing service!');
+
+
     $allowDriverR=$form->addSelect('allow_driverR','Allow R backend:',[0=>'no',1=>'yes']);
     $allowDriverR->addCondition(Form::EQUAL,1)
       ->toggle('driverRServer',true);
@@ -541,14 +722,14 @@ class WizardPresenter extends Presenter {
       ->setOption('id','driverRServer')
       ->setAttribute('class','withSpace')
       ->addConditionOn($allowDriverR,Form::EQUAL,1)
-        ->setRequired('You have to input the address of R backend!')
-        ->addRule(function(TextInput $textInput){
-          try{
-            return $this->miningDriverFactory->checkMinerServerState(Miner::TYPE_R,$textInput->value);
-          }catch (\Exception $e){
-            return false;
-          }
-        },'The R backend is not accessible! Please check the configuration.');
+      ->setRequired('You have to input the address of R backend!')
+      ->addRule(function(TextInput $textInput){
+        try{
+          return $this->miningDriverFactory->checkMinerServerState(Miner::TYPE_R,$textInput->value);
+        }catch (\Exception $e){
+          return false;
+        }
+      },'The R backend is not accessible! Please check the configuration.');
 
     $allowDriverLM=$form->addSelect('allow_driverLM','Allow LISp-Miner backend (LM-Connect):',[0=>'no',1=>'yes']);
     $allowDriverLM->addCondition(Form::EQUAL,1)
@@ -573,10 +754,34 @@ class WizardPresenter extends Presenter {
         $filesManager=$this->createFilesManager();
         $configManager=$this->createConfigManager();
 
-        if (!($values['allow_driverLM']||$values['allow_driverR'])){
+        if (!($values['allow_driverLM']||$values['allow_driverR']||$values['allow_driverCloud'])){
           $submitButton->form->addError('You have to configure at least one data mining backend!');
           return;
         }
+
+        //region Cloud backend
+        if ($values['allow_driverCloud']){
+          $urlArr=parse_url($values['driverCloudServer']);
+          if (function_exists('http_build_url')){
+            $serverUrl=http_build_url($urlArr,HTTP_URL_STRIP_PATH | HTTP_URL_STRIP_QUERY);
+          }else{
+            $serverUrl=$urlArr['scheme'].'://'.$urlArr['host'].(!empty($urlArr['port'])?':'.$urlArr['port']:'');
+          }
+          $minerPath=(!empty($urlArr['path'])?rtrim($urlArr['path'],'/'):'').(!empty($urlArr['query'])?'?'.$urlArr['query']:'');
+          $configArr=[
+            'server'=>$serverUrl,
+            'minerUrl'=>$minerPath,
+            'importsDirectory'=>$filesManager->getPath('writable','directories','importsR',true)
+          ];
+          $configManager->data['parameters']['limited']['api']=rtrim($values['dataServiceServer'],'/');
+          $configManager->data['parameters']['unlimited']['api']=rtrim($values['dataServiceServer'],'/');
+          $configManager->data['parameters']['limited']['preprocessingApi']=rtrim($values['preprocessingServiceServer'],'/');
+          $configManager->data['parameters']['unlimited']['preprocessingApi']=rtrim($values['preprocessingServiceServer'],'/');
+        }else{
+          $configArr=['server'=>''];
+        }
+        $configManager->data['parameters']['miningDriverFactory']['driver_cloud']=$configArr;
+        //endregion Cloud backend
 
         //region R backend
         if ($values['allow_driverR']){

@@ -846,4 +846,12 @@ class LMDriver implements IMiningDriver{
       return false;
     }
   }
+
+  /**
+   * Funkce pro načtení plných výsledků úlohy z PMML
+   * @return TaskState
+   */
+  public function importResultsPMML(){
+    // TODO: Implement importResultsPMML() method.
+  }
 }
