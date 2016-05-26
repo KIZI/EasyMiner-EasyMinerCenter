@@ -20,15 +20,19 @@ nette:
 
 parameters:
     dev: false
+    databases:
     miningDriverFactory:
         driver_lm:
             class: EasyMinerCenter\Model\Mining\LM\LMDriver
             pooler: task
         driver_r:
             class: EasyMinerCenter\Model\Mining\R\RDriver
+        driver_cloud:
+            class: EasyMinerCenter\Model\Mining\Cloud\CloudDriver
 
 services:
 	routing.router: EasyMinerCenter\InstallModule\Router\RouterFactory::createRouter()
-	- EasyMinerCenter\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
 	- EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory("installation")
+	- EasyMinerCenter\Model\Mining\MiningDriverFactory(%miningDriverFactory%)
 	- EasyMinerCenter\InstallModule\DevModule\Model\DevConfigManager(%dev%)
+	- EasyMinerCenter\Model\Data\Databases\DatabaseFactory(%databases%)

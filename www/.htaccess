@@ -7,9 +7,11 @@ Header set X-UA-Compatible "IE=Edge,chrome=1"
 	Options -Indexes
 </IfModule>
 
-php_value upload_max_filesize 10M
-php_value post_max_size 10M
-php_value max_execution_time 120
+<IfModule mod_php5.c>
+  php_value upload_max_filesize 10M
+  php_value post_max_size 10M
+  php_value max_execution_time 120
+</IfModule>
 
 # enable cool URL
 	RewriteEngine On
