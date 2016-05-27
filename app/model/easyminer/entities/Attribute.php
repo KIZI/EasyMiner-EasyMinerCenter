@@ -19,6 +19,9 @@ class Attribute extends Entity{
   const TYPE_STRING='string';
   const TYPE_INTEGER='int';
   const TYPE_FLOAT='float';
+  //TODO pročistit seznam datových typů
+  const TYPE_NOMINAL='nominal';
+  const TYPE_NUMERIC='numeric';
 
   /**
    * Funkce vracející přehled základních dat

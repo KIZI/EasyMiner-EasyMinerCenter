@@ -14,12 +14,12 @@ use LeanMapper\Entity;
  * @property int|null $ppDatasetId = null
  * @property string $state = m:Enum('available','unavailable','unlimited')
  * @property Datasource|null $datasource = null m:hasOne
- * @property string $dbServer
+ * @property string $dbServer = ''
  * @property string|null $dbApi = null
  * @property int|null $dbPort = null
- * @property string $dbUsername
- * @property string $dbName
- * @property string $name
+ * @property string $dbUsername = ''
+ * @property string $dbName = ''
+ * @property string $name = ''
  * @property int|null $size = null
  * @property-read MetasourceTask[] $metasourceTasks m:belongsToMany
  * @property-read Attribute[] $attributes m:belongsToMany

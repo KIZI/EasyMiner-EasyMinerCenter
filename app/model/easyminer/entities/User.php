@@ -14,10 +14,10 @@ use Nette\Utils\Strings;
  * @property int|null $userId
  * @property string $name
  * @property string $email
- * @property string $password
- * @property string|null $facebookId
- * @property string|null $googleId
- * @property string $apiKey
+ * @property string $password = ''
+ * @property string|null $facebookId = ''
+ * @property string|null $googleId = ''
+ * @property string $apiKey = ''
  * @property DateTime $lastLogin
  * @property bool $active = true
  * @property-read string $encodedApiKey
@@ -62,12 +62,17 @@ class User extends Entity{
    * @return int|array
    */
   public function getLastDbCheck($dbType=null){
-    try{
-      /** @noinspection PhpUndefinedFieldInspection */
-      $data=Json::decode($this->row->last_db_check,Json::FORCE_ARRAY);
-    }catch(JsonException $e){
+    if (empty($this->row->last_db_check)){
       $data=[];
+    }else{
+      try{
+        /** @noinspection PhpUndefinedFieldInspection */
+        $data=Json::decode($this->row->last_db_check,Json::FORCE_ARRAY);
+      }catch(JsonException $e){
+        $data=[];
+      }
     }
+
     if ($dbType){
       return intval(@$data[$dbType]);
     }else{
