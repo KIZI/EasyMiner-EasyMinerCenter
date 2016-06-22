@@ -550,6 +550,15 @@ $(document).ready(function(){
   dataUpload.zipSupport=zipSupport;
   dataUpload.uploadFinishUrl=uploadFinishUrl;
   dataUpload.init();
+
+  //inicializace nápovědy pro jednotlivé typy DB
+  var dbTypeSelect=$('#frm-uploadForm-dbType');
+  dbTypeSelect.change(function(){
+    $('#frm-uploadForm-dbType-hint').text(getDatabaseHint(dbTypeSelect.val()));
+  });
+  var hint=$('<div id="frm-uploadForm-dbType-hint" class="info-message"></div>');
+  hint.text(getDatabaseHint(dbTypeSelect.val()));
+  dbTypeSelect.after(hint);
 });
 
 
@@ -608,5 +617,13 @@ function getPartOfZipFile(file, contentSize, resultFunction){
       }
     }
     resultFunction(firstFile.asUint8Array().slice(0, contentSize));
+  }
+}
+
+function getDatabaseHint(dbType){
+  switch (dbType){
+    case 'mysql':return 'MySQL database, suitable for usage with LISp-Miner or R backend';
+    case 'limited':return 'Recommended database type, suitable for most datasets. Works with R backend.';
+    case 'unlimited':return 'For really big datasets only, in this demo installation, simultaneous work of more users is disabled. Works with Hive/Sparql backend.';
   }
 }

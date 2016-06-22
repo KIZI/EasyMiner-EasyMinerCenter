@@ -934,6 +934,12 @@ th[colspan] input[type="reset"] {
   color: #d01d1d;
   font-size: 85%;
 }
+.info-message {
+  display: block;
+  padding: 3px 5px 5px 13px;
+  color: #808080;
+  font-size: 85%;
+}
 th {
   vertical-align: top;
   font-weight: normal;
