@@ -19,8 +19,8 @@ class DbConnection{
   const TYPE_LIMITED='limited';
   const TYPE_UNLIMITED='unlimited';
   const TYPE_MYSQL_NAME='MySQL';
-  const TYPE_LIMITED_NAME='Limited data service DB';
-  const TYPE_UNLIMITED_NAME='Unlimited data service DB';
+  const TYPE_LIMITED_NAME='Limited DB (recommended)';
+  const TYPE_UNLIMITED_NAME='Unlimited DB';
 
   /**
    * Funkce vracející connection string inspirovaný connection stringem pro PDO, ale obsahující všechny vlastnosti DbConnection

@@ -21,7 +21,7 @@ class UnlimitedDatabase extends DataServiceDatabase{
    * @return string
    */
   public static function getDbTypeName() {
-    return self::DB_TYPE;
+    return self::DB_TYPE_NAME;
   }
 
   /**
@@ -30,7 +30,7 @@ class UnlimitedDatabase extends DataServiceDatabase{
    * @return string
    */
   public static function getDbType() {
-    return self::DB_TYPE_NAME;
+    return self::DB_TYPE;
   }
 
 }
