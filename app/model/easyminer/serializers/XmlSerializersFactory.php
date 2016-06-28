@@ -4,6 +4,7 @@ namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 
 /**
  * Class XmlSerializersFactory - Factory třída pro vytváření XML serializérů
@@ -15,14 +16,18 @@ class XmlSerializersFactory {
   private $appVersion;
   /** @var DatabaseFactory $databaseFactory */
   private $databaseFactory;
+  /** @var PreprocessingFactory $preprocessingFactory */
+  private $preprocessingFactory;
 
   /**
    * @param string $appVersion
    * @param DatabaseFactory $databaseFactory
+   * @param PreprocessingFactory $preprocessingFactory
    */
-  public function __construct($appVersion='', DatabaseFactory $databaseFactory) {
+  public function __construct($appVersion='', DatabaseFactory $databaseFactory, PreprocessingFactory $preprocessingFactory) {
     $this->appVersion=$appVersion;
     $this->databaseFactory=$databaseFactory;
+    $this->preprocessingFactory=$preprocessingFactory;
   }
 
   /**
@@ -31,7 +36,7 @@ class XmlSerializersFactory {
    * @return GuhaPmmlSerializer
    */
   public function createGuhaPmmlSerializer(Task $task, $pmml = null){
-    return new GuhaPmmlSerializer($task, $pmml, $this->databaseFactory, $this->appVersion);
+    return new GuhaPmmlSerializer($task, $pmml, $this->databaseFactory, $this->preprocessingFactory, $this->appVersion);
   }
 
   /**
@@ -40,7 +45,7 @@ class XmlSerializersFactory {
    * @return CloudDriverGuhaPmmlSerializer
    */
   public function createCloudDriverGuhaPmmlSerializer(Task $task, $pmml=null){
-    return new CloudDriverGuhaPmmlSerializer($task, $pmml, $this->databaseFactory, $this->appVersion);
+    return new CloudDriverGuhaPmmlSerializer($task, $pmml, $this->databaseFactory, $this->preprocessingFactory, $this->appVersion);
   }
 
 }

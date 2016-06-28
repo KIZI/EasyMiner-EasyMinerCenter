@@ -10,6 +10,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 use Nette\Utils\Strings;
 
 /**
@@ -31,6 +32,8 @@ class GuhaPmmlSerializer {
 
   /** @var  DatabaseFactory $databaseFactory */
   protected $databaseFactory;
+  /** @var PreprocessingFactory $preprocessingFactory */
+  protected $preprocessingFactory;
 
   /** @var  \SimpleXMLElement $BBAsWorkXml */
   protected $BBAsWorkXml;
@@ -62,9 +65,10 @@ class GuhaPmmlSerializer {
    * @param Task $task
    * @param \SimpleXMLElement|null $pmml
    * @param DatabaseFactory $databaseFactory
-   * @param string $appVersion=''
+   * @param PreprocessingFactory $preprocessingFactory
+   * @param string $appVersion =''
    */
-  public function __construct(Task $task, \SimpleXMLElement $pmml = null, DatabaseFactory $databaseFactory, $appVersion=''){
+  public function __construct(Task $task, \SimpleXMLElement $pmml = null, DatabaseFactory $databaseFactory, PreprocessingFactory $preprocessingFactory, $appVersion=''){
     if ($task instanceof Task){
       $this->task=$task;
       $this->miner=$task->miner;
@@ -84,6 +88,7 @@ class GuhaPmmlSerializer {
     $this->appendTaskInfo();
 
     $this->databaseFactory=$databaseFactory;
+    $this->preprocessingFactory=$preprocessingFactory;
 
     $connectivesArr=Cedent::getConnectives();
     foreach($connectivesArr as $connective){
@@ -278,7 +283,7 @@ class GuhaPmmlSerializer {
         $dataFieldXml->addAttribute('optype','continuous');
       }
 
-      if ($includeFrequencies){
+      if ($includeFrequencies /*TODO*/ && false){
         //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
         if ($datasourceColumn->type=DatasourceColumn::TYPE_STRING && !empty($valuesStatistics->valuesArr)){
@@ -336,6 +341,7 @@ class GuhaPmmlSerializer {
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frekvence
+        /*TODO
         //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr)){
@@ -349,7 +355,7 @@ class GuhaPmmlSerializer {
             $rowXml->addChild('column',$value);
             $rowXml->addChild('field',$value);
           }
-        }
+        }*/
         continue;
       }
       if (empty($preprocessing->valuesBins)){continue;}

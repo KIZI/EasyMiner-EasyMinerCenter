@@ -5,6 +5,7 @@ use EasyMinerCenter\app\model\preprocessing\databases\preprocessingservice\Prepr
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpValue;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\DatasetNotFoundException;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
@@ -330,6 +331,19 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
         Debugger::log($response,ILogger::EXCEPTION);
         throw new PreprocessingCommunicationException(@$response['name'].': '.@$response['message'],$responseCode);
     }
+  }
+
+  /**
+   * Funkce vracející hodnoty zvoleného atributu
+   *
+   * @param PpDataset $ppDataset
+   * @param PpAttribute $ppAttribute
+   * @param int $offset
+   * @param int $limit
+   * @return PpValue[]
+   */
+  public static function getPpValues(PpDataset $ppDataset, PpAttribute $ppAttribute, $offset=0, $limit=1000){
+    // TODO: Implement getPpValues() method.
   }
 
 }

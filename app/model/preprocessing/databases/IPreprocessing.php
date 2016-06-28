@@ -6,6 +6,7 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpValue;
 
 /**
  * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
@@ -87,7 +88,18 @@ interface IPreprocessing {
    */
   public static function getPpType();
 
-
+  /**
+   * Funkce vracející hodnoty zvoleného atributu
+   *
+   * @param PpDataset $ppDataset
+   * @param PpAttribute $ppAttribute
+   * @param int $offset
+   * @param int $limit
+   * @return PpValue[]
+   */
+  public static function getPpValues(PpDataset $ppDataset, PpAttribute $ppAttribute, $offset=0, $limit=1000);
+  
+  
   /**
    * Funkce vracející přehled podporovaných typů preprocessingu
    *

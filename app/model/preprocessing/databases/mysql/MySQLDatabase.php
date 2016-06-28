@@ -2,8 +2,10 @@
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases\MySQL;
 
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpValue;
 use Nette\NotImplementedException;
 use Nette\NotSupportedException;
 use Nette\Utils\Strings;
@@ -142,5 +144,29 @@ class MySQLDatabase implements IPreprocessing{
   public function deletePpDataset(PpDataset $ppDataset) {
     throw new NotImplementedException();
     // TODO: Implement deletePpDataset() method.
+  }
+
+  /**
+   * Funkce pro inicializaci preprocessingu atributů
+   *
+   * @param Attribute[] $attributes
+   * @param PpTask $ppTask = null
+   * @return PpTask|PpAttribute[]
+   */
+  public function createAttributes(array $attributes=null, PpTask $ppTask=null){
+    // TODO: Implement createAttributes() method.
+  }
+
+  /**
+   * Funkce vracející hodnoty zvoleného atributu
+   *
+   * @param PpDataset $ppDataset
+   * @param PpAttribute $ppAttribute
+   * @param int $offset
+   * @param int $limit
+   * @return PpValue[]
+   */
+  public static function getPpValues(PpDataset $ppDataset, PpAttribute $ppAttribute, $offset=0, $limit=1000){
+    // TODO: Implement getPpValues() method.
   }
 }
