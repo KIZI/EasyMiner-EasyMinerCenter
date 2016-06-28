@@ -337,13 +337,31 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
    * Funkce vracející hodnoty zvoleného atributu
    *
    * @param PpDataset $ppDataset
-   * @param PpAttribute $ppAttribute
+   * @param int $ppAttributeId
    * @param int $offset
    * @param int $limit
    * @return PpValue[]
+   *
+   * @throws PreprocessingException
    */
-  public static function getPpValues(PpDataset $ppDataset, PpAttribute $ppAttribute, $offset=0, $limit=1000){
-    // TODO: Implement getPpValues() method.
+  public function getPpValues(PpDataset $ppDataset, $ppAttributeId, $offset=0, $limit=1000){
+    /*try{*/
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/dataset/'.urlencode($ppDataset->id).'/attribute/'.urlencode($ppAttributeId).'/values?offset='.intval($offset).'&limit='.intval($limit)),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      if ($responseCode==200){
+        $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+        $result=[];
+        if (!empty($responseData)){
+          foreach($responseData as $responseItem){
+            $result[]=new PpValue($responseItem['id'],$responseItem['value'],$responseItem['frequency']);
+          }
+        }
+        return $result;
+      }else{
+        throw new PreprocessingCommunicationException('responseCode: '.$responseCode);
+      }/*
+    }catch (\Exception $e){
+      throw new PreprocessingException();
+    }*/
   }
 
 }

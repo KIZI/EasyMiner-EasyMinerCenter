@@ -19,10 +19,10 @@ class PpValue{
 
   /**
    * @param $id
-   * @param $frequency
    * @param $value
+   * @param $frequency
    */
-  public function __construct($id, $frequency, $value){
+  public function __construct($id, $value, $frequency){
     $this->id=$id;
     $this->frequency=$frequency;
     $this->value=$value;

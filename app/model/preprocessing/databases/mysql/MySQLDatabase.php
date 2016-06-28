@@ -161,12 +161,12 @@ class MySQLDatabase implements IPreprocessing{
    * Funkce vracející hodnoty zvoleného atributu
    *
    * @param PpDataset $ppDataset
-   * @param PpAttribute $ppAttribute
+   * @param int $ppAttributeId
    * @param int $offset
    * @param int $limit
    * @return PpValue[]
    */
-  public static function getPpValues(PpDataset $ppDataset, PpAttribute $ppAttribute, $offset=0, $limit=1000){
+  public function getPpValues(PpDataset $ppDataset, $ppAttributeId, $offset=0, $limit=1000){
     // TODO: Implement getPpValues() method.
   }
 }

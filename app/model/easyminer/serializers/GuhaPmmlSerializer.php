@@ -10,7 +10,11 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
+use EasyMinerCenter\Model\Preprocessing\IPreprocessingDriver;
 use Nette\Utils\Strings;
 
 /**
@@ -191,7 +195,7 @@ class GuhaPmmlSerializer {
    * @param string|null $extensionExtender
    */
   protected function addExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
-    if ($groupExtensions && count($parentSimpleXmlElement->Extension)>0){
+    if ($groupExtensions && count($parentSimpleXmlElement->Extension)>0){//TODO tohle nefunguje v rámci nového serveru...
       $siblinkElement = $parentSimpleXmlElement->Extension[0];
       $siblinkElementDom=dom_import_simplexml($siblinkElement);
       //připravení elementu pro připojení
@@ -315,6 +319,8 @@ class GuhaPmmlSerializer {
    */
   public function appendTransformationDictionary($includeFrequencies=true){
     $metasource=$this->miner->metasource;
+    /** @var IPreprocessing $preprocessingDriver */
+    $preprocessingDriver=$this->preprocessingFactory->getPreprocessingInstance($this->miner->metasource->getPpConnection(),$this->miner->user);
     if (empty($metasource->attributes)){return;}
     /** @var \SimpleXMLElement $transformationDictionaryXml */
     $transformationDictionaryXml=$this->pmml->TransformationDictionary;
@@ -341,21 +347,20 @@ class GuhaPmmlSerializer {
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frekvence
-        /*TODO
-        //TODO replace databasesFacade
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
-        if (!empty($valuesStatistics->valuesArr)){
+        $ppDataset=$preprocessingDriver->getPpDataset($metasource->ppDatasetId);
+        $ppValues=$preprocessingDriver->getPpValues($ppDataset,$attribute->ppDatasetAttributeId?$attribute->ppDatasetAttributeId:$attribute->name,0,100);//TODO optimalizovat počet hodnot
+        if (!empty($ppValues)){
           if ($includeFrequencies){
-            foreach($valuesStatistics->valuesArr as $value=>$count){
-              $this->addExtensionElement($inlineTableXml,'Frequency',$count,$value);
+            foreach($ppValues as $ppValue){
+              $this->addExtensionElement($inlineTableXml,'Frequency',$ppValue->frequency,$ppValue->value,false);
             }
           }
-          foreach($valuesStatistics->valuesArr as $value=>$count){
+          foreach($ppValues as $ppValue){
             $rowXml=$inlineTableXml->addChild('row');
-            $rowXml->addChild('column',$value);
-            $rowXml->addChild('field',$value);
+            $rowXml->addChild('column',$ppValue->value);//v původních i finálních datech je stejná hodnota
+            $rowXml->addChild('field',$ppValue->value);
           }
-        }*/
+        }
         continue;
       }
       if (empty($preprocessing->valuesBins)){continue;}
