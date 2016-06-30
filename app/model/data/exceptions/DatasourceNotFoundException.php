@@ -1,13 +1,13 @@
 <?php
 
-namespace EasyMinerCenter\Model\Preprocessing\Exceptions;
+namespace EasyMinerCenter\Model\Data\Exceptions;
 
 /**
- * Class DatasetNotFoundException
- * @package EasyMinerCenter\Model\Preprocessing\Exceptions
+ * Class DatasourceNotFoundException
+ * @package EasyMinerCenter\Model\Data\Exceptions
  * @author Stanislav Vojíř
  */
-class DatasetNotFoundException extends PreprocessingException{
+class DatasourceNotFoundException extends DatabaseException{
 
   /**
    * @param string $message = 'Requested dataset was not found!'

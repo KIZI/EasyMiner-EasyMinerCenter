@@ -9,7 +9,8 @@ use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbValue;
 use EasyMinerCenter\Model\Data\Entities\DbValuesRows;
-use Nette\NotImplementedException;
+use EasyMinerCenter\Model\Data\Exceptions\DatabaseCommunicationException;
+use EasyMinerCenter\Model\Data\Exceptions\DatabaseException;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
 
@@ -158,10 +159,26 @@ abstract class DataServiceDatabase implements IDatabase {
    * @param int $offset
    * @param int $limit
    * @return DbValue[]
+   * @throws DatabaseException
    */
   public function getDbValues(DbField $dbField, $offset=0, $limit=1000){
-    // TODO: Implement getDbValues() method.
-    throw new NotImplementedException();
+    try{
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.urlencode($dbField->dataSource).'/field/'.urlencode($dbField->id).'/values?offset='.intval($offset).'&limit='.intval($limit)),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      if ($responseCode==200){
+        $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+        $result=[];
+        if (!empty($responseData)){
+          foreach($responseData as $responseItem){
+            $result[]=new DbValue($responseItem['id'],$responseItem['value'],$responseItem['frequency']);
+          }
+        }
+        return $result;
+      }else{
+        throw new DatabaseCommunicationException('responseCode: '.$responseCode);
+      }
+    }catch (\Exception $e){
+      throw new DatabaseException();
+    }
   }
 
   /**
@@ -172,10 +189,26 @@ abstract class DataServiceDatabase implements IDatabase {
    * @param int $limit =1000
    * @param DbField[]|null $dbFields =null
    * @return DbValuesRows
+   * @throws DatabaseException
    */
   public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, $dbFields=null){
-    // TODO: Implement getDbValuesRows() method.
-    throw new NotImplementedException();
+    try{
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.urlencode($dbDatasource->id).'/instances?offset='.intval($offset).'&limit='.intval($limit)),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      if ($responseCode==200){
+        $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+        $fields=[];
+        if (!empty($responseData['fields'])){
+          foreach($responseData['fields'] as $fieldData){
+            $fields[]=new DbField($fieldData['id'],$fieldData['dataSource'],$fieldData['name'],$fieldData['type'],$fieldData['uniqueValuesSize']);
+          }
+        }
+        return new DbValuesRows($fields, !empty($responseData['instances'])?$responseData['instances']:[]);
+      }else{
+        throw new DatabaseCommunicationException('responseCode: '.$responseCode);
+      }
+    }catch (\Exception $e){
+      throw new DatabaseException();
+    }
   }
 
   /**

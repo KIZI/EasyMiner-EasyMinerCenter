@@ -4,7 +4,7 @@ namespace EasyMinerCenter\Model\Data\Entities;
 
 /**
  * Class DbValue - třída představující jednu hodnotu datového sloupce
- * @package EasyMinerCenter\Model\Preprocessing\Entities
+ * @package EasyMinerCenter\Model\Data\Entities
  * @author Stanislav Vojíř
  *
  * @property int $id

@@ -345,7 +345,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
    * @throws PreprocessingException
    */
   public function getPpValues(PpDataset $ppDataset, $ppAttributeId, $offset=0, $limit=1000){
-    /*try{*/
+    try{
       $responseData=$this->curlRequestResponse($this->getRequestUrl('/dataset/'.urlencode($ppDataset->id).'/attribute/'.urlencode($ppAttributeId).'/values?offset='.intval($offset).'&limit='.intval($limit)),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
       if ($responseCode==200){
         $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
@@ -358,10 +358,10 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
         return $result;
       }else{
         throw new PreprocessingCommunicationException('responseCode: '.$responseCode);
-      }/*
+      }
     }catch (\Exception $e){
       throw new PreprocessingException();
-    }*/
+    }
   }
 
 }
