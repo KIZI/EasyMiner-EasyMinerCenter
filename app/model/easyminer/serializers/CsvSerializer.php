@@ -20,11 +20,10 @@ class CsvSerializer{
    * @param int|null $limit=null
    * @param string $delimiter=';'
    * @param string $enclosure='"'
-   * @param string $escapeChar='\\'
    * @return string
    * @throws \Exception
    */
-  public static function prepareCsvFromDatabase(IDatabase $database, DbDatasource $dbDatasource,$offset=0,$limit=null,$delimiter=';',$enclosure='"',$escapeChar="\\"){
+  public static function prepareCsvFromDatabase(IDatabase $database, DbDatasource $dbDatasource,$offset=0,$limit=null,$delimiter=';',$enclosure='"'){
     $fd = fopen('php://temp/maxmemory:10048576', 'w');
     if($fd === FALSE) {
       throw new \Exception('Failed to open temporary file');
@@ -39,20 +38,20 @@ class CsvSerializer{
     if (!($offset<$maxRows)){
       //nechceme žádné řádky, ale pro validní výstup se zeptáme alespoň na jeden řádek kvůli info o názvech sloupcích
       $dbRows=$database->getDbValuesRows($dbDatasource,0,1);
-      fputcsv($fd, $dbRows->getFieldNames(), $delimiter, $enclosure, $escapeChar);
+      fputcsv($fd, $dbRows->getFieldNames(), $delimiter, $enclosure);
       $firstRequest=false;
     }
 
     while ($offset<$maxRows){
       $dbRows=$database->getDbValuesRows($dbDatasource, $offset, min(1000,$maxRows-$offset));
       if ($firstRequest){
-        fputcsv($fd, $dbRows->getFieldNames(), $delimiter, $enclosure, $escapeChar);
+        fputcsv($fd, $dbRows->getFieldNames(), $delimiter, $enclosure);
         $firstRequest=false;
       }
       $valuesRows=$dbRows->getValuesRows();
       if (!empty($valuesRows)){
         foreach($valuesRows as $valuesRow){
-          fputcsv($fd, $valuesRow, $delimiter, $enclosure, $escapeChar);
+          fputcsv($fd, $valuesRow, $delimiter, $enclosure);
           $offset++;
         }
       }
