@@ -2,7 +2,6 @@
 
 namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\Validation\IValidator;
-use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
@@ -11,7 +10,6 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
-use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;

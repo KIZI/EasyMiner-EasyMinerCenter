@@ -165,7 +165,7 @@ class DatabaseFactory {
    * @param User $user
    * @return bool
    */
-  public function checkDatabaseAvailability(DbConnection $dbConnection, User $user){
+  public function checkDatabaseAvailability(DbConnection $dbConnection,/** @noinspection PhpUnusedParameterInspection */ User $user){
     if ($dbConnection->type==UnlimitedDatabase::DB_TYPE){
       return true;
     }elseif(MySQLDatabaseConstructor::isDatabaseAvailable($dbConnection)){

@@ -9,8 +9,8 @@ use EasyMinerCenter\Model\Scoring\ScorerDriverFactory;
 
 /**
  * Class EvaluationPresenter
- *
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
  */
 class EvaluationPresenter extends BaseResourcePresenter {
   use TasksFacadeTrait;

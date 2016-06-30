@@ -2,17 +2,22 @@
 
 namespace EasyMinerCenter\RestModule\Presenters;
 
-
 use Nette\Application\UI\Presenter;
 use Nette\Http\Url;
 use Nette\Utils\Strings;
 
+/**
+ * Class SwaggerPresenter - presenter pro zobrazení Swagger UI
+ * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ */
 class SwaggerPresenter extends Presenter{
 
   /**
    * Akce pro vykreslení Swagger UI
    */
   public function renderUi(){
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->template->apiUrl=$this->link("json");
   }
 

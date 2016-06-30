@@ -7,7 +7,6 @@ use Drahak\Restful\NotImplementedException;
 use Drahak\Restful\Resource\Link;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Libs\RequestHelper;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
@@ -17,6 +16,7 @@ use Nette\Application\BadRequestException;
 /**
  * Class TasksPresenter - presenter pro práci s jednotlivými úlohami
  * @package EasyMinerCenter\RestModule\Presenters
+ *
  */
 class TasksPresenter extends BaseResourcePresenter {
   use TasksFacadeTrait;
@@ -25,8 +25,6 @@ class TasksPresenter extends BaseResourcePresenter {
   /** @const MINING_TIMEOUT_INTERVAL - časový interval pro dokončení dolování od timestampu spuštění úlohy (v sekundách) */
   const MINING_TIMEOUT_INTERVAL=600;
 
-  /** @var  DatabasesFacade $databasesFacade */
-  private $databasesFacade;
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
 
@@ -75,9 +73,7 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   private function prepareTaskPmml(Task $task, $includeFrequencies=true){
     /** @var Metasource $metasource */
-    $metasource=$task->miner->metasource;
-    $this->databasesFacade->openDatabase($metasource->getDbConnection());
-    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null);
     $pmmlSerializer->appendTaskSettings();
     $pmmlSerializer->appendDataDictionary($includeFrequencies);
     $pmmlSerializer->appendTransformationDictionary($includeFrequencies);
@@ -127,7 +123,6 @@ class TasksPresenter extends BaseResourcePresenter {
    * @throws NotImplementedException
    */
   public function actionCreate($id=null) {
-    //FIXME implement
     if ($id=='simple'){
       $this->forward('simple');
     }
@@ -183,24 +178,27 @@ class TasksPresenter extends BaseResourcePresenter {
    * Funkce pro validaci jednoduchého zadání úlohy
    */
   public function validateSimple() {
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('miner')->addRule(IValidator::CALLBACK,'You cannot use the given miner, or the miner has not been found!',function($value) {
       try {
-        $miner=$this->findMinerWithCheckAccess($value);
+        /*$miner=*/$this->findMinerWithCheckAccess($value);
         return true;
       } catch(\Exception $e) {
         return false;
       }
     });
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('name')->addRule(IValidator::REQUIRED,'You have to input the task name!');
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('limitHits')
       ->addRule(IValidator::INTEGER,'Max rules count (limitHits) has to be positive integer!')
       ->addRule(IValidator::RANGE,'Max rules count (limitHits) has to be positive integer!',[1,null]);
-    //kontrola strukturovaných vstupů
-    $inputData=$this->input->getData();
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('IMs')
       ->addRule(IValidator::CALLBACK,'You have to input interest measure thresholds!',function($value){
         return count($value)>0;
       });
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('consequent')
       ->addRule(IValidator::CALLBACK,'You have to input the structure of consequent!',function($value){
         return (count($value)>0);
@@ -521,12 +519,6 @@ class TasksPresenter extends BaseResourcePresenter {
 
 
   #region injections
-  /**
-   * @param DatabasesFacade $databasesFacade
-   */
-  public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
-    $this->databasesFacade=$databasesFacade;
-  }
   /**
    * @param XmlSerializersFactory $xmlSerializersFactory
    */

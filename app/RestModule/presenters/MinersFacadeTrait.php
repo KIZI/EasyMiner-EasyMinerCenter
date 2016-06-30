@@ -12,13 +12,13 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
  * @author Stanislav Vojíř
  * @package EasyMinerCenter\RestModule\Presenters
  *
+ * @property MinersFacade $minersFacade
  * @method User getCurrentUser()
  * @method error($message = null, $code = 404)
  */
 trait MinersFacadeTrait {
   /** @var  MinersFacade $minersFacade */
   protected $minersFacade;
-
 
   /**
    * Metoda pro nalezení příslušného mineru s kontrolou přístupu

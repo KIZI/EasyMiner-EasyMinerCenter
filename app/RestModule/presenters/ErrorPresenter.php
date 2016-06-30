@@ -5,6 +5,8 @@ use Drahak\Restful\Application\UI\ResourcePresenter;
 
 /**
  * Base API ErrorPresenter - returns error in form of XML or JSON
+ * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
  */
 class ErrorPresenter extends ResourcePresenter {
 

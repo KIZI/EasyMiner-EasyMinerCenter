@@ -98,12 +98,16 @@ class AttributesPresenter extends BaseResourcePresenter {
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('miner')
       ->addRule(IValidator::REQUIRED,'You have to select miner ID!');
-    $this->input->field('columnName')->addRule(IValidator::CALLBACK,'You have to input column name or ID!',function(){
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
+    $this->input->field('columnName')
+      ->addRule(IValidator::CALLBACK,'You have to input column name or ID!',function(){
       $inputData=$this->input->getData();
       return (@$inputData['columnName']!="" || $inputData['column']>0);
     });
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('name')
       ->addRule(IValidator::REQUIRED,'You have to input attribute name!');
     $this->input->field('preprocessing')
@@ -118,12 +122,14 @@ class AttributesPresenter extends BaseResourcePresenter {
         }
         return true;
       });
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('specialPreprocessing')
       ->addRule(IValidator::CALLBACK,'Requested special preprocessing does not exist!',function($value){
         return ($value=="")||in_array($value,Preprocessing::getSpecialTypes());
       });
     $inputData=$this->input->getData();
     if (empty($inputData['specialPreprocessing'])){
+      /** @noinspection PhpMethodParametersCountMismatchInspection */
       $this->input->field('preprocessing')->addRule(IValidator::REQUIRED,'You have to select a preprocessing type or ID!');
     }
   }

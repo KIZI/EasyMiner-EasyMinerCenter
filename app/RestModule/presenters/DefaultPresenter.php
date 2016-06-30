@@ -9,6 +9,7 @@ use Tracy\Debugger;
 /**
  * Class DefaultPresenter - UI presenter pro zprovoznění swagger přístupu k API
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
  */
 class DefaultPresenter extends Presenter{
 

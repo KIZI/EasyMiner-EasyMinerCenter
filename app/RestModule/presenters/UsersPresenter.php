@@ -3,7 +3,6 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
-use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use Drahak\Restful\Resource;
 use Drahak\Restful\Validation\IValidator;
 use Nette\Application\Responses\TextResponse;
