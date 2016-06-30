@@ -23,8 +23,8 @@
     {if !empty($selectedUser->apiKey)}
       <hr />
       <h2>{_'API access'}</h2>
-      <p>{_'For using of REST API, you have to use the following API KEY:'}</p>
-      <p><strong>{$selectedUser->getEncodedApiKey()}</strong></p>
+      <div><label for="apiKey">{_'For using of REST API, you have to use the following API KEY:'}</label></div>
+      <form><input id="apiKey" readonly="readonly" class="apiKey" value="{$selectedUser->getEncodedApiKey()}"/></form>
     {/if}
   </div>
 
