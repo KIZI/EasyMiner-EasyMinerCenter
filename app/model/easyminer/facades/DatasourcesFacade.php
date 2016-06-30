@@ -6,6 +6,7 @@ use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\Data\Databases\DataService\LimitedDatabase;
 use EasyMinerCenter\Model\Data\Databases\DataService\UnlimitedDatabase;
+use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
@@ -55,6 +56,15 @@ class DatasourcesFacade {
   public function getPreferredDbType(){
     //TODO implementovat načtení výchozího typu databáze z konfigurace
     return DbConnection::TYPE_LIMITED;
+  }
+
+  /**
+   * Funkce vracející přístup k databázi s daty konkrétního Datasource
+   * @param Datasource $datasource
+   * @return IDatabase
+   */
+  public function getDatasourceDatabase(Datasource $datasource){
+    return $this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(), $datasource->user);
   }
 
   /**

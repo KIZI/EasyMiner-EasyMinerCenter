@@ -2,10 +2,12 @@
 
 namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\Validation\IValidator;
+use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\CsvSerializer;
 use Nette\Application\BadRequestException;
 use Nette\Application\Responses\TextResponse;
 use Nette\Http\FileUpload;
@@ -81,7 +83,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    *     description="Database type",
    *     required=true,
    *     type="string",
-   *     enum={"mysql","limited","unlimited"},
+   *     enum={"limited","unlimited","mysql"},
    *     in="query"
    *   ),
    *   @SWG\Parameter(
@@ -153,6 +155,8 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     }
 
     //prepare new datasource
+
+    //TODO upload dat...
     /** @var Datasource $datasource */
     $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser('mysql'/*TODO*/,$this->getCurrentUser(),$inputData['type']);
     $this->databasesFacade->openDatabase($datasource->getDbConnection());
@@ -329,13 +333,19 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     if (!$datasource->available){
       $this->error('This datasource is not available!');
     }
-    $this->databasesFacade->openDatabase($datasource->getDbConnection());
+
+    /** @var IDatabase $database */
+    $database=$this->datasourcesFacade->getDatasourceDatabase($datasource);
+    $dbDatasource=$database->getDbDatasource($datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->getDbTable());
+
     $inputData=$this->getInput()->getData();
     $offset=@$inputData['offset'];
     $limit=(@$inputData['limit']>0?$inputData['limit']:10000);
     $separator=(@$inputData['separator']!=''?$inputData['separator']:';');
     $enclosure=(@$inputData['enclosure']!=''?$inputData['enclosure']:'"');
-    $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($datasource->name,$offset,$limit,$separator,$enclosure);
+
+    $csv=CsvSerializer::prepareCsvFromDatabase($database,$dbDatasource,$offset,$limit,$separator,$enclosure);
+
     $httpResponse=$this->getHttpResponse();
     $httpResponse->setContentType('text/csv','UTF-8');
     $this->sendResponse(new TextResponse($csv));
@@ -390,7 +400,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   title="DatasourceBasicInfo",
  *   required={"id","type","name","available"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the datasource"),
- *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"mysql","limited","unlimited"}),
+ *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"limited","unlimited","mysql"}),
  *   @SWG\Property(property="name",type="string",description="Name of the database table"),
  *   @SWG\Property(property="dbDatasourceId",type="integer",description="ID of the datasource on the remote data service"),
  *   @SWG\Property(property="available",type="boolean"),

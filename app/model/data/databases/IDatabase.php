@@ -4,6 +4,8 @@ namespace EasyMinerCenter\Model\Data\Databases;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbField;
+use EasyMinerCenter\Model\Data\Entities\DbValue;
+use EasyMinerCenter\Model\Data\Entities\DbValuesRows;
 
 /**
  * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
@@ -75,4 +77,25 @@ interface IDatabase {
    */
   public function unzipData($data, $compression);
 
+  /**
+   * Funkce vracející hodnoty zvoleného datového sloupce (DbField)
+   *
+   * @param DbField $dbField
+   * @param int $offset
+   * @param int $limit
+   * @return DbValue[]
+   */
+  public function getDbValues(DbField $dbField, $offset=0, $limit=1000);
+
+  /**
+   * Funkce vracející jednotlivé řádky z databáze
+   *
+   * @param DbDatasource $dbDatasource
+   * @param int $offset=0
+   * @param int $limit=1000
+   * @param DbField[]|null $dbFields=null
+   * @return DbValuesRows
+   */
+  public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, $dbFields=null);
+  
 } 

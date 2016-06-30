@@ -6,6 +6,8 @@ use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
+use EasyMinerCenter\Model\Data\Entities\DbValue;
+use EasyMinerCenter\Model\Data\Entities\DbValuesRows;
 use Nette\NotImplementedException;
 use Nette\NotSupportedException;
 use Nette\Utils\Strings;
@@ -600,5 +602,32 @@ class MySQLDatabase implements IDatabase{
    */
   public function unzipData($data, $compression){
     throw  new NotImplementedException();
+  }
+
+  /**
+   * Funkce vracející hodnoty zvoleného datového sloupce (DbField)
+   *
+   * @param DbField $dbField
+   * @param int $offset
+   * @param int $limit
+   * @return DbValue[]
+   */
+  public function getDbValues(DbField $dbField, $offset=0, $limit=1000){
+    // TODO: Implement getDbValues() method.
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Funkce vracející jednotlivé řádky z databáze
+   *
+   * @param DbDatasource $dbDatasource
+   * @param int $offset =0
+   * @param int $limit =1000
+   * @param DbField[]|null $dbFields =null
+   * @return DbValuesRows
+   */
+  public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, $dbFields=null){
+    // TODO: Implement getDbValuesRows() method.
+    throw new NotImplementedException();
   }
 }
