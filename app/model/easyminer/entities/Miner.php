@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @property int|null $minerId = null
  * @property User|null $user = null m:hasOne
  * @property string $name = ''
- * @property string $type m:Enum('lm','r')
+ * @property string $type m:Enum('lm','r','cloud')
  * @property Datasource|null $datasource m:hasOne(datasource_id:) - zdroj původních dat v DB
  * @property Metasource|null $metasource m:hasOne(metasource_id:) - zdroj předzpracovaných dat v DB
  * @property RuleSet|null $ruleSet m:hasOne(rule_set_id:)
@@ -24,6 +24,7 @@ use Nette\Utils\Json;
  * @property \DateTime|null $lastOpened = null
  * @property string $config
  * @property-read Task[] $tasks m:belongsToMany
+ * @property-read string $typeName
  */
 class Miner extends Entity implements IOwnerResource{
   const TYPE_LM     = 'lm';
@@ -31,12 +32,25 @@ class Miner extends Entity implements IOwnerResource{
   const TYPE_R      = 'r';
   const TYPE_R_NAME = 'R';
   const TYPE_CLOUD  = 'cloud';
-  const TYPE_CLOUD_NAME='R/Hive Cloud';
+  const TYPE_CLOUD_NAME='Cloud';
   public static $dbTypeMiners=[
     DbConnection::TYPE_MYSQL=>[self::TYPE_R, self::TYPE_LM],
     DbConnection::TYPE_LIMITED=>[self::TYPE_CLOUD],
     DbConnection::TYPE_UNLIMITED=>[self::TYPE_CLOUD]
   ];
+
+  /**
+   * Funkce vracející název typu konkrétního mineru
+   * @return string
+   */
+  public function getTypeName(){
+    switch($this->type){
+      case self::TYPE_LM: return self::TYPE_LM_NAME;
+      case self::TYPE_R: return self::TYPE_R_NAME;
+      case self::TYPE_CLOUD: return self::TYPE_CLOUD_NAME;
+      default: return '';
+    }
+  }
 
   /**
    * Funkce vracející přehled jednotlivých podporovaných typů minerů

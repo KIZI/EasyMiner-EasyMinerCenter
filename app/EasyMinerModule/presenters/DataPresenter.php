@@ -116,6 +116,7 @@ class DataPresenter extends BasePresenter{
     $this->template->miners=$this->minersFacade->findMinersByUser($currentUser);
     $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
     $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser, true);
+    $this->template->dbTypes=$this->datasourcesFacade->getDbTypes(true);
   }
 
   /**

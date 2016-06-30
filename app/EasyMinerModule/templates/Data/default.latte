@@ -29,7 +29,11 @@
         <h2>{_'Open existing EasyMiner'}</h2>
         <div class="actionsDiv bigButtons">
           {foreach $miners as $miner}
-            <a href="{link Data:openMiner id=>$miner->minerId}" class="existingMiner">{$miner->name}</a>
+            {var dbType = $miner->datasource->type}
+            {if !empty($dbTypes[$dbType])}{dump $dbTypes[$dbType]}{/if}
+            <a href="{link Data:openMiner id=>$miner->minerId}" class="existingMiner">{$miner->name}
+              <span class="details">{$miner->getTypeName()} - {isset($dbTypes[$dbType])?$dbTypes[$dbType]:$dbType} <span class="right">{if !empty($miner->lastOpened)}{$miner->lastOpened|date:'d.m.Y H:i:s'}{else}{$miner->created|date:'d.m.Y H:i:s'}{/if}</span></span>
+            </a>
           {/foreach}
         </div>
       </div>

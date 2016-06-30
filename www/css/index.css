@@ -536,6 +536,22 @@ div.bigButtons a:focus {
   border: 1px solid #314e64;
   text-decoration: none;
 }
+div.bigButtons a span.details {
+  margin-top: 1px;
+  display: block;
+  font-size: 10px;
+  font-weight: normal;
+  color: #dfdfdf;
+  position: relative;
+}
+div.bigButtons a span.details span.right {
+  display: block;
+  float: right;
+  visibility: hidden;
+}
+div.bigButtons a:hover span.details span.right {
+  visibility: visible;
+}
 body > header {
   background: url("../images/bg-header.png") repeat-x scroll bottom #075783;
   height: 100px;
