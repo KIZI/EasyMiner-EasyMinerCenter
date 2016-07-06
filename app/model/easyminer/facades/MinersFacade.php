@@ -210,5 +210,10 @@ class MinersFacade {
     }
     return $resultArr;
   }
+/*FIXME
+  public function prepareAttribute(Miner $miner, Attribute $attribute){
+    //TODO implementovat...
 
+  }
+*/
 }

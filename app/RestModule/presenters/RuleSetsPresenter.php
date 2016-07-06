@@ -152,11 +152,13 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     public function validateCreate() {
       /** @var IField $fieldName */
       $fieldName=$this->input->field('name');
+      /** @noinspection PhpMethodParametersCountMismatchInspection */
       $fieldName
         ->addRule(IValidator::MIN_LENGTH,'Minimal length of name is  %d characters!',3)
         ->addRule(IValidator::MAX_LENGTH,'Maximal length of name is  %d characters!',100)
         ->addRule(IValidator::REQUIRED,'Name is required!');
       if ($user=$this->getCurrentUser()){
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $fieldName->addRule(IValidator::CALLBACK,'RuleSet with this name already exists!',function($value)use($user){
           try{
             $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,null);
@@ -166,6 +168,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
           }
         });
       }
+      /** @noinspection PhpMethodParametersCountMismatchInspection */
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
     }
     #endregion actionCreate
@@ -231,11 +234,13 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      */
     public function validateUpdate($id){
       $fieldName=$this->input->field('name');
+      /** @noinspection PhpMethodParametersCountMismatchInspection */
       $fieldName
         ->addRule(IValidator::MIN_LENGTH,'Minimal length of name is  %d characters!',3)
         ->addRule(IValidator::MAX_LENGTH,'Maximal length of name is  %d characters!',100)
         ->addRule(IValidator::REQUIRED,'Name is required!');
       if ($user=$this->getCurrentUser()){
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $fieldName->addRule(IValidator::CALLBACK,'RuleSet with this name already exists!',function($value)use($user,$id){
           try{
             $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,$id);
@@ -245,6 +250,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
           }
         });
       }
+      /** @noinspection PhpMethodParametersCountMismatchInspection */
       $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
     }
     #endregion actionUpdate
@@ -337,7 +343,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      * )
      */
     public function actionReadRules($id,$rel=""){
-      if ($rel="all"){$rel="";}else{$rel=Strings::lower($rel);}
+      if ($rel=="all"){$rel="";}else{$rel=Strings::lower($rel);}
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
       //připravení výstupu

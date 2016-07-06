@@ -110,6 +110,7 @@ class AttributesPresenter extends BaseResourcePresenter {
     /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('name')
       ->addRule(IValidator::REQUIRED,'You have to input attribute name!');
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('preprocessing')
       ->addRule(IValidator::CALLBACK,'Requested preprocessing was not found!',function($value){
         if ($value>0){
