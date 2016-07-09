@@ -1,7 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\Model\Scoring;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use Nette\ArgumentOutOfRangeException;
 use Nette\NotImplementedException;
@@ -14,19 +14,19 @@ use Nette\NotImplementedException;
 class ScorerDriverFactory {
   /** @var  array $params */
   private $params;
-  /** @var  DatabasesFacade $databasesFacade */
-  private $databasesFacade;
+  /** @var  DatabaseFactory $databaseFactory*/
+  private $databaseFactory;
   /** @var XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
 
   /**
    * @param array $params
-   * @param DatabasesFacade $databasesFacade
+   * @param DatabaseFactory $databaseFactory
    * @param XmlSerializersFactory $xmlSerializersFactory
    */
-  public function __construct($params, DatabasesFacade $databasesFacade, XmlSerializersFactory $xmlSerializersFactory) {
+  public function __construct($params, DatabaseFactory $databaseFactory, XmlSerializersFactory $xmlSerializersFactory) {
     $this->params=$params;
-    $this->databasesFacade=$databasesFacade;
+    $this->databaseFactory=$databaseFactory;
     $this->xmlSerializersFactory=$xmlSerializersFactory;
   }
 
@@ -43,7 +43,7 @@ class ScorerDriverFactory {
     }
     $driverClass='\\'.$this->params['driver_'.$scorerType]['class'];
     /** @var IScorerDriver $result */
-    $result=new $driverClass($driverConfigParams['server'], $this->databasesFacade, $this->xmlSerializersFactory,$driverConfigParams);
+    $result=new $driverClass($driverConfigParams['server'], $this->databaseFactory, $this->xmlSerializersFactory,$driverConfigParams);
     return $result;
   }
 
