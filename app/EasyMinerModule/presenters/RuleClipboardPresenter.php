@@ -100,13 +100,15 @@ class RuleClipboardPresenter  extends BasePresenter{
 
   /**
    * Akce pro přidání pravidla do rule clipboard
+   * @param int $id
    * @param int $miner
    * @param string $task
    * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    * @throws ForbiddenRequestException
    */
-  public function actionAddRule($miner,$task,$rules){
-    $resultRules=$this->changeRulesClipboardState($miner,$task,$rules,true);
+  public function actionAddRule($id,$miner,$task,$rules){
+    //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
+    $resultRules=$this->changeRulesClipboardState($id,$miner,$task,$rules,true);
     $result=array();
     if (!empty($resultRules)){
       foreach($resultRules as $rule){
@@ -189,8 +191,9 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @param string $task
    * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    */
-  public function actionRemoveRule($miner,$task,$rules){
-    $resultRules=$this->changeRulesClipboardState($miner,$task,$rules,false);
+  public function actionRemoveRule($id,$miner,$task,$rules){
+    //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
+    $resultRules=$this->changeRulesClipboardState($id,$miner,$task,$rules,false);
     $result=array();
     if (!empty($resultRules)){
       foreach($resultRules as $rule){
