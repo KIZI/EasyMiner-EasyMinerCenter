@@ -1,6 +1,6 @@
 <?php
 namespace EasyMinerCenter\Model\Scoring;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
@@ -15,11 +15,11 @@ interface IScorerDriver {
 
   /**
    * @param $serverUrl
-   * @param DatabasesFacade $databasesFacade
+   * @param DatabaseFactory $databaseFactory
    * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array|null $params=null
    */
-  public function __construct($serverUrl, DatabasesFacade $databasesFacade, XmlSerializersFactory $xmlSerializersFactory, $params=null);
+  public function __construct($serverUrl, DatabaseFactory $databaseFactory, XmlSerializersFactory $xmlSerializersFactory, $params=null);
 
   /**
    * Funkce pro evaluaci pravidel nalezených v rámci konkrétní úlohy

@@ -1,7 +1,7 @@
 <?php
 namespace EasyMinerCenter\Model\Scoring\EasyMinerScorer;
 
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
@@ -19,8 +19,8 @@ use Nette\Utils\Json;
 class EasyMinerScorer implements IScorerDriver{
   /** @var  string $serverUrl */
   private $serverUrl;
-  /** @var DatabasesFacade $databasesFacade */
-  private $databasesFacade;
+  /** @var DatabaseFactory $databaseFactory */
+  private $databaseFactory;
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
   /** @var array|null $params - pole připravené pro pracovní parametry tohoto driveru */
@@ -30,13 +30,13 @@ class EasyMinerScorer implements IScorerDriver{
 
   /**
    * @param string $serverUrl - adresa koncového uzlu API, které je možné použít
-   * @param DatabasesFacade $databasesFacade
+   * @param DatabaseFactory $databaseFactory
    * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array|null $params = null
    */
-  public function __construct($serverUrl, DatabasesFacade $databasesFacade, XmlSerializersFactory $xmlSerializersFactory, $params=null){
+  public function __construct($serverUrl, DatabaseFactory $databaseFactory, XmlSerializersFactory $xmlSerializersFactory, $params=null){
     $this->serverUrl=trim($serverUrl,'/');
-    $this->databasesFacade=$databasesFacade;
+    $this->databaseFactory=$databaseFactory;
     $this->xmlSerializersFactory=$xmlSerializersFactory;
     $this->params=$params;
   }
@@ -66,9 +66,10 @@ class EasyMinerScorer implements IScorerDriver{
     #endregion sestavení PMML a následné vytvoření scoreru
 
     #region postupné posílání řádků z testovací DB tabulky
-    $dbTable=$testingDatasource->dbTable;
-    $this->databasesFacade->openDatabase($testingDatasource->getDbConnection());
-    $dbRowsCount=$this->databasesFacade->getRowsCount($dbTable);
+    $database=$this->databaseFactory->getDatabaseInstance($testingDatasource->getDbConnection(),$task->miner->user);
+    $dbDatasource=$database->getDbDatasource($testingDatasource->dbDatasourceId>0?$testingDatasource->dbDatasourceId:$testingDatasource->dbTable);
+
+    $dbRowsCount=$dbDatasource->size;
     $testedRowsCount=0;
     /** @var ScoringResult[] $partialResults */
     $partialResults=[];
@@ -76,7 +77,8 @@ class EasyMinerScorer implements IScorerDriver{
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
       //připravení JSONu a jeho odeslání
-      $json=$this->databasesFacade->prepareJsonFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST);
+      $dbValuesRows=$database->getDbValuesRows($dbDatasource,$testedRowsCount,self::ROWS_PER_TEST);
+      $json=$dbValuesRows->getRowsAsJson();
       $response=self::curlRequestResponse($url,$json,'',['Content-Type'=>'application/json; charset=utf-8']);
 
       $response=Json::decode($response,Json::FORCE_ARRAY);
@@ -107,8 +109,7 @@ class EasyMinerScorer implements IScorerDriver{
    * @return string
    */
   private function prepareTaskPmml(Task $task){
-    $this->databasesFacade->openDatabase($task->miner->metasource->getDbConnection());
-    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null,$this->databasesFacade);
+    $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null);
     $pmmlSerializer->appendTaskSettings();
     $pmmlSerializer->appendDataDictionary(false);
     $pmmlSerializer->appendTransformationDictionary(false);

@@ -1,11 +1,12 @@
 <?php
 namespace EasyMinerCenter\Model\Scoring\ModelTester;
 
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\CsvSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\Scoring\IScorerDriver;
 use EasyMinerCenter\Model\Scoring\ScoringResult;
@@ -20,8 +21,8 @@ use Nette\NotImplementedException;
 class ModelTesterScorer implements IScorerDriver{
   /** @var  string $serverUrl */
   private $serverUrl;
-  /** @var DatabasesFacade $databasesFacade */
-  private $databasesFacade;
+  /** @var DatabaseFactory $databaseFactory */
+  private $databaseFactory;
   /** @var  LinkGenerator $linkGenerator */
   public $linkGenerator;
 
@@ -31,13 +32,13 @@ class ModelTesterScorer implements IScorerDriver{
 
   /**
    * @param string $serverUrl - adresa koncového uzlu API, které je možné použít
-   * @param DatabasesFacade $databasesFacade
+   * @param DatabaseFactory $databaseFactory
    * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array|null $params = null
    */
-  public function __construct($serverUrl, DatabasesFacade $databasesFacade, XmlSerializersFactory $xmlSerializersFactory, $params=null){
+  public function __construct($serverUrl, DatabaseFactory $databaseFactory, XmlSerializersFactory $xmlSerializersFactory, $params=null){
     $this->serverUrl=trim($serverUrl,'/').'/association-rules/test-files';
-    $this->databasesFacade=$databasesFacade;
+    $this->databaseFactory=$databaseFactory;
     $this->params=$params;
   }
 
@@ -54,16 +55,17 @@ class ModelTesterScorer implements IScorerDriver{
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
     $rulesXml=$associationRulesXmlSerializer->getXml()->asXML();
     file_put_contents($rulesXmlFilePath,$rulesXml);
-    $dbTable=$testingDatasource->dbTable;
 
-    $this->databasesFacade->openDatabase($testingDatasource->getDbConnection());
-    $dbRowsCount=$this->databasesFacade->getRowsCount($dbTable);
+    $database=$this->databaseFactory->getDatabaseInstance($testingDatasource->getDbConnection(),$task->miner->user);
+    $dbDatasource=$database->getDbDatasource($testingDatasource->dbDatasourceId>0?$testingDatasource->dbDatasourceId:$testingDatasource->dbTable);
+
+    $dbRowsCount=$dbDatasource->size;
     $testedRowsCount=0;
     /** @var ScoringResult[] $partialResults */
     $partialResults=[];
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
-      $csv=$this->databasesFacade->prepareCsvFromDatabaseRows($dbTable,$testedRowsCount,self::ROWS_PER_TEST,';','"');
+      $csv=CsvSerializer::prepareCsvFromDatabase($database,$dbDatasource,$testedRowsCount,self::ROWS_PER_TEST,';','"');
 
       $csvFileName=$testingDatasource->datasourceId.'-'.$testedRowsCount.'-'.self::ROWS_PER_TEST.'.csv';
       /** @var string $csvFilePath - cesta k CSV souboru s částí dat */

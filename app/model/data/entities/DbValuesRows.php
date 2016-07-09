@@ -52,4 +52,23 @@ class DbValuesRows{
   public function getValuesRows(){
     return $this->valuesRows;
   }
+
+  /**
+   * Funkce pro sestavení dat z řádků do podoby pole objektů ve formátu JSON
+   * @return array
+   */
+  public function getRowsAsJson(){
+    $fieldNames=$this->getFieldNames();
+    $result=[];
+    if (!empty($this->valuesRows)){
+      foreach($this->valuesRows as $valuesRow){
+        $rowArr=[];
+        foreach($fieldNames as $i=>$fieldName){
+          $rowArr[$fieldName]=@$valuesRow[$i];
+        }
+        $result[]=$rowArr;
+      }
+    }
+    return $result;
+  }
 }
