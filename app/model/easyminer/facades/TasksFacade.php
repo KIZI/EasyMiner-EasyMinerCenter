@@ -134,6 +134,27 @@ class TasksFacade {
   }
 
   /**
+   * Funkce pro připravení úlohy před odesláním mineru
+   * @param Miner $miner
+   * @param int|null $id = null
+   * @return Task
+   */
+  public function prepareTask(Miner $miner, $id=null){
+    try{
+      $task=$this->findTask($id);
+      return $task;
+    }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
+    $task=new Task();
+    $task->taskUuid=uniqid(); //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
+    $task->miner=$miner;
+    $task->type=$miner->type;
+    $task->state=Task::STATE_NEW;
+    $this->saveTask($task);
+
+    return $task;
+  }
+
+  /**
    * Funkce pro připravení úlohy na základě jednoduchého pole s konfigurací (například přes API)
    *
 *@param Miner $miner
