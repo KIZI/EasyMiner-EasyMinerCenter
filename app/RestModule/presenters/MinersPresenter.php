@@ -4,15 +4,14 @@ namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
-use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
-use EasyMinerCenter\Model\EasyMiner\Entities\Format;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use Nette\Application\BadRequestException;
-use Nette\Utils\Strings;
 
 /**
  * Class MinersPresenter - presenter pro práci s jednotlivými minery
@@ -29,6 +28,8 @@ class MinersPresenter extends BaseResourcePresenter{
   private $metaAttributesFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var  MetasourcesFacade $metasourcesFacade */
+  private $metasourcesFacade;
 
   /** @var null|Datasource $datasource */
   private $datasource=null;
@@ -205,15 +206,21 @@ class MinersPresenter extends BaseResourcePresenter{
     $miner->name=$data['name'];
     $miner->type=$data['type'];
     $miner->datasource=$this->datasource;
-    $this->fixMetabaseMappings($this->datasource);
+
     if (!empty($this->ruleSet)){
       $miner->ruleSet=$this->ruleSet;
     }
     $miner->created=new \DateTime();
-    if ($user=$this->getCurrentUser()){
-      $miner->user=$user;
-    }
+    $miner->user=$this->getCurrentUser();
     $this->minersFacade->saveMiner($miner);
+
+    $metasourceTask=$this->metasourcesFacade->startMinerMetasourceInitialization($miner, $this->minersFacade);
+    while($metasourceTask && $metasourceTask->state!=MetasourceTask::STATE_DONE){
+      $metasourceTask=$this->metasourcesFacade->initializeMinerMetasource($miner, $metasourceTask);
+      usleep(100);
+    }
+
+    $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
     //send response
     $this->actionRead($miner->minerId);
   }
@@ -223,23 +230,29 @@ class MinersPresenter extends BaseResourcePresenter{
    */
   public function validateCreate() {
     $currentUser=$this->getCurrentUser();
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('name')->addRule(IValidator::REQUIRED,'Name is required!');
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('type')
-      ->addRule(IValidator::REQUIRED,'Miner type is required!')
-      ->addRule(IValidator::CALLBACK,'You have to select a configured miner type!',function($value){
-        $minerTypesArr=$this->minersFacade->getAvailableMinerTypes();
-        return isset($minerTypesArr[$value]);
-      });
+      ->addRule(IValidator::REQUIRED,'Miner type is required!');
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('datasourceId')
       ->addRule(IValidator::REQUIRED,'Datasource ID is required!')
       ->addRule(IValidator::CALLBACK,'Requested datasource was not found, or is not accessible!', function($value)use($currentUser){
           try{
             $this->datasource=$this->datasourcesFacade->findDatasource($value);
-            return $this->datasourcesFacade->checkDatasourceAccess($this->datasource,$currentUser);
+            if ($this->datasourcesFacade->checkDatasourceAccess($this->datasource,$currentUser)){
+              //kontrola dostupnosti kompatibilního mineru s vybraným datasource
+              $availableMinerTypes = $this->minersFacade->getAvailableMinerTypes($this->datasource->type);
+              return (!empty($availableMinerTypes[$this->getInput()->getData()['type']]));
+            }else{
+              return false;
+            }
           }catch (\Exception $e){
             return false;
           }
         });
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('ruleSetId')
       ->addRule(IValidator::CALLBACK,'Requested rule set was not found, or is not accessible!',function($value)use($currentUser){
         if (empty($value)){return true;}
@@ -253,44 +266,6 @@ class MinersPresenter extends BaseResourcePresenter{
       });
   }
   #endregion actionCreate
-
-
-  /**
-   * Funkce pro zajištění automatického vytvoření formátů pro nahraná data
-   * @param Datasource $datasource
-   * TODO refaktorovat (zároveň je tento kód v DataPresenteru v EasyMiner modulu)
-   */
-  private function fixMetabaseMappings(Datasource $datasource) {
-    $currentUserId=$this->getCurrentUser()->userId;
-    //kontrola, jestli je daný datový zdroj namapován na knowledge base
-    if (!$this->datasourcesFacade->checkDatasourceColumnsFormatsMappings($datasource,true)){
-      $this->databasesFacade->openDatabase($datasource->getDbConnection());
-      foreach ($datasource->datasourceColumns as $datasourceColumn){
-        if (empty($datasourceColumn->format)){
-          //automatické vytvoření formátu
-          $metaAttribute=$this->metaAttributesFacade->findOrCreateMetaAttributeWithName(Strings::lower($datasourceColumn->name));
-          $existingFormats=$this->metaAttributesFacade->findFormatsForUser($metaAttribute,$currentUserId);
-          $existingFormatNames=[];
-          if (!empty($existingFormats)){
-            foreach ($existingFormats as $format){
-              $existingFormatNames[]=$format->name;
-            }
-          }
-          $basicFormatName=str_replace('-','_',Strings::webalize($datasource->name));
-          $i=1;
-          do{
-            $formatName=$basicFormatName.($i>1?'_'.$i:'');
-            $i++;
-          }while(in_array($formatName,$existingFormatNames));
-          $datasourceColumnValuesStatistic=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
-          $formatType=($datasourceColumn->type==DatasourceColumn::TYPE_STRING?Format::DATATYPE_VALUES:Format::DATATYPE_INTERVAL);
-          $format=$this->metaAttributesFacade->createFormatFromDatasourceColumn($metaAttribute,$formatName,$datasourceColumn,$datasourceColumnValuesStatistic,$formatType,false,$currentUserId);
-          $datasourceColumn->format=$format;
-          $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
-        }
-      }
-    }
-  }
 
   #region injections
   /**
@@ -316,6 +291,12 @@ class MinersPresenter extends BaseResourcePresenter{
    */
   public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
     $this->databasesFacade=$databasesFacade;
+  }
+  /**
+   * @param MetasourcesFacade $metasourcesFacade
+   */
+  public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade){
+    $this->metasourcesFacade=$metasourcesFacade;
   }
   #endregion injections
 }
