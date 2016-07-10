@@ -1,9 +1,12 @@
 <?php
 namespace EasyMinerCenter\Model\Data\Facades;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
+use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
 use EasyMinerCenter\Model\Data\Files\ZipImport;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use Nette\Application\ApplicationException;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Finder;
@@ -16,10 +19,10 @@ use Nette\Utils\Strings;
 class FileImportsFacade {
   /** @var  string $dataDirectory */
   private $dataDirectory;
-  /** @var DatabasesFacade $databasesFacade */
-  private $databasesFacade;
   /** @var bool $tryDirectFileImport */
   private $tryDirectFileImport=[];
+  /** @var  DatabaseFactory $databaseFactory */
+  private $databaseFactory;
 
   const FILE_TYPE_ZIP='Zip';
   const FILE_TYPE_CSV='Csv';
@@ -27,9 +30,15 @@ class FileImportsFacade {
   /*počet řádků, které mají být analyzovány pro určení datových typů v CSV souboru*/
   const CSV_ANALYZE_ROWS=100;
 
-  public function __construct($dataDirectory, $databases, DatabasesFacade $databasesFacade){
+  /**
+   * FileImportsFacade constructor.
+   * @param string $dataDirectory
+   * @param array $databases
+   * @param DatabaseFactory $databaseFactory
+   */
+  public function __construct($dataDirectory, $databases, DatabaseFactory $databaseFactory){
     $this->dataDirectory=$dataDirectory;
-    $this->databasesFacade=$databasesFacade;
+    $this->databaseFactory=$databaseFactory;
     if (!empty($databases)){
       foreach ($databases as $dbType=>$params){
         if (@$params['allowFileImport']){
@@ -293,6 +302,37 @@ class FileImportsFacade {
   /**
    * Funkce pro import CSV souboru
    * @param string $filename
+   * @param string $dbType
+   * @param User $user
+   * @param string $tableName
+   * @param string $encoding='utf-8'
+   * @param string $delimiter=','
+   * @param string $enclosure='"'
+   * @param string $escapeCharacter='\\'
+   * @param string $nullValue=''
+   * @return DbDatasource
+   * @throws \Exception
+   */
+  public function importCsvFile($filename,$dbType,User $user,$tableName,$encoding='utf-8',$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=''){
+    $columns=$this->getColsInCSV($filename,$delimiter,$enclosure,$escapeCharacter);
+    if (empty($columns)){
+      throw new \Exception('No columns detected!');
+    }
+
+    $dataTypes=[];
+    foreach($columns as $column) {
+      $dataTypes[]=($column->type==DbField::TYPE_NOMINAL?'nominal':'numeric');
+    }
+
+    $database=$this->databaseFactory->getDatabaseInstanceWithDefaultDbConnection($dbType, $user);
+    return $database->importCsvFile($this->getFilePath($filename),$tableName,$encoding,$delimiter,$enclosure,$escapeCharacter,$nullValue,$dataTypes);
+  }
+  
+
+  /**
+   * TODO odstranit - respektive přepracovat pro import v MySQLDatabase.php
+   * Funkce pro import CSV souboru
+   * @param string $filename
    * @param DbConnection $dbConnection
    * @param string $table
    * @param string $encoding
@@ -302,7 +342,7 @@ class FileImportsFacade {
    * @param string|null $nullValue=null
    * @throws ApplicationException
    */
-  public function importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=""){
+  public function OLD_importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=""){
     //připravení parametrů pro DB tabulku
     $this->changeFileEncoding($filename,$encoding);
     $csvColumns=$this->getColsInCSV($filename,$delimiter,$enclosure,$escapeCharacter);

@@ -97,5 +97,20 @@ interface IDatabase {
    * @return DbValuesRows
    */
   public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, $dbFields=null);
+
+  /**
+   * Funkce pro import existujícího CSV souboru do databáze
+   *
+   * @param string $filename
+   * @param string $name
+   * @param string $encoding
+   * @param string $delimiter
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @param string $nullValue
+   * @param string[] $dataTypes
+   * @return DbDatasource
+   */
+  public function importCsvFile($filename, $name, $encoding='utf-8', $delimiter=',', $enclosure='"', $escapeCharacter='\\', $nullValue='', $dataTypes);
   
 } 

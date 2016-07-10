@@ -154,16 +154,12 @@ class DatasourcesPresenter extends BaseResourcePresenter{
       $inputData['nullValue']='';
     }
 
-    //prepare new datasource
-
-    //TODO upload dat...
-    /** @var Datasource $datasource */
-    $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser('mysql'/*TODO*/,$this->getCurrentUser(),$inputData['type']);
-    $this->databasesFacade->openDatabase($datasource->getDbConnection());
-    $inputData['name']=$this->databasesFacade->prepareNewTableName($inputData['name']);
-    $datasource->name=$inputData['name'];
-    $this->fileImportsFacade->importCsvFile($filename,$datasource->getDbConnection(),$inputData['name'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
+    //upload data and prepare datasource
+    $currentUser = $this->getCurrentUser();
+    $dbDatasource=$this->fileImportsFacade->importCsvFile($filename,$inputData['type'],$currentUser,$inputData['name'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
+    $datasource=$this->datasourcesFacade->prepareNewDatasourceFromDbDatasource($dbDatasource,$currentUser);
     $this->datasourcesFacade->saveDatasource($datasource);
+
     //send response
     $this->actionRead($datasource->datasourceId);
   }
@@ -173,15 +169,20 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('type')
       ->addRule(IValidator::REQUIRED,'You have to select database type!');
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('separator')
       ->addRule(IValidator::REQUIRED,'Separator character is required!')
       ->addRule(IValidator::LENGTH,'Separator has to be one character!',[1,1]);
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('encoding')
       ->addRule(IValidator::REQUIRED,'You have to select file encoding!');
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('enclosure')
       ->addRule(IValidator::MAX_LENGTH,'Separator has to be one character!',1);
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('escape')
       ->addRule(IValidator::MAX_LENGTH,'Separator has to be one character!',1);
     if (empty($this->request->files['file'])){
@@ -259,6 +260,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   public function actionList() {
     $this->setXmlMapperElements('datasources','datasource');
     $currentUser=$this->getCurrentUser();
+    $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
     $datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser,true);
     $result=[];
     if (!empty($datasources)){

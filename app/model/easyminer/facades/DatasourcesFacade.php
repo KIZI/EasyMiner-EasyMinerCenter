@@ -237,6 +237,7 @@ class DatasourcesFacade {
     $datasource->name=$dbDatasource->name;
     $datasource->dbDatasourceId=$dbDatasource->id;
     $datasource->user=$user;
+    $datasource->size=$dbDatasource->size;
     return $datasource;
   }
 

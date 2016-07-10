@@ -446,8 +446,25 @@ class MySQLDatabase implements IDatabase{
     return $query->execute();
   }
 
+  /**
+   * Funkce pro import existujícího CSV souboru do databáze
+   *
+   * @param string $filename
+   * @param string $name
+   * @param string $encoding
+   * @param string $delimiter
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @param string $nullValue
+   * @param string[] $dataTypes
+   * @return DbDatasource
+   */
+  public function importCsvFile($filename, $name, $encoding='utf-8', $delimiter=',', $enclosure='"', $escapeCharacter='\\', $nullValue='', $dataTypes){
+    // TODO: Implement importCsvFile() method.
+  }
 
   /**
+   * FIXME opravit...
    * Funkce pro přímý import dat z CSV souboru
    * @param string $csvFileName
    * @param string[] $columnsNames
@@ -458,7 +475,7 @@ class MySQLDatabase implements IDatabase{
    * @param int $offsetRows =0
    * @return bool
    */
-  public function importCsvFile($csvFileName, $columnsNames, $delimiter, $enclosure, $escapeCharacter, $nullValue=null, $offsetRows = 0) {
+  public function importCsvFileXXXX($csvFileName, $columnsNames, $delimiter, $enclosure, $escapeCharacter, $nullValue=null, $offsetRows = 0) {
     $sql='LOAD DATA LOCAL INFILE :fileName INTO TABLE '.$this->tableName;
 
     $sql.=' FIELDS TERMINATED BY :delimiter OPTIONALLY ENCLOSED BY :enclosure ESCAPED BY :escapeChar';

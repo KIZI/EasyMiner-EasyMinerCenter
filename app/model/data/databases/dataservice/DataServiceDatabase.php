@@ -26,6 +26,12 @@ abstract class DataServiceDatabase implements IDatabase {
   /** @var  DbConnection $dbConnection */
   private $dbConnection;
 
+  const UPLOAD_SLOW_DOWN_INTERVAL=500;//interval pro zpomalení uploadu (v milisekundách)
+  const UPLOAD_CHUNK_SIZE=500000;
+  const UPLOAD_CODE_SLOW_DOWN=429;
+  const UPLOAD_CODE_CONTINUE=202;
+  const UPLOAD_CODE_OK=200;
+
   /**
    * Funkce vracející seznam datových zdrojů v DB
    *
@@ -210,6 +216,95 @@ abstract class DataServiceDatabase implements IDatabase {
       throw new DatabaseException();
     }
   }
+
+  /**
+   * Funkce pro import existujícího CSV souboru do databáze
+   *
+   * @param string $filename
+   * @param string $name
+   * @param string $encoding
+   * @param string $delimiter
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @param string $nullValue
+   * @param string[] $dataTypes
+   * @return DbDatasource
+   * @throws DatabaseException
+   */
+  public function importCsvFile($filename, $name, $encoding='utf-8', $delimiter=',', $enclosure='"', $escapeCharacter='\\', $nullValue='', $dataTypes){
+    $file=@fopen($filename, 'r');
+    if (!$file){
+      throw new DatabaseException('File is not readable: '.$filename);
+    }
+
+    $uploadId=$this->startCsvUpload($name, $encoding, $delimiter, $enclosure, $escapeCharacter, $nullValue, $dataTypes);
+    $filePart=fread($file, self::UPLOAD_CHUNK_SIZE);
+    $callsCount=1000;
+    while($callsCount>0){
+      $callsCount--;
+      try{
+        $response=$this->curlRequestResponse($this->getRequestUrl('/upload/'.$uploadId),$filePart,'POST',['Content-Type'=>'text/plain'], $responseCode);
+        switch($responseCode){
+          case self::UPLOAD_CODE_CONTINUE:
+            if(!feof($file)){
+              $filePart=fread($file, self::UPLOAD_CHUNK_SIZE);
+            }else{
+              $filePart='';
+            }
+            break;
+          case self::UPLOAD_CODE_SLOW_DOWN://XXX zkontrolovat, jestli tohle bude fungovat
+            sleep(self::UPLOAD_SLOW_DOWN_INTERVAL);
+            break;
+          case self::UPLOAD_CODE_OK:
+            fclose($file);
+            $responseData=Json::decode($response,Json::FORCE_ARRAY);
+            return new DbDatasource($responseData['id'],$responseData['name'],$responseData['type'],$responseData['size']);
+        }
+      }catch(\Exception $e){
+        throw new DatabaseException('CSV upload failed.',(!empty($responseCode)?$responseCode:0),$e);
+      }
+    }
+    throw new DatabaseException('CSV upload failed.');
+  }
+
+  /**
+   * Funkce pro zahájení uploadu
+   * @param string $name
+   * @param string $encoding
+   * @param string $delimiter
+   * @param string $enclosure
+   * @param string $escapeCharacter
+   * @param string $nullValue
+   * @param string[] $dataTypes
+   * @return string
+   * @throws DatabaseException
+   */
+  private function startCsvUpload($name, $encoding='utf-8', $delimiter=',', $enclosure='"', $escapeCharacter='\\', $nullValue='', $dataTypes){
+    $uploadParams=[
+      'name'=>$name,
+      'mediaType'=>'csv',
+      'dbType'=>static::getDbType(),
+      'separator'=>$delimiter,
+      'encoding'=>$encoding,
+      'quotesChar'=>$enclosure,
+      'escapeChar'=>$escapeCharacter,
+      'locale'=>'en',//TODO tohle by mělo být předáno nějakým parametrem...
+      'nullValues'=>[$nullValue],
+      'dataTypes'=>$dataTypes
+    ];
+
+    try{
+      $uploadId=$this->curlRequestResponse($this->getRequestUrl('/upload/start'),Json::encode($uploadParams),'POST',['Content-Type'=>'application/json;charset=utf-8'], $responseCode);
+      if ($responseCode==self::UPLOAD_CODE_OK){
+        return $uploadId;
+      }else{
+        throw new DatabaseCommunicationException('responseCode: '.$responseCode);
+      }
+    }catch (\Exception $e){
+      throw new DatabaseException();
+    }
+  }
+
 
   /**
    * Konstruktor zajišťující připojení k databázi
