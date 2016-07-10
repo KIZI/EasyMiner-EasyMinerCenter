@@ -3,6 +3,7 @@ namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\InvalidArgumentException;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
@@ -73,21 +74,40 @@ class AttributesPresenter extends BaseResourcePresenter {
       throw new InvalidArgumentException("Datasource columns was not found: ".@$inputData['columnName']);
     }
 
+    //inicializace formátu
+    $format=$datasourceColumn->format;
+    if (!$format){
+      //TODO implementovat podporu automatického mapování
+      $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $this->getCurrentUser());
+      $datasourceColumn->format=$format;
+      $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
+    }
+
     //vytvoření nového atributu
     $attribute=new Attribute();
-    $attribute->name=$this->minersFacade->prepareNewAttributeName($miner,$inputData['name']);
     $attribute->metasource=$miner->metasource;
+    $attribute->datasourceColumn=$datasourceColumn;
+    $attribute->name=$this->minersFacade->prepareNewAttributeName($miner,$inputData['name']);
+    $attribute->type=$attribute->datasourceColumn->type;
+
     if (@$inputData['specialPreprocessing']==Preprocessing::SPECIALTYPE_EACHONE){
       $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($datasourceColumn->format);
       $attribute->preprocessing=$preprocessing;
     }else{
+      throw new \BadMethodCallException('Selected preprocessing type is not supported.');
       //FIXME je nutné nalézt příslušný preprocessing...
-
     }
-    $attribute->datasourceColumn=$datasourceColumn;
-    $this->minersFacade->prepareAttribute($miner,$attribute);
+    $attribute->active=false;
     $this->metasourcesFacade->saveAttribute($attribute);
-    $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
+
+    //inicializace preprocessingu
+    $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
+    while($metasourceTask && $metasourceTask->state!=MetasourceTask::STATE_DONE){
+      $metasourceTask=$this->metasourcesFacade->preprocessAttributes($metasourceTask);
+    }
+
+    $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
+
     $this->setXmlMapperElements('attribute');
     $this->resource=$attribute->getDataArr();
     $this->sendResource();
