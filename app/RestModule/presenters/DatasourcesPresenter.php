@@ -160,6 +160,9 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $datasource=$this->datasourcesFacade->prepareNewDatasourceFromDbDatasource($dbDatasource,$currentUser);
     $this->datasourcesFacade->saveDatasource($datasource);
 
+    //aktualizace informace o datových sloupcích
+    $this->datasourcesFacade->updateDatasourceColumns($datasource,$currentUser);
+
     //send response
     $this->actionRead($datasource->datasourceId);
   }

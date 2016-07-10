@@ -64,6 +64,11 @@ class AttributesPresenter extends BaseResourcePresenter {
     $inputData=$this->input->getData();
     $miner=$this->findMinerWithCheckAccess(@$inputData['miner']);
     $this->minersFacade->checkMinerMetasource($miner);
+
+    $currentUser=$this->getCurrentUser();
+    //aktualizace informace o datových sloupcích
+    $this->datasourcesFacade->updateDatasourceColumns($miner->datasource,$currentUser);
+
     try{
       if (!empty($inputData['column'])){
         $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,@$inputData['column']);
@@ -78,7 +83,7 @@ class AttributesPresenter extends BaseResourcePresenter {
     $format=$datasourceColumn->format;
     if (!$format){
       //TODO implementovat podporu automatického mapování
-      $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $this->getCurrentUser());
+      $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $currentUser);
       $datasourceColumn->format=$format;
       $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
     }
@@ -105,8 +110,11 @@ class AttributesPresenter extends BaseResourcePresenter {
     while($metasourceTask && $metasourceTask->state!=MetasourceTask::STATE_DONE){
       $metasourceTask=$this->metasourcesFacade->preprocessAttributes($metasourceTask);
     }
-
+    //smazání předzpracovávací úlohy
     $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
+
+    //aktualizace seznamu dostupných atributů
+    $this->metasourcesFacade->updateMetasourceAttributes($miner->metasource, $currentUser);
 
     $this->setXmlMapperElements('attribute');
     $this->resource=$attribute->getDataArr();
