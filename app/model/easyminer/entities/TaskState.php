@@ -14,6 +14,8 @@ use Nette\Utils\Strings;
  * @property string|null $resultsUrl
  */
 class TaskState extends Object{
+  /** @var  Task $task */
+  private $task;
   /** @var null|string $state m:Enum(Task::STATE_*) */
   private $state;
   /** @var int|null $rulesCount */
@@ -26,18 +28,35 @@ class TaskState extends Object{
   private $importData;
 
   /**
+   * Construct TaskState
+   * @param Task $task = null
    * @param string|null $state = null
    * @param int|null $rulesCount = null
    * @param string $resultsUrl=null
    * @param string $importState
    * @param array|string $importData
    */
-  public function __construct($state=null,$rulesCount=null,$resultsUrl=null,$importState=null,$importData=[]){
+  public function __construct(Task $task,$state=null,$rulesCount=null,$resultsUrl=null,$importState=null,$importData=[]){
+    $this->task=$task;
     $this->state=$state;
     $this->rulesCount=$rulesCount;
     $this->resultsUrl=$resultsUrl;
     $this->importState=$importState;
     $this->importData=$importData;
+  }
+
+  /**
+   * @return Task
+   */
+  public function getTask(){
+    return $this->task;
+  }
+
+  /**
+   * @param Task $task
+   */
+  public function setTask(Task $task){
+    $this->task=$task;
   }
 
   /**
@@ -121,7 +140,10 @@ class TaskState extends Object{
    * @return array
    */
   public function asArray(){
-    $result=array('state'=>$this->state);
+    $result=[
+      'taskId'=>@$this->task->taskId,
+      'state'=>$this->state
+    ];
 
     if ($this->rulesCount!==null){
       $result['rulesCount']=$this->rulesCount;

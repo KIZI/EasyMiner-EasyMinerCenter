@@ -533,7 +533,7 @@ class CloudDriver implements IMiningDriver{
         if (!empty($body->miner->{'partial-result-url'})){
           $resultUrl='partial-result/'.trim($body->miner->{'task-id'});//přidán trim kvůli chybnému chování minovací služby
         }
-        return new TaskState(Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
+        return new TaskState($this->task,Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
       }
     }elseif($this->task->state==Task::STATE_IN_PROGRESS){
       #region zpracování již probíhající úlohy
@@ -552,7 +552,7 @@ class CloudDriver implements IMiningDriver{
         case 303:
           if ($this->task->rulesCount>0){
             //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
-            return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
+            return new TaskState($this->task,Task::STATE_SOLVED,$this->task->rulesCount);
           }else{
             try{
               $body=simplexml_load_string($response);
@@ -561,30 +561,30 @@ class CloudDriver implements IMiningDriver{
                 $this->task->resultsUrl='complete-result/'.trim($body->miner->{'task-id'});//přidán trim kvůli chybnému chování minovací služby
               }else{
                 //pravděpodobně se tu vyskytla chyba...
-                return new TaskState(Task::STATE_FAILED);
+                return new TaskState($this->task,Task::STATE_FAILED);
               }
               return $this->checkTaskState();
             }catch(\Exception $e){
               Debugger::log($response,ILogger::ERROR);
-              return new TaskState(Task::STATE_FAILED);
+              return new TaskState($this->task,Task::STATE_FAILED);
             }
           }
         case 404:
           if ($this->task->state==Task::STATE_IN_PROGRESS && $this->task->rulesCount>0){
-            return new TaskState(Task::STATE_INTERRUPTED,$this->task->rulesCount);
+            return new TaskState($this->task,Task::STATE_INTERRUPTED,$this->task->rulesCount);
           }else{
-            return new TaskState(Task::STATE_FAILED);
+            return new TaskState($this->task,Task::STATE_FAILED);
           }
         default:
           //pokud byl vrácen jiný stavový kód, kde pravděpodobně o chybu dolovací služby
           Debugger::log($response,ILogger::ERROR);
-          return new TaskState(Task::STATE_FAILED);
+          return new TaskState($this->task,Task::STATE_FAILED);
       }
       #endregion zpracování již probíhající úlohy
     }
     //úloha není v žádném standartním tvaru...
     throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
-    //return new TaskState(Task::STATE_FAILED);
+    //return new TaskState($this->task,Task::STATE_FAILED);
   }
 
 

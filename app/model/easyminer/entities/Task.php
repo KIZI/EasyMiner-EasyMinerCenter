@@ -110,7 +110,7 @@ class Task extends Entity{
    * @return TaskState
    */
   public function getTaskState(){
-    return new TaskState($this->state,$this->rulesCount,$this->resultsUrl,$this->importState,$this->getImportData());
+    return new TaskState($this,$this->state,$this->rulesCount,$this->resultsUrl,$this->importState,$this->getImportData());
   }
 
   /**

@@ -536,7 +536,7 @@ class RDriver implements IMiningDriver{
         if (!empty($body->miner->{'partial-result-url'})){
           $resultUrl='partial-result/'.$body->miner->{'task-id'};
         }
-        return new TaskState(Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
+        return new TaskState($this->task,Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
       }
     }elseif($this->task->state==Task::STATE_IN_PROGRESS){
       #region zpracování již probíhající úlohy
@@ -549,12 +549,12 @@ class RDriver implements IMiningDriver{
           return $this->parseRulesPMML($response);
         case 303:
           //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
-          return new TaskState(Task::STATE_SOLVED,$this->task->rulesCount);
+          return new TaskState($this->task,Task::STATE_SOLVED,$this->task->rulesCount);
         case 404:
           if ($this->task->state==Task::STATE_IN_PROGRESS && $this->task->rulesCount>0){
-            return new TaskState(Task::STATE_INTERRUPTED,$this->task->rulesCount);
+            return new TaskState($this->task,Task::STATE_INTERRUPTED,$this->task->rulesCount);
           }else{
-            return new TaskState(Task::STATE_FAILED);
+            return new TaskState($this->task,Task::STATE_FAILED);
           }
       }
       #endregion zpracování již probíhající úlohy

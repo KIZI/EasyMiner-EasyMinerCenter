@@ -109,7 +109,7 @@ class LMDriver implements IMiningDriver{
       $xml=simplexml_load_string($result);
       $xml->registerXPathNamespace('guha','http://keg.vse.cz/ns/GUHA0.1rev1');
       $guhaAssociationModel=$xml->xpath('//guha:AssociationModel');
-      $taskState=new TaskState();
+      $taskState=new TaskState($this->task);
       if (count($guhaAssociationModel)!=1){throw new \Exception('Task state cannot be parsed!');/*došlo k chybě...*/}else{$guhaAssociationModel=$guhaAssociationModel[0];}
       $taskState->rulesCount=$guhaAssociationModel['numberOfRules'];
       $state=$guhaAssociationModel->xpath('TaskSetting//TaskState');
