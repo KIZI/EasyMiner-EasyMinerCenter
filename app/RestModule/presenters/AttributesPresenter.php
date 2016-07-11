@@ -113,9 +113,6 @@ class AttributesPresenter extends BaseResourcePresenter {
     //smazání předzpracovávací úlohy
     $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
 
-    //aktualizace seznamu dostupných atributů
-    $this->metasourcesFacade->updateMetasourceAttributes($miner->metasource, $currentUser);
-
     $this->setXmlMapperElements('attribute');
     $this->resource=$attribute->getDataArr();
     $this->sendResource();
