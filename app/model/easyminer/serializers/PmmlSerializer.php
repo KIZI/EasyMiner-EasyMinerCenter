@@ -133,6 +133,9 @@ class PmmlSerializer{
         $this->addExtensionElement($associationRuleXml,'b',$ruleXmlData['b'],null,false);
         $this->addExtensionElement($associationRuleXml,'c',$ruleXmlData['c'],null,false);
         $this->addExtensionElement($associationRuleXml,'d',$ruleXmlData['d'],null,false);
+        if (isset($ruleXmlData['marked'])){
+          $this->addExtensionElement($associationRuleXml,'mark',$ruleXmlData['marked']);
+        }
         unset($ruleXmlData);
       }
     }
@@ -172,6 +175,9 @@ class PmmlSerializer{
     $ruleXmlData['b']=$rule->b;
     $ruleXmlData['c']=$rule->c;
     $ruleXmlData['d']=$rule->d;
+    if($rule->inRuleClipboard){
+      $ruleXmlData['marked']='interesting';
+    }
     $this->rulesXmlDataArr[]=$ruleXmlData;
   }
 
