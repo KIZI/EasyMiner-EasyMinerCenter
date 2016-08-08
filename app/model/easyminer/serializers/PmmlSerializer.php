@@ -88,7 +88,7 @@ class PmmlSerializer{
   /**
    * Funkce pro připojení kompletního modelu asociačních pravidel do PMML
    */
-  protected function appendRules(){
+  public function appendRules(){
     /** @var \SimpleXMLElement $associationModel*/
     $this->associationModelXml=$this->pmml->AssociationModel;
     $this->associationModelXml['numberOfTransactions']=$this->miner->metasource->size;
@@ -256,6 +256,13 @@ class PmmlSerializer{
       </MiningSchema>
     </AssociationModel>
 </PMML>');
+  }
+
+  /**
+   * @return \SimpleXMLElement
+   */
+  public function getPmml(){
+    return $this->pmml;
   }
 
 }

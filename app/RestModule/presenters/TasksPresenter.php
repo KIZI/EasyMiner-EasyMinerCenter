@@ -46,6 +46,15 @@ class TasksPresenter extends BaseResourcePresenter {
    *     type="integer",
    *     in="path"
    *   ),
+   *   @SWG\Parameter(
+   *     name="type",
+   *     description="PMML type",
+   *     required=false,
+   *     type="string",
+   *     in="query",
+   *     default="guha",
+   *     enum={"guha","associationmodel"}
+   *   ),
    *   @SWG\Response(
    *     response=200,
    *     description="Task PMML",
@@ -61,17 +70,33 @@ class TasksPresenter extends BaseResourcePresenter {
     if ($task->state!=Task::STATE_SOLVED){
       throw new InvalidStateException("Task has not been solved!");
     }
+    $inputData=$this->getInput()->getData();
+    if (!empty($inputData['type']) && strtolower($inputData['type'])=='associationmodel'){
+      //serializace standartního PMML
+      $pmml=$this->prepareTaskARPmml($task);
+    }else{
+      //serializace GUHA PMML
+      $pmml=$this->prepareTaskGuhaPmml($task);
+    }
 
-    $pmml=$this->prepareTaskPmml($task);
     $this->sendXmlResponse($pmml);
   }
 
   /**
    * @param Task $task
+   * @return \SimpleXMLElement
+   */
+  private function prepareTaskARPmml(Task $task){
+    $pmmlSerializer=$this->xmlSerializersFactory->createPmmlSerializer($task);
+    $pmmlSerializer->appendRules();
+    return $pmmlSerializer->getPmml();
+  }
+  /**
+   * @param Task $task
    * @param bool $includeFrequencies=true
    * @return \SimpleXMLElement
    */
-  private function prepareTaskPmml(Task $task, $includeFrequencies=true){
+  private function prepareTaskGuhaPmml(Task $task, $includeFrequencies=true){
     /** @var Metasource $metasource */
     $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($task,null);
     $pmmlSerializer->appendTaskSettings();
