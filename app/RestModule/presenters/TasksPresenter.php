@@ -11,6 +11,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
+use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Application\BadRequestException;
 
 /**
@@ -27,8 +28,10 @@ class TasksPresenter extends BaseResourcePresenter {
 
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
+  /** @var  XmlTransformator $xmlTransformator */
+  private $xmlTransformator;
 
-  #region actionReadPmml
+  #region actionReadPmml,actionReadHtml
   /**
    * Akce vracející PMML data konkrétní úlohy
    * @param int $id
@@ -80,6 +83,44 @@ class TasksPresenter extends BaseResourcePresenter {
     }
 
     $this->sendXmlResponse($pmml);
+  }
+
+  /**
+   * Akce vracející HTML podobu dat konkrétní úlohy
+   * @param int $id
+   * @throws BadRequestException
+   * @SWG\Get(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}/html",
+   *   summary="Get HTML export of the task",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Task ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Task HTML details",
+   *     @SWG\Schema(type="xml")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found."),
+   *   @SWG\Response(response=500, description="Task has not been solved.")
+   * )
+   */
+  public function actionReadHtml($id){
+    $task=$this->findTaskWithCheckAccess($id);
+
+    if ($task->state!=Task::STATE_SOLVED){
+      throw new InvalidStateException("Task has not been solved!");
+    }
+
+    //serializace GUHA PMML
+    $pmml=$this->prepareTaskGuhaPmml($task);
+    $this->sendHtmlResponse($this->template->content=$this->xmlTransformator->transformToHtml($pmml));
   }
 
   /**
@@ -549,6 +590,14 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function injectXmlSerializersFactory(XmlSerializersFactory $xmlSerializersFactory) {
     $this->xmlSerializersFactory=$xmlSerializersFactory;
+  }
+  /**
+   * @param XmlTransformator $xmlTransformator
+   */
+  public function injectXmlTransformator(XmlTransformator $xmlTransformator){
+    $this->xmlTransformator=$xmlTransformator;
+    //nastaven basePath
+    $this->xmlTransformator->setBasePath($this->template->basePath);
   }
   #endregion injections
 }

@@ -146,6 +146,16 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   }
 
   /**
+   * Funkce pro odeslání HTML odpovědi
+   * @param string $text
+   */
+  protected function sendHtmlResponse($text) {
+    $httpResponse=$this->getHttpResponse();
+    $httpResponse->setContentType('text/html','UTF-8');
+    $this->sendResponse(new TextResponse($text));
+  }
+
+  /**
    * Funkce pro nastavení specifikace XML elementů
    * @param string $rootElement
    * @param string $itemElement
