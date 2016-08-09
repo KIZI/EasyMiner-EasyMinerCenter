@@ -51,9 +51,9 @@ class EasyMinerScorer implements IScorerDriver{
     #region sestavení PMML a následné vytvoření scoreru
     $pmml=$this->prepareTaskPmml($task);
     $url=$this->serverUrl.'/scorer';
-
     try{
       $response=self::curlRequestResponse($url,$pmml,'',['Content-Type'=>'application/xml; charset=utf-8']);
+
       $response=Json::decode($response,Json::FORCE_ARRAY);
       if (@$response['code']==201 && !empty($response['id'])){
         $scorerId=$response['id'];
@@ -78,7 +78,7 @@ class EasyMinerScorer implements IScorerDriver{
     while($testedRowsCount<$dbRowsCount){
       //připravení JSONu a jeho odeslání
       $dbValuesRows=$database->getDbValuesRows($dbDatasource,$testedRowsCount,self::ROWS_PER_TEST);
-      $json=$dbValuesRows->getRowsAsJson();
+      $json=Json::encode($dbValuesRows->getRowsAsArray());
       $response=self::curlRequestResponse($url,$json,'',['Content-Type'=>'application/json; charset=utf-8']);
 
       $response=Json::decode($response,Json::FORCE_ARRAY);
