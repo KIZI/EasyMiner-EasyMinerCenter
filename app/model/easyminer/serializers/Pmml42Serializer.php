@@ -98,6 +98,7 @@ class Pmml42Serializer{
     $this->associationModelXml['numberOfTransactions']=$this->miner->metasource->size;
 
     $this->appendTaskSettings();
+    $this->appendMiningSchema();
 
     $this->serializedRuleAttributesArr=[];
     $this->cedentsXmlDataArr=[];
@@ -255,12 +256,7 @@ class Pmml42Serializer{
       <DataField name="item" optype="categorical" dataType="string"/>
     </DataDictionary>
     <TransformationDictionary />
-    <AssociationModel functionName="associationRules">
-      <MiningSchema>
-        <MiningField name="transaction" usageType="group"/>
-        <MiningField name="item" usageType="active"/>
-      </MiningSchema>
-    </AssociationModel>
+    <AssociationModel functionName="associationRules" />
 </PMML>');
   }
 
@@ -269,6 +265,20 @@ class Pmml42Serializer{
    */
   public function getPmml(){
     return $this->pmml;
+  }
+
+  /**
+   * Funkce pro připojení elementu MiningSchema
+   */
+  private function appendMiningSchema(){
+    /** @var \SimpleXMLElement $miningSchemaXml */
+    $miningSchemaXml=$this->pmml->AssociationModel->addChild('MiningSchema');
+    $miningField=$miningSchemaXml->addChild('MiningField');
+    $miningField->addAttribute('name','transaction');
+    $miningField->addAttribute('usageType','group');
+    $miningField=$miningSchemaXml->addChild('MiningField');
+    $miningField->addAttribute('name','item');
+    $miningField->addAttribute('usageType','active');
   }
 
 }

@@ -51,7 +51,7 @@ class AssociationModelTaskSettingsSerializer{
     $associationModelXml=$this->pmml->AssociationModel;
 
     /** @var \SimpleXMLElement $taskSettingXml */
-    $taskSettingXml=$associationModelXml->MiningSchema->addChild('Extension');
+    $taskSettingXml=$associationModelXml->addChild('Extension');
     $taskSettingXml->addAttribute('name','TaskSetting');
     $antecedentSettingXml=$taskSettingXml->addChild('AntecedentSetting');
     $consequentSettingXml=$taskSettingXml->addChild('ConsequentSetting');

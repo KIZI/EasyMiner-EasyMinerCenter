@@ -289,6 +289,9 @@ trait PmmlSerializerTrait{
     }
   }
 
+  /**
+   *  @param bool $includeMiningFields = false - pokud je true, budou doplněny také elementy MiningField
+   */
   protected function appendAssociationModelTaskSettings(){
     $taskSettingsSerializer=new AssociationModelTaskSettingsSerializer($this->pmml);
     /** @var Task $task */

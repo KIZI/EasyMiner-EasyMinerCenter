@@ -18,7 +18,6 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
  */
 class PmmlSerializer{
   use PmmlSerializerTrait{
-    appendTransformationDictionary as private traitAppendTransformationDictionary;
     appendAssociationModelTaskSettings as private appendTaskSettings;
   }
 
@@ -76,21 +75,6 @@ class PmmlSerializer{
     $this->preprocessingFactory=$preprocessingFactory;
   }
 
-
-  public function appendTransformationDictionary($includeFrequencies=true){
-    $this->traitAppendTransformationDictionary($includeFrequencies);
-    $transformationDictionary=$this->pmml->TransformationDictionary;
-    /** @var \SimpleXMLElement $miningSchema */
-    $miningSchema=$this->pmml->AssociationModel->MiningSchema;
-    if (count($transformationDictionary->DerivedField)>0){
-      foreach($transformationDictionary->DerivedField as $derivedField){
-        $miningField=$miningSchema->addChild('MiningField');
-        $miningField->addAttribute('name',(string)$derivedField['name']);
-        $miningField->addAttribute('usageType','active');
-      }
-    }
-  }
-
   /**
    * Funkce pro připojení informace o datasetu
    * @param \SimpleXMLElement|null $datasetExtension
@@ -112,6 +96,7 @@ class PmmlSerializer{
     $this->associationModelXml['numberOfTransactions']=$this->miner->metasource->size;
 
     $this->appendTaskSettings();
+    $this->appendMiningSchema();
 
     $this->serializedRuleAttributesArr=[];
     $this->cedentsXmlDataArr=[];
@@ -254,9 +239,7 @@ class PmmlSerializer{
     </Header>
     <DataDictionary />
     <TransformationDictionary />
-    <AssociationModel functionName="associationRules">
-      <MiningSchema/>
-    </AssociationModel>
+    <AssociationModel functionName="associationRules" />
 </PMML>');
   }
 
@@ -267,4 +250,40 @@ class PmmlSerializer{
     return $this->pmml;
   }
 
+  /**
+   * Funkce pro připojení elementu MiningSchema
+   */
+  private function appendMiningSchema(){
+    /** @var \SimpleXMLElement $associationModelXml */
+    $associationModelXml=$this->pmml->AssociationModel;
+    if (count($associationModelXml->Extension)>0){
+      foreach($associationModelXml->Extension as $extension){
+        if ((string)$extension['name']=='TaskSetting'){
+          $taskSettingXml=$extension;
+          break;
+        }
+      }
+    }
+    $miningSchemaXml=$associationModelXml->addChild('MiningSchema');
+    $fields=[];
+    if (!empty($taskSettingXml)){
+      if (count($taskSettingXml->AntecedentSetting->Item)>0){
+        foreach($taskSettingXml->AntecedentSetting->Item as $item){
+          $fields[(string)$item['field']]=(string)$item['field'];
+        }
+      }
+      if (count($taskSettingXml->ConsequentSetting->Item)>0){
+        foreach($taskSettingXml->ConsequentSetting->Item as $item){
+          $fields[(string)$item['field']]=(string)$item['field'];
+        }
+      }
+    }
+    if (!empty($fields)){
+      foreach($fields as $field){
+        $miningFieldXml=$miningSchemaXml->addChild('MiningField');
+        $miningFieldXml->addAttribute('name',$field);
+        $miningFieldXml->addAttribute('usageType','active');
+      }
+    }
+  }
 }
