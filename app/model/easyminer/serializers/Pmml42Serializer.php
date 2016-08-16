@@ -20,7 +20,7 @@ class Pmml42Serializer{
   use PmmlSerializerTrait{
     appendDataDictionary as private;
     appendTransformationDictionary as private;
-    appendAssociationModelTaskSettings as public appendTaskSettings;
+    appendAssociationModelTaskSettings as private appendTaskSettings;
   }
 
   /** @var DatabaseFactory $databaseFactory */

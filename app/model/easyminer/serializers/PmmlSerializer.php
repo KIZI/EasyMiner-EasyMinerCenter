@@ -19,7 +19,7 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 class PmmlSerializer{
   use PmmlSerializerTrait{
     appendTransformationDictionary as private traitAppendTransformationDictionary;
-    appendAssociationModelTaskSettings as public appendTaskSettings;
+    appendAssociationModelTaskSettings as private appendTaskSettings;
   }
 
   /** @var DatabaseFactory $databaseFactory */
@@ -236,12 +236,6 @@ class PmmlSerializer{
     $itemXml->addAttribute('category',$valueStr);
     $itemXml->addAttribute('value',$ruleAttribute->attribute->name.'='.$valueStr);
   }
-
-  private function appendTaskSettings(){
-    //TODO minimumSupport="" minimumConfidence="" isScorable="true|false"
-  }
-
-
 
   /**
    * Funkce pro připravení základu prázdného PMML dokumentu pro záznam modelu AssociationModel
