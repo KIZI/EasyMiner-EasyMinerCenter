@@ -17,7 +17,11 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
  * @author Stanislav Vojíř
  */
 class Pmml42Serializer{
-  use PmmlSerializerTrait;
+  use PmmlSerializerTrait{
+    appendDataDictionary as private;
+    appendTransformationDictionary as private;
+    appendAssociationModelTaskSettings as public appendTaskSettings;
+  }
 
   /** @var DatabaseFactory $databaseFactory */
   private $databaseFactory;
@@ -92,6 +96,8 @@ class Pmml42Serializer{
     /** @var \SimpleXMLElement $associationModel*/
     $this->associationModelXml=$this->pmml->AssociationModel;
     $this->associationModelXml['numberOfTransactions']=$this->miner->metasource->size;
+
+    $this->appendTaskSettings();
 
     $this->serializedRuleAttributesArr=[];
     $this->cedentsXmlDataArr=[];
@@ -228,12 +234,6 @@ class Pmml42Serializer{
     }
     $itemXml->addAttribute('value',$ruleAttribute->attribute->name.'='.implode(',',$valuesArr));
   }
-
-  private function appendTaskSettings(){
-    //TODO minimumSupport="" minimumConfidence="" isScorable="true|false"
-  }
-
-
 
   /**
    * Funkce pro připravení základu prázdného PMML dokumentu pro záznam modelu AssociationModel

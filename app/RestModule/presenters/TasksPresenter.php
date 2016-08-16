@@ -10,6 +10,8 @@ use EasyMinerCenter\Libs\RequestHelper;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Serializers\Pmml42Serializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\PmmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Application\BadRequestException;
@@ -58,6 +60,15 @@ class TasksPresenter extends BaseResourcePresenter {
    *     default="guha",
    *     enum={"guha","associationmodel","associationmodel-4.2"}
    *   ),
+   *   @SWG\Parameter(
+   *     name="frequencies",
+   *     description="Include frequencies",
+   *     required=false,
+   *     type="string",
+   *     in="query",
+   *     default="yes",
+   *     enum={"yes","no"}
+   *   ),
    *   @SWG\Response(
    *     response=200,
    *     description="Task PMML",
@@ -79,22 +90,23 @@ class TasksPresenter extends BaseResourcePresenter {
     }else{
       $outputType=strtolower($inputData['type']);
     }
+    $includeFrequencies=(!empty($inputData['frequencies'])&&(strtolower($inputData['frequencies'])=='yes'));
 
     //region výběr konkrétního výstupu
     switch($outputType){
       case 'associationmodel':
         //serializace standartního PMML
-        $pmml=$this->prepareTaskARPmml($task);
+        $pmml=$this->prepareTaskARPmml($task,$includeFrequencies,false);
         break;
       case 'associationmodel-4.2':
       case 'associationmodel42':
         //serializace standartního PMML ve verzi 4.2
-        $pmml=$this->prepareTaskARPmml($task,true);
+        $pmml=$this->prepareTaskARPmml($task,$includeFrequencies,true);
         break;
       case 'guha':
       default:
         //serializace GUHA PMML
-        $pmml=$this->prepareTaskGuhaPmml($task);
+        $pmml=$this->prepareTaskGuhaPmml($task,$includeFrequencies);
     }
     //endregion
 
@@ -141,14 +153,19 @@ class TasksPresenter extends BaseResourcePresenter {
 
   /**
    * @param Task $task
-   * @param bool $version42=false
+   * @param bool $includeFrequencies = true
+   * @param bool $version42 = false
    * @return \SimpleXMLElement
    */
-  private function prepareTaskARPmml(Task $task, $version42=false){
+  private function prepareTaskARPmml(Task $task, $includeFrequencies=true, $version42=false){
     if ($version42){
+      /** @var Pmml42Serializer $pmmlSerializer */
       $pmmlSerializer=$this->xmlSerializersFactory->createPmml42Serializer($task);
     }else{
+      /** @var PmmlSerializer $pmmlSerializer */
       $pmmlSerializer=$this->xmlSerializersFactory->createPmmlSerializer($task);
+      $pmmlSerializer->appendDataDictionary($includeFrequencies);
+      $pmmlSerializer->appendTransformationDictionary($includeFrequencies);
     }
     $pmmlSerializer->appendRules();
     return $pmmlSerializer->getPmml();

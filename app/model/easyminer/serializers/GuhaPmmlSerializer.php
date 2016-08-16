@@ -3,18 +3,11 @@
 namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
-use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
-use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
-use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
-use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
-use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
-use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
-use EasyMinerCenter\Model\Preprocessing\IPreprocessingDriver;
 use Nette\Utils\Strings;
 
 /**
@@ -53,13 +46,7 @@ class GuhaPmmlSerializer {
   protected $serializedRuleAttributesArr;
   /** @var  array $connectivesArr pole s překladem spojek pro serializaci */
   protected $connectivesArr;
-  protected $dataTypesTransformationArr=[
-    'int'=>'integer',
-    'float'=>'float',
-    'string'=>'string',
-    'nominal'=>'string',
-    'numeric'=>'float'
-  ];
+
   /**
    * @return \SimpleXMLElement
    */
@@ -166,163 +153,6 @@ class GuhaPmmlSerializer {
   public function appendTaskSettings(){
     $taskSettingsSerializer=new TaskSettingsSerializer($this->pmml,$this->miner->type);
     $this->pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
-  }
-
-  public function appendDataDictionary($includeFrequencies=true){
-    $datasource=$this->miner->datasource;
-    if (empty($datasource->datasourceColumns)){
-      return;
-    }
-    /** @var \SimpleXMLElement $dataDictionaryXml */
-    $dataDictionaryXml=$this->pmml->DataDictionary;
-    if (!empty($dataDictionaryXml[0]['numberOfFields'])){
-      $dataDictionaryXml[0]['numberOfFields']=count($datasource->datasourceColumns);
-    }else{
-      $dataDictionaryXml->addAttribute('numberOfFields',count($datasource->datasourceColumns));
-    }
-    //připojení jednotlivých data fields
-    foreach($datasource->datasourceColumns as $datasourceColumn){
-      $dataFieldXml=$dataDictionaryXml->addChild('DataField');
-      $dataFieldXml->addAttribute('name',$datasourceColumn->name);
-      $dataFieldXml->addAttribute('dataType',$this->dataTypesTransformationArr[$datasourceColumn->type]);
-      if ($datasourceColumn->type==DatasourceColumn::TYPE_STRING){
-        $dataFieldXml->addAttribute('optype','categorical');
-      }else{
-        $dataFieldXml->addAttribute('optype','continuous');
-      }
-
-      if ($includeFrequencies /*TODO*/ && false){
-        //TODO replace databasesFacade
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
-        if ($datasourceColumn->type=DatasourceColumn::TYPE_STRING && !empty($valuesStatistics->valuesArr)){
-          //výčet hodnot
-          foreach($valuesStatistics->valuesArr as $value=>$count){
-            $valueXml=$dataFieldXml->addChild('Value');
-            $valueXml->addAttribute('value',$value);
-            $this->addExtensionElement($valueXml,'Frequency',$count,$value);
-          }
-        }elseif(isset($valuesStatistics->minValue) && isset($valuesStatistics->maxValue)){
-          //interval
-          if ($valuesStatistics->minValue<=$valuesStatistics->maxValue){
-            $this->addExtensionElement($dataFieldXml,'Avg',$valuesStatistics->avgValue,'Avg');
-            $intervalXml=$dataFieldXml->addChild('Interval');
-            $intervalXml->addAttribute('closure','closedClosed');
-            $intervalXml->addAttribute('leftMargin',$valuesStatistics->minValue);
-            $intervalXml->addAttribute('rightMargin',$valuesStatistics->maxValue);
-          }
-        }
-      }
-
-      //XXX TODO serializace hodnot...
-    }
-  }
-
-  /**
-   * Funkce pro serializaci TransformationDictionary
-   * @param bool $includeFrequencies = true
-   */
-  public function appendTransformationDictionary($includeFrequencies=true){
-    $metasource=$this->miner->metasource;
-    /** @var IPreprocessing $preprocessingDriver */
-    $preprocessingDriver=$this->preprocessingFactory->getPreprocessingInstance($this->miner->metasource->getPpConnection(),$this->miner->user);
-    if (empty($metasource->attributes)){return;}
-    /** @var \SimpleXMLElement $transformationDictionaryXml */
-    $transformationDictionaryXml=$this->pmml->TransformationDictionary;
-    foreach($metasource->attributes as $attribute){
-      if (empty($attribute->preprocessing)){continue;}
-      $derivedFieldXml=$transformationDictionaryXml->addChild('DerivedField');
-      $derivedFieldXml->addAttribute('name',$attribute->name);
-      $derivedFieldXml->addAttribute('dataType',$this->dataTypesTransformationArr[$attribute->type]);
-      if ($attribute->type==Attribute::TYPE_STRING){
-        $derivedFieldXml->addAttribute('optype','categorical');
-      }else {
-        $derivedFieldXml->addAttribute('optype', 'continuous');
-      }
-      $datasourceColumn=$attribute->datasourceColumn;
-
-      //serializace preprocessingu
-      $preprocessing=$attribute->preprocessing;
-      if ($preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
-        //serializace eachOne
-        $mapValuesXml=$derivedFieldXml->addChild('MapValues');
-        $mapValuesXml->addAttribute('outputColumn','field');
-        $fieldColumnPairXml=$mapValuesXml->addChild('FieldColumnPair');
-        $fieldColumnPairXml->addAttribute('column','column');
-        $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
-        $inlineTableXml=$mapValuesXml->addChild('InlineTable');
-        //frekvence
-        $ppDataset=$preprocessingDriver->getPpDataset($metasource->ppDatasetId);
-        $ppValues=$preprocessingDriver->getPpValues($ppDataset,$attribute->ppDatasetAttributeId?$attribute->ppDatasetAttributeId:$attribute->name,0,100);//TODO optimalizovat počet hodnot
-        if (!empty($ppValues)){
-          if ($includeFrequencies){
-            foreach($ppValues as $ppValue){
-              $this->addExtensionElement($inlineTableXml,'Frequency',$ppValue->frequency,$ppValue->value,false);
-            }
-          }
-          foreach($ppValues as $ppValue){
-            $rowXml=$inlineTableXml->addChild('row');
-            $rowXml->addChild('column',$ppValue->value);//v původních i finálních datech je stejná hodnota
-            $rowXml->addChild('field',$ppValue->value);
-          }
-        }
-        continue;
-      }
-      if (empty($preprocessing->valuesBins)){continue;}
-      $valuesBins=$preprocessing->valuesBins;
-      if (!empty($valuesBins[0]->intervals)){
-        //serializace discretizace pomocí intervalů
-        $discretizeXml=$derivedFieldXml->addChild('Discretize');
-        $discretizeXml->addAttribute('field',$datasourceColumn->name);
-        //frekvence
-        //TODO replace databasesFacade
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
-        if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
-          foreach($valuesStatistics->valuesArr as $value=>$count){
-            $this->addExtensionElement($discretizeXml,'Frequency',$count,$value);
-          }
-        }
-        foreach($valuesBins as $valuesBin){
-          if (!empty($valuesBin->intervals)) {
-            foreach ($valuesBin->intervals as $interval){
-              if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//vynecháme neobsazené hodnoty
-              $discretizeBinXml = $discretizeXml->addChild('DiscretizeBin');
-              $discretizeBinXml->addAttribute('binValue', $valuesBin->name);
-              $intervalXml=$discretizeBinXml->addChild('Interval');
-              $closure=$interval->leftClosure.Strings::firstUpper($interval->rightClosure);
-              $intervalXml->addAttribute('closure',$closure);
-              $intervalXml->addAttribute('leftMargin',$interval->leftMargin);
-              $intervalXml->addAttribute('rightMargin',$interval->rightMargin);
-            }
-          }
-        }
-      }elseif(!empty($valuesBins[0]->values)){
-        //serializace discretizace pomocí výčtů hodnot
-        $mapValuesXml=$derivedFieldXml->addChild('MapValues');
-        $mapValuesXml->addAttribute('outputColumn','field');
-        $fieldColumnPairXml=$mapValuesXml->addChild('FieldColumnPair');
-        $fieldColumnPairXml->addAttribute('column','column');
-        $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
-        $inlineTableXml=$mapValuesXml->addChild('InlineTable');
-        //frekvence
-        //TODO replace databasesFacade
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
-        if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
-          foreach($valuesStatistics->valuesArr as $value=>$count){
-            $this->addExtensionElement($inlineTableXml,'Frequency',$count,$value);
-          }
-        }
-        foreach($valuesBins as $valuesBin){
-          if (!empty($valuesBin->values)){
-            if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//vynecháme neobsazené hodnoty
-            foreach ($valuesBin->values as $value){
-              $rowXml=$inlineTableXml->addChild('row');
-              $rowXml->addChild('column',$value->value);
-              $rowXml->addChild('field',$valuesBin->name);
-            }
-          }
-        }
-      }
-    }
   }
 
   public function appendRules(){

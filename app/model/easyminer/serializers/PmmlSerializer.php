@@ -17,7 +17,10 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
  * @author Stanislav Vojíř
  */
 class PmmlSerializer{
-  use PmmlSerializerTrait;
+  use PmmlSerializerTrait{
+    appendTransformationDictionary as private traitAppendTransformationDictionary;
+    appendAssociationModelTaskSettings as public appendTaskSettings;
+  }
 
   /** @var DatabaseFactory $databaseFactory */
   private $databaseFactory;
@@ -73,6 +76,21 @@ class PmmlSerializer{
     $this->preprocessingFactory=$preprocessingFactory;
   }
 
+
+  public function appendTransformationDictionary($includeFrequencies=true){
+    $this->traitAppendTransformationDictionary($includeFrequencies);
+    $transformationDictionary=$this->pmml->TransformationDictionary;
+    /** @var \SimpleXMLElement $miningSchema */
+    $miningSchema=$this->pmml->AssociationModel->MiningSchema;
+    if (count($transformationDictionary->DerivedField)>0){
+      foreach($transformationDictionary->DerivedField as $derivedField){
+        $miningField=$miningSchema->addChild('MiningField');
+        $miningField->addAttribute('name',(string)$derivedField['name']);
+        $miningField->addAttribute('usageType','active');
+      }
+    }
+  }
+
   /**
    * Funkce pro připojení informace o datasetu
    * @param \SimpleXMLElement|null $datasetExtension
@@ -92,6 +110,8 @@ class PmmlSerializer{
     /** @var \SimpleXMLElement $associationModel*/
     $this->associationModelXml=$this->pmml->AssociationModel;
     $this->associationModelXml['numberOfTransactions']=$this->miner->metasource->size;
+
+    $this->appendTaskSettings();
 
     $this->serializedRuleAttributesArr=[];
     $this->cedentsXmlDataArr=[];
@@ -204,29 +224,17 @@ class PmmlSerializer{
   private function serializeRuleAttribute(RuleAttribute $ruleAttribute){
     $itemXml=$this->associationModelXml->addChild('Item');
     $itemXml->addAttribute('id','i'.$ruleAttribute->ruleAttributeId);
-    $this->addExtensionElement($itemXml,'field',(string)$ruleAttribute->attribute->name,null,false);
-    $valuesArr=[];
+    $itemXml->addAttribute('field',(string)$ruleAttribute->attribute->name);
+
+    $valueStr='';
     if ($ruleAttribute->valuesBin){
-      if($ruleAttribute->valuesBin->values){
-        foreach($ruleAttribute->valuesBin->values as $value){
-          $value=(string)$value;
-          $valuesArr[]=$value;
-          $this->addExtensionElement($itemXml,'value',$value,null,false);
-        }
-      }
-      if($ruleAttribute->valuesBin->intervals){
-        foreach($ruleAttribute->valuesBin->intervals as $interval){
-          $value=(string)$interval;
-          $valuesArr[]=$value;
-          $this->addExtensionElement($itemXml,'value',$value);
-        }
-      }
+      $valueStr=(string)$ruleAttribute->valuesBin->name;
     }elseif($ruleAttribute->value){
-      $value=(string)$ruleAttribute->value;
-      $valuesArr[]=$value;
-      $this->addExtensionElement($itemXml,'value',$value,null,false);
+      $valueStr=(string)$ruleAttribute->value;
     }
-    $itemXml->addAttribute('value',$ruleAttribute->attribute->name.'='.implode(',',$valuesArr));
+
+    $itemXml->addAttribute('category',$valueStr);
+    $itemXml->addAttribute('value',$ruleAttribute->attribute->name.'='.$valueStr);
   }
 
   private function appendTaskSettings(){
@@ -250,16 +258,10 @@ class PmmlSerializer{
       <Application name="EasyMiner" version=""/>
       <Timestamp></Timestamp>
     </Header>
-    <DataDictionary numberOfFields="2">
-      <DataField name="transaction" optype="categorical" dataType="string"/>
-      <DataField name="item" optype="categorical" dataType="string"/>
-    </DataDictionary>
+    <DataDictionary />
     <TransformationDictionary />
     <AssociationModel functionName="associationRules">
-      <MiningSchema>
-        <MiningField name="transaction" usageType="group"/>
-        <MiningField name="item" usageType="active"/>
-      </MiningSchema>
+      <MiningSchema/>
     </AssociationModel>
 </PMML>');
   }

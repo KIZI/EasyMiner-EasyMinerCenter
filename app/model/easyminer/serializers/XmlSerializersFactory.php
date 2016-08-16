@@ -51,7 +51,7 @@ class XmlSerializersFactory {
   /**
    * @param Task $task
    * @param null $pmml
-   * @return PmmlSerializer
+   * @return PmmlSerializer|Pmml42Serializer
    */
   public function createPmml42Serializer(Task $task, $pmml = null){
     return new Pmml42Serializer($task, $pmml, $this->databaseFactory, $this->preprocessingFactory, $this->appVersion);

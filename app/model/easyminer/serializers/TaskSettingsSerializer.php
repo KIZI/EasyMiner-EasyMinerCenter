@@ -39,9 +39,11 @@ class TaskSettingsSerializer {
 
   #region construct, (get|set)Pmml
   /**
+   * TaskSettingsSerializer constructor.
    * @param \SimpleXMLElement|string|null $pmml
+   * @param string $minerType
    */
-  public function __construct($pmml = null, $minerType=Miner::DEFAULT_TYPE) {/*default miner type...*/
+  public function __construct($pmml = null, $minerType) {
     if (!empty($pmml)){
       $this->setPmml($pmml);
     }
