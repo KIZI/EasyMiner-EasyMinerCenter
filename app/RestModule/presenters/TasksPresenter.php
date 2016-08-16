@@ -56,7 +56,7 @@ class TasksPresenter extends BaseResourcePresenter {
    *     type="string",
    *     in="query",
    *     default="guha",
-   *     enum={"guha","associationmodel"}
+   *     enum={"guha","associationmodel","associationmodel-4.2"}
    *   ),
    *   @SWG\Response(
    *     response=200,
@@ -74,13 +74,29 @@ class TasksPresenter extends BaseResourcePresenter {
       throw new InvalidStateException("Task has not been solved!");
     }
     $inputData=$this->getInput()->getData();
-    if (!empty($inputData['type']) && strtolower($inputData['type'])=='associationmodel'){
-      //serializace standartního PMML
-      $pmml=$this->prepareTaskARPmml($task);
+    if (empty($inputData['type'])){
+      $outputType='guha';
     }else{
-      //serializace GUHA PMML
-      $pmml=$this->prepareTaskGuhaPmml($task);
+      $outputType=strtolower($inputData['type']);
     }
+
+    //region výběr konkrétního výstupu
+    switch($outputType){
+      case 'associationmodel':
+        //serializace standartního PMML
+        $pmml=$this->prepareTaskARPmml($task);
+        break;
+      case 'associationmodel-4.2':
+      case 'associationmodel42':
+        //serializace standartního PMML ve verzi 4.2
+        $pmml=$this->prepareTaskARPmml($task,true);
+        break;
+      case 'guha':
+      default:
+        //serializace GUHA PMML
+        $pmml=$this->prepareTaskGuhaPmml($task);
+    }
+    //endregion
 
     $this->sendXmlResponse($pmml);
   }
@@ -125,10 +141,15 @@ class TasksPresenter extends BaseResourcePresenter {
 
   /**
    * @param Task $task
+   * @param bool $version42=false
    * @return \SimpleXMLElement
    */
-  private function prepareTaskARPmml(Task $task){
-    $pmmlSerializer=$this->xmlSerializersFactory->createPmmlSerializer($task);
+  private function prepareTaskARPmml(Task $task, $version42=false){
+    if ($version42){
+      $pmmlSerializer=$this->xmlSerializersFactory->createPmml42Serializer($task);
+    }else{
+      $pmmlSerializer=$this->xmlSerializersFactory->createPmmlSerializer($task);
+    }
     $pmmlSerializer->appendRules();
     return $pmmlSerializer->getPmml();
   }

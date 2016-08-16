@@ -50,6 +50,15 @@ class XmlSerializersFactory {
 
   /**
    * @param Task $task
+   * @param null $pmml
+   * @return PmmlSerializer
+   */
+  public function createPmml42Serializer(Task $task, $pmml = null){
+    return new Pmml42Serializer($task, $pmml, $this->databaseFactory, $this->preprocessingFactory, $this->appVersion);
+  }
+
+  /**
+   * @param Task $task
    * @param \SimpleXMLElement|null $pmml
    * @return CloudDriverGuhaPmmlSerializer
    */
