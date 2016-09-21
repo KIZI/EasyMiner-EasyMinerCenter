@@ -128,6 +128,7 @@ services:
 			- allow('guest','EasyMiner:User','register')
 			- allow('guest','EasyMiner:User','oauthGoogle')
 			- allow('guest','EasyMiner:User','oauthFacebook')
+			- allow('guest','EasyMiner:User','forgottenPassword')
 			- allow('authenticated','EasyMiner:User')
 
 	- IZI\IZIConfig(%izi-ui%)

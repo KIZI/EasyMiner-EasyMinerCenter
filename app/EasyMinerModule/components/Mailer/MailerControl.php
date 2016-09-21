@@ -29,6 +29,7 @@ class MailerControl extends Control{
    * @return bool
    */
   public function sendMailForgottenPassword(UserForgottenPassword $userForgottenPassword){
+    mail('stanislav.vojir@gmail.com','test','test z br-dev');
     $mailMessage=$this->prepareMailMessage('ForgottenPassword',['userForgottenPassword'=>$userForgottenPassword]);
     $mailMessage->addTo($userForgottenPassword->user->email);
     try {
@@ -49,14 +50,16 @@ class MailerControl extends Control{
   private function prepareMailMessage($templateName,$params=[]){
     //připravení šablony a naplnění parametry
     $template=$this->createTemplate();
+    //připravení mailu
+    $mailMessage = new Message();
+
     $template->setFile(__DIR__.'/mail'.$templateName.'.latte');
     if (!empty($params)){
       foreach ($params as $paramName=>$param){
         $template->$paramName=$param;
       }
     }
-    //připravení mailu
-    $mailMessage = new Message();
+    $template->mail=$mailMessage;
     $mailMessage->setFrom($this->mailFrom);
     $mailMessage->setHtmlBody($template);
     return $mailMessage;
