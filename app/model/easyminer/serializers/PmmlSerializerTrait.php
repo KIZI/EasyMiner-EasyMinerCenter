@@ -225,8 +225,10 @@ trait PmmlSerializerTrait{
               continue;//ignorujeme prázdné hodnoty
             }
             $rowXml=$inlineTableXml->addChild('row');
-            $rowXml->addChild('column',$ppValue->value);//v původních i finálních datech je stejná hodnota
-            $rowXml->addChild('field',$ppValue->value);
+            $columnNode=$rowXml->addChild('column');//v původních i finálních datech je stejná hodnota
+            $columnNode[0]=$ppValue->value;
+            $fieldNode=$rowXml->addChild('field');
+            $fieldNode[0]=$ppValue->value;
           }
         }
         continue;
@@ -280,8 +282,10 @@ trait PmmlSerializerTrait{
             if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//vynecháme neobsazené hodnoty
             foreach ($valuesBin->values as $value){
               $rowXml=$inlineTableXml->addChild('row');
-              $rowXml->addChild('column',$value->value);
-              $rowXml->addChild('field',$valuesBin->name);
+              $columnNode=$rowXml->addChild('column');
+              $columnNode[0]=$value->value;
+              $fieldNode=$rowXml->addChild('field');
+              $fieldNode[0]=$valuesBin->name;
             }
           }
         }

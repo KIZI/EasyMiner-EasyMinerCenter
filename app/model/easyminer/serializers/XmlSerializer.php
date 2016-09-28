@@ -160,7 +160,8 @@ class XmlSerializer {
       $metaAttributeXml=self::baseMetaAttributeXml();
     }
     $metaAttributeXml->addAttribute('id',$metaAttribute->metaAttributeId);
-    $metaAttributeXml->addChild('Name',$metaAttribute->name);
+    $nameNode=$metaAttributeXml->addChild('Name');
+    $nameNode[0]=$metaAttribute->name;
     return $metaAttributeXml;
   }
 
@@ -182,7 +183,8 @@ class XmlSerializer {
     if (!empty($attribute->preprocessing)){
       $attributeXml->addAttribute('preprocessing',@$attribute->preprocessing->preprocessingId);
     }
-    $attributeXml->addChild('Name',$attribute->name);
+    $nameNode=$attributeXml->addChild('Name');
+    $nameNode[0]=$attribute->name;
     return $attributeXml;
   }
 
@@ -195,7 +197,8 @@ class XmlSerializer {
   public function blankFormatAsXml(Format $format,\SimpleXMLElement &$parentXml = null){
     $formatXml=$parentXml->addChild('Format');
     $formatXml->addAttribute('id',$format->formatId);
-    $formatXml->addChild('Name',$format->name);
+    $nameNode=$formatXml->addChild('Name');
+    $nameNode[0]=$format->name;
     return $formatXml;
   }
 
@@ -212,7 +215,8 @@ class XmlSerializer {
       $ruleSetXml=self::baseRuleSetXml();
     }
     $ruleSetXml->addAttribute('id',$ruleSet->ruleSetId);
-    $ruleSetXml->addChild('Name',$ruleSet->name);
+    $nameNode=$ruleSetXml->addChild('Name');
+    $nameNode[0]=$ruleSet->name;
     return $ruleSetXml;
   }
 
@@ -229,7 +233,9 @@ class XmlSerializer {
       $knowledgeBaseXml=self::baseKnowledgeBaseXml();
     }
     $knowledgeBaseXml->addAttribute('id',$knowledgeBase->knowledgeBaseId);
-    $knowledgeBaseXml->addChild('Name',$knowledgeBase->name);
+    $nameNode=$knowledgeBaseXml->addChild('Name');
+    $nameNode[0]=$knowledgeBase->name;
+    return $knowledgeBaseXml;
   }
 
   /**
@@ -265,7 +271,8 @@ class XmlSerializer {
       foreach ($valuesBins as $valuesBin){
         $valuesBinXml=$valuesBinsXml->addChild('Bin');
         $valuesBinXml->addAttribute('id',$valuesBin->valuesBinId);
-        $valuesBinXml->addChild('Name',$valuesBin->name);
+        $nameNode=$valuesBinXml->addChild('Name');
+        $nameNode[0]=$valuesBin->name;
         $this->rangeAsXml($valuesBin->intervals,$valuesBinXml);
         $this->rangeAsXml($valuesBin->values,$valuesBinXml);
       }
@@ -283,7 +290,8 @@ class XmlSerializer {
       foreach ($range as $rangeItem){
         if ($rangeItem instanceof Value){
           //serializace konkrétní hodnoty
-          $valueXml=$parentXml->addChild('Value',$rangeItem->value);
+          $valueXml=$parentXml->addChild('Value');
+          $valueXml[0]=$rangeItem->value;
           if ($rangeItem->valueId){
             $valueXml->addAttribute('id',$rangeItem->valueId);
           }
@@ -444,7 +452,8 @@ class XmlSerializer {
       foreach ($valuesBins as $valuesBin){
         $valuesBinXml=$valuesBinsXml->addChild('Bin');
         $valuesBinXml->addAttribute('id',$valuesBin->valuesBinId);
-        $valuesBinXml->addChild('Name',$valuesBin->name);
+        $nameNode=$valuesBinXml->addChild('Name');
+        $nameNode[0]=$valuesBin->name;
         $this->rangeAsXml($valuesBin->intervals,$valuesBinXml);
         $this->rangeAsXml($valuesBin->values,$valuesBinXml);
       }

@@ -3,7 +3,6 @@
 namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
-use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use Nette\Utils\Json;
 
 class TaskSettingsSerializer {
@@ -265,19 +264,24 @@ class TaskSettingsSerializer {
     $bbaId = $this->generateId();
     $bbaSettingXml = $this->bbaSettings->addChild("BBASetting");
     $bbaSettingXml->addAttribute('id', $bbaId);
-    $bbaSettingXml->addChild("Text", $attribute->name);
-    $bbaSettingXml->addChild("Name", $attribute->name);
-    $bbaSettingXml->addChild("FieldRef", $attribute->name);
+    $textNode=$bbaSettingXml->addChild("Text");
+    $textNode[0]=$attribute->name;
+    $nameNode=$bbaSettingXml->addChild("Name");
+    $nameNode[0]=$attribute->name;
+    $fieldRefNode=$bbaSettingXml->addChild("FieldRef");
+    $fieldRefNode[0]=$attribute->name;
     $this->createCoefficient($bbaSettingXml,$attribute);
     return $bbaId;
   }
 
   protected function createCoefficient(\SimpleXMLElement $parentElement,$attribute){
     $coefficientXml = $parentElement->addChild("Coefficient");
-    $coefficientXml->addChild("Type", $attribute->category);
+    $typeNode=$coefficientXml->addChild("Type");
+    $typeNode[0]=$attribute->category;
 
     if ($attribute->category == 'One category') {
-      $coefficientXml->addChild("Category", $attribute->fields[0]->value);
+      $categoryNode=$coefficientXml->addChild("Category");
+      $categoryNode[0]=$attribute->fields[0]->value;
     } else {
       $fieldsLength = count($attribute->fields);
       $minLength = null;

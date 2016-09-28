@@ -42,8 +42,10 @@ class CloudDriverTaskSettingsSerializer extends TaskSettingsSerializer{
     $bbaId = $this->generateId();
     $bbaSettingXml = $this->bbaSettings->addChild("BBASetting");
     $bbaSettingXml->addAttribute('id', $bbaId);
-    $bbaSettingXml->addChild("Text", $attribute->name);
-    $bbaSettingXml->addChild("Name", $attribute->name);
+    $textNode=$bbaSettingXml->addChild("Text");
+    $textNode[0]=$attribute->name;
+    $nameNode=$bbaSettingXml->addChild("Name");
+    $nameNode[0]=$attribute->name;
 
     if (!empty($attribute->ppAttributeId) && $attribute->PpAttributeId>0){
       $ppDatasetAttributeId=$attribute->ppAttributeId;

@@ -94,7 +94,8 @@ class AssociationRulesXmlSerializer {
   private function serializeRuleAttribute(RuleAttribute $ruleAttribute, &$parentElement){
     $attributeXml=$parentElement->addChild('Attribute');
     $attribute=$ruleAttribute->attribute;
-    $attributeXml->addChild('Column',$attribute->datasourceColumn->name);//TODO zbytečně složité...
+    $columnNode=$attributeXml->addChild('Column');
+    $columnNode[0]=$attribute->datasourceColumn->name;
     $categoryXml=$attributeXml->addChild('Category');
     $dataXml=$categoryXml->addChild('Data');
     if (!empty($ruleAttribute->valuesBin)){
@@ -123,7 +124,8 @@ class AssociationRulesXmlSerializer {
    * @param \SimpleXMLElement $parentElement
    */
   private function serializeValue(Value $value, &$parentElement){
-    $parentElement->addChild('Value',$value->value);
+    $node=$parentElement->addChild('Value');
+    $node[0]=$value->value;
   }
 
   /**
