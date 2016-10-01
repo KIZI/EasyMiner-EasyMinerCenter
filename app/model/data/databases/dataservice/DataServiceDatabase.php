@@ -26,7 +26,7 @@ abstract class DataServiceDatabase implements IDatabase {
   /** @var  DbConnection $dbConnection */
   private $dbConnection;
 
-  const UPLOAD_SLOW_DOWN_INTERVAL=500;//interval pro zpomalení uploadu (v milisekundách)
+  const UPLOAD_SLOW_DOWN_INTERVAL=500000;//interval pro zpomalení uploadu (v mi)
   const UPLOAD_CHUNK_SIZE=500000;
   const UPLOAD_CODE_SLOW_DOWN=429;
   const UPLOAD_CODE_CONTINUE=202;
@@ -239,21 +239,23 @@ abstract class DataServiceDatabase implements IDatabase {
 
     $uploadId=$this->startCsvUpload($name, $encoding, $delimiter, $enclosure, $escapeCharacter, $nullValue, $dataTypes);
     $filePart=fread($file, self::UPLOAD_CHUNK_SIZE);
-    $callsCount=1000;
+    $callsCount=10000;
     while($callsCount>0){
       $callsCount--;
       try{
         $response=$this->curlRequestResponse($this->getRequestUrl('/upload/'.$uploadId),$filePart,'POST',['Content-Type'=>'text/plain'], $responseCode);
         switch($responseCode){
           case self::UPLOAD_CODE_CONTINUE:
-            if(!feof($file)){
+            if($filePart==''){
+              usleep(self::UPLOAD_SLOW_DOWN_INTERVAL);
+            }elseif(!feof($file)){
               $filePart=fread($file, self::UPLOAD_CHUNK_SIZE);
             }else{
               $filePart='';
             }
             break;
-          case self::UPLOAD_CODE_SLOW_DOWN://XXX zkontrolovat, jestli tohle bude fungovat
-            sleep(self::UPLOAD_SLOW_DOWN_INTERVAL);
+          case self::UPLOAD_CODE_SLOW_DOWN:
+            usleep(self::UPLOAD_SLOW_DOWN_INTERVAL);
             break;
           case self::UPLOAD_CODE_OK:
             fclose($file);
@@ -261,10 +263,10 @@ abstract class DataServiceDatabase implements IDatabase {
             return new DbDatasource($responseData['id'],$responseData['name'],$responseData['type'],$responseData['size']);
         }
       }catch(\Exception $e){
-        throw new DatabaseException('CSV upload failed.',(!empty($responseCode)?$responseCode:0),$e);
+        throw new DatabaseException('CSV upload failed: '.$e->getMessage(),(!empty($responseCode)?$responseCode:0),$e);
       }
     }
-    throw new DatabaseException('CSV upload failed.');
+    throw new DatabaseException('CSV upload failed :-(');
   }
 
   /**
