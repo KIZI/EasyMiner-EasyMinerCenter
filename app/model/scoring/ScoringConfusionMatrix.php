@@ -45,6 +45,44 @@ class ScoringConfusionMatrix {
     /** @var int[] $ignoredLabelsPositions - pole pro určení těch pozic v tabulce, které mají být ignorovány */
     $ignoredLabelsPositions=[];
     if (!empty($this->labelsArr) && !empty($this->rowsArr)){
+
+      //region XXX sečtění řádků se stejnými hodnotami (chybná práce s čísly) issue KIZI/EasyMiner-EasyMinerCenter#153
+      $labelMappings=[];
+      for ($labelI=0;$labelI<count($this->labelsArr);$labelI++){
+        if (is_numeric($this->labelsArr[$labelI])){
+          for ($i=$labelI+1;$i<count($this->labelsArr);$i++){
+            if (isset($this->labelsArr[$i]) && is_numeric($this->labelsArr[$i]) && floatval($this->labelsArr[$i]==$this->labelsArr[$labelI])){
+              $labelMappings[$i]=$labelI;
+            }
+          }
+        }
+      }
+      if (!empty($labelMappings)){
+        //sečteme nejdřív příslušné řádky a poté příslušné sloupce
+        foreach($labelMappings as $duplikatI => $hlavniI){
+          foreach($this->rowsArr[$duplikatI] as $column=>$value){
+            $this->rowsArr[$hlavniI][$column]+=$value;
+          }
+          unset($this->rowsArr[$duplikatI]);
+        }
+        //sečteme příslušné sloupce
+        $odstranitSloupce=[];
+        foreach($labelMappings as $duplikatI => $hlavniI){
+          foreach($this->rowsArr as &$row){
+            $row[$hlavniI]+=$row[$duplikatI];
+          }
+          $odstranitSloupce[]=$duplikatI;
+        }
+        sort($odstranitSloupce);
+        $odstranitSloupce=array_reverse($odstranitSloupce);
+        foreach($this->rowsArr as &$row){
+          foreach($odstranitSloupce as $columnI){
+            unset($row[$columnI]);
+          }
+        }
+      }
+      //endregion XXX sečtění řádků se stejnými hodnotami (chybná práce s čísly)
+
       //určení ignorování konkrétních pozic v tabulce
       if($nullValuesIncluded){
         for ($labelI=0;$labelI<count($this->labelsArr); $labelI++){
