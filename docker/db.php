@@ -3,7 +3,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$database = 'emc_000';
+$databasePrefix = $argv[1];
+$database = $databasePrefix . '000';
 
 $mysqli = new mysqli("easyminer-mysql", "root", "root");
 $mysqli->query('DROP DATABASE IF EXISTS '.$database);
