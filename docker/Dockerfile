@@ -22,14 +22,14 @@ RUN git clone --recursive https://github.com/KIZI/EasyMiner-EasyMinerCenter.git 
     
 ADD easyminer.conf /etc/apache2/sites-enabled
 ADD db.php /root
+ADD start.sh /root
 
 WORKDIR easyminercenter
 
 RUN php -r "readfile('https://getcomposer.org/installer');" | php && \
     php composer.phar update && \
-    php /root/db.php
-    
-ADD start.sh /root
+    chmod 775 /root/start.sh
+
 ADD config.local.neon /var/www/html/easyminercenter/app/config
     
 EXPOSE 80
