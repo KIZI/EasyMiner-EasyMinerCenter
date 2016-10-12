@@ -1,4 +1,4 @@
-# docker build -t easyminer-frontend  https://github.com/KIZI/EasyMiner-EasyMinerCenter.git#v2.3-cesnet:docker
+# docker build -t easyminer-frontend  https://github.com/KIZI/EasyMiner-EasyMinerCenter.git#:docker
 # docker run -d -p 8894:80 --name easyminer-frontend easyminer-frontend
 
 FROM php:5.6.21-apache
@@ -13,7 +13,7 @@ RUN apt-get update && \
     a2enmod headers && \
     a2enmod rewrite
     
-RUN git clone --recursive -b v2.3-cesnet https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
+RUN git clone --recursive https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
     chmod -R 777 easyminercenter/log && \
     chmod -R 777 easyminercenter/temp && \
     chmod 777 easyminercenter/www/images/users && \
@@ -21,12 +21,17 @@ RUN git clone --recursive -b v2.3-cesnet https://github.com/KIZI/EasyMiner-EasyM
     chmod 666 easyminercenter/app/config/config.local.neon
     
 ADD easyminer.conf /etc/apache2/sites-enabled
+ADD db.php /root
 
 WORKDIR easyminercenter
 
 RUN php -r "readfile('https://getcomposer.org/installer');" | php && \
-    php composer.phar update
+    php composer.phar update && \
+    php /root/db.php
+    
+ADD start.sh /root
+ADD config.local.neon /var/www/html/easyminercenter/app/config
     
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD ["/root/start.sh"]
