@@ -13,21 +13,21 @@ parameters:
                         _username: emc_*
                         _database: emc_*
                         allowFileImport: false
-                        api: http://easyminer-backend:8891/easyminer-data/api/v1
-                        preprocessingApi: http://easyminer-backend:8892/easyminer-preprocessing/api/v1
+                        api: http://easyminer-backend/easyminer-data/api/v1
+                        preprocessingApi: http://easyminer-backend/easyminer-preprocessing/api/v1
 
                 unlimited:
                         server: took90.ics.muni.cz
                         port: "10000"
                         _username: easyminer
                         _database: emc_*
-                        api: http://easyminer-backend:8891/easyminer-data/api/v1
-                        preprocessingApi: http://easyminer-backend:8892/easyminer-preprocessing/api/v1
+                        api: http://easyminer-backend/easyminer-data/api/v1
+                        preprocessingApi: http://easyminer-backend/easyminer-preprocessing/api/v1
                         _password: false
 
         miningDriverFactory:
                 driver_cloud:
-                        server: http://easyminer-backend:8893
+                        server: http://easyminer-backend
                         minerUrl: /easyminer-miner/api/v1
                         importsDirectory: /var/www/html/easyminercenter/app/../temp/pmmlImports/cloud
 
