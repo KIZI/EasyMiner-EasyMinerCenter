@@ -34,25 +34,18 @@ class TasksPresenter  extends BasePresenter{
 
   /**
    * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
-   * @param int $id
+   * @param int|null $id
    * @param string $miner
-   * @param string $task
    * @param string $data
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function actionStartMining($id=null,$miner,$task=null,$data){
+  public function actionStartMining($id=null,$miner,$data){
     /****************************************************************************************************************/
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
     $miner=$this->findMinerWithCheckAccess($miner);
-    //nalezení či připravení úlohy...
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $id=$task;
-      $task=$this->tasksFacade->prepareTaskWithUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->prepareTask($miner, $id);
-    }
+    //nalezení úlohy či založení nové prázdné úlohy (pokud $id==null)
+    $task=$this->tasksFacade->prepareTask($miner, $id);
 
     if ($task->state=='new'){
       #region nově importovaná úloha
@@ -126,19 +119,12 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro zastavení dolování
    * @param int $id
-   * @param string $miner
-   * @param string $task
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function actionStopMining($id=null,$miner,$task=null){
+  public function actionStopMining($id){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+    $task=$this->tasksFacade->findTask($id);
 
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
@@ -153,27 +139,19 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce vracející pravidla pro vykreslení v easymineru
    * @param int $id
-   * @param $miner
-   * @param $task
    * @param $offset
    * @param $limit
    * @param $order
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function actionGetRules($id=null,$miner,$task=null,$offset=0,$limit=25,$order='rule_id'){
+  public function actionGetRules($id,$offset=0,$limit=25,$order='rule_id'){
     if ($order==''){
       $order='rule_id';
     }
 
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
-
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
@@ -191,22 +169,15 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro přejmenování úlohy v DB
    * @param int $id
-   * @param int $miner
-   * @param string $task=null
    * @param string $name
    * @throws \Exception
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function actionRenameTask($id=null,$miner,$task=null,$name){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
-
+  public function actionRenameTask($id,$name){
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
+
     $this->checkMinerAccess($miner);
     $task->name=$name;
     if (!$this->tasksFacade->saveTask($task)){
@@ -218,23 +189,16 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro přejmenování úlohy v DB
    * @param int $id = null
-   * @param int $miner
-   * @param string $task = null
    * @param string $rulesOrder
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    * @throws \Exception
    */
-  public function actionRulesOrder($id=null,$miner,$task=null,$rulesOrder=''){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
-
+  public function actionRulesOrder($id,$rulesOrder=''){
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
+
     if ($rulesOrder!=''){
       //je zadané nové pořadí pravidel...
       try{
@@ -249,22 +213,15 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro vygenerování detailů úlohy ve formátu PMML
    * @param int $id
-   * @param $miner
-   * @param $task
    * @throws \Exception
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function renderTaskPMML($id=null,$miner,$task=null){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
-
+  public function renderTaskPMML($id){
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
+
     //vygenerování a odeslání PMML
     $pmml=$this->prepareTaskPmml($task);
     $this->sendXmlResponse($pmml);
@@ -273,21 +230,14 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro vygenerování zadání úlohy ve formátu PMML
    * @param int $id
-   * @param $miner
-   * @param $task
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function renderTaskSettingPMML($id=null,$miner,$task=null) {
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
-
+  public function renderTaskSettingPMML($id) {
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
+
     $pmml=$this->prepareTaskSettingPmml($task);
     $this->sendXmlResponse($pmml);
   }
@@ -295,21 +245,15 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro vykreslení detailů úlohy ve formátu PMML
    * @param int $id
-   * @param $miner
-   * @param $task
    * @throws \Exception
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function renderTaskXML($id=null,$miner,$task=null){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+  public function renderTaskXML($id){
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
+
     //vygenerování a odeslání PMML
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
     $this->sendXmlResponse($associationRulesXmlSerializer->getXml());
@@ -318,22 +262,15 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro vykreslení detailů úlohy ve formátu PMML
    * @param int $id
-   * @param $miner
-   * @param $task
    * @throws \Exception
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function renderTaskDRL($id=null,$miner,$task=null){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
-
+  public function renderTaskDRL($id){
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
+
     //vygenerování a odeslání PMML
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
     $xml=$associationRulesXmlSerializer->getXml();
@@ -343,21 +280,14 @@ class TasksPresenter  extends BasePresenter{
   /**
    * Akce pro vykreslení detailů úlohy ve formátu PMML
    * @param int $id
-   * @param string $miner
-   * @param string $task
    * @throws \Exception
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function renderTaskDetails($id=null,$miner,$task=null){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
-
+  public function renderTaskDetails($id){
+    $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
+
     //vygenerování PMML
     $pmml=$this->prepareTaskPmml($task);
     $this->template->task=$task;

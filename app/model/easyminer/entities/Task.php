@@ -8,7 +8,6 @@ use Nette\Utils\Json;
  * Class Task - entita zachycující jednu konkrétní dataminingovou úlohu
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $taskId=null
- * @property string $taskUuid = ''
  * @property string $type m:Enum(Miner::TYPE_*)
  * @property int $rulesInRuleClipboardCount = 0
  * @property int $rulesCount = 0
@@ -44,7 +43,6 @@ class Task extends Entity{
   public function getDataArr($includeSettings=false){
     $result=[
       'id'=>$this->taskId,
-      'uuid'=>$this->taskUuid,
       'miner'=>$this->miner->minerId,
       'name'=>$this->name,
       'type'=>$this->type,

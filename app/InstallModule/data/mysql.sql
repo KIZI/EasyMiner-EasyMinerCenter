@@ -386,7 +386,6 @@ CREATE TABLE IF NOT EXISTS `rule_set_rule_relations` (
 
 CREATE TABLE IF NOT EXISTS `tasks` (
   `task_id` int(11) NOT NULL AUTO_INCREMENT,
-  `task_uuid` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `miner_id` int(11) NOT NULL,
   `type` enum('lm','r','cloud') COLLATE utf8_czech_ci NOT NULL,
   `name` varchar(200) COLLATE utf8_czech_ci NOT NULL,

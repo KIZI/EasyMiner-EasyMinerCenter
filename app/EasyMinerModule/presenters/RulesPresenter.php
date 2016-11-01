@@ -31,16 +31,13 @@ class RulesPresenter  extends BasePresenter{
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function renderRuleDetails($id=null,$miner,$task=null,$rule){
+  public function renderRuleDetails($id=null,$miner,$rule){
     $rule=$this->rulesFacade->findRule($rule);
     //kontrola přístupů
     $task=$rule->task;
     $minerId=$miner;
-    $taskId=$task;
     $miner=$task->miner;
-    if ($miner->minerId!=$minerId || (
-        $task->taskUuid!=$taskId && //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-        $task->taskId!=$id)){
+    if ($miner->minerId!=$minerId || $task->taskId!=$id){
       throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected data!'));
     }
     $this->checkMinerAccess($miner);

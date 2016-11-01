@@ -2,12 +2,10 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
 use EasyMinerCenter\Model\EasyMiner\Repositories\TasksRepository;
-use Nette\Utils\FileSystem;
 
 class TasksFacade {
   /** @var  TasksRepository $tasksRepository */
@@ -27,16 +25,6 @@ class TasksFacade {
    */
   public function findTask($id){
     return $this->tasksRepository->find($id);
-  }
-
-  /**
-   * @param Miner|int $miner
-   * @param string $taskUuid
-   * @return Task
-   * @throws \Exception
-   */
-  public function findTaskByUuid($miner,$taskUuid){
-    return $this->tasksRepository->findBy(array('miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner),'task_uuid'=>$taskUuid));
   }
 
   /**
@@ -111,28 +99,6 @@ class TasksFacade {
     }
   }
 
-
-  /**
-   * Funkce pro uložení úlohy s daným uuid (než se odešle mineru...)
-   * @param Miner $miner
-   * @param string $taskUuid
-   * @return \EasyMinerCenter\Model\EasyMiner\Entities\Task
-   */
-  public function prepareTaskWithUuid(Miner $miner,$taskUuid){
-    try{
-      $task=$this->findTaskByUuid($miner,$taskUuid);
-      return $task;
-    }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
-    $task=new Task();
-    $task->taskUuid=$taskUuid;
-    $task->miner=$miner;
-    $task->type=$miner->type;
-    $task->state=Task::STATE_NEW;
-    $this->saveTask($task);
-
-    return $task;
-  }
-
   /**
    * Funkce pro připravení úlohy před odesláním mineru
    * @param Miner $miner
@@ -145,7 +111,6 @@ class TasksFacade {
       return $task;
     }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
     $task=new Task();
-    $task->taskUuid=uniqid(); //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
     $task->miner=$miner;
     $task->type=$miner->type;
     $task->state=Task::STATE_NEW;
@@ -174,7 +139,6 @@ class TasksFacade {
       $task = new Task();
     }
     //prepare task settings from $settings
-    $taskUuid=uniqid();
     if (isset($settingsArr['succedent'])&&!isset($settingsArr['consequent'])){
       $settingsArr['consequent']=$settingsArr['succedent'];
     }
@@ -211,14 +175,12 @@ class TasksFacade {
       'strict'=>false,
       'taskMode'=>'task',
       'taskName'=>$settingsArr['name'],
-      'taskId'=>$taskUuid
     ];
 
     //configure task object
     $task->miner=$miner;
     $task->type=$miner->type;
     $task->name=$settingsArr['name'];
-    $task->taskUuid=$taskUuid;
     $task->state=Task::STATE_NEW;
     $task->setTaskSettings($taskSettings);
     return $task;
