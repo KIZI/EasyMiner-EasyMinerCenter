@@ -110,6 +110,7 @@ var DataUpload=function(){
     var ext =filename.substring(lastDotPosition+1);
     //zpracování jména souboru na název tabulky v DB
     name=seoUrl(name);
+    name=name.replace(/-/g,'_');//nahrazení pomlček za podtržítka
     ext=ext.toLowerCase();
     //přiřazení získaných hodnot do inputu a do proměnné s info o kompresi
     this.jqElements.nameInput.val(name);
