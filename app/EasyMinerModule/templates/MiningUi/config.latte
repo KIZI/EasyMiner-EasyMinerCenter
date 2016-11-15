@@ -60,6 +60,8 @@ var Config = new Class({
 
   knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
   knowledgeBaseGetRuleSetsUrl: {plink RuleSets:list},
+  knowledgeBaseGetRulesNamesUrl: {plink RuleSets:getRulesNames id=>'__RULESETID__',miner=>'__MINERID__'},
+  knowledgeBaseCompareRuleUrl: {plink RuleSets:compareRule id=>'__RULESETID__',miner=>'__MINERID__'},
 
   knowledgeBaseAddRuleSetUrl: {plink RuleSets:new name=>'__NAME__',description=>'__DESCRIPTION__'},
   knowledgeBaseRenameRuleSetUrl: {plink RuleSets:rename id=>'__RULESETID__',name=>'__NAME__',description=>'__DESCRIPTION__'},
@@ -181,6 +183,14 @@ var Config = new Class({
     order='';
 
     return this.knowledgeBaseGetRulesUrl.replace('__RULESETID__',rulesetId).replace('__OFFSET__',offset).replace('__LIMIT__',limit).replace('__ORDER__',order);
+  },
+
+  getKnowledgeBaseGetRulesNamesUrl: function (rulesetId) {
+    return this.knowledgeBaseGetRulesNamesUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
+  },
+
+  getKnowledgeBaseCompareRuleUrl: function (rulesetId) {
+    return this.knowledgeBaseCompareRuleUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
   },
 
   getKnowledgeBaseGetRuleSetsUrl: function () {

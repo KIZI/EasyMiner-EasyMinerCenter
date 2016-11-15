@@ -4,6 +4,7 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Facades\KnowledgeBaseFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
@@ -22,6 +23,8 @@ class RuleSetsPresenter extends BasePresenter{
   private $rulesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
+    /** @var  KnowledgeBaseFacade $knowledgeBaseFacade */
+    private $knowledgeBaseFacade;
   /** @var  UsersFacade $usersFacade */
   private $usersFacade;
   /** @var  XmlTransformator $xmlTransformator */
@@ -148,6 +151,65 @@ class RuleSetsPresenter extends BasePresenter{
     }
     $this->sendJsonResponse($result);
   }
+
+    /**
+     * Akce vracející jeden konkrétní ruleset se jmény pravidel a datasource, kam patří
+     * @param int $id
+     * @param int $miner
+     */
+    public function actionGetRulesNames($id, $miner){
+        //najití RuleSetu a kontroly
+        $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+        $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+        //připravení výstupu
+        $result=[
+            'ruleset'=>$ruleSet->getDataArr(),
+            'rules'=>[]
+        ];
+        if ($ruleSet->rulesCount>0 || true){
+            $rules=$this->knowledgeBaseFacade->findRulesByDatasource($ruleSet,$miner);
+            //print_r($rules);
+            if (!empty($rules)){
+                //$result['rules'] = $rules;
+                foreach($rules as $rule){
+                    $result['rules'][$rule->ruleId]=$rule->text;
+                }
+            }
+        }
+        $this->sendJsonResponse($result);
+    }
+
+    /**
+     *
+     * @param int $id
+     * @param int $miner
+     */
+    public function actionCompareRule($id, $miner){
+        $result=[
+            'ruleset'=>"",
+            'rules'=>[]
+        ];
+        $this->sendJsonResponse($result);
+        //najití RuleSetu a kontroly
+        $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+        $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+        //připravení výstupu
+        $result=[
+            'ruleset'=>$ruleSet->getDataArr(),
+            'rules'=>[]
+        ];
+        if ($ruleSet->rulesCount>0 || true){
+            $rules=$this->knowledgeBaseFacade->findRulesByDatasource($ruleSet,$miner);
+            //print_r($rules);
+            if (!empty($rules)){
+                //$result['rules'] = $rules;
+                foreach($rules as $rule){
+                    $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
+                }
+            }
+        }
+        $this->sendJsonResponse($result);
+    }
 
   /**
    * Akce pro přidání pravidel do rulesetu
@@ -276,6 +338,12 @@ class RuleSetsPresenter extends BasePresenter{
   public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
     $this->ruleSetsFacade=$ruleSetsFacade;
   }
+    /**
+     * @param KnowledgeBaseFacade $knowledgeBaseFacade
+     */
+    public function injectKnowledgeBaseFacade(KnowledgeBaseFacade $knowledgeBaseFacade){
+        $this->knowledgeBaseFacade=$knowledgeBaseFacade;
+    }
   /**
    * @param UsersFacade $usersFacade
    */
