@@ -20,4 +20,4 @@ For usage of the EasyMiner Project, it is necessary to install at least one data
 ##License and disclaimer
 :grey_exclamation: EasyMiner is an experimental academic project. The public demo interface is provided only for demonstration purposes.
 
-This project is available undes BSD-3 license.
+This project is available under BSD-3 license and under Apache 2.0 license.
