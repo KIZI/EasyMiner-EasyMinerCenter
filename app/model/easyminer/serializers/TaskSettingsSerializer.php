@@ -82,7 +82,8 @@ class TaskSettingsSerializer {
     $rule = $json->rule0;
 
     // Create basic structure of Document.
-    $this->init($json->taskId, $json->limitHits);
+    //TODO taskId
+    $this->init(!empty($json->taskId)?$json->taskId:'', $json->limitHits);
 
     // Create antecedent
     if (!empty($rule->antecedent->children)) {
