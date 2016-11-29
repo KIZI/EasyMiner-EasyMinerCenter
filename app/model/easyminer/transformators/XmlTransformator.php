@@ -1,5 +1,7 @@
 <?php
 namespace EasyMinerCenter\Model\EasyMiner\Transformators;
+use EasyMinerCenter\Model\Translation\EasyMinerTranslator;
+
 /**
  * Class XmlTransformator - třída pro transformace používaných XML dokumentů
  * @package EasyMinerCenter\Model\EasyMiner\Transformators
@@ -8,6 +10,8 @@ class XmlTransformator {
 
   private $transformationsDirectory;
   private $templates=[];
+  private $language='en';
+
   /**
    * @var string $basePath
    */
@@ -15,11 +19,15 @@ class XmlTransformator {
 
   /**
    * @param array $params
+   * @param EasyMinerTranslator $translator
    */
-  public function __construct($params){
+  public function __construct($params, EasyMinerTranslator $translator=null){
     $this->transformationsDirectory=__DIR__.'/../../../'.$params['directory'];
     $this->templates['guhaPMML']=$params['guhaPMML'];
     $this->templates['DRL']=$params['DRL'];
+    if ($translator instanceof EasyMinerTranslator){
+      $this->language=$translator->getLang();
+    }
   }
 
   /**
@@ -108,6 +116,7 @@ class XmlTransformator {
     if (!empty($params)){
       foreach ($params as $name => $value) {
         $value=str_replace('$basePath',$this->basePath,$value);
+        $value=str_replace('$lang',$this->language,$value);
         $xsltPreprocessor->setParameter('',$name,$value);
       }
     }
