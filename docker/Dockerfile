@@ -14,7 +14,7 @@ RUN apt-get update && \
     a2enmod rewrite && \
     a2enmod proxy_http
     
-RUN git clone --recursive --branch v2.4 https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
+RUN git clone --recursive https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
     chmod -R 777 easyminercenter/log && \
     chmod -R 777 easyminercenter/temp && \
     chmod 777 easyminercenter/www/images/users && \
