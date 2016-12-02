@@ -1,6 +1,3 @@
-# docker build -t easyminer-frontend  https://github.com/KIZI/EasyMiner-EasyMinerCenter.git#:docker
-# docker run -d -p 8894:80 --name easyminer-frontend easyminer-frontend
-
 FROM php:5.6.21-apache
 
 MAINTAINER kizi "stanislav.vojir@gmail.com"
