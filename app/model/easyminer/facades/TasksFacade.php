@@ -195,7 +195,7 @@ class TasksFacade {
     $result=[];
     if (empty($IMsSettingsArr)){return $result;}
     foreach($IMsSettingsArr as $IMSettings){ //TODO KIZI/EasyMiner-EasyMinerCenter#104
-      if (!in_array($IMSettings['name'],['CONF','AAD','LIFT','SUPP','AUTO_CONF_SUPP'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
+      if (!in_array($IMSettings['name'],['CONF','AAD','LIFT','SUPP','AUTO_CONF_SUPP','RULE_LENGTH'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
         throw new \InvalidArgumentException('Unsupported interest measure: '.$IMSettings['name']);
       }
       $result[]=[
