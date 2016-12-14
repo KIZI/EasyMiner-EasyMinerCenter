@@ -1,6 +1,3 @@
-# docker build -t easyminer-frontend  https://github.com/KIZI/EasyMiner-EasyMinerCenter.git#:docker
-# docker run -d -p 8894:80 --name easyminer-frontend easyminer-frontend
-
 FROM php:5.6.21-apache
 
 MAINTAINER kizi "stanislav.vojir@gmail.com"
@@ -14,7 +11,7 @@ RUN apt-get update && \
     a2enmod rewrite && \
     a2enmod proxy_http
     
-RUN git clone --recursive https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
+RUN git clone --recursive --branch v2.4 https://github.com/KIZI/EasyMiner-EasyMinerCenter.git easyminercenter && \
     chmod -R 777 easyminercenter/log && \
     chmod -R 777 easyminercenter/temp && \
     chmod 777 easyminercenter/www/images/users && \
