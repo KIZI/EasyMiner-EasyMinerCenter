@@ -307,6 +307,19 @@ abstract class DataServiceDatabase implements IDatabase {
     }
   }
 
+  /**
+   * Funkce pro odstranění datového zdroje
+   *
+   * @param DbDatasource $dbDatasource
+   * @throws DatabaseException
+   * @throws DatabaseCommunicationException
+   */
+  public function deleteDbDatasource(DbDatasource $dbDatasource){
+    $this->curlRequestResponse($this->getRequestUrl('/datasource/'.$dbDatasource->id),null,'DELETE',['Accept'=>'application/json; charset=utf8'], $responseCode);
+    if ($responseCode!=200){
+      throw new DatabaseException();
+    }
+  }
 
   /**
    * Konstruktor zajišťující připojení k databázi

@@ -120,6 +120,15 @@ class Task extends Entity{
   }
 
   /**
+   * Funkce vracející info o tom, jestli už bylo dokončeno/přerušeno dolování na straně serveru a zároveň byl dokončen import výsledků do DB
+   * @return bool
+   */
+  public function isMiningAndImportFinished(){
+    if (!$this->isMiningFinished()){return false;}
+    return ($this->importState!=self::IMPORT_STATE_PARTIAL && $this->importState!=self::IMPORT_STATE_WAITING);
+  }
+
+  /**
    * Funkce vracející seznam měr zajímavosti, které jsou použity u dané úlohy
    * @return string[]
    */
@@ -154,6 +163,7 @@ class Task extends Entity{
       $supportedIM=true;
     }
     if ($supportedIM){
+      /** @noinspection PhpUndefinedFieldInspection */
       $this->row->rules_order=$rulesOrder;
     }else{
       throw new \InvalidArgumentException('Unsupported interest measure!');
@@ -164,6 +174,7 @@ class Task extends Entity{
    * @return string
    */
   public function getRulesOrder() {
+    /** @noinspection PhpUndefinedFieldInspection */
     return $this->row->rules_order;
   }
 } 

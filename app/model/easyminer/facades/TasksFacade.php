@@ -36,6 +36,17 @@ class TasksFacade {
   }
 
   /**
+   * Funkce pro smazání DM úlohy včetně připojených pravidel
+   *
+   * @param Task $task
+   */
+  public function deleteTask(Task $task){
+    //TODO smazání navázaných pravidel
+
+    //TODO
+  }
+
+  /**
    * @param Task $task
    * @param TaskState $taskState
    */
@@ -122,7 +133,7 @@ class TasksFacade {
   /**
    * Funkce pro připravení úlohy na základě jednoduchého pole s konfigurací (například přes API)
    *
-*@param Miner $miner
+   * @param Miner $miner
    * @param array $settingsArr
    * @param Task|null $updateTask=null
    * @return Task

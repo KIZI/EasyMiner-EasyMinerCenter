@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\CsvSerializer;
 use Nette\Application\BadRequestException;
 use Nette\Application\Responses\TextResponse;
@@ -25,7 +26,10 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   private $fileImportsFacade;
   /** @var  DatabasesFacade $databasesFacade */
   private $databasesFacade;
+  /** @var  MinersFacade $minersFacade */
+  private $minersFacade;
 
+  #region actionCreate
   /**
    * Akce pro import CSV souboru (případně komprimovaného v ZIP archívu)
    * @SWG\Post(
@@ -192,6 +196,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
       throw new \Drahak\Restful\Application\BadRequestException('You have to upload a file!');
     }
   }
+  #endregion actionCreate
 
   #region actionRead/actionList
   /**
@@ -358,6 +363,78 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   #endregion actionReadCsv
 
   /**
+   * @param int $id=null
+   * @throws BadRequestException
+   * @SWG\Delete(
+   *   tags={"Datasources"},
+   *   path="/datasources/{id}",
+   *   summary="Delete data source with all attached miners",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Datasource ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Datasource deleted",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(
+   *     response=400,
+   *     description="Invalid API key supplied",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested datasource was not found.")
+   * )
+   */
+  public function actionDelete($id){
+    $this->setXmlMapperElements('result');
+    $datasource=$this->findDatasourceWithCheckAccess($id);
+    $this->datasourcesFacade->deleteDatasource($datasource, $this->minersFacade);
+    $this->resource=['code'=>200,'status'=>'OK','message'=>'Datasource deleted: '.$datasource->datasourceId];
+    $this->sendResource();
+  }
+
+  /**
+   * @param int $id=null
+   * @throws BadRequestException
+   * @SWG\Delete(
+   *   tags={"Datasources"},
+   *   path="/datasources/{id}/data",
+   *   summary="Delete data source data (without deletion of preprocessed datasets and miners)",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Datasource ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Datasource data deleted",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(
+   *     response=400,
+   *     description="Invalid API key supplied",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested datasource was not found.")
+   * )
+   */
+  public function actionDeleteData($id){
+    $this->setXmlMapperElements('result');
+    $datasource=$this->findDatasourceWithCheckAccess($id);
+    $this->datasourcesFacade->deleteDatasourceData($datasource);
+    $this->resource=['code'=>200,'status'=>'OK','message'=>'Datasource data deleted: '.$datasource->datasourceId];
+    $this->sendResource();
+  }
+
+  /**
    * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
    * @param int $datasourceId
    * @throws BadRequestException
@@ -395,6 +472,12 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    */
   public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
     $this->databasesFacade=$databasesFacade;
+  }
+  /**
+   * @param MinersFacade $minersFacade
+   */
+  public function injectMinersFacade(MinersFacade $minersFacade){
+    $this->minersFacade=$minersFacade;
   }
   #endregion injections
 }

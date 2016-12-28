@@ -578,14 +578,14 @@ class TasksPresenter extends BaseResourcePresenter {
   public function actionUpdate() {
     //TODO implementovat
     throw new \Nette\NotImplementedException();
-    //XXX
+    /* XXX
     $inputData=$this->input->getData();
     $miner=$this->findMinerWithCheckAccess($inputData['miner']);
     $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
     $this->tasksFacade->saveTask($task);
     //send task details
     $this->resource=$task->getDataArr(true);
-    $this->sendResource();
+    $this->sendResource();*/
   }
 
   /**
@@ -595,6 +595,7 @@ class TasksPresenter extends BaseResourcePresenter {
     //TODO implementovat
     throw new \Nette\NotImplementedException();
     //XXX
+    /*
     $this->input->field('miner')->addRule(IValidator::CALLBACK,'You cannot use the given miner, or the miner has not been found!',function($value) {
       try {
         $miner=$this->findMinerWithCheckAccess($value);
@@ -618,9 +619,47 @@ class TasksPresenter extends BaseResourcePresenter {
       });
     $this->input->field('consequent')
       ->addRule(IValidator::REQUIRED,'You have to input interest the structure of consequent!');
+    */
   }
   #endregion actionUpdate
 
+  #region actionDelete
+  /**
+   * Akce pro smazání konkrétní úlohy
+   * @param int $id
+   * @SWG\Delete(
+   *   tags={"Tasks"},
+   *   path="/tasks/{id}",
+   *   summary="Delete existing task",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Task ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="Task deleted.",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested task was not found.")
+   * )
+   */
+  public function actionDelete($id) {
+    $task=$this->findTaskWithCheckAccess($id);
+    if (!$task->isMiningAndImportFinished()){
+      //kontrola stavu úlohy (jestli ještě neběží)
+      $this->error('Task solving is still in progress.','403');
+      return;
+    }
+    $this->tasksFacade->deleteTask($task);
+    $this->resource=['code'=>200,'status'=>'OK','message'=>'Task deleted: '.$task->taskId];
+    $this->sendResource();
+  }
+  #endregion actionDelete
 
   #region injections
   /**
@@ -635,6 +674,7 @@ class TasksPresenter extends BaseResourcePresenter {
   public function injectXmlTransformator(XmlTransformator $xmlTransformator){
     $this->xmlTransformator=$xmlTransformator;
     //nastaven basePath
+    /** @noinspection PhpUndefinedFieldInspection */
     $this->xmlTransformator->setBasePath($this->template->basePath);
   }
   #endregion injections

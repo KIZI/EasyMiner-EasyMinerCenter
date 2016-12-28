@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
@@ -15,6 +16,7 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingCommunicationException;
+use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingException;
 
 /**
  * Class MetasourcesFacade - fasáda pro práci s jednotlivými metasources (datasety)
@@ -74,6 +76,20 @@ class MetasourcesFacade {
    */
   public function findMetasourceTask($id) {
     return $this->metasourceTasksRepository->find($id);
+  }
+
+
+  /**
+   * Funkce pro nalezení všech metasources vycházejících z konkrétního datasource
+   *
+   * @param int|Datasource $datasource
+   * @return Metasource[]|null
+   */
+  public function findMetasourcesByDatasource($datasource){
+    if ($datasource instanceof Datasource){
+      $datasource=$datasource->datasourceId;
+    }
+    return $this->metasourcesRepository->findAllBy(array('datasource_id'=>$datasource));
   }
 
   /**
@@ -384,10 +400,23 @@ class MetasourcesFacade {
    * @throws \LeanMapper\Exception\InvalidStateException
    */
   public function deleteMetasource(Metasource $metasource) {
+    $this->deleteMetasourceData($metasource);
+    return $this->metasourcesRepository->delete($metasource);
+  }
+
+  /**
+   * Funkce pro smazání dat z metasource
+   * @param Metasource $metasource
+   * @throws \LeanMapper\Exception\InvalidStateException
+   * @throws PreprocessingException
+   */
+  public function deleteMetasourceData(Metasource $metasource) {
     $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(),$metasource->user);
     $ppDataset = new PpDataset($metasource->ppDatasetId,$metasource->name,null,$metasource->type,$metasource->size);
     $preprocessing->deletePpDataset($ppDataset);
-    return $this->metasourcesRepository->delete($metasource);
+    $metasource->ppDatasetId=null;
+    $metasource->state=Metasource::STATE_UNAVAILABLE;
+    $this->saveMetasource($metasource);
   }
 
 

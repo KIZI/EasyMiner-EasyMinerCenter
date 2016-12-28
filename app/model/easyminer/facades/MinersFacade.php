@@ -2,7 +2,8 @@
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
 use EasyMinerCenter\Libs\StringsHelper;
-use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
+use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -50,6 +51,30 @@ class MinersFacade {
       $user=$user->userId;
     }
     return $this->minersRepository->findAllBy(array('user_id'=>$user));
+  }
+
+  /**
+   * Funkce pro nalezení všech minerů vycházejících z konkrétního
+   * @param int|Datasource $datasource
+   * @return Miner[]|null
+   */
+  public function findMinersByDatasource($datasource){
+    if ($datasource instanceof Datasource){
+      $datasource=$datasource->datasourceId;
+    }
+    return $this->minersRepository->findAllBy(array('datasource_id'=>$datasource));
+  }
+
+  /**
+   * Funkce pro nalezení všech minerů vycházejících z konkrétního
+   * @param int|Metasource $metasource
+   * @return Miner[]|null
+   */
+  public function findMinersByMetasource($metasource){
+    if ($metasource instanceof Metasource){
+      $metasource=$metasource->metasourceId;
+    }
+    return $this->minersRepository->findAllBy(array('metasource_id'=>$metasource));
   }
 
   /**
@@ -101,29 +126,32 @@ class MinersFacade {
   }
 
   /**
-   * @param Miner|int $miner
-   * @param User $user;
+   * Funkce pro smazání mineru včetně všech navázaných úloh
+   *
+   * @param Miner $miner
    * @return int
    */
-  public function deleteMiner($miner, User $user){
-    if (!($miner instanceof Miner)){
-      $miner=$this->findMiner($miner);
-    }
-    #region smazání všech navázaných instancí driverů
-    //u samotného driveru
-    $task=new Task();
-    $task->miner=$miner;
-    $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade,$user);
-    $miningDriver->deleteMiner();
-    //u jednotlivých úloh
+  public function deleteMiner(Miner $miner){
+    #region smazání navázaných úloha a navázané instance driveru
     $tasks=$miner->tasks;
     if (!empty($tasks)){
+      //smazání jednotlivých úloh
       foreach ($tasks as $task){
-        $miningDriver=$this->miningDriverFactory->getDriverInstance($task,$this,$this->rulesFacade,$this->metaAttributesFacade,$user);
-        $miningDriver->deleteMiner();
+        $this->tasksFacade->deleteTask($task);
       }
     }
-    #endregion
+    //smazání mineru jako takového
+    $miningDriver=$this->miningDriverFactory->getDriverInstance(null,$this,$this->rulesFacade,$this->metaAttributesFacade,$miner->user);
+    $miningDriver->deleteMiner();
+    #endregion smazání navázaných úloha a navázané instance driveru
+    #region smazání metasource
+    if (!empty($miner->metasource)){
+      if (count($this->findMinersByMetasource($miner->metasource))<=1){
+        //kontrola, jestli daný metasource využívá větší množství minerů - pokud ne, odstraníme i metasource
+        $this->metasourcesFacade->deleteMetasource($miner->metasource);
+      }
+    }
+    #endregion smazání metasource
     return $this->minersRepository->delete($miner);
   }
 
@@ -137,6 +165,7 @@ class MinersFacade {
     }
     //TODO musí tu tato kontrola vůbec být?
     if (empty($miner->metasource)){
+      //kontrola, jestli má minet vytvořené metasource
       $this->saveMiner($miner);
     }
   }
