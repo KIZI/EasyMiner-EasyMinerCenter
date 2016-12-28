@@ -31,7 +31,7 @@ class Format  extends Entity{
    */
   public function findValueByValue($value){
     $valuesItem = $this->getValueByPropertyWithRelationship('values', new Filtering(function (Fluent $statement) use ($value) {
-      $statement->where("value = %s", $value);
+      $statement->where("value = %s COLLATE utf8_bin", $value);
       $statement->limit(1);
     }));
     if (is_array($valuesItem)){
@@ -48,7 +48,7 @@ class Format  extends Entity{
    */
   public function findValuesBinByName($valueBinName){
     $valuesBin = $this->getValueByPropertyWithRelationship('valuesBins', new Filtering(function (Fluent $statement) use ($valueBinName) {
-      $statement->where("name = %s", $valueBinName);
+      $statement->where("name = %s COLLATE utf8_bin", $valueBinName);
     }));
     if (is_array($valuesBin)){
       return array_shift($valuesBin);
