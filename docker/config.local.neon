@@ -17,8 +17,8 @@ parameters:
                         preprocessingApi: http://easyminer-backend/easyminer-preprocessing/api/v1
 
                 unlimited:
-                        server: took90.ics.muni.cz
-                        port: "10000"
+                        server: ""
+                        port: 10000
                         _username: easyminer
                         _database: emc_*
                         api: http://easyminer-backend/easyminer-data/api/v1
@@ -48,7 +48,7 @@ parameters:
         csvImportsDirectory: /var/www/html/easyminercenter/app/../temp/fileImports
         usersPhotosDirectory: /var/www/html/easyminercenter/app/../www/images/users
         usersPhotosUrl: /easyminercenter/images/users
-        emailFrom: vaclav.zeman@vse.cz
+        emailFrom: stanislav.vojir@vse.cz
         install:
                 password: $2y$10$JroIyhf8CZuNZce9OMsD1e36y54HjeueBvfyLGeM02gi6ij7GMD.S
 

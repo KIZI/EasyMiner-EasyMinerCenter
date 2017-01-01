@@ -11,8 +11,6 @@ $mysqli->query('DROP DATABASE IF EXISTS '.$database);
 $mysqli->query('GRANT ALL PRIVILEGES ON *.* TO "'.$database.'"@"%" IDENTIFIED BY "'.$database.'" WITH GRANT OPTION');
 $mysqli->query('CREATE DATABASE '.$database);
 $mysqli->query("GRANT ALL PRIVILEGES ON ".$database.".* TO '".$database."'@'%' IDENTIFIED BY '".$database."' WITH GRANT OPTION");
-$mysqli->query('DROP DATABASE IF EXISTS ruleml2014');
-$mysqli->query('CREATE DATABASE ruleml2014');
 $mysqli->select_db($database);
 
 $sql = file_get_contents('/var/www/html/easyminercenter/app/InstallModule/data/mysql.sql');
