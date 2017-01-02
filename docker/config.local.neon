@@ -39,7 +39,7 @@ parameters:
 
         scorerDriverFactory:
                 driver_easyMinerScorer:
-                        server: "http://easyminer-scorer/v0.3/"
+                        server: "http://easyminer-scorer:8080/v0.3/"
                         tempDirectory: "/var/www/easyminercenter/www/temp"
 
         mainDatabase:
