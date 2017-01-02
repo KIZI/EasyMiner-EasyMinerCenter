@@ -2,7 +2,6 @@
 
 if [[ $HTTP_SERVER_NAME = "" || $HTTP_SERVER_NAME = ":8894" || $HTTP_SERVER_NAME = "\$HTTP_SERVER_ADDR:8894" ]]; then
     echo "ERROR: You have to set up $HTTP_SERVER_NAME variable!"
-    sleep 5
     exit 1
 fi
 

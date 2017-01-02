@@ -37,6 +37,11 @@ parameters:
                 driver_lm:
                         server: ""
 
+        scorerDriverFactory:
+                driver_easyMinerScorer:
+                        server: "http://easyminer-scorer/v0.3/"
+                        tempDirectory: "/var/www/easyminercenter/www/temp"
+
         mainDatabase:
                 driver: mysqli
                 host: easyminer-mysql
