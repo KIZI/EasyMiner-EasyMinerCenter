@@ -49,6 +49,10 @@ class DatabasesPresenter extends BaseResourcePresenter {
    *     response=400,
    *     description="Invalid API key supplied",
    *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(
+   *     response=404,
+   *     description="Database not available"
    *   )
    * )
    */
