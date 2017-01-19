@@ -181,30 +181,30 @@ class RuleSetsPresenter extends BasePresenter{
 
     /**
      *
-     * @param int $id
-     * @param int $miner
+     * @param int $id RuleSet
+     * @param int $rule
      */
-    public function actionCompareRule($id, $miner){
-        $result=[
-            'ruleset'=>"",
-            'rules'=>[]
-        ];
-        $this->sendJsonResponse($result);
+    public function actionCompareRule($id, $rule){
         //najití RuleSetu a kontroly
         $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
         $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
         //připravení výstupu
         $result=[
             'ruleset'=>$ruleSet->getDataArr(),
-            'rules'=>[]
+            'rule'=>[]
         ];
-        if ($ruleSet->rulesCount>0 || true){
-            $rules=$this->knowledgeBaseFacade->findRulesByDatasource($ruleSet,$miner);
-            //print_r($rules);
-            if (!empty($rules)){
-                //$result['rules'] = $rules;
-                foreach($rules as $rule){
-                    $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
+        if ($ruleSet->rulesCount>0 && $rule){
+            $ruleObj=$this->rulesFacade->findRule($rule);
+            //$ruleObj->antecedent->connective
+            $ruleAttributes = [];
+            var_dump($ruleObj->antecedent);
+            foreach($ruleObj->antecedent->ruleAttributes as $ruleAttribute){
+                $ruleAttributes['antecedent'][]=$ruleAttribute->attribute->attributeId;
+                if($ruleAttribute->value){
+                    $result['rule'][]=$ruleAttribute->value->valueId;
+                }
+                if($ruleAttribute->valuesBin){
+                    $result['rule'][]=$ruleAttribute->valuesBin->valuesBinId;
                 }
             }
         }
