@@ -612,7 +612,6 @@ class CloudDriver implements IMiningDriver{
   /**
    * Funkce pro nastavení aktivní úlohy
    * @param Task $task
-   * @return mixed
    */
   public function setTask(Task $task) {
     $this->task=$task;

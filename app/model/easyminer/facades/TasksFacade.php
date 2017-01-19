@@ -2,12 +2,10 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
 use EasyMinerCenter\Model\EasyMiner\Repositories\TasksRepository;
-use Nette\Utils\FileSystem;
 
 class TasksFacade {
   /** @var  TasksRepository $tasksRepository */
@@ -30,21 +28,22 @@ class TasksFacade {
   }
 
   /**
-   * @param Miner|int $miner
-   * @param string $taskUuid
-   * @return Task
-   * @throws \Exception
-   */
-  public function findTaskByUuid($miner,$taskUuid){
-    return $this->tasksRepository->findBy(array('miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner),'task_uuid'=>$taskUuid));
-  }
-
-  /**
    * @param Task $task
    * @return mixed
    */
   public function saveTask(Task &$task){
     return $this->tasksRepository->persist($task);
+  }
+
+  /**
+   * Funkce pro smazání DM úlohy včetně připojených pravidel
+   *
+   * @param Task $task
+   */
+  public function deleteTask(Task $task){
+    //TODO smazání navázaných pravidel
+
+    //TODO
   }
 
   /**
@@ -111,28 +110,6 @@ class TasksFacade {
     }
   }
 
-
-  /**
-   * Funkce pro uložení úlohy s daným uuid (než se odešle mineru...)
-   * @param Miner $miner
-   * @param string $taskUuid
-   * @return \EasyMinerCenter\Model\EasyMiner\Entities\Task
-   */
-  public function prepareTaskWithUuid(Miner $miner,$taskUuid){
-    try{
-      $task=$this->findTaskByUuid($miner,$taskUuid);
-      return $task;
-    }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
-    $task=new Task();
-    $task->taskUuid=$taskUuid;
-    $task->miner=$miner;
-    $task->type=$miner->type;
-    $task->state=Task::STATE_NEW;
-    $this->saveTask($task);
-
-    return $task;
-  }
-
   /**
    * Funkce pro připravení úlohy před odesláním mineru
    * @param Miner $miner
@@ -145,7 +122,6 @@ class TasksFacade {
       return $task;
     }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
     $task=new Task();
-    $task->taskUuid=uniqid(); //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
     $task->miner=$miner;
     $task->type=$miner->type;
     $task->state=Task::STATE_NEW;
@@ -157,7 +133,7 @@ class TasksFacade {
   /**
    * Funkce pro připravení úlohy na základě jednoduchého pole s konfigurací (například přes API)
    *
-*@param Miner $miner
+   * @param Miner $miner
    * @param array $settingsArr
    * @param Task|null $updateTask=null
    * @return Task
@@ -174,7 +150,6 @@ class TasksFacade {
       $task = new Task();
     }
     //prepare task settings from $settings
-    $taskUuid=uniqid();
     if (isset($settingsArr['succedent'])&&!isset($settingsArr['consequent'])){
       $settingsArr['consequent']=$settingsArr['succedent'];
     }
@@ -211,14 +186,12 @@ class TasksFacade {
       'strict'=>false,
       'taskMode'=>'task',
       'taskName'=>$settingsArr['name'],
-      'taskId'=>$taskUuid
     ];
 
     //configure task object
     $task->miner=$miner;
     $task->type=$miner->type;
     $task->name=$settingsArr['name'];
-    $task->taskUuid=$taskUuid;
     $task->state=Task::STATE_NEW;
     $task->setTaskSettings($taskSettings);
     return $task;
@@ -233,7 +206,7 @@ class TasksFacade {
     $result=[];
     if (empty($IMsSettingsArr)){return $result;}
     foreach($IMsSettingsArr as $IMSettings){ //TODO KIZI/EasyMiner-EasyMinerCenter#104
-      if (!in_array($IMSettings['name'],['CONF','AAD','LIFT','SUPP','AUTO_CONF_SUPP'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
+      if (!in_array($IMSettings['name'],['CONF','AAD','LIFT','SUPP','AUTO_CONF_SUPP','RULE_LENGTH'])){ //TODO kontrola podporovaných kombinací měr zajímavosti
         throw new \InvalidArgumentException('Unsupported interest measure: '.$IMSettings['name']);
       }
       $result[]=[

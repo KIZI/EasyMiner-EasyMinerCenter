@@ -60,21 +60,15 @@ class RuleClipboardPresenter  extends BasePresenter{
    * Akce vracející pravidla pro vykreslení v easymineru
    * @param int $id
    * @param int $miner
-   * @param string $task
    * @param int $offset=0
    * @param int $limit=25
    * @param string $order = ''
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function actionGetRules($id=null,$miner,$task=null,$offset=0,$limit=25,$order=''){
+  public function actionGetRules($id=null,$miner,$offset=0,$limit=25,$order=''){
     //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+    $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
@@ -102,13 +96,11 @@ class RuleClipboardPresenter  extends BasePresenter{
    * Akce pro přidání pravidla do rule clipboard
    * @param int $id
    * @param int $miner
-   * @param string $task
    * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    * @throws ForbiddenRequestException
    */
-  public function actionAddRule($id,$miner,$task,$rules){
-    //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-    $resultRules=$this->changeRulesClipboardState($id,$miner,$task,$rules,true);
+  public function actionAddRule($id,$miner,$rules){
+    $resultRules=$this->changeRulesClipboardState($id,$miner,$rules,true);
     $result=array();
     if (!empty($resultRules)){
       foreach($resultRules as $rule){
@@ -122,17 +114,11 @@ class RuleClipboardPresenter  extends BasePresenter{
    * Akce pro přidání celých výsledků úlohy do rule clipboard
    * @param int $id
    * @param int $miner
-   * @param string $task
    * @param string $returnRules='' - IDčka oddělená čárkami, případně jedno ID
    * @throws ForbiddenRequestException
    */
-  public function actionAddAllRules($id=null,$miner,$task=null,$returnRules=''){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+  public function actionAddAllRules($id=null,$miner,$returnRules=''){
+    $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
 
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
@@ -164,18 +150,12 @@ class RuleClipboardPresenter  extends BasePresenter{
   /**
    * @param int $id
    * @param int $miner
-   * @param string $task
    * @param string $returnRules='' - IDčka oddělená čárkami, případně jedno ID
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
-  public function actionRemoveAllRules($id=null,$miner,$task=null,$returnRules=''){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+  public function actionRemoveAllRules($id=null,$miner,$returnRules=''){
+    $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
 
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));//TODO IDčka???
@@ -188,12 +168,10 @@ class RuleClipboardPresenter  extends BasePresenter{
   /**
    * Akce pro odebrání pravidla z rule clipboard
    * @param int $miner
-   * @param string $task
    * @param string $rules - IDčka oddělená čárkami, případně jedno ID
    */
-  public function actionRemoveRule($id,$miner,$task,$rules){
-    //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-    $resultRules=$this->changeRulesClipboardState($id,$miner,$task,$rules,false);
+  public function actionRemoveRule($id,$miner,$rules){
+    $resultRules=$this->changeRulesClipboardState($id,$miner,$rules,false);
     $result=array();
     if (!empty($resultRules)){
       foreach($resultRules as $rule){
@@ -206,20 +184,14 @@ class RuleClipboardPresenter  extends BasePresenter{
   /**
    * @param int $id
    * @param int $miner
-   * @param string $task
    * @param int|string $rules
    * @param bool $inRuleClipboard
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    * @return Rule[]
    */
-  private function changeRulesClipboardState($id=null,$miner,$task=null,$rules,$inRuleClipboard){
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+  private function changeRulesClipboardState($id=null,$miner,$rules,$inRuleClipboard){
+    $task=$this->tasksFacade->findTask($id);
 
     $this->checkMinerAccess($task->miner);
     $ruleIdsArr=explode(',',str_replace(';',',',$rules));
@@ -253,21 +225,15 @@ class RuleClipboardPresenter  extends BasePresenter{
    * Akce pro přidání celého obsahu rule clipboard do zvoleného rulesetu
    * @param int $id
    * @param int $miner
-   * @param string $task
    * @param int $ruleset
    * @param string $relation
    * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
    * @throws ForbiddenRequestException
    * @throws BadRequestException
    */
-  public function actionAddRulesToRuleSet($id=null,$miner,$task=null,$ruleset,$relation=RuleSetRuleRelation::RELATION_POSITIVE,$returnRules=''){
+  public function actionAddRulesToRuleSet($id=null,$miner,$ruleset,$relation=RuleSetRuleRelation::RELATION_POSITIVE,$returnRules=''){
     //načtení dané úlohy a zkontrolování přístupu k mineru
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+    $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
 
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
@@ -302,20 +268,14 @@ class RuleClipboardPresenter  extends BasePresenter{
    * Akce pro odebrání celého obsahu rule clipboard z konkrétního rulesetu
    * @param int $id
    * @param int $miner
-   * @param string $task
    * @param int $ruleset
    * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
    * @throws ForbiddenRequestException
    * @throws BadRequestException
    */
-  public function actionRemoveRulesFromRuleSet($id=null,$miner,$task=null,$ruleset,$returnRules=''){
+  public function actionRemoveRulesFromRuleSet($id=null,$miner,$ruleset,$returnRules=''){
     //načtení dané úlohy a zkontrolování přístupu k mineru
-    if (!empty($task)){
-      //TODO odstranit v rámci issue KIZI/EasyMiner-EasyMinerCenter#143
-      $task=$this->tasksFacade->findTaskByUuid($miner,$task);
-    }else{
-      $task=$this->tasksFacade->findTask($id);
-    }
+    $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
 
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));

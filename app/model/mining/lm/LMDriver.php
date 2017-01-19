@@ -300,11 +300,11 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející jméno úlohy na LM connectu taskUUID
+   * Funkce vracející jméno úlohy na LM connectu
    * @return string
    */
   private function getRemoteMinerTaskName(){
-    return $this->task->taskUuid;
+    return $this->task->taskId;//TODO doplnit identifikaci mineru atp.
   }
 
   /**

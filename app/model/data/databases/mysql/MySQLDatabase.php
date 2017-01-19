@@ -647,4 +647,13 @@ class MySQLDatabase implements IDatabase{
     // TODO: Implement getDbValuesRows() method.
     throw new NotImplementedException();
   }
+
+  /**
+   * Funkce pro odstranění datového zdroje
+   *
+   * @param DbDatasource $dbDatasource
+   */
+  public function deleteDbDatasource(DbDatasource $dbDatasource){
+    // TODO: Implement deleteDbDatasource() method.
+  }
 }

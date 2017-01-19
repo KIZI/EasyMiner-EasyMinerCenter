@@ -2,12 +2,6 @@
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
 --
 -- Databáze: `easyminercenter`
 --
@@ -31,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `attributes` (
   KEY `datasource_id` (`metasource_id`),
   KEY `datasource_column_id` (`datasource_column_id`),
   KEY `preprocessing_id` (`preprocessing_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB' AUTO_INCREMENT=2033 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB';
 
 -- --------------------------------------------------------
 
@@ -43,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `cedents` (
   `cedent_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `connective` enum('conjunction','disjunction','negation') COLLATE utf8_czech_ci NOT NULL,
   PRIMARY KEY (`cedent_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující jednotlivé cedenty' AUTO_INCREMENT=295404 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující jednotlivé cedenty';
 
 -- --------------------------------------------------------
 
@@ -93,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `datasources` (
   `size` int(11) DEFAULT NULL COMMENT 'Informace o počtu řádků',
   PRIMARY KEY (`datasource_id`),
   KEY `is_user` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data' AUTO_INCREMENT=341 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data';
 
 -- --------------------------------------------------------
 
@@ -113,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `datasource_columns` (
   PRIMARY KEY (`datasource_column_id`),
   KEY `datasource_id` (`datasource_id`),
   KEY `format_id` (`format_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB' AUTO_INCREMENT=5317 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informaci o namapování datových sloupců na formáty z KB';
 
 -- --------------------------------------------------------
 
@@ -131,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `formats` (
   PRIMARY KEY (`format_id`),
   KEY `meta_attribute_id` (`meta_attribute_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých formátů' AUTO_INCREMENT=5002 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých formátů';
 
 -- --------------------------------------------------------
 
@@ -161,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `intervals` (
   `right_closure` enum('closed','open') COLLATE utf8_czech_ci NOT NULL,
   PRIMARY KEY (`interval_id`),
   KEY `format_id` (`format_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci AUTO_INCREMENT=2334 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -173,7 +167,23 @@ CREATE TABLE IF NOT EXISTS `knowledge_bases` (
   `knowledge_base_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   PRIMARY KEY (`knowledge_base_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující názvy jednotlivých KnowledgeBase' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující názvy jednotlivých KnowledgeBase';
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `knowledge_base_rule_relations`
+--
+
+CREATE TABLE IF NOT EXISTS `knowledge_base_rule_relations` (
+  `knowledge_base_rule_relation_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `rule_id` bigint(20) NOT NULL,
+  `knowledge_base_rule_id` int(11) NOT NULL,
+  `rate` float NOT NULL COMMENT 'Míra podobnosti',
+  PRIMARY KEY (`knowledge_base_rule_relation_id`),
+  UNIQUE KEY `rule_id` (`rule_id`,`knowledge_base_rule_id`),
+  KEY `rule_set_id` (`knowledge_base_rule_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -199,7 +209,7 @@ CREATE TABLE IF NOT EXISTS `metasources` (
   PRIMARY KEY (`metasource_id`),
   KEY `is_user` (`user_id`),
   KEY `datasource_id` (`datasource_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data' AUTO_INCREMENT=348 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with definition of databases with user data';
 
 -- --------------------------------------------------------
 
@@ -217,7 +227,7 @@ CREATE TABLE IF NOT EXISTS `metasource_tasks` (
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`metasource_task_id`),
   KEY `metasource_id` (`metasource_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující přehled dlouhoběžících úloh z preprocessingu' AUTO_INCREMENT=58 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující přehled dlouhoběžících úloh z preprocessingu';
 
 -- --------------------------------------------------------
 
@@ -244,7 +254,7 @@ CREATE TABLE IF NOT EXISTS `meta_attributes` (
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   PRIMARY KEY (`meta_attribute_id`),
   KEY `knowledge_base_id` (`knowledge_base_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici metaatributů' AUTO_INCREMENT=1744 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici metaatributů';
 
 -- --------------------------------------------------------
 
@@ -268,7 +278,7 @@ CREATE TABLE IF NOT EXISTS `miners` (
   KEY `datasource_id` (`datasource_id`),
   KEY `attributessource_id` (`metasource_id`),
   KEY `rule_set_id` (`rule_set_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Table with definition of EasyMiner instances' AUTO_INCREMENT=264 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Table with definition of EasyMiner instances';
 
 -- --------------------------------------------------------
 
@@ -286,7 +296,7 @@ CREATE TABLE IF NOT EXISTS `preprocessings` (
   PRIMARY KEY (`preprocessing_id`),
   KEY `format_id` (`format_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující seznam preprocessingů' AUTO_INCREMENT=1867 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující seznam preprocessingů';
 
 -- --------------------------------------------------------
 
@@ -326,7 +336,7 @@ CREATE TABLE IF NOT EXISTS `rules` (
   KEY `task_id` (`task_id`),
   KEY `consequent` (`consequent`),
   KEY `antecedent` (`antecedent`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující nalezená asociační pravidla' AUTO_INCREMENT=1641054 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující nalezená asociační pravidla';
 
 -- --------------------------------------------------------
 
@@ -343,7 +353,7 @@ CREATE TABLE IF NOT EXISTS `rule_attributes` (
   KEY `attribute_id` (`attribute_id`),
   KEY `values_bin_id` (`values_bin_id`),
   KEY `value_id` (`value_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci AUTO_INCREMENT=54859 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -359,7 +369,7 @@ CREATE TABLE IF NOT EXISTS `rule_sets` (
   `rules_count` int(11) NOT NULL,
   PRIMARY KEY (`rule_set_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých rulesetů' AUTO_INCREMENT=109 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých rulesetů';
 
 -- --------------------------------------------------------
 
@@ -376,7 +386,7 @@ CREATE TABLE IF NOT EXISTS `rule_set_rule_relations` (
   PRIMARY KEY (`rule_set_rule_relation_id`),
   UNIQUE KEY `rule_id` (`rule_id`,`rule_set_id`),
   KEY `rule_set_id` (`rule_set_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci AUTO_INCREMENT=208 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -389,7 +399,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   `task_uuid` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `miner_id` int(11) NOT NULL,
   `type` enum('lm','r','cloud') COLLATE utf8_czech_ci NOT NULL,
-  `name` varchar(200) COLLATE utf8_czech_ci NOT NULL,
+  `name` varchar(400) COLLATE utf8_czech_ci NOT NULL,
   `state` enum('new','in_progress','solved','failed','interrupted','solved_heads') COLLATE utf8_czech_ci NOT NULL DEFAULT 'new',
   `rules_count` int(11) NOT NULL DEFAULT '0',
   `rules_in_rule_clipboard_count` int(11) NOT NULL DEFAULT '0',
@@ -400,7 +410,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   `import_json` text COLLATE utf8_czech_ci NOT NULL COMMENT 'JSON s informacemi pro postupný import dat',
   PRIMARY KEY (`task_id`),
   KEY `miner_id` (`miner_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci AUTO_INCREMENT=2455 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -421,7 +431,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_login` datetime NOT NULL,
   `active` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users' AUTO_INCREMENT=55 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users';
 
 -- --------------------------------------------------------
 
@@ -436,7 +446,7 @@ CREATE TABLE IF NOT EXISTS `user_forgotten_passwords` (
   `generated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_forgotten_password_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující bezpečnostní kódy pro změnu hesel' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující bezpečnostní kódy pro změnu hesel';
 
 -- --------------------------------------------------------
 
@@ -451,7 +461,7 @@ CREATE TABLE IF NOT EXISTS `values` (
   PRIMARY KEY (`value_id`),
   KEY `format_id` (`format_id`),
   KEY `value` (`value`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci AUTO_INCREMENT=152514 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -465,7 +475,7 @@ CREATE TABLE IF NOT EXISTS `values_bins` (
   `format_id` int(11) NOT NULL,
   PRIMARY KEY (`values_bin_id`),
   KEY `format_id` (`format_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci AUTO_INCREMENT=390 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -659,7 +669,3 @@ ALTER TABLE `values_bins_intervals`
 ALTER TABLE `values_bins_values`
   ADD CONSTRAINT `values_bins_values_ibfk_1` FOREIGN KEY (`values_bin_id`) REFERENCES `values_bins` (`values_bin_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `values_bins_values_ibfk_2` FOREIGN KEY (`value_id`) REFERENCES `values` (`value_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

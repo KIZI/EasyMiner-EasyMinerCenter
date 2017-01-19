@@ -74,7 +74,7 @@ var Config = new Class({
   knowledgeBaseSetMinerRuleSetUrl: {plink Miners:setRuleSet miner=>'__MINERID__', ruleSet=>'__RULESETID__'},
 
   showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',id=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},
-  showTaskDetailsUrl: {plink Tasks:taskDetails miner=>'__MINERID__',id=>'__TASKID__'},
+  showTaskDetailsUrl: {plink Tasks:taskDetails id=>'__TASKID__'},
   getTaskPMMLUrl: {plink Tasks:taskPmml},
   //endregion
 
@@ -146,7 +146,7 @@ var Config = new Class({
   },
 
   getTaskDetailsUrl:function(taskId){
-    return this.showTaskDetailsUrl.replace('__MINERID__', this.getMinerId()).replace('__TASKID__',taskId);
+    return this.showTaskDetailsUrl.replace('__TASKID__',taskId);
   },
 
   getGetDataURL: function () {
@@ -160,7 +160,7 @@ var Config = new Class({
 
   //region mining
   getStartMiningUrl: function (taskId) {
-    return this.startMiningUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
+    return this.startMiningUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId==0?'':taskId);
   },
   getStopMiningUrl: function (taskId) {
     return this.stopMiningUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);

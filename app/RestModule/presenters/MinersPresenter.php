@@ -267,6 +267,42 @@ class MinersPresenter extends BaseResourcePresenter{
   }
   #endregion actionCreate
 
+  #region actionDelete
+  /**
+   * Funkce pro smazání konkrétního mineru
+   * @param int $id
+   * @throws BadRequestException
+   * @SWG\Delete(
+   *   tags={"Miners"},
+   *   path="/miners/{id}",
+   *   summary="Delete miner with all tasks",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Miner ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response="200",
+   *     description="Miner deleted.",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(response=404, description="Requested miner was not found.")
+   * )
+   */
+  public function actionDelete($id){
+    $this->setXmlMapperElements('result');
+    if (empty($id)){$this->forward('list');return;}
+    $miner=$this->findMinerWithCheckAccess($id);
+    $this->minersFacade->deleteMiner($miner);
+    $this->resource=['200','OK','Miner deleted: '.$miner->minerId];
+    $this->sendResource();
+  }
+  #endregion actionDelete
+
   #region injections
   /**
    * @param DatasourcesFacade $datasourcesFacade

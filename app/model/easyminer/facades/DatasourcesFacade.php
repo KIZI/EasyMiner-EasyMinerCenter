@@ -543,6 +543,39 @@ class DatasourcesFacade {
     return $this->datasourcesRepository->persist($datasource);
   }
 
+  /**
+   * Funkce pro smazání konkrétního datového zdroje
+   * @param Datasource $datasource
+   * @param MinersFacade $minersFacade
+   * @return bool
+   */
+  public function deleteDatasource(Datasource $datasource, MinersFacade $minersFacade){
+    //smazání navázaných dat
+    $this->deleteDatasourceData($datasource);
+    //nalezení všech navázaných minerů a jejich odstranění
+    $miners=$minersFacade->findMinersByDatasource($datasource);
+    if (!empty($miners)){
+      foreach($miners as $miner){
+        $minersFacade->deleteMiner($miner);
+      }
+    }
+    //smazání samotného datového zdroje
+    return $this->datasourcesRepository->delete($datasource);
+  }
+
+  /**
+   * Funkce pro smazání navázaného datového zdroje (se zachováním záznamu o něm, zachování metasource a minerů)
+   *
+   * @param Datasource $datasource
+   */
+  public function deleteDatasourceData(Datasource $datasource){
+    $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(),$datasource->user);
+    $dbDatasource = new DbDatasource($datasource->dbDatasourceId,$datasource->name,$datasource->type,$datasource->size);
+    $database->deleteDbDatasource($dbDatasource);
+    $datasource->dbDatasourceId=null;
+    $datasource->available=false;
+    $this->saveDatasource($datasource);
+  }
 
 
 #  /**

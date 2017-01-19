@@ -49,6 +49,10 @@ class DatabasesPresenter extends BaseResourcePresenter {
    *     response=400,
    *     description="Invalid API key supplied",
    *     @SWG\Schema(ref="#/definitions/StatusResponse")
+   *   ),
+   *   @SWG\Response(
+   *     response=404,
+   *     description="Database not available"
    *   )
    * )
    */
@@ -57,6 +61,10 @@ class DatabasesPresenter extends BaseResourcePresenter {
     $dbType=strtolower($dbType);
     //kontrola toho, kdy byl naposled kontrolován přístup k DB
     if ($this->currentUser->getLastDbCheck($dbType)<time()-DatabaseFactory::DB_AVAILABILITY_CHECK_INTERVAL){
+      if (!in_array($dbType, $this->databaseFactory->getDbTypes())){
+        $this->error('Database is not configured: '.$dbType);
+      }
+
       $this->currentUser->setLastDbCheck($dbType,time());
       $this->usersFacade->saveUser($this->currentUser);//TODO tahle kontrola by ještě měla být optimalizovaná
       $dbAvailabilityCheck=true;

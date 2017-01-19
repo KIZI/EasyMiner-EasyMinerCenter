@@ -49,7 +49,7 @@ abstract class BasePresenter extends Presenter{//BaseRestPresenter
    */
   protected function startup() {
     $user=$this->getUser();
-    $action=$this->request->parameters['action']?$this->request->parameters['action']:'';
+    $action=!empty($this->request->parameters['action'])?$this->request->parameters['action']:'';
     if (!$user->isAllowed($this->request->presenterName,$action)){
       if ($user->isLoggedIn()){
         throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access the required resource!'));

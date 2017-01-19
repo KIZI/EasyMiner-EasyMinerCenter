@@ -38,6 +38,13 @@ interface IDatabase {
   public function getDbFields(DbDatasource $dbDatasource);
 
   /**
+   * Funkce pro odstranění datového zdroje
+   *
+   * @param DbDatasource $dbDatasource
+   */
+  public function deleteDbDatasource(DbDatasource $dbDatasource);
+
+  /**
    * Konstruktor zajišťující připojení k databázi
    *
    * @param DbConnection $dbConnection
