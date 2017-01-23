@@ -189,24 +189,84 @@ class RuleSetsPresenter extends BasePresenter{
         $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
         $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
         //připravení výstupu
-        $result=[
-            'ruleset'=>$ruleSet->getDataArr(),
-            'rule'=>[]
-        ];
+        $result=[];
         if ($ruleSet->rulesCount>0 && $rule){
             $ruleObj=$this->rulesFacade->findRule($rule);
             //$ruleObj->antecedent->connective
-            $ruleAttributes = [];
-            var_dump($ruleObj->antecedent);
+            $ruleAttributes = $ruleValues = [];
             foreach($ruleObj->antecedent->ruleAttributes as $ruleAttribute){
-                $ruleAttributes['antecedent'][]=$ruleAttribute->attribute->attributeId;
+                $ruleAttributes['antecedent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->attribute->attributeId;
                 if($ruleAttribute->value){
-                    $result['rule'][]=$ruleAttribute->value->valueId;
-                }
-                if($ruleAttribute->valuesBin){
-                    $result['rule'][]=$ruleAttribute->valuesBin->valuesBinId;
+                    $ruleValues['antecedent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->value->valueId;
+                } elseif($ruleAttribute->valuesBin){
+                    $ruleValues['antecedent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->valuesBin->valuesBinId;
                 }
             }
+            foreach($ruleObj->consequent->ruleAttributes as $ruleAttribute){
+                $ruleAttributes['consequent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->attribute->attributeId;
+                if($ruleAttribute->value){
+                    $ruleValues['consequent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->value->valueId;
+                } elseif($ruleAttribute->valuesBin){
+                    $ruleValues['consequent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->valuesBin->valuesBinId;
+                }
+            }
+            $result['rule'] = $ruleAttributes;
+            $result['max'] = 0;
+
+            foreach($ruleSet->findRules() as $ruleSetRule){ //TO-DO save in cache/session etc.
+                $antecedentAttributesCount = 0;
+                $consequentAttributesCount = 0;
+                $antecedentAttributesSame = 0;
+                $consequentAttributesSame = 0;
+                $crossAttributesConflict = 0;
+                foreach($ruleSetRule->antecedent->ruleAttributes as $ruleAttribute){
+                    $attributeId = $ruleAttribute->attribute->attributeId;
+                    if(in_array($attributeId, $ruleAttributes['consequent'])){
+                        $crossAttributesConflict++; // attribute on opposite site of rule
+                    }
+                    if(isset($ruleAttributes['antecedent'][$ruleAttribute->ruleAttributeId]) || array_key_exists($ruleAttribute->ruleAttributeId, $ruleAttributes['antecedent'])){
+                        $antecedentAttributesSame += 2; // same rule attribute
+                    } else{
+                        if(in_array($attributeId, $ruleAttributes['antecedent'])){
+                            $antecedentAttributesSame++; // same attribute
+                        }
+                        if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['antecedent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['antecedent']))){
+                            $antecedentAttributesSame++; // same value or values bin
+                        }
+                    }
+                    $antecedentAttributesCount++;
+                }
+                foreach($ruleSetRule->consequent->ruleAttributes as $ruleAttribute){
+                    $attributeId = $ruleAttribute->attribute->attributeId;
+                    if(in_array($attributeId, $ruleAttributes['antecedent'])){
+                        $crossAttributesConflict++; // attribute on opposite site of rule
+                    }
+                    if(isset($ruleAttributes['consequent'][$ruleAttribute->ruleAttributeId]) || array_key_exists($ruleAttribute->ruleAttributeId, $ruleAttributes['consequent'])){
+                        $consequentAttributesSame += 2; // same rule attribute
+                    } else{
+                        if(in_array($attributeId, $ruleAttributes['consequent'])){
+                            $consequentAttributesSame++; // same attribute
+                        }
+                        if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['consequent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['consequent']))){
+                            $consequentAttributesSame++; // same value or values bin
+                        }
+                    }
+                    $consequentAttributesCount++;
+                }
+                $sameRateAntecedent = $antecedentAttributesSame/($antecedentAttributesCount+count($ruleAttributes['antecedent']));
+                $sameRateConsequent = $consequentAttributesSame/($consequentAttributesCount+count($ruleAttributes['consequent']));
+                $sameRateFinal = ($sameRateAntecedent+$sameRateConsequent)/2;
+
+                if($result['max'] < $sameRateFinal){
+                    $result['max'] = $sameRateFinal;
+                    $result['ruleset'] = [$ruleSetRule->ruleId => $sameRateFinal];
+                }
+                //$ruleAntAtt = $ruleSetRule->antecedent->ruleAttributes;
+                //array_diff($ruleAntAtt, $ruleAttributes['antecedent']);
+                //var_dump(count($ruleAntAtt));
+                //var_dump($ruleSetRule->antecedent->ruleAttributes);
+            }
+            //$result['ruleset'] = $ruleAttributes;
         }
         $this->sendJsonResponse($result);
     }
