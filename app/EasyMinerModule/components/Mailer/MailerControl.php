@@ -29,7 +29,6 @@ class MailerControl extends Control{
    * @return bool
    */
   public function sendMailForgottenPassword(UserForgottenPassword $userForgottenPassword){
-    mail('stanislav.vojir@gmail.com','test','test z br-dev');
     $mailMessage=$this->prepareMailMessage('ForgottenPassword',['userForgottenPassword'=>$userForgottenPassword]);
     $mailMessage->addTo($userForgottenPassword->user->email);
     try {
