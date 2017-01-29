@@ -1,12 +1,14 @@
 <?php
 namespace EasyMinerCenter\RestModule\Presenters;
 
+use Drahak\Restful\Security\AuthenticationException;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use Drahak\Restful\Resource;
 use Drahak\Restful\Validation\IValidator;
 use Nette\Application\Responses\TextResponse;
 use Nette\NotImplementedException;
+use Nette\Security\Passwords;
 
 /**
  * Class UsersPresenter - RESTFUL presenter for management of users
@@ -132,13 +134,13 @@ class UsersPresenter extends BaseResourcePresenter {
    *     name="user",
    *     description="User",
    *     required=true,
-   *     @SWG\Schema(ref="#/definitions/UserResponse"),
+   *     @SWG\Schema(ref="#/definitions/UserInput"),
    *     in="body"
    *   ),
    *   @SWG\Response(
    *     response=201,
    *     description="User account created successfully, returns details of User.",
-   *     @SWG\Schema(ref="#/definitions/UserResponse")
+   *     @SWG\Schema(ref="#/definitions/UserResponseWithApiKey")
    *   ),
    *   @SWG\Response(response=404,description="Requested user was not found.")
    * )
@@ -146,12 +148,32 @@ class UsersPresenter extends BaseResourcePresenter {
   public function actionCreate(){
     //prepare User from input values
     $user=new User();
+    /** @noinspection PhpUndefinedFieldInspection */
     $user->name=$this->input->name;
+    /** @noinspection PhpUndefinedFieldInspection */
     $user->email=$this->input->email;
+    /** @noinspection PhpUndefinedFieldInspection */
+    $user->password=Passwords::hash($this->input->password);
     $user->active=true;
     $this->usersFacade->saveUser($user);
     //send response
-    $this->actionRead($user->userId);
+
+    try{
+      /** @var User $user */
+      $user=$this->usersFacade->findUser($user->userId);
+    }catch (EntityNotFoundException $e){
+      $this->error('Requested user was not found. User account creation failed.');
+      return;
+    }
+
+    $this->resource=[
+      'id'=>$user->userId,
+      'name'=>$user->name,
+      'email'=>$user->email,
+      'active'=>$user->active,
+      'apiKey'=>$user->getEncodedApiKey()
+    ];
+    $this->sendResource();
   }
 
   /**
@@ -254,6 +276,17 @@ class UsersPresenter extends BaseResourcePresenter {
       ->addRule(IValidator::MIN_LENGTH,'Minimal length of password is %s characters!',6);
   }
   #endregion
+
+  /**
+   * Funkce po spuštění - pro kontrolu autentizace/autorizace
+   * @param bool $allowAnonymous=false
+   * @throws AuthenticationException
+   * @throws \Drahak\Restful\Application\BadRequestException
+   * @throws \Exception
+   */
+  public function startup($allowAnonymous=false){
+    parent::startup(@$this->request->parameters['action']=='create' || $allowAnonymous);
+  }
 }
 
 /**
@@ -273,5 +306,15 @@ class UsersPresenter extends BaseResourcePresenter {
  *   @SWG\Property(property="name",type="string",description="Name of the user"),
  *   @SWG\Property(property="email",type="string",description="E-mail for the User"),
  *   @SWG\Property(property="password",type="string",description="Password of the User (required for new account or for password change)"),
+ * )
+ * @SWG\Definition(
+ *   definition="UserResponseWithApiKey",
+ *   title="User",
+ *   required={"id","name","email","active"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the user"),
+ *   @SWG\Property(property="name",type="string",description="Human-readable name of the user"),
+ *   @SWG\Property(property="email",type="string",description="E-mail for the user"),
+ *   @SWG\Property(property="active",type="boolean",description="Was the user account activated?"),
+ *   @SWG\Property(property="apiKey",type="string",description="User API key - for usage with other API requests")
  * )
  */

@@ -97,21 +97,28 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   protected $xmlMapper=null;
 
   /**
+   * @param bool $allowAnonymous=false - pokud je true, je ignorována kontrola API klíče
    * @throws AuthenticationException
    * @throws \Drahak\Restful\Application\BadRequestException
    * @throws \Exception
    */
-  public function startup() {
+  public function startup($allowAnonymous=false) {
     //kontrola přihlášeného uživatele
     $apiKey=@$this->getInput()->getData()['apiKey'];
     if (empty($apiKey)){
       $authorizationHeader=$this->getHttpRequest()->getHeader('Authorization');
       $apiKey=(substr($authorizationHeader,0,7)=="ApiKey "?substr($authorizationHeader,7):null);
     }
-    if (empty($apiKey)) {
-      throw new AuthenticationException("You have to use API KEY!",IAuthenticator::FAILURE);
-    }else{
-      $this->identity=$this->usersFacade->authenticateUserByApiKey($apiKey,$this->currentUser);
+    try{
+      if (empty($apiKey)) {
+        throw new AuthenticationException("You have to use API KEY!",IAuthenticator::FAILURE);
+      }else{
+        $this->identity=$this->usersFacade->authenticateUserByApiKey($apiKey,$this->currentUser);
+      }
+    }catch(\Exception $e){
+      if (!$allowAnonymous){
+        throw $e;
+      }
     }
     //spuštění výchozí startup() akce
     parent::startup();
