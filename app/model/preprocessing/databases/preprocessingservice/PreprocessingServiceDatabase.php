@@ -87,7 +87,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
         $result=[];
         if (!empty($responseData)){
           foreach($responseData as $responseField){
-            $result[]=new PpAttribute($responseField['id'], $responseField['dataset'], $responseField['field'], $responseField['name'], $responseField['type'], $responseField['uniqueValuesSize']);
+            $result[]=new PpAttribute($responseField['id'], $responseField['dataset'], $responseField['field'], $responseField['name'], (empty($responseField['type'])?PpAttribute::TYPE_NOMINAL:$responseField['type']), $responseField['uniqueValuesSize']);
           }
         }
         return $result;
