@@ -75,10 +75,10 @@ class EasyMinerScorer implements IScorerDriver{
     /** @var ScoringResult[] $partialResults */
     $partialResults=[];
     $url.='/'.$scorerId;
+    //připravení JSONu a jeho odeslání
+    $preloadedDbFields=null;
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
-      //připravení JSONu a jeho odeslání
-      $preloadedDbFields=null;
       $dbValuesRows=$database->getDbValuesRows($dbDatasource,$testedRowsCount,self::ROWS_PER_TEST,$preloadedDbFields);
       $dbValuesRowsData=$dbValuesRows->getRowsAsArray();
       if (!(count($dbValuesRowsData)>0)){

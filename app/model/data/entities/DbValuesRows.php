@@ -39,7 +39,7 @@ class DbValuesRows{
     $names=[];
     if (!empty($this->dbFields)){
       foreach($this->dbFields as $dbField){
-        $names[]=$dbField->name;
+        $names[$dbField->id]=$dbField->name;
       }
     }
     return $names;
@@ -64,7 +64,9 @@ class DbValuesRows{
       foreach($this->valuesRows as $valuesRow){
         $rowArr=[];
         foreach($fieldNames as $i=>$fieldName){
-          $rowArr[$fieldName]=@$valuesRow[$i];
+          if (isset($valuesRow[$i])){
+            $rowArr[$fieldName]=$valuesRow[$i];
+          }
         }
         $result[]=$rowArr;
       }

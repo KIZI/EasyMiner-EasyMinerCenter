@@ -202,15 +202,22 @@ abstract class DataServiceDatabase implements IDatabase {
       $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.urlencode($dbDatasource->id).'/instances?offset='.intval($offset).'&limit='.intval($limit)),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
       if ($responseCode==200){
         $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
-        if (!empty($responseData['fields'])){
-          $preloadedDbFields=[];
-          foreach($responseData['fields'] as $fieldData){
-            $preloadedDbFields[]=new DbField($fieldData['id'],$fieldData['dataSource'],$fieldData['name'],$fieldData['type'],$fieldData['uniqueValuesSize']);
-          }
-        }elseif(empty($preloadedDbFields)){
+        if(empty($preloadedDbFields)){
           $preloadedDbFields=$this->getDbFields($dbDatasource);
         }
-        return new DbValuesRows($preloadedDbFields, !empty($responseData['instances'])?$responseData['instances']:[]);
+        $rowsData=[];
+        if (!empty($responseData)){
+          foreach($responseData as $responseDataRow){
+            $rowData=[];
+            if (!empty($responseDataRow['values'])){
+              foreach($responseDataRow['values'] as $valueItem){
+                $rowData[$valueItem['field']]=$valueItem['value'];
+              }
+            }
+            $rowsData[$responseDataRow['id']]=$rowData;
+          }
+        }
+        return new DbValuesRows($preloadedDbFields, $rowsData);
       }else{
         throw new DatabaseCommunicationException('responseCode: '.$responseCode);
       }
