@@ -10,6 +10,7 @@ use EasyMinerCenter\Model\Scoring\IScorerDriver;
 use EasyMinerCenter\Model\Scoring\ScoringResult;
 use Nette\NotImplementedException;
 use Nette\Utils\Json;
+use Tracy\Debugger;
 
 /**
  * Class EasyMinerScorer - driver pro práci se scorerem vytvořeným Jardou Kuchařem
@@ -77,12 +78,18 @@ class EasyMinerScorer implements IScorerDriver{
     //export jednotlivých řádků z DB a jejich otestování
     while($testedRowsCount<$dbRowsCount){
       //připravení JSONu a jeho odeslání
-      $dbValuesRows=$database->getDbValuesRows($dbDatasource,$testedRowsCount,self::ROWS_PER_TEST);
-      $json=Json::encode($dbValuesRows->getRowsAsArray());
-      $response=self::curlRequestResponse($url,$json,'',['Content-Type'=>'application/json; charset=utf-8']);
+      $preloadedDbFields=null;
+      $dbValuesRows=$database->getDbValuesRows($dbDatasource,$testedRowsCount,self::ROWS_PER_TEST,$preloadedDbFields);
+      $dbValuesRowsData=$dbValuesRows->getRowsAsArray();
+      if (!(count($dbValuesRowsData)>0)){
+        throw new \Exception('Values serialization failed!');
+      }
+      $json=Json::encode($dbValuesRowsData);
+      $responseStr=self::curlRequestResponse($url,$json,'',['Content-Type'=>'application/json; charset=utf-8']);
 
-      $response=Json::decode($response,Json::FORCE_ARRAY);
+      $response=Json::decode($responseStr,Json::FORCE_ARRAY);
       if ($response["code"]!=200){
+        Debugger::log('Invalid scorer response: '.$responseStr,Debugger::EXCEPTION);
         throw new \Exception('Invalid scorer response!');
       }
 
