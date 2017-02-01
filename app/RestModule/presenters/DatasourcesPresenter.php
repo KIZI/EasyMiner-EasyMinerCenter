@@ -238,7 +238,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $result=$datasource->getDataArr();
     if (!empty($datasource->datasourceColumns)){
       foreach($datasource->datasourceColumns as $column){
-        $result['column'][]=['name'=>$column->name,'type'=>$column->type];
+        $result['column'][]=['id'=>$column->datasourceColumnId,'name'=>$column->name,'type'=>$column->type];
       }
     }
     $this->resource=$result;
