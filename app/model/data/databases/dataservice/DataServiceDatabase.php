@@ -193,22 +193,31 @@ abstract class DataServiceDatabase implements IDatabase {
    * @param DbDatasource $dbDatasource
    * @param int $offset =0
    * @param int $limit =1000
-   * @param DbField[]|null $dbFields =null
+   * @param DbField[]|null &$preloadedDbFields =null
    * @return DbValuesRows
    * @throws DatabaseException
    */
-  public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, $dbFields=null){
+  public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, &$preloadedDbFields=null){
     try{
       $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.urlencode($dbDatasource->id).'/instances?offset='.intval($offset).'&limit='.intval($limit)),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
       if ($responseCode==200){
         $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
-        $fields=[];
-        if (!empty($responseData['fields'])){
-          foreach($responseData['fields'] as $fieldData){
-            $fields[]=new DbField($fieldData['id'],$fieldData['dataSource'],$fieldData['name'],$fieldData['type'],$fieldData['uniqueValuesSize']);
+        if(empty($preloadedDbFields)){
+          $preloadedDbFields=$this->getDbFields($dbDatasource);
+        }
+        $rowsData=[];
+        if (!empty($responseData)){
+          foreach($responseData as $responseDataRow){
+            $rowData=[];
+            if (!empty($responseDataRow['values'])){
+              foreach($responseDataRow['values'] as $valueItem){
+                $rowData[$valueItem['field']]=$valueItem['value'];
+              }
+            }
+            $rowsData[$responseDataRow['id']]=$rowData;
           }
         }
-        return new DbValuesRows($fields, !empty($responseData['instances'])?$responseData['instances']:[]);
+        return new DbValuesRows($preloadedDbFields, $rowsData);
       }else{
         throw new DatabaseCommunicationException('responseCode: '.$responseCode);
       }

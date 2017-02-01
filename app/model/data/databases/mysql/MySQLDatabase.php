@@ -640,10 +640,10 @@ class MySQLDatabase implements IDatabase{
    * @param DbDatasource $dbDatasource
    * @param int $offset =0
    * @param int $limit =1000
-   * @param DbField[]|null $dbFields =null
+   * @param DbField[]|null $preloadedDbFields =null
    * @return DbValuesRows
    */
-  public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, $dbFields=null){
+  public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, &$preloadedDbFields=null){
     // TODO: Implement getDbValuesRows() method.
     throw new NotImplementedException();
   }

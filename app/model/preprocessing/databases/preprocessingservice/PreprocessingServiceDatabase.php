@@ -87,7 +87,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
         $result=[];
         if (!empty($responseData)){
           foreach($responseData as $responseField){
-            $result[]=new PpAttribute($responseField['id'], $responseField['dataset'], $responseField['field'], $responseField['name'], $responseField['type'], $responseField['uniqueValuesSize']);
+            $result[]=new PpAttribute($responseField['id'], $responseField['dataset'], $responseField['field'], $responseField['name'], (empty($responseField['type'])?PpAttribute::TYPE_NOMINAL:$responseField['type']), $responseField['uniqueValuesSize']);
           }
         }
         return $result;
@@ -313,7 +313,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
           $result=[];
           if (!empty($response) && is_array($response)){
             foreach($response as $responseItem){
-              $result[]=new PpAttribute($responseItem['id'],$responseItem['dataset'],$responseItem['field'],$responseItem['name'],$responseItem['type'],$responseItem['uniqueValuesSize']);
+              $result[]=new PpAttribute($responseItem['id'],$responseItem['dataset'],$responseItem['field'],$responseItem['name'],empty($responseItem['type'])?PpAttribute::TYPE_NOMINAL:$responseItem['type'],$responseItem['uniqueValuesSize']);
             }
           }
           return $result;
