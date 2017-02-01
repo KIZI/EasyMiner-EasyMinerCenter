@@ -32,7 +32,7 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
     $relevantTable='rules';
 
     /** @var Fluent $query */
-    $query=$this->connection->select($relevantTable.'.*')
+    $query=$this->connection->select($relevantTable.'.*,rule_set_rule_relations.relation')
       ->from($relevantTable)
       ->leftJoin('rule_set_rule_relations')->on($relevantTable.'.rule_id=%n.rule_id',$this->getTable())
       ->where('rule_set_id = ?',$ruleSet->ruleSetId);
@@ -41,11 +41,10 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
     }
     $entityClass=$this->mapper->getEntityClass($relevantTable);
 
-
     $ruleRows=$query->fetchAll($offset, $limit);
     $result=[];
     foreach ($ruleRows as $ruleRow){
-      $result[]=$this->createEntity($ruleRow,$entityClass,$relevantTable);
+      $result[]=[$this->createEntity($ruleRow,$entityClass,$relevantTable),$ruleRow->relation];
     }
     return $this->entityFactory->createCollection($result);
   }

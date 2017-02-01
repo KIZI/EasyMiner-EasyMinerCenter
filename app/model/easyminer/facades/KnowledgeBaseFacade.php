@@ -46,10 +46,10 @@ class KnowledgeBaseFacade {
    */
   public function findRulesByDatasource($ruleSet,$miner){
       $currentDatasource = $this->minersFacade->findMiner($miner)->getDataArr()['datasourceId'];
-    $rulesInRuleset = $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet);
+      $rulesInRuleset = $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet);
       $toReturn = [];
       foreach($rulesInRuleset as $rule){
-          if($rule->task->miner->datasource->datasourceId === $currentDatasource){
+          if($rule[0]->task->miner->datasource->datasourceId === $currentDatasource){
               $toReturn[] = $rule;
           }
       }

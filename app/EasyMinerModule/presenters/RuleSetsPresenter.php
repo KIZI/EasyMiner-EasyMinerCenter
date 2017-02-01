@@ -145,7 +145,7 @@ class RuleSetsPresenter extends BasePresenter{
       $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
       if (!empty($rules)){
         foreach($rules as $rule){
-          $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
+          $result['rules'][$rule[0]->ruleId]=$rule[0]->getBasicDataArr();
         }
       }
     }
@@ -172,7 +172,10 @@ class RuleSetsPresenter extends BasePresenter{
             if (!empty($rules)){
                 //$result['rules'] = $rules;
                 foreach($rules as $rule){
-                    $result['rules'][$rule->ruleId]=$rule->text;
+                    $result['rules'][$rule[0]->ruleId]=[
+                        'name' => $rule[0]->text,
+                        'relation' => $rule[1]
+                    ];
                 }
             }
         }
