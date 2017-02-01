@@ -229,9 +229,9 @@ class RuleSetsPresenter extends BasePresenter{
                     } else{
                         if(in_array($attributeId, $ruleAttributes['antecedent'])){
                             $antecedentAttributesSame++; // same attribute
-                        }
-                        if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['antecedent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['antecedent']))){
-                            $antecedentAttributesSame++; // same value or values bin
+                            if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['antecedent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['antecedent']))){
+                                $antecedentAttributesSame++; // same value or values bin - mohu vynechat
+                            }
                         }
                     }
                     $antecedentAttributesCount++;
@@ -246,9 +246,9 @@ class RuleSetsPresenter extends BasePresenter{
                     } else{
                         if(in_array($attributeId, $ruleAttributes['consequent'])){
                             $consequentAttributesSame++; // same attribute
-                        }
-                        if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['consequent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['consequent']))){
-                            $consequentAttributesSame++; // same value or values bin
+                            if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['consequent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['consequent']))){
+                                $consequentAttributesSame++; // same value or values bin
+                            }
                         }
                     }
                     $consequentAttributesCount++;
@@ -258,7 +258,7 @@ class RuleSetsPresenter extends BasePresenter{
                 $sameRateFinal = ($sameRateAntecedent+$sameRateConsequent)/2;
 
                 if($result['max'] < $sameRateFinal){
-                    $result['max'] = $sameRateFinal;
+                    $result['max'] = $sameRateFinal; //- vysvětlit do textu, jsou i jiné varianty porovnání
                     $result['ruleset'] = [$ruleSetRule->ruleId => $sameRateFinal];
                 }
                 //$ruleAntAtt = $ruleSetRule->antecedent->ruleAttributes;
