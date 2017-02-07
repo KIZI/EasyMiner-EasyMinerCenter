@@ -213,10 +213,10 @@ class RuleSetsPresenter extends BasePresenter{
                     $ruleValues['consequent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->valuesBin->valuesBinId;
                 }
             }
-            $result['rule'] = $ruleAttributes;
             $result['max'] = 0;
 
-            foreach($ruleSet->findRules() as $ruleSetRule){ //TO-DO save in cache/session etc.
+            foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRuleArray){ //TO-DO save in cache/session etc.
+                $ruleSetRule = $ruleSetRuleArray[0];
                 $antecedentAttributesCount = 0;
                 $consequentAttributesCount = 0;
                 $antecedentAttributesSame = 0;
@@ -262,7 +262,10 @@ class RuleSetsPresenter extends BasePresenter{
 
                 if($result['max'] < $sameRateFinal){
                     $result['max'] = $sameRateFinal; //- vysvětlit do textu, jsou i jiné varianty porovnání
-                    $result['ruleset'] = [$ruleSetRule->ruleId => $sameRateFinal];
+                    $result['rule'] = [
+                        'id' => $ruleSetRule->ruleId,
+                        'relation' => $ruleSetRuleArray[1]
+                    ];
                 }
                 //$ruleAntAtt = $ruleSetRule->antecedent->ruleAttributes;
                 //array_diff($ruleAntAtt, $ruleAttributes['antecedent']);
