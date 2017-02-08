@@ -18,6 +18,7 @@ use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\InvalidStateException;
 use Nette\Utils\Json;
+use Nette\Utils\Strings;
 
 /**
  * Class DataPresenter
@@ -262,7 +263,7 @@ class DataPresenter extends BasePresenter{
     //akce pro upload souboru...
     /** @noinspection PhpUndefinedFieldInspection */
     $this->template->apiKey=$this->user->getIdentity()->apiKey;
-    $this->template->dataServiceUrlsByDbTypes=$this->datasourcesFacade->getDataServiceUrlsByDbTypes();
+    $this->template->dataServicesConfigByDbTypes=$this->datasourcesFacade->getDataServicesConfigByDbTypes();
     $this->template->zipSupport=($this->datasourcesFacade->getDatabaseUnzipServiceType()!='');
   }
 
@@ -334,6 +335,7 @@ class DataPresenter extends BasePresenter{
 
   /**
    * @return Form
+   * @throws \Exception
    */
   public function createComponentUploadForm() {
     $form = new Form();
@@ -341,14 +343,48 @@ class DataPresenter extends BasePresenter{
     $form->addUpload('file','Upload file:')
       ->setRequired('Je nutné vybrat soubor pro import!')
     ;
+
+    $dataServicesConfig=$this->datasourcesFacade->getDataServicesConfigByDbTypes();
+    $importTypes=[];
+    if (!empty($dataServicesConfig)){
+      foreach($dataServicesConfig as $dbType=>$dbConfig){
+        if (!empty($dbConfig['supportedImportTypes'])){
+          foreach($dbConfig['supportedImportTypes'] as $importType){
+            $importTypes[$importType]=Strings::upper($importType);
+          }
+        }
+      }
+    }
+    if (count($importTypes)==0){
+      throw new \Exception('Invalid configuration od databases / data services.');
+    }
+    $importTypeField=null;
+    if (count($importTypes)==1){
+      foreach($importTypes as $key=>$value){
+        $importTypeField=$form->addHidden('importType',$key);
+        break;
+      }
+    }
+    if (empty($importTypeField)){
+      $importTypeField=$form->addSelect('importType','Data type:',$importTypes);
+    }
+
     $dbTypes=$this->datasourcesFacade->getDbTypes(true);
     if (count($dbTypes)==1){
       reset($dbTypes);
       $form->addHidden('dbType',key($dbTypes));
     }else{
-      $form->addSelect('dbType','Database type:',$dbTypes)
-        ->setDefaultValue($this->datasourcesFacade->getPreferredDbType());
+      $dbTypeSelect=$form->addSelect('dbType','Database type:',$dbTypes);
+      $dbTypeSelect->setDefaultValue($this->datasourcesFacade->getPreferredDbType());
+      $dbTypesByImportTypes=$this->datasourcesFacade->getDbTypesByImportTypes();
+      if (!empty($dbTypesByImportTypes)){
+        foreach($dbTypesByImportTypes as $importType=>$dbTypesArr){
+          $dbTypeSelect->addConditionOn($importTypeField,Form::EQUAL,$importType)
+            ->addRule(FORM::IS_IN,'Selected database does not support selected import type!',$dbTypesArr);
+        }
+      }
     }
+
     //přidání submit tlačítek
     $form->addSubmit('submit','Configure upload...')
       ->onClick[]=function(){
@@ -368,13 +404,19 @@ class DataPresenter extends BasePresenter{
   public function createComponentUploadConfigForm() {
     $form = new Form();
     $form->setTranslator($this->translator);
+    $allowLongNamesInput=$form->addHidden('allowLongNames','0');
     $name=$form->addText('name','Datasource:')
       ->setAttribute('title','Datasource name')
       ->setRequired('Input datasource name!');
     /** @noinspection PhpUndefinedMethodInspection */
-    $name->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
-      ->addRule(Form::MIN_LENGTH,'Min length of the table name is %s characters!',3)
-      ->addRule(Form::PATTERN,'Datasource name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z0-9_]+');
+    $name->addRule(Form::MIN_LENGTH,'Min length of the table name is %s characters!',3);
+    $name->addConditionOn($allowLongNamesInput,Form::EQUAL,'1')
+      ->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',100)
+      ->endCondition();
+    $name->addConditionOn($allowLongNamesInput,Form::NOT_EQUAL,'1')
+      ->addRule(Form::MAX_LENGTH,'Max length of the table name is %s characters!',30)
+      ->addRule(Form::PATTERN,'Datasource name can contain only letters, numbers and underscore and start with a letter!','[a-zA-Z0-9_]+')
+      ->endCondition();
 
     $form->addSelect('separator','Separator:',[
       ','=>'Comma (,)',
