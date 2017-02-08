@@ -356,6 +356,12 @@ class DataPresenter extends BasePresenter{
       $this->flashMessage('For file upload using UI, you have to enable the javascript code!','error');
       $this->redirect('newMiner');
     };
+    $form->addSubmit('cancel','Cancel')
+      ->setValidationScope([])
+      ->onClick[]=function(){
+      //chceme zrušit upload
+      $this->redirect('Data:default');
+    };
     return $form;
   }
 

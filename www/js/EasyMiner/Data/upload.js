@@ -419,7 +419,11 @@ var DataUpload=function(){
   var initUploadFormActions=function(){
     var form=self.jqElements.uploadFormBlock.find('form');
     form.addClass('ajax');
+    form.find('input[name="cancel"]').click(function(){
+      form.attr('data-cancel','ok');
+    });
     form.submit(function(e){
+      if (form.attr('data-cancel')=='ok'){return;}
       e.preventDefault();
       e.stopPropagation();
       if (Nette.validateForm(this)){
