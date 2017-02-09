@@ -89,6 +89,25 @@ class DatasourcesFacade {
   }
 
   /**
+   * Funkce vracející informaci o tom, zda zvolený typ databáze podporuje dlouhé názvy sloupců
+   * @param string $dbType
+   * @return bool
+   */
+  public function dbTypeSupportsLongNames($dbType){
+    $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
+    return isset($databaseConfig['allowLongNames'])?$databaseConfig['allowLongNames']:false;
+  }
+
+  /**
+   * Funkce vracející informaci o tom, zda datový zdroj podporuje dlouhé názvy sloupců
+   * @param Datasource $datasource
+   * @return bool
+   */
+  public function datasourceSupportsLongNames(Datasource $datasource){
+    return $this->dbTypeSupportsLongNames($datasource->type);
+  }
+
+  /**
    * Funkce vracející pole se seznamy databází dle podpory konkrétních typů importovaných dat
    * @return array
    */

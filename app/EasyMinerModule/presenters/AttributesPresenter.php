@@ -105,7 +105,8 @@ class AttributesPresenter extends BasePresenter{
       'miner'=>$miner->minerId,
       'column'=>$column,
       'preprocessing'=>$preprocessing->preprocessingId,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ]);
   }
 
@@ -127,7 +128,8 @@ class AttributesPresenter extends BasePresenter{
     $form->setDefaults(array(
       'miner'=>$miner->minerId,
       'column'=>$column,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ));
   }
 
@@ -178,6 +180,7 @@ class AttributesPresenter extends BasePresenter{
       'miner'=>$miner->minerId,
       'column'=>$column,
       'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0',
       'minLeftMargin'=>$minLeftMargin,
       'minLeftClosure'=>$minLeftClosure,
       'maxRightMargin'=>$maxRightMargin,
@@ -217,7 +220,8 @@ class AttributesPresenter extends BasePresenter{
       'column'=>$column,
       'formatType'=>$format->dataType,
       'formatId'=>$format->formatId,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ));
   }
 
@@ -244,7 +248,8 @@ class AttributesPresenter extends BasePresenter{
       'miner'=>$miner->minerId,
       'column'=>$column,
       'preprocessing'=>$preprocessing->preprocessingId,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ));
   }
 
@@ -446,6 +451,7 @@ class AttributesPresenter extends BasePresenter{
   protected function createComponentNewIntervalEnumerationForm(){
     $form=new Form();
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addText('preprocessingName','Preprocessing name:')
       ->setRequired(false)
       ->setAttribute('placeholder',$this->translate('Interval bins'))
@@ -476,23 +482,31 @@ class AttributesPresenter extends BasePresenter{
         $values=$input->getForm(true)->getValues(true);
         return (count($values['valuesBins'])>0);
       },'You have to input at least one bin!');
-    $form->addText('attributeName','Create attribute with name:')
+    $attributeNameInput=$form->addText('attributeName','Create attribute with name:');
+    $attributeNameInput
       ->setRequired('Input attribute name!')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
-        //kontrola, jestli již existuje atribtu se zadaným názvem
+        //kontrola, jestli již existuje atribut se zadaným názvem
         $values=$input->getForm(true)->getValues();
         $miner=$this->findMinerWithCheckAccess($values->miner);
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
+
     $form->addHidden('column');
     $form->addHidden('miner');
     /** @var Container $valuesBins */
@@ -667,6 +681,7 @@ class AttributesPresenter extends BasePresenter{
   protected function createComponentNewEquidistantIntervalsForm(){
     $form=new Form();
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addHidden('column');
     $form->addHidden('miner');
     $form->addHidden('minLeftMargin');
@@ -701,9 +716,9 @@ class AttributesPresenter extends BasePresenter{
         return true;
       },'This preprocessing name already exists. Please select a new one...')
       ->setAttribute('class','normalWidth');
-    $form->addText('attributeName','Create attribute with name:')
+    $attributeNameInput=$form->addText('attributeName','Create attribute with name:');
+    $attributeNameInput
       ->setAttribute('class','normalWidth')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->setRequired('Input attribute name!')
       ->addRule(function(TextInput $input){
         //kontrola, jestli již existuje atribtu se zadaným názvem
@@ -712,13 +727,20 @@ class AttributesPresenter extends BasePresenter{
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
 
     $form->addText('equidistantLeftMargin','Equidistant intervals from:')
       ->setRequired('You have to input number!')
@@ -846,6 +868,7 @@ class AttributesPresenter extends BasePresenter{
   protected function createComponentNewNominalEnumerationForm(){
     $form=new Form();
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addText('preprocessingName','Preprocessing name:')
       ->setRequired(false)
       ->setAttribute('placeholder',$this->translate('Nominal bins'))
@@ -876,9 +899,9 @@ class AttributesPresenter extends BasePresenter{
         $values=$input->getForm(true)->getValues(true);
         return (count($values['valuesBins'])>0);
       },'You have to input at least one bin!');
-    $form->addText('attributeName','Create attribute with name:')
+    $attributeNameInput=$form->addText('attributeName','Create attribute with name:');
+    $attributeNameInput
       ->setRequired('Input attribute name!')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
         //kontrola, jestli již existuje atribtu se zadaným názvem
         $values=$input->getForm(true)->getValues();
@@ -886,13 +909,20 @@ class AttributesPresenter extends BasePresenter{
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
     $form->addHidden('column');
     $form->addHidden('miner');
     $form->addHidden('formatType');
@@ -901,7 +931,6 @@ class AttributesPresenter extends BasePresenter{
     $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin){
       $valuesBin->addText('name','Bin name:')->setRequired(true)
         ->setRequired('Input bin name!')
-        //->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
         ->addRule(function(TextInput $input){
           $values=$input->parent->getValues(true);
           return (count($values['values'])>0);
@@ -1061,12 +1090,13 @@ class AttributesPresenter extends BasePresenter{
     $form = new Form();
     $presenter=$this;
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addHidden('miner');
     $form->addHidden('column');
     $form->addHidden('preprocessing');
-    $form->addText('attributeName','Attribute name:')
+    $attributeNameInput=$form->addText('attributeName','Attribute name:');
+    $attributeNameInput
       ->setRequired('Input attribute name!')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
         //kontrola, jestli již existuje atribtu se zadaným názvem
         $values=$input->getForm(true)->getValues();
@@ -1074,13 +1104,20 @@ class AttributesPresenter extends BasePresenter{
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
     $form->addSubmit('submit','Create attribute')->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       $miner=$this->findMinerWithCheckAccess($values->miner);
