@@ -64,6 +64,7 @@ var DataUpload=function(){
    * @returns {string}
    */
   var getPreviewUrl=function(reloadParams){
+    var requireSafeNames=(self.jqElements.allowLongNamesInput.val()==1?0:1);
     var result=self.previewUrl;
     var inputParams=self.getInputParams();
     result=result
@@ -72,7 +73,8 @@ var DataUpload=function(){
       .replace('__ENCLOSURE__',encodeURIComponent(inputParams.quotesChar))
       .replace('__ESCAPE_CHARACTER__',encodeURIComponent(inputParams.escapeChar))
       .replace('__NULL_VALUE__',encodeURIComponent(inputParams.nullValues[0]))
-      .replace('__LOCALE__',encodeURIComponent(inputParams.locale));
+      .replace('__LOCALE__',encodeURIComponent(inputParams.locale))
+      .replace('__REQUIRE_SAFE_NAMES__',requireSafeNames);
     //pokud by mělo dojít k přenačtení parametrů, tak nebudeme uvádět následující parametry
     if (reloadParams==true){
       result=result.replace('__DELIMITER__','');

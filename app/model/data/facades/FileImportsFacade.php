@@ -207,10 +207,12 @@ class FileImportsFacade {
    * @param string $enclosure
    * @param string $escapeCharacter
    * @param int $analyzeRowsCount = max(self::CSV_ANALYZE_ROWS,given value)
+   * @param bool $requireSafeColumnNames=true - pokud je true, budou upraveny názvy sloupců tak, aby je bylo možné importovat do libovolné databáze
+   * @param string $nullValue="" - hodnota, která má být interpretována jako null
    * @return DbField[]
    */
-  public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=self::CSV_ANALYZE_ROWS){
-    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter,max($analyzeRowsCount,self::CSV_ANALYZE_ROWS));
+  public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=self::CSV_ANALYZE_ROWS, $requireSafeColumnNames=true, $nullValue=""){
+    return CsvImport::analyzeCSVColumns($this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter,max($analyzeRowsCount,self::CSV_ANALYZE_ROWS), $requireSafeColumnNames, $nullValue);
   }
 
   /**

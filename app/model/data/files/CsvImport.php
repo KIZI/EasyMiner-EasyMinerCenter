@@ -178,24 +178,41 @@ class CsvImport {
   }
 
   /**
+   * Funkce pro ošetření jmen sloupců
    * @param string[] $columnNamesArr
+   * @param bool $requireSafeColumnNames=true - převod jmen sloupců na bezpečný tvar pro použití v libovolné DB
+   * @param string $defaultColumnName='name'
    * @return string[]
    */
-  public static function sanitizeColumnNames($columnNamesArr){//TODO oprava prázdných jmen souborů
+  public static function sanitizeColumnNames($columnNamesArr, $requireSafeColumnNames=true,$defaultColumnName='name'){
     $finalColumnNamesArr=[];
     $finalColumnNamesFilterArr=['id'];
+    $i=0;
     foreach($columnNamesArr as $name){
-      //ošetření samotného jména
-      $name=Strings::webalize($name,null,false);
-      $name=str_replace('-','_',$name);
-      $name=Strings::substring($name,0,25);
-      if (!preg_match('/[a-z_]+\w*/i',$name)){
-        $name='_'.$name;
+      $i++;
+      //odstranění prázdných znaků ze začátku a konce názvu sloupce
+      $name=Strings::trim($name);
+      //ošetření případného prázdného jména sloupce
+      if ($name==''){
+        $name=$defaultColumnName.$i;
+      }
+      if ($requireSafeColumnNames){
+        //ošetření samotného jména
+        $name=Strings::webalize($name,null,false);
+        $name=str_replace('-','_',$name);
+        $name=Strings::substring($name,0,25);
+        if (!preg_match('/[a-z_]+\w*/i',$name)){
+          $name='_'.$name;
+        }
       }
       //vyřešení možné duplicity
       $counter=0;
       do{
-        $finalColumnName=$name.($counter>0?$counter:'');
+        if ($requireSafeColumnNames){
+          $finalColumnName=$name.($counter>0?'_'.$counter:'');
+        }else{
+          $finalColumnName=$name.($counter>0?' - '.$counter:'');
+        }
         $counter++;
       }while(in_array(Strings::lower($finalColumnName),$finalColumnNamesFilterArr));
       $finalColumnNamesArr[]=$finalColumnName;
@@ -211,20 +228,25 @@ class CsvImport {
    * @param string $enclosure  = '"'
    * @param string $escapeCharacter = '\\'
    * @param int $analyzeRowsCount=100
+   * @param bool $requireSafeColumnNames=true - pokud je true, budou upraveny názvy sloupců tak, aby je bylo možné importovat do libovolné databáze
+   * @param string $nullValue="" - hodnoty, které mají být považovány za prázdné
    * @return DbField[]
    */
-  public static function analyzeCSVColumns($filename, $delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=100){
+  public static function analyzeCSVColumns($filename, $delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=100, $requireSafeColumnNames=true, $nullValue=""){
     $columnNamesArr=self::getColsNamesInCsv($filename,$delimiter,$enclosure,$escapeCharacter);
 
-    $columnNamesArr=self::sanitizeColumnNames($columnNamesArr);
+    //ošetření jmen sloupců
+    $columnNamesArr=self::sanitizeColumnNames($columnNamesArr, $requireSafeColumnNames);
 
-    $numericalArr=array();
-    $strlenArr=array();
+    $numericalArr=[];
+    $nonNullArr=[];
+    $strlenArr=[];
     //výchozí inicializace počítacích polí
     $columnsCount=count($columnNamesArr);
     for($i=0;$i<$columnsCount;$i++){
       $numericalArr[$i]=1;
       $strlenArr[$i]=0;
+      $nonNullArr[$i]=false;
     }
 
     $file=fopen($filename,'r');
@@ -235,6 +257,12 @@ class CsvImport {
       //načten další řádek
       for ($i=0;$i<$columnsCount;$i++){
         $value=@$data[$i];
+        //kontrola null hodnot
+        if ($value==$nullValue){
+          //null hodnoty dál neanalyzujeme
+          continue;
+        }
+        $nonNullArr[$i]=true;
         $isNumeric=self::checkIsNumeric($value);
         if ($numericalArr[$i]==1){
           $numericalArr[$i]=$isNumeric;
@@ -253,12 +281,15 @@ class CsvImport {
     //shromáždíme informace
     $outputArr=array();
     for ($i=0;$i<$columnsCount;$i++){
-      if ($numericalArr[$i]==2||$numericalArr[$i]==1){
-        $datatype=DbField::TYPE_NUMERIC;
+      if ($nonNullArr[$i]){
+        if ($numericalArr[$i]==2||$numericalArr[$i]==1){
+          $datatype=DbField::TYPE_NUMERIC;
+        }else{
+          $datatype=DbField::TYPE_NOMINAL;
+        }
       }else{
         $datatype=DbField::TYPE_NOMINAL;
       }
-
       $outputArr[$i]=new DbField(null,null,$columnNamesArr[$i],$datatype,null);
     }
     fclose($file);

@@ -276,10 +276,11 @@ class DataPresenter extends BasePresenter{
    * @param string $escapeCharacter
    * @param string $nullValue
    * @param string $locale
+   * @param string $requireSafeNames
    * @param int $rowsCount = 20
    * @throws BadRequestException
    */
-  public function actionPreviewData($file,$delimiter='',$encoding='utf-8',$enclosure='"',$escapeCharacter='\\',$nullValue='',$locale='en',$rowsCount=20) {
+  public function actionPreviewData($file,$delimiter='',$encoding='utf-8',$enclosure='"',$escapeCharacter='\\',$nullValue='',$locale='en',$rowsCount=20,$requireSafeNames='') {
     //TODO detekce locale... (podle desetinné tečky/čárky...)
     if ($delimiter==''){
       //detekce výchozího separátoru
@@ -302,7 +303,7 @@ class DataPresenter extends BasePresenter{
       'data'=>[]
     ];
     //načtení informací o datových sloupcích
-    $columns=$this->fileImportsFacade->getColsInCSV($file,$delimiter,$enclosure,$escapeCharacter,$rowsCount+1);
+    $columns=$this->fileImportsFacade->getColsInCSV($file,$delimiter,$enclosure,$escapeCharacter,$rowsCount+1,(bool)$requireSafeNames,$nullValue);
     if (empty($columns)){
       throw new BadRequestException('No columns detected!');
     }
