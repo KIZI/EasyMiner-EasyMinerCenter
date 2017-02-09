@@ -155,7 +155,7 @@ var DataUpload=function(){
       columnNamesValidationAttributes+='maxlength="'+LONG_NAMES_MAX_LENGTH+'" data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":maxLength","msg":"Max length of the column name is '+LONG_NAMES_MAX_LENGTH+' characters!","arg":'+LONG_NAMES_MAX_LENGTH+'},{"op":":UniqueNamesValidator","msg":"This name is already used."}]\' title="Attribute name is required."';
     }else{
       //kontrola pro krátká jména sloupců
-      columnNamesValidationAttributes+='maxlength="'+SHORT_NAMES_MAX_LENGTH+'" data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":UniqueNamesValidator","msg":"This name is already used."},{"op":":maxLength","msg":"Max length of the column name is '+SHORT_NAMES_MAX_LENGTH+' characters!","arg":'+SHORT_NAMES_MAX_LENGTH+'},{"op":":pattern","msg":"Attribute name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Attribute name can contain only letters, numbers and _ and has start with a letter."';
+      columnNamesValidationAttributes+='maxlength="'+SHORT_NAMES_MAX_LENGTH+'" data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":UniqueNamesValidator","msg":"This name is already used."},{"op":":maxLength","msg":"Max length of the column name is '+SHORT_NAMES_MAX_LENGTH+' characters!","arg":'+SHORT_NAMES_MAX_LENGTH+'},{"op":":pattern","msg":"Column name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Column name can contain only letters, numbers and _ and has start with a letter."';
     }
 
     //připravení položek příslušného formuláře...
