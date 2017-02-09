@@ -61,7 +61,7 @@ var Config = new Class({
   knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
   knowledgeBaseGetRuleSetsUrl: {plink RuleSets:list},
   knowledgeBaseGetRulesNamesUrl: {plink RuleSets:getRulesNames id=>'__RULESETID__',miner=>'__MINERID__'},
-  knowledgeBaseCompareRuleUrl: {plink RuleSets:compareRule id=>'__RULESETID__',rule=>'__RULE__'},
+  knowledgeBaseCompareRuleUrl: {plink RuleSets:compareRuleWithRuleset id=>'__RULESETID__',rule=>'__RULE__'},
 
   knowledgeBaseAddRuleSetUrl: {plink RuleSets:new name=>'__NAME__',description=>'__DESCRIPTION__'},
   knowledgeBaseRenameRuleSetUrl: {plink RuleSets:rename id=>'__RULESETID__',name=>'__NAME__',description=>'__DESCRIPTION__'},
