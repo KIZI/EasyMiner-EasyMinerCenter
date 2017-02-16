@@ -18,6 +18,7 @@ class RequestHelper {
    * @throws \Exception
    */
   public static function sendBackgroundGetRequest($url){
+    Debugger::log($url,'RequestHelper');//FIXME
     $url = new Url($url);
     $host=$url->getHost();
     if (empty($host)){
@@ -43,6 +44,7 @@ class RequestHelper {
     $fp=@fsockopen($scheme.$host, $port, $errno, $errstr, self::REQUEST_TIMEOUT);
     if (!$fp){
       Debugger::log($errstr,ILogger::ERROR);
+      Debugger::log($errstr,'RequestHelper');//FIXME
       throw new \Exception($errstr,$errno);
     }
     $path=$url->getPath().($url->getQuery()!=""?'?'.$url->getQuery():'');

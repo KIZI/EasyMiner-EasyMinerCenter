@@ -487,6 +487,7 @@ class TasksPresenter extends BaseResourcePresenter {
       $this->tasksFacade->updateTaskState($task,$taskState);
 
       //spustíme další dílší import
+      sleep(self::MINING_STATE_CHECK_INTERVAL);//TODO testovací
       RequestHelper::sendBackgroundGetRequest($this->getAbsoluteLink('self',[],Link::SELF,true));
     }
 

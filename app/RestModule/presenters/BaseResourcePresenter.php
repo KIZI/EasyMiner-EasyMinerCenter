@@ -191,7 +191,9 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
     }
     $link=$this->link($destination, $args, $rel)->getHref();
     if ($link[0]=='/'){
-      return $this->getHttpRequest()->getUrl()->getHostUrl().$link;
+      return $link;
+      //TODO allow next line
+      return rtrim($this->getHttpRequest()->getUrl()->getHostUrl(),'/').$link;
     }else{
       return $link;
     }
