@@ -203,6 +203,10 @@ class RuleSetsPresenter extends BasePresenter{
                     $result['rule'] = $compareResult['rule'];
                 }
             }
+
+            try{
+                $this->knowledgeBaseFacade->addRuleToKBRuleRelation($rule,$result['rule']['id'],$result['rule']['relation'],$result['max']);
+            }catch (\Exception $e){}
         }
         $this->sendJsonResponse($result);
     }
