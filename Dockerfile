@@ -37,4 +37,6 @@ RUN apt-get install -y nano
 #####
 #####EXPOSE 80
 
-CMD ["/root/start.sh"]
+#####CMD ["/root/start.sh"]
+
+ADD / /var/www/html/easyminercenter
