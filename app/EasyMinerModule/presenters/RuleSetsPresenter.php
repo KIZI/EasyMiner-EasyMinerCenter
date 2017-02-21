@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
+use EasyMinerCenter\Model\EasyMiner\Entities\KnowledgeBaseRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\KnowledgeBaseFacade;
@@ -192,9 +193,27 @@ class RuleSetsPresenter extends BasePresenter{
         $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
         //připravení výstupu
         $result=[];
-        if ($ruleSet->rulesCount>0 && $rule){
+        try{
+            $ruleSimilarity = $this->knowledgeBaseFacade->findRuleSimilarity($rule);
+        }catch (\Exception $e){
+            $ruleSimilarity = null;
+        }
+        if(false && $ruleSimilarity){ // TO-DO lastmodified ruleset
+            $result['max'] = $ruleSimilarity->rate;
+            $result['rule'] = [
+                'id' => $ruleSimilarity->knowledgeBaseRuleId,
+                'relation' => $ruleSimilarity->relation
+            ];
+        } elseif ($ruleSet->rulesCount>0 && $rule){
+            if(!$ruleSimilarity){
+                $ruleSimilarity = $rule;
+            }
             $ruleComponents = $this->decomposeRule($rule);
             $result['max'] = 0;
+            $result['rule'] = [
+                'id' => '',
+                'relation' => ''
+            ];
 
             foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRuleArray){ //TO-DO save in cache/session etc.
                 $compareResult = $this->compareRules($ruleComponents, $ruleSetRuleArray);
@@ -205,7 +224,7 @@ class RuleSetsPresenter extends BasePresenter{
             }
 
             try{
-                $this->knowledgeBaseFacade->addRuleToKBRuleRelation($rule,$result['rule']['id'],$result['rule']['relation'],$result['max']);
+                $this->knowledgeBaseFacade->addRuleToKBRuleRelation($ruleSimilarity,$result['rule']['id'],$result['rule']['relation'],$result['max']);
             }catch (\Exception $e){}
         }
         $this->sendJsonResponse($result);

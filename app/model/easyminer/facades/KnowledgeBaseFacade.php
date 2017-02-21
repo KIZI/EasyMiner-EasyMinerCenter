@@ -64,31 +64,35 @@ class KnowledgeBaseFacade {
 
     /**
      * Funkce pro přidání/změnu relace Rule k Rule v Knowledge Base
-     * @param Rule|int $rule
-     * @param Rule|int $KBrule
+     * @param KnowledgeBaseRuleRelation|int $rule
+     * @param int $KBrule
      * @param string $relation
      * @param int $rate
      * @return bool
      * @throws \Exception
      */
     public function addRuleToKBRuleRelation($rule, $KBrule, $relation, $rate){
-        if (!($rule instanceof Rule)){
-            $rule=$this->rulesFacade->findRule($rule);
-        }
-        if (!($KBrule instanceof Rule)){
-            $KBrule=$this->rulesFacade->findRule($KBrule);
-        }
-        try{
-            $ruleToKBRuleRelation=$this->knowledgeBaseRuleRelationsRepository->findBy(['rule_id'=>$rule->ruleId]);
-        }catch (\Exception $e){
+        if($rule instanceof KnowledgeBaseRuleRelation){
+            $ruleToKBRuleRelation = $rule;
+        } else{
             $ruleToKBRuleRelation=new KnowledgeBaseRuleRelation();
-            $ruleToKBRuleRelation->rule=$rule;
+            $ruleToKBRuleRelation->ruleId=$rule;
         }
-        $ruleToKBRuleRelation->knowledgeBaseRule=$KBrule;
+        $ruleToKBRuleRelation->knowledgeBaseRuleId=$KBrule;
         $ruleToKBRuleRelation->relation=$relation;
         $ruleToKBRuleRelation->rate=$rate;
         $result=$this->knowledgeBaseRuleRelationsRepository->persist($ruleToKBRuleRelation);
         return $result;
+    }
+
+    /**
+     * Získání již uložené největší podobnosti
+     * @param int $ruleId
+     * @return KnowledgeBaseRuleRelation
+     * @throws \Exception
+     */
+    public function findRuleSimilarity($ruleId){
+        return $this->knowledgeBaseRuleRelationsRepository->findBy(['rule_id'=>$ruleId]);
     }
 
 } 
