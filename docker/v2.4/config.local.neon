@@ -1,0 +1,66 @@
+php:
+        date.timezone: Europe/Prague
+
+parameters:
+        router:
+                secured: false
+
+        databases:
+                limited:
+                        server: easyminer-mysql
+                        username: root
+                        password: root
+                        _username: emc_*
+                        _database: emc_*
+                        allowFileImport: false
+                        api: /easyminer-data/api/v1
+                        preprocessingApi: /easyminer-preprocessing/api/v1
+
+                unlimited:
+                        server: ""
+                        port: 10000
+                        _username: easyminer
+                        _database: emc_*
+                        api: /easyminer-data/api/v1
+                        preprocessingApi: /easyminer-preprocessing/api/v1
+                        _password: false
+
+        miningDriverFactory:
+                driver_cloud:
+                        server: http://localhost
+                        minerUrl: /easyminer-miner/api/v1
+                        importsDirectory: /var/www/html/easyminercenter/app/../temp/pmmlImports/cloud
+
+                driver_r:
+                        server: ""
+
+                driver_lm:
+                        server: ""
+
+        scorerDriverFactory:
+                driver_easyMinerScorer:
+                        server: "http://easyminer-scorer:8080/v0.3/"
+                        tempDirectory: "/var/www/easyminercenter/www/temp"
+
+        mainDatabase:
+                driver: mysqli
+                host: easyminer-mysql
+                username: emc_000
+                password: emc_000
+                encoding: utf8
+                database: emc_000
+
+        csvImportsDirectory: /var/www/html/easyminercenter/app/../temp/fileImports
+        usersPhotosDirectory: /var/www/html/easyminercenter/app/../www/images/users
+        usersPhotosUrl: /easyminercenter/images/users
+        emailFrom: stanislav.vojir@vse.cz
+        install:
+                password: $2y$10$JroIyhf8CZuNZce9OMsD1e36y54HjeueBvfyLGeM02gi6ij7GMD.S
+
+facebook:
+        appId: ""
+        appSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+google:
+        clientId: ""
+        clientSecret: xxxxxxxxxxxxxxxxxxxxxxxx
