@@ -471,7 +471,7 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function actionReadMiningImportResults($id) {
     //zakážeme ukončení skriptu při zavření přenosového kanálu
-    ignore_user_abort(true);
+    RequestHelper::ignoreUserAbort();
     //najdeme úlohu a mining driver
     $task=$this->findTaskWithCheckAccess($id);
     $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->currentUser);

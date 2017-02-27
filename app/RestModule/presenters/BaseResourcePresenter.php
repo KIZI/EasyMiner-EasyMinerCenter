@@ -12,6 +12,7 @@ use Nette\Application\Responses\TextResponse;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IAuthenticator;
 use Nette\Security\IIdentity;
+use Nette\Utils\Strings;
 
 /**
  * Class BaseResourcePresenter
@@ -190,13 +191,10 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
       $args=array_merge($this->params,$args);
     }
     $link=$this->link($destination, $args, $rel)->getHref();
-    if ($link[0]=='/'){
-      return $link;
-      //TODO allow next line
-      return rtrim($this->getHttpRequest()->getUrl()->getHostUrl(),'/').$link;
-    }else{
-      return $link;
+    if (Strings::startsWith($link,'/')=='/'){
+      $link=rtrim($this->getHttpRequest()->getUrl()->getHostUrl(),'/').$link;
     }
+    return $link;
   }
 
 
