@@ -97,10 +97,11 @@ class TasksPresenter  extends BasePresenter{
       return;
     }
 
+    //zakážeme ukončení načítání
+    RequestHelper::ignoreUserAbort();
+
     //import budeme provádět pouze v případě, že zatím neběží jiný import (abychom předešli konfliktům a zahlcení serveru)
     if ($task->importState==Task::IMPORT_STATE_WAITING){
-      //zakážeme ukončení načítání
-      RequestHelper::ignoreUserAbort();
       //označíme částečný probíhající import
       $taskState=$task->getTaskState();
       $importData=$taskState->getImportData();

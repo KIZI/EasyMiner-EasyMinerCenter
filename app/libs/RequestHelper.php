@@ -61,14 +61,7 @@ class RequestHelper {
    * Funkce pro odeslání ukončení info klientovi a ignorování ukončení jeho připojení
    */
   public static function ignoreUserAbort(){
-    ob_end_clean();
     ignore_user_abort(true);
-    ob_start();
-    session_write_close();
-    header('Connection: close');
-    echo RequestHelper::IN_BACKGROUND_RESPONSE;
-    ob_end_flush();
-    flush();
   }
 
 

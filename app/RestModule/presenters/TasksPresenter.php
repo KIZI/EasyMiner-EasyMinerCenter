@@ -436,7 +436,7 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function actionReadMiningCheckState($id,$timeout=0) {
     //zakážeme ukončení skriptu při zavření přenosového kanálu
-    ignore_user_abort(true);
+    RequestHelper::ignoreUserAbort();
     //nejprve pozastavíme běh skriptu (abychom měli nějakou pauzu mezi jednotlivými kontrolami stavu úlohy)
     sleep(self::MINING_STATE_CHECK_INTERVAL);
     //najdeme úlohu a mining driver
