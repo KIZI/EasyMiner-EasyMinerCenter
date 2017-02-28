@@ -194,7 +194,7 @@ class RuleSetsPresenter extends BasePresenter{
         //připravení výstupu
         $result=[];
         try{
-            $ruleSimilarity = $this->knowledgeBaseFacade->findRuleSimilarity($rule);
+            $ruleSimilarity = $this->knowledgeBaseFacade->findRuleSimilarity($id, $rule);
         }catch (\Exception $e){
             $ruleSimilarity = null;
         }
@@ -224,7 +224,7 @@ class RuleSetsPresenter extends BasePresenter{
             }
 
             try{
-                $this->knowledgeBaseFacade->addRuleToKBRuleRelation($ruleSimilarity,$result['rule']['id'],$result['rule']['relation'],$result['max']);
+                $this->knowledgeBaseFacade->addRuleToKBRuleRelation($id,$ruleSimilarity,$result['rule']['id'],$result['rule']['relation'],$result['max']);
             }catch (\Exception $e){}
         }
         $this->sendJsonResponse($result);

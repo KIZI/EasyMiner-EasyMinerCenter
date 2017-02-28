@@ -7,6 +7,7 @@ use LeanMapper\Entity;
  * Class KnowledgeBaseRuleRelation
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int $knowledgeBaseRuleRelationId
+ * @property int $ruleSetId
  * @property int $ruleId
  * @property int $knowledgeBaseRuleId
  * @property string $relation m:Enum(self::RELATION_*)

@@ -65,17 +65,19 @@ class KnowledgeBaseFacade {
     /**
      * Funkce pro přidání/změnu relace Rule k Rule v Knowledge Base
      * @param KnowledgeBaseRuleRelation|int $rule
+     * @param int $ruleSetId
      * @param int $KBrule
      * @param string $relation
      * @param int $rate
      * @return bool
      * @throws \Exception
      */
-    public function addRuleToKBRuleRelation($rule, $KBrule, $relation, $rate){
+    public function addRuleToKBRuleRelation($ruleSetId, $rule, $KBrule, $relation, $rate){
         if($rule instanceof KnowledgeBaseRuleRelation){
             $ruleToKBRuleRelation = $rule;
         } else{
             $ruleToKBRuleRelation=new KnowledgeBaseRuleRelation();
+            $ruleToKBRuleRelation->ruleSetId=$ruleSetId;
             $ruleToKBRuleRelation->ruleId=$rule;
         }
         $ruleToKBRuleRelation->knowledgeBaseRuleId=$KBrule;
@@ -91,8 +93,11 @@ class KnowledgeBaseFacade {
      * @return KnowledgeBaseRuleRelation
      * @throws \Exception
      */
-    public function findRuleSimilarity($ruleId){
-        return $this->knowledgeBaseRuleRelationsRepository->findBy(['rule_id'=>$ruleId]);
+    public function findRuleSimilarity($ruleSetId, $ruleId){
+        return $this->knowledgeBaseRuleRelationsRepository->findBy([
+            'rule_set_id'=>$ruleSetId,
+            'rule_id'=>$ruleId
+        ]);
     }
 
 } 
