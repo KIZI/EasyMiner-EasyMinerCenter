@@ -216,7 +216,16 @@ class RuleSetsPresenter extends BasePresenter{
                 RuleRuleRelationsRepository::COLUMN_RELATION => ''
             ];
 
+            $ruleCompareResults = $this->knowledgeBaseFacade->getRulesComparingResults($rule, $id);
+            if(count($ruleCompareResults) > 0){
+                $result['rule'] = array_slice($ruleCompareResults,0,1)[0];
+                $result['max'] = $result['rule'][RuleRuleRelationsRepository::COLUMN_RATE];
+            }
+
             foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRuleArray){ //TO-DO save in cache/session etc.
+                if(isset($ruleCompareResults[$ruleSetRuleArray[0]->ruleId])){ // has been already compared and is impossible to have higher rate due to DB ordering
+                    continue;
+                }
                 $compareResult = $this->compareRules($ruleComponents, $ruleSetRuleArray);
                 if($compareResult[RuleRuleRelationsRepository::COLUMN_RATE] > $result['max']){
                     $result['max'] = $compareResult[RuleRuleRelationsRepository::COLUMN_RATE];
@@ -229,7 +238,12 @@ class RuleSetsPresenter extends BasePresenter{
 
             if($result['max'] > 0){ //TO-DO zkontrolovat, zda nezůstává přiřazené pravidlo, když se změní podobnost na 0 - mělo by být ošetřeno při mazání pravidel z KB
                 try{
-                    $this->knowledgeBaseFacade->addRuleToKBRuleRelation($id,$ruleSimilarity,$result['rule'][RuleRuleRelationsRepository::COLUMN_RULESET_RULE],$result['rule'][RuleRuleRelationsRepository::COLUMN_RELATION],$result['max']);
+                    $this->knowledgeBaseFacade->addRuleToKBRuleRelation(
+                        $id, $ruleSimilarity,
+                        $result['rule'][RuleRuleRelationsRepository::COLUMN_RULESET_RULE],
+                        $result['rule'][RuleRuleRelationsRepository::COLUMN_RELATION],
+                        $result['max']
+                    );
                 }catch (\Exception $e){}
             }
 

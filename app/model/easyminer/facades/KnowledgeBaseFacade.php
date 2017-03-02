@@ -106,11 +106,16 @@ class KnowledgeBaseFacade {
 
     /**
      * Uložení všech nových porovnání
+     * @param Array $results as INSERT array
      */
     public function saveComparingResults($results){
         if(!empty($results)){
             $this->ruleComparingCache->saveComparing($results);
         }
+    }
+
+    public function getRulesComparingResults($ruleId, $ruleSetId){
+        return $this->ruleComparingCache->getComparingHistory($ruleId, $ruleSetId);
     }
 
 } 

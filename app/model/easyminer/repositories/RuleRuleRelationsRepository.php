@@ -21,6 +21,13 @@ class RuleRuleRelationsRepository{
         $this->connection=$connection;
     }
 
+    public function getComparingHistory($ruleId, $ruleSetId){
+        return $this->connection->select(self::COLUMN_RULESET_RULE.','.self::COLUMN_RELATION.','.self::COLUMN_RATE)
+            ->from(self::TABLE_NAME)->where(self::COLUMN_RULE_SET.' = ?',$ruleSetId)
+            ->where(self::COLUMN_RULE.' = ?',$ruleId)
+            ->orderBy(self::COLUMN_RATE.' DESC')->fetchAssoc(self::COLUMN_RULESET_RULE);
+    }
+
     /**
      * Multiinsert of comparing results
      * @param $data values to be inserted
