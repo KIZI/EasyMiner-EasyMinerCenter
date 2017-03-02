@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\KnowledgeBaseFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\EasyMiner\Repositories\RuleRuleRelationsRepository;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\InvalidArgumentException;
@@ -193,6 +194,7 @@ class RuleSetsPresenter extends BasePresenter{
         $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
         //připravení výstupu
         $result=[];
+        $compareResults=[];
         try{
             $ruleSimilarity = $this->knowledgeBaseFacade->findRuleSimilarity($id, $rule);
         }catch (\Exception $e){
@@ -211,21 +213,27 @@ class RuleSetsPresenter extends BasePresenter{
             $ruleComponents = $this->decomposeRule($rule);
             $result['max'] = 0;
             $result['rule'] = [
-                'id' => '',
-                'relation' => ''
+                RuleRuleRelationsRepository::COLUMN_RELATION => ''
             ];
 
             foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRuleArray){ //TO-DO save in cache/session etc.
                 $compareResult = $this->compareRules($ruleComponents, $ruleSetRuleArray);
-                if($compareResult['rate'] > $result['max']){
-                    $result['max'] = $compareResult['rate'];
-                    $result['rule'] = $compareResult['rule'];
+                if($compareResult[RuleRuleRelationsRepository::COLUMN_RATE] > $result['max']){
+                    $result['max'] = $compareResult[RuleRuleRelationsRepository::COLUMN_RATE];
+                    $result['rule'] = $compareResult;
                 }
+                $compareResult[RuleRuleRelationsRepository::COLUMN_RULE] = $rule;
+                $compareResult[RuleRuleRelationsRepository::COLUMN_RULE_SET] = $id;
+                $compareResults[] = $compareResult;
             }
 
-            try{
-                $this->knowledgeBaseFacade->addRuleToKBRuleRelation($id,$ruleSimilarity,$result['rule']['id'],$result['rule']['relation'],$result['max']);
-            }catch (\Exception $e){}
+            if($result['max'] > 0){ //TO-DO zkontrolovat, zda nezůstává přiřazené pravidlo, když se změní podobnost na 0 - mělo by být ošetřeno při mazání pravidel z KB
+                try{
+                    $this->knowledgeBaseFacade->addRuleToKBRuleRelation($id,$ruleSimilarity,$result['rule'][RuleRuleRelationsRepository::COLUMN_RULESET_RULE],$result['rule'][RuleRuleRelationsRepository::COLUMN_RELATION],$result['max']);
+                }catch (\Exception $e){}
+            }
+
+            $this->knowledgeBaseFacade->saveComparingResults($compareResults);
         }
         $this->sendJsonResponse($result);
     }
@@ -284,11 +292,9 @@ class RuleSetsPresenter extends BasePresenter{
         $sameRateFinal = $crossAttributesConflict ? 0 : ($sameRateAntecedent+$sameRateConsequent)/2;
 
         return [
-            'rate' => $sameRateFinal,
-            'rule' => [
-                'id' => $ruleSetRule->ruleId,
-                'relation' => $ruleArray[1]
-            ]
+            RuleRuleRelationsRepository::COLUMN_RULESET_RULE => $ruleSetRule->ruleId,
+            RuleRuleRelationsRepository::COLUMN_RELATION => $ruleArray[1],
+            RuleRuleRelationsRepository::COLUMN_RATE => $sameRateFinal
         ];
     }
 

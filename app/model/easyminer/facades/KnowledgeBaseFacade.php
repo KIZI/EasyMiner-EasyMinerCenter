@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Repositories\KnowledgeBaseRuleRelationsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\RuleRuleRelationsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetsRepository;
 use Nette\Application\BadRequestException;
@@ -29,6 +30,8 @@ class KnowledgeBaseFacade {
     private $minersFacade;
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
+    /** @var  RuleRuleRelationsRepository $ruleComparingCache */
+    private $ruleComparingCache;
 
     /**
      * @param RuleSetsRepository $ruleSetsRepository
@@ -37,12 +40,13 @@ class KnowledgeBaseFacade {
      * @param MinersFacade $minersFacade
      * @param RulesFacade $rulesFacade
      */
-    public function __construct(RuleSetsRepository $ruleSetsRepository, RuleSetRuleRelationsRepository $ruleSetRuleRelationsRepository, KnowledgeBaseRuleRelationsRepository $knowledgeBaseRuleRelationsRepository, MinersFacade $minersFacade, RulesFacade $rulesFacade){
+    public function __construct(RuleSetsRepository $ruleSetsRepository, RuleSetRuleRelationsRepository $ruleSetRuleRelationsRepository, KnowledgeBaseRuleRelationsRepository $knowledgeBaseRuleRelationsRepository, MinersFacade $minersFacade, RulesFacade $rulesFacade, RuleRuleRelationsRepository $ruleComparingCache){
         $this->ruleSetsRepository=$ruleSetsRepository;
         $this->ruleSetRuleRelationsRepository=$ruleSetRuleRelationsRepository;
         $this->knowledgeBaseRuleRelationsRepository=$knowledgeBaseRuleRelationsRepository;
         $this->minersFacade=$minersFacade;
         $this->rulesFacade=$rulesFacade;
+        $this->ruleComparingCache=$ruleComparingCache;
     }
 
   /**
@@ -98,6 +102,15 @@ class KnowledgeBaseFacade {
             'rule_set_id'=>$ruleSetId,
             'rule_id'=>$ruleId
         ]);
+    }
+
+    /**
+     * Uložení všech nových porovnání
+     */
+    public function saveComparingResults($results){
+        if(!empty($results)){
+            $this->ruleComparingCache->saveComparing($results);
+        }
     }
 
 } 
