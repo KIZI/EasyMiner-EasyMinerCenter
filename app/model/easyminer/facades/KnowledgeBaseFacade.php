@@ -114,8 +114,32 @@ class KnowledgeBaseFacade {
         }
     }
 
+    /**
+     * Získání všech dřívějších porovnání pravidla s rulesetem
+     * @param $ruleId
+     * @param $ruleSetId
+     * @return array
+     */
     public function getRulesComparingResults($ruleId, $ruleSetId){
         return $this->ruleComparingCache->getComparingHistory($ruleId, $ruleSetId);
+    }
+
+    /**
+     * Smazání všech vztahů s pravidly z daného rulesetu
+     * @param $ruleSetId
+     */
+    public function removeRuleSetRelations($ruleSetId){
+        $this->ruleComparingCache->deleteAllByRuleSet($ruleSetId);
+        $this->knowledgeBaseRuleRelationsRepository->deleteAllByRuleSet($ruleSetId);
+    }
+
+    /**
+     * Smazání všech vztahů s pravidly z parametru
+     * @param $ruleIds
+     */
+    public function removeRuleSetRulesRelations($ruleIds){
+        $this->ruleComparingCache->deleteAllByRuleSetRules($ruleIds);
+        $this->knowledgeBaseRuleRelationsRepository->deleteAllByRuleSetRules($ruleIds);
     }
 
 } 

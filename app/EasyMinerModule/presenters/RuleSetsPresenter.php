@@ -119,6 +119,7 @@ class RuleSetsPresenter extends BasePresenter{
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     //smazání
     if ($this->ruleSetsFacade->deleteRuleSet($ruleSet)){
+        $this->knowledgeBaseFacade->removeRuleSetRelations($id);
       $this->sendJsonResponse(['state'=>'ok']);
     }
   }
@@ -236,7 +237,7 @@ class RuleSetsPresenter extends BasePresenter{
                 $compareResults[] = $compareResult;
             }
 
-            if($result['max'] > 0){ //TO-DO zkontrolovat, zda nezůstává přiřazené pravidlo, když se změní podobnost na 0 - mělo by být ošetřeno při mazání pravidel z KB
+            if($result['max'] > 0){
                 try{
                     $this->knowledgeBaseFacade->addRuleToKBRuleRelation(
                         $id, $ruleSimilarity,
@@ -393,6 +394,7 @@ class RuleSetsPresenter extends BasePresenter{
           $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
         }catch (\Exception $e){continue;}
       }
+        $this->knowledgeBaseFacade->removeRuleSetRulesRelations($ruleIdsArr);
     }
     $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
 
@@ -418,6 +420,7 @@ class RuleSetsPresenter extends BasePresenter{
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     //smazání
     $this->ruleSetsFacade->removeAllRulesFromRuleSet($ruleSet);
+      $this->knowledgeBaseFacade->removeRuleSetRelations($id);
     $this->sendJsonResponse(['state'=>'ok']);
   }
 
