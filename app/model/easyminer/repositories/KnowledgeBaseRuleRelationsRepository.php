@@ -24,7 +24,7 @@ class KnowledgeBaseRuleRelationsRepository extends BaseRepository{
      */
     public function deleteAllByRuleSetRules($ruleIds){
         $this->connection->query(
-            'DELETE FROM %n WHERE %n IN (?)', $this->getTable(), 'knowledge_base_rule_id', implode(',',$ruleIds)
+            'DELETE FROM %n WHERE %n IN (?)', $this->getTable(), 'knowledge_base_rule_id', $ruleIds
         );
     }
 

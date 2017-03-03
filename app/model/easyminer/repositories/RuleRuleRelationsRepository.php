@@ -50,7 +50,7 @@ class RuleRuleRelationsRepository{
      */
     public function deleteAllByRuleSetRules($ruleIds){
         $this->connection->query(
-            'DELETE FROM %n WHERE %n IN (?)', self::TABLE_NAME, self::COLUMN_RULESET_RULE, implode(',',$ruleIds)
+            'DELETE FROM %n WHERE %n IN (?)', self::TABLE_NAME, self::COLUMN_RULESET_RULE, $ruleIds
         );
     }
 
