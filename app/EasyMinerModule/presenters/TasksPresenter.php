@@ -13,7 +13,6 @@ use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
-use Tracy\Debugger;
 
 /**
  * Class TasksPresenter - presenter pro práci s úlohami...
@@ -73,7 +72,6 @@ class TasksPresenter  extends BasePresenter{
 
     $this->tasksFacade->updateTaskState($task,$taskState);
     if ($taskState->importState==Task::IMPORT_STATE_WAITING){
-      Debugger::log($taskState,'RequestHelper');
       //pokud máme na serveru čekající import, zkusíme poslat požadavek na jeho provedení
       RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
     }

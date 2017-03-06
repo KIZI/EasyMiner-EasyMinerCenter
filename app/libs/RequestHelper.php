@@ -18,8 +18,6 @@ class RequestHelper {
    * @throws \Exception
    */
   public static function sendBackgroundGetRequest($url){
-    Debugger::log($url, 'RequestHelper');
-
     $ch = curl_init($url);
     //nastavení parametrů připojení včetně timeoutu
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -35,7 +33,7 @@ class RequestHelper {
     curl_setopt($ch, CURLOPT_VERBOSE, false);
 
     //odeslání požadavku na načtení
-    $responseData = curl_exec($ch);
+    curl_exec($ch);
 
     //zjištění info o chybě
     if ($errorCode=$error = curl_errno($ch)){
@@ -51,7 +49,6 @@ class RequestHelper {
       }
 
       Debugger::log(@$errstr,ILogger::ERROR);
-      Debugger::log(@$errstr,'RequestHelper');//FIXME
 
       throw new \Exception($errstr);
     }
@@ -73,7 +70,6 @@ class RequestHelper {
    * @throws \Exception
    */
   public static function sendBackgroundGetRequest_FSOCKOPEN($url){
-    Debugger::log($url,'RequestHelper');//FIXME
     $url = new Url($url);
     $host=$url->getHost();
     if (empty($host)){
@@ -100,7 +96,6 @@ class RequestHelper {
     $fp=@fsockopen($scheme.$host, $port, $errno, $errstr, self::REQUEST_TIMEOUT);
     if (!$fp){
       Debugger::log($errstr,ILogger::ERROR);
-      Debugger::log($errstr,'RequestHelper');//FIXME
       throw new \Exception($errstr,$errno);
     }
     $path=$url->getPath().($url->getQuery()!=""?'?'.$url->getQuery():'');
