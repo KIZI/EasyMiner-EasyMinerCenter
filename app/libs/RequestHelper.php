@@ -10,6 +10,58 @@ use Tracy\ILogger;
  * @package EasyMinerCenter\Libs
  */
 class RequestHelper {
+  const IN_BACKGROUND_RESPONSE='REQUEST IN BACKGROUND';
+
+  /**
+   * Funkce pro odeslání background requestu pomocí CURL
+   * @param string $url
+   * @throws \Exception
+   */
+  public static function sendBackgroundGetRequest($url){
+    $ch = curl_init($url);
+    //nastavení parametrů připojení včetně timeoutu
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_MAXREDIRS,5);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION,true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1000);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+    curl_setopt($ch, CURLOPT_FAILONERROR, false);
+    curl_setopt($ch, CURLOPT_VERBOSE, false);
+
+    //odeslání požadavku na načtení
+    curl_exec($ch);
+
+    //zjištění info o chybě
+    if ($errorCode=$error = curl_errno($ch)){
+      $errstr=curl_error($ch);
+    }
+    curl_close($ch);
+
+    if ($errorCode && $errorCode!=CURLE_OPERATION_TIMEOUTED){
+      //jde opravdu o chybu, ne jen o ukončení spojení pro běh na pozadí
+
+      if (empty($errstr)){
+        $errstr='Background CURL request error (error: '.$errorCode.')';
+      }
+
+      Debugger::log(@$errstr,ILogger::ERROR);
+
+      throw new \Exception($errstr);
+    }
+  }
+
+  /**
+   * Funkce pro odeslání ukončení info klientovi a ignorování ukončení jeho připojení
+   */
+  public static function ignoreUserAbort(){
+    ignore_user_abort(true);
+  }
+
+
   const REQUEST_TIMEOUT=5;
 
   /**
@@ -17,12 +69,13 @@ class RequestHelper {
    * @param string $url
    * @throws \Exception
    */
-  public static function sendBackgroundGetRequest($url){
+  public static function sendBackgroundGetRequest_FSOCKOPEN($url){
     $url = new Url($url);
     $host=$url->getHost();
     if (empty($host)){
       $host='localhost';
     }
+
     #region parametry připojení
     switch ($url->getScheme()) {
       case 'https':

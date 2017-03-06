@@ -231,7 +231,10 @@ class CloudDriver implements IMiningDriver{
     $this->basicParseRulesPMML($pmmlString,$rulesCount);
     $taskState=$this->task->getTaskState();
     $taskState->setRulesCount($taskState->getRulesCount()+$rulesCount);
-    $taskState->importState=Task::IMPORT_STATE_WAITING;
+    if ($taskState->importState!=Task::IMPORT_STATE_PARTIAL){
+      //pokud zrovna neprobíhá import...
+      $taskState->importState=Task::IMPORT_STATE_WAITING;
+    }
     return $taskState;
   }
 
