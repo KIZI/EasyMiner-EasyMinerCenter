@@ -146,7 +146,7 @@ class AttributesPresenter extends BaseResourcePresenter {
       ->addRule(IValidator::CALLBACK,'Requested preprocessing was not found!',function($value){
         if ($value>0){
           try{
-            $this->preprocessingsFacade->findPreprocessing($value);
+            $this->metaAttributesFacade->findPreprocessing($value);
             //TODO doplnění kontroly, jestli preprocessing patří k danému metaatributu
           }catch (\Exception $e){
             return false;
@@ -161,37 +161,40 @@ class AttributesPresenter extends BaseResourcePresenter {
       });
     $inputData=$this->input->getData();
 
+    $newPreprocessingValidation=function(){
+      $inputData=$this->input->getData();
+      if (empty($inputData['newPreprocessing'])){
+        return false;
+      }else{
+        $inputData=$inputData['newPreprocessing'];
+      }
+      $preprocessingType=Preprocessing::decodeAlternativePrepreprocessingTypeIdentification(@$inputData['type']);
+      if (!in_array($preprocessingType,Preprocessing::getPreprocessingTypes())){
+        //kontrola, jestli je zadán podporovaný typ preprocessingu
+        return false;
+      }
+      if ($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS || $preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
+        if (!isset($inputData['from']) || !is_numeric($inputData['from'])){return false;}
+        if (!isset($inputData['to']) || !is_numeric($inputData['to'])){return false;}
+      }
+      if ($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
+        if (!isset($inputData['count']) || !is_numeric($inputData['count'])){return false;}
+      }
+      if($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){
+        if ((!isset($inputData['count']) || !is_numeric($inputData['count']))&&(empty($inputData['length']) || !is_numeric($inputData['length']))){return false;}
+      }
+      return true;
+    };
 
     /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('newPreprocessing')
-      ->addRule(IValidator::CALLBACK,'Invalid definition of new preprocessing!',function(){
-        $inputData=$this->input->getData();
-        if (empty($inputData['newPreprocessing'])){
-          return false;
-        }else{
-          $inputData=$inputData['newPreprocessing'];
-        }
-        $preprocessingType=Preprocessing::decodeAlternativePrepreprocessingTypeIdentification(@$inputData['type']);
-        if (!in_array($preprocessingType,Preprocessing::getPreprocessingTypes())){
-          //kontrola, jestli je zadán podporovaný typ preprocessingu
-          return false;
-        }
-        if ($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS || $preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
-          if (empty($inputData['from']) || !is_numeric($inputData['from'])){return false;}
-          if (empty($inputData['to']) || !is_numeric($inputData['to'])){return false;}
-        }
-        if ($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
-          if (empty($inputData['count']) || !is_numeric($inputData['count'])){return false;}
-        }
-        if($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){
-          if ((empty($inputData['count']) || !is_numeric($inputData['count']))&&(empty($inputData['length']) || !is_numeric($inputData['length']))){return false;}
-        }
-        return true;
-      });
+      ->addRule(IValidator::CALLBACK,'Invalid definition of new preprocessing!',$newPreprocessingValidation);
 
     if (empty($inputData['specialPreprocessing'])){
       if (!empty($inputData['newPreprocessing'])){
-        $this->input->field('newPreprocessing')->addRule(IValidator::REQUIRED);
+        if (!$newPreprocessingValidation()){
+          $this->error('Invalid new preprocessing config.');
+        }
       }else{
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->input->field('preprocessing')->addRule(IValidator::REQUIRED, 'You have to select a preprocessing type or ID!');
@@ -203,12 +206,6 @@ class AttributesPresenter extends BaseResourcePresenter {
 
 
   #region injections
-  /**
-   * @param PreprocessingsFacade $preprocessingsFacade
-   */
-  public function injectPreprocessingsFacade(PreprocessingsFacade $preprocessingsFacade) {
-    $this->preprocessingsFacade=$preprocessingsFacade;
-  }
   /**
    * @param MetasourcesFacade $metasourcesFacade
    */

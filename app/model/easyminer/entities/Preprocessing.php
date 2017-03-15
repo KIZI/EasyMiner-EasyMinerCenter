@@ -66,8 +66,10 @@ class Preprocessing extends Entity{
       case "intervals":
         return self::TYPE_INTERVAL_ENUMERATION;
       case "equidistant":
+      case "equidistantInterval":
         return self::TYPE_EQUIDISTANT_INTERVALS;
       case "equifrequent":
+      case "equifrequentInterval":
         return self::TYPE_EQUIFREQUENT_INTERVALS;
     }
     return $preprocessingType;
