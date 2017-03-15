@@ -412,4 +412,72 @@ class MetaAttributesFacade {
     ]);
   }
 
+
+
+  /**
+   * Funkce pro definování nového preprocessingu na základě vstupních parametrů
+   * @param Format $format
+   * @param array $definition
+   * @return Preprocessing
+   */
+  public function generateNewPreprocessingFromDefinitionArray(Format $format, array $definition){
+    $preprocessing=new Preprocessing();
+    $preprocessingType=Preprocessing::decodeAlternativePrepreprocessingTypeIdentification(@$definition['type']);
+    if (!in_array($preprocessingType,Preprocessing::getPreprocessingTypes())){
+      throw  new \InvalidArgumentException('Invalid preprocessing type: '.@$definition['type']);
+    }
+    //TODO format
+    if ($preprocessingType==Preprocessing::TYPE_EACHONE){
+      //region eachOne
+      $preprocessing->name=Preprocessing::NEW_PREPROCESSING_EACHONE_NAME;
+      return $this->findPreprocessingEachOne($format);
+      //endregion eachOne
+    }elseif($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
+      //region equifrequent intervals
+      $specialParams=['from'=>floatval($definition['from']),'to'=>floatval($definition['to']),'count'=>floatval($definition['count'])];
+      if ($specialParams['from']==$specialParams['to']){
+        throw new \InvalidArgumentException('From and To params of equifrequent intervals have to be different.');
+      }
+      if ($specialParams['count']<=1){
+        throw new \InvalidArgumentException('Count param of equifrequent intervals has to be greater than 1.');
+      }
+      if ($specialParams['from']>$specialParams['to']){
+        //pokud máme chybně zadané pořadí hodnot, prohodíme je
+        $from=$specialParams['to'];
+        $specialParams['to']=$specialParams['from'];
+        $specialParams['from']=$from;
+      }
+      $preprocessing->name="Equfrequent from: ".$specialParams['from'];
+      $preprocessing->setSpecialTypeParams($specialParams);
+      //endregion equifrequent intervals
+    }elseif($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){
+      //region equidistant intervals
+      //XXX
+
+      //endregion equidistant intervals
+    }elseif($preprocessingType==Preprocessing::TYPE_INTERVAL_ENUMERATION){
+      //region interval enumeration
+      //XXX
+
+      //endregion interval enumeration
+    }elseif($preprocessingType==Preprocessing::TYPE_NOMINAL_ENUMERATION){
+      //region nominal enumeration
+      //XXX
+
+
+      //endregion nominal enumeration
+    }else{
+      throw  new \InvalidArgumentException('Invalid preprocessing type: '.@$definition['type']);
+    }
+
+    if (!empty($definition['name'])){
+      $preprocessing->name=$definition['name'];
+    }
+
+  }
+
+
+
+
+
 }

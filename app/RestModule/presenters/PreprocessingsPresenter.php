@@ -8,13 +8,16 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade;
 
 /**
- * Class AttributesPresenter
- *
+ * Class PreprocessingsPresenter
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
  */
-class AttributesPresenter extends BaseResourcePresenter {
+class PreprocessingsPresenter extends BaseResourcePresenter {
+  /** @var  PreprocessingsFacade $preprocessingsFacade */
+  private $preprocessingsFacade;
   /** @var  MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
   /** @var  DatasourcesFacade $datasourcesFacade */
@@ -28,24 +31,24 @@ class AttributesPresenter extends BaseResourcePresenter {
   /**
    * Akce pro vytvoření nového atributu
    * @SWG\Post(
-   *   tags={"Attributes"},
-   *   path="/attributes",
-   *   summary="Create new attribute using defined preprocessing",
+   *   tags={"Preprocessing"},
+   *   path="/preprocessings",
+   *   summary="Create new preprocessing definition",
    *   consumes={"application/json","application/xml"},
    *   produces={"application/json","application/xml"},
    *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
    *   @SWG\Parameter(
-   *     description="New attribute",
+   *     description="New preprocessing",
    *     name="body",
    *     required=true,
-   *     @SWG\Schema(ref="#/definitions/NewAttributeInput"),
+   *     @SWG\Schema(ref="#/definitions/NewPreprocessingInput"),
    *     in="body"
    *   ),
    *   @SWG\Response(
    *     response=201,
-   *     description="Attribute created",
+   *     description="Preprocessing created",
    *     @SWG\Schema(
-   *       ref="#/definitions/AttributeResponse"
+   *       ref="#/definitions/PreprocessingResponse"
    *     )
    *   ),
    *   @SWG\Response(
@@ -93,21 +96,12 @@ class AttributesPresenter extends BaseResourcePresenter {
     $attribute->type=$attribute->datasourceColumn->type;
 
     if (@$inputData['specialPreprocessing']==Preprocessing::SPECIALTYPE_EACHONE){
-      //použití speciálního preprocessingu
       $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($datasourceColumn->format);
-    }elseif(!empty($inputData['newPreprocessing'])){
-      //vytvoření nového preprocessingu z definičního pole (z inputu)
-      $preprocessing=$this->metaAttributesFacade->generateNewPreprocessingFromDefinitionArray($inputData['newPreprocessing']);
-    }elseif(!empty($inputData['preprocessing'])){
-      //nalezení aktuálního preprocessingu
-      $preprocessing=$this->metaAttributesFacade->findPreprocessing($inputData['preprocessing']);
+      $attribute->preprocessing=$preprocessing;
+    }else{
+      throw new \BadMethodCallException('Selected preprocessing type is not supported.');
+      //FIXME je nutné nalézt příslušný preprocessing...
     }
-    if (!isset($preprocessing) || !($preprocessing instanceof Preprocessing)){
-      throw new \InvalidArgumentException('Preprocessing not found or invalid definition of preprocessing given!');
-    }
-
-    //máme preprocessing => přiřadíme ho k atributu a necháme ho předzpracovat...
-    $attribute->preprocessing=$preprocessing;
     $attribute->active=false;
     $this->metasourcesFacade->saveAttribute($attribute);
 
@@ -129,74 +123,36 @@ class AttributesPresenter extends BaseResourcePresenter {
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
-    /** @noinspection PhpMethodParametersCountMismatchInspection */
+    //TODO kontrola vstupních parametrů
+    /*
     $this->input->field('miner')
       ->addRule(IValidator::REQUIRED,'You have to select miner ID!');
-    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('columnName')
       ->addRule(IValidator::CALLBACK,'You have to input column name or ID!',function(){
       $inputData=$this->input->getData();
       return (@$inputData['columnName']!="" || $inputData['column']>0);
     });
-    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('name')
       ->addRule(IValidator::REQUIRED,'You have to input attribute name!');
-    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('preprocessing')
       ->addRule(IValidator::CALLBACK,'Requested preprocessing was not found!',function($value){
         if ($value>0){
           try{
             $this->preprocessingsFacade->findPreprocessing($value);
-            //TODO doplnění kontroly, jestli preprocessing patří k danému metaatributu
           }catch (\Exception $e){
             return false;
           }
         }
         return true;
       });
-    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('specialPreprocessing')
       ->addRule(IValidator::CALLBACK,'Requested special preprocessing does not exist!',function($value){
         return ($value=="")||in_array($value,Preprocessing::getSpecialTypes());
       });
     $inputData=$this->input->getData();
-
-
-    /** @noinspection PhpMethodParametersCountMismatchInspection */
-    $this->input->field('newPreprocessing')
-      ->addRule(IValidator::CALLBACK,'Invalid definition of new preprocessing!',function(){
-        $inputData=$this->input->getData();
-        if (empty($inputData['newPreprocessing'])){
-          return false;
-        }else{
-          $inputData=$inputData['newPreprocessing'];
-        }
-        $preprocessingType=Preprocessing::decodeAlternativePrepreprocessingTypeIdentification(@$inputData['type']);
-        if (!in_array($preprocessingType,Preprocessing::getPreprocessingTypes())){
-          //kontrola, jestli je zadán podporovaný typ preprocessingu
-          return false;
-        }
-        if ($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS || $preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
-          if (empty($inputData['from']) || !is_numeric($inputData['from'])){return false;}
-          if (empty($inputData['to']) || !is_numeric($inputData['to'])){return false;}
-        }
-        if ($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
-          if (empty($inputData['count']) || !is_numeric($inputData['count'])){return false;}
-        }
-        if($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){
-          if ((empty($inputData['count']) || !is_numeric($inputData['count']))&&(empty($inputData['length']) || !is_numeric($inputData['length']))){return false;}
-        }
-        return true;
-      });
-
     if (empty($inputData['specialPreprocessing'])){
-      if (!empty($inputData['newPreprocessing'])){
-        $this->input->field('newPreprocessing')->addRule(IValidator::REQUIRED);
-      }else{
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->input->field('preprocessing')->addRule(IValidator::REQUIRED, 'You have to select a preprocessing type or ID!');
-      }
-    }
+      $this->input->field('preprocessing')->addRule(IValidator::REQUIRED,'You have to select a preprocessing type or ID!');
+    }*/
   }
   #endregion
 
