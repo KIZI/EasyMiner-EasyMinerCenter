@@ -454,6 +454,8 @@ class MetaAttributesFacade {
   public function generateNewPreprocessingFromDefinitionArray(Format $format, array $definition){
     $preprocessing=new Preprocessing();
     $preprocessing->name=date('c');
+    $preprocessing->user=null;
+    $preprocessing->format=$format;
     $preprocessingType=Preprocessing::decodeAlternativePrepreprocessingTypeIdentification(@$definition['type']);
     if (!in_array($preprocessingType,Preprocessing::getPreprocessingTypes())){
       throw  new \InvalidArgumentException('Invalid preprocessing type: '.@$definition['type']);
@@ -515,6 +517,11 @@ class MetaAttributesFacade {
         throw new \InvalidArgumentException('Length of equifrequent intervals has to be greater than 0.');
       }
 
+      if (!empty($definition['name'])){
+        $preprocessing->name=$definition['name'];
+      }
+      $this->savePreprocessing($preprocessing);
+
       //vygenerování intervalů
       $start=$specialParams['from'];
       do{
@@ -538,6 +545,8 @@ class MetaAttributesFacade {
         $this->saveValuesBin($valuesBin);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $preprocessing->addToValuesBins($valuesBin);
+
+        $start+=$intervalLength;
       }while($start<$specialParams['to']);
       #endregion equidistant intervals
     }elseif($preprocessingType==Preprocessing::TYPE_INTERVAL_ENUMERATION){
@@ -546,6 +555,12 @@ class MetaAttributesFacade {
       if (empty($bins) || !is_array($bins)){
         throw new \InvalidArgumentException('You have to define one or more nominal bins!');
       }
+
+      if (!empty($definition['name'])){
+        $preprocessing->name=$definition['name'];
+      }
+      $this->savePreprocessing($preprocessing);
+
       $exisingBinNames=[];
       foreach($bins as $bin){
         //projdeme jednotlivé biny a uložíme je do DB
@@ -603,6 +618,12 @@ class MetaAttributesFacade {
       if (empty($bins) || !is_array($bins)){
         throw new \InvalidArgumentException('You have to define one or more nominal bins!');
       }
+
+      if (!empty($definition['name'])){
+        $preprocessing->name=$definition['name'];
+      }
+      $this->savePreprocessing($preprocessing);
+
       $exisingBinNames=[];
       foreach($bins as $bin){
         //projdeme jednotlivé biny a uložíme je do DB
@@ -640,9 +661,6 @@ class MetaAttributesFacade {
       throw  new \InvalidArgumentException('Invalid preprocessing type: '.@$definition['type']);
     }
 
-    if (!empty($definition['name'])){
-      $preprocessing->name=$definition['name'];
-    }
     $this->savePreprocessing($preprocessing);
     return $preprocessing;
   }
