@@ -373,7 +373,7 @@ class MetaAttributesFacade {
     $preprocessing->specialType=Preprocessing::SPECIALTYPE_EACHONE;
     $preprocessing->shared=true;
     $preprocessing->format=$format;
-    $this->preprocessingsRepository->persist($preprocessing);
+    $this->savePreprocessing($preprocessing);
     return $preprocessing;
   }
 
@@ -389,6 +389,7 @@ class MetaAttributesFacade {
   public function saveInterval(Interval &$interval){
     $this->intervalsRepository->persist($interval);
   }
+
   /**
    * @param Value $value
    */
@@ -397,12 +398,20 @@ class MetaAttributesFacade {
   }
 
   /**
+   * @param Preprocessing $preprocessing
+   */
+  public function savePreprocessing(Preprocessing &$preprocessing){
+    $this->preprocessingsRepository->persist($preprocessing);
+  }
+
+
+  /**
    * @param Format|int $format
    * @param string $value
    * @return Value
    * @throws \Exception
    */
-  public function findValue($format,$value){//TODO má to být tady?
+  public function findValue($format,$value){
     if (!($format instanceof Format)){
       $format=$this->formatsRepository->find($format);
     }
@@ -410,6 +419,28 @@ class MetaAttributesFacade {
       'format_id'=>$format->formatId,
       'value'=>$value
     ]);
+  }
+
+  /**
+   * Funkce pro nalezení hodnoty či její vytvoření, pokud neexistuje
+   * @param Format|int $format
+   * @param string $value
+   * @return Value
+   */
+  public function findOrSaveValue($format, $value){
+    if (!($format instanceof Format)){
+      $format=$this->formatsRepository->find($format);
+    }
+    try{
+      $value=$this->findValue($format, $value);
+    }catch(\Exception $e){
+      //uložení hodnoty, pokud nebyla nalezena...
+      $value=new Value();
+      $value->format=$format;
+      $value->value=$value;
+      $this->saveValue($value);
+    }
+    return $value;
   }
 
 
@@ -422,18 +453,19 @@ class MetaAttributesFacade {
    */
   public function generateNewPreprocessingFromDefinitionArray(Format $format, array $definition){
     $preprocessing=new Preprocessing();
+    $preprocessing->name=date('c');
     $preprocessingType=Preprocessing::decodeAlternativePrepreprocessingTypeIdentification(@$definition['type']);
     if (!in_array($preprocessingType,Preprocessing::getPreprocessingTypes())){
       throw  new \InvalidArgumentException('Invalid preprocessing type: '.@$definition['type']);
     }
-    //TODO format
+
     if ($preprocessingType==Preprocessing::TYPE_EACHONE){
-      //region eachOne
+      #region eachOne
       $preprocessing->name=Preprocessing::NEW_PREPROCESSING_EACHONE_NAME;
       return $this->findPreprocessingEachOne($format);
-      //endregion eachOne
+      #endregion eachOne
     }elseif($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
-      //region equifrequent intervals
+      #region equifrequent intervals
       $specialParams=['from'=>floatval($definition['from']),'to'=>floatval($definition['to']),'count'=>floatval($definition['count'])];
       if ($specialParams['from']==$specialParams['to']){
         throw new \InvalidArgumentException('From and To params of equifrequent intervals have to be different.');
@@ -447,25 +479,163 @@ class MetaAttributesFacade {
         $specialParams['to']=$specialParams['from'];
         $specialParams['from']=$from;
       }
-      $preprocessing->name="Equfrequent from: ".$specialParams['from'];
+      $preprocessing->name=$specialParams['count'].' equfreq. int. from '.$specialParams['from'].' to '.$specialParams['to'];
       $preprocessing->setSpecialTypeParams($specialParams);
-      //endregion equifrequent intervals
+      #endregion equifrequent intervals
     }elseif($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){
-      //region equidistant intervals
-      //XXX
+      #region equidistant intervals
+      $specialParams=['from'=>floatval($definition['from']),'to'=>floatval($definition['to'])];
+      if ($specialParams['from']==$specialParams['to']){
+        throw new \InvalidArgumentException('From and To params of equifrequent intervals have to be different.');
+      }
+      if ($specialParams['from']>$specialParams['to']){
+        //pokud máme chybně zadané pořadí hodnot, prohodíme je
+        $from=$specialParams['to'];
+        $specialParams['to']=$specialParams['from'];
+        $specialParams['from']=$from;
+      }
 
-      //endregion equidistant intervals
+      if (!empty($definition['length'])&&(floatval($definition['length'])>0)){
+        $intervalLength=$definition['length'];
+      }else{
+        //zadání počtem intervalů => převedeme to na délku intervalu
+        $specialParams['count']=floatval($definition['count']);
+        if ($specialParams['count']<=1){
+          throw new \InvalidArgumentException('Count param of equifrequent intervals has to be greater than 1.');
+        }
+        $intervalLength=($specialParams['to']-$specialParams['from'])/$specialParams['count'];
+        //zaokrouhleni pro hezci cisla...
+        if ($intervalLength>1){
+          $intervalLength=round($intervalLength*1000)/1000;
+        }else{
+          $intervalLength=round($intervalLength*1000000)/1000000;
+        }
+      }
+      if (empty($intervalLength) || $intervalLength==0){
+        throw new \InvalidArgumentException('Length of equifrequent intervals has to be greater than 0.');
+      }
+
+      //vygenerování intervalů
+      $start=$specialParams['from'];
+      do{
+        $interval=new Interval();
+        $interval->leftMargin=$start;
+        $interval->leftClosure=Interval::CLOSURE_CLOSED;
+        $interval->rightMargin=min($start+$intervalLength,$specialParams['to']);
+        if ($start+$intervalLength>=$specialParams['to']){
+          $interval->rightClosure=Interval::CLOSURE_CLOSED;
+        }else{
+          $interval->rightClosure=Interval::CLOSURE_OPEN;
+        }
+        $interval->format=$format;
+        $this->saveInterval($interval);
+        $valuesBin=new ValuesBin();
+        $valuesBin->format=$format;
+        $valuesBin->name=$interval->__toString();
+        $this->saveValuesBin($valuesBin);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $valuesBin->addToIntervals($interval);
+        $this->saveValuesBin($valuesBin);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $preprocessing->addToValuesBins($valuesBin);
+      }while($start<$specialParams['to']);
+      #endregion equidistant intervals
     }elseif($preprocessingType==Preprocessing::TYPE_INTERVAL_ENUMERATION){
-      //region interval enumeration
-      //XXX
+      #region interval enumeration
+      $bins=$definition['bins'];
+      if (empty($bins) || !is_array($bins)){
+        throw new \InvalidArgumentException('You have to define one or more nominal bins!');
+      }
+      $exisingBinNames=[];
+      foreach($bins as $bin){
+        //projdeme jednotlivé biny a uložíme je do DB
+        #region vyřešení unikátnosti jmen jednotlivých BINů
+        $binName=trim(@$bin['name']);
+        if (empty($bin['values'])){
+          continue;
+        }
+        if ($binName==''){
+          $binName='noname';
+        }
+        $x=1;
+        $newBinName=$binName;
+        while (in_array($newBinName,$exisingBinNames)){
+          $x++;
+          $newBinName=$binName.$x;
+        }
+        $binName=$newBinName;
+        #endregion vyřešení unikátnosti jmen jednotlivých BINů
 
-      //endregion interval enumeration
+        $valuesBin=new ValuesBin();
+        $valuesBin->name=$binName;
+        $valuesBin->format=$format;
+        $this->saveValuesBin($valuesBin);
+
+        /** @var Interval[] $intervals */
+        $intervals=[];
+        foreach($bin['intervals'] as $intervalConfig){
+          $interval=new Interval();
+          $interval->format=$format;
+          $interval->leftMargin=$intervalConfig['leftMargin'];
+          $interval->rightMargin=$intervalConfig['leftMargin'];
+          $interval->setClosure($intervalConfig['closure']);
+          if (!empty($intervals)){
+            $intervalOverlap=false;
+            foreach($intervals as $existingInterval){
+              if ($interval->isInOverlapWithInterval($existingInterval)){
+                $intervalOverlap=true;
+                break;
+              }
+            }
+            if ($intervalOverlap){continue;}
+          }
+          //kontrola, jestli se interval nepřekrývá s jiným, již definovaným intervalem
+          /** @noinspection PhpMethodParametersCountMismatchInspection */
+          $valuesBin->addToIntervals($interval);
+          $intervals[]=$interval;
+        }
+        $this->saveValuesBin($valuesBin);
+      }
+      #endregion interval enumeration
     }elseif($preprocessingType==Preprocessing::TYPE_NOMINAL_ENUMERATION){
-      //region nominal enumeration
-      //XXX
+      #region nominal enumeration
+      $bins=$definition['bins'];
+      if (empty($bins) || !is_array($bins)){
+        throw new \InvalidArgumentException('You have to define one or more nominal bins!');
+      }
+      $exisingBinNames=[];
+      foreach($bins as $bin){
+        //projdeme jednotlivé biny a uložíme je do DB
+        #region vyřešení unikátnosti jmen jednotlivých BINů
+        $binName=trim(@$bin['name']);
+        if (empty($bin['values'])){
+          continue;
+        }
+        if ($binName==''){
+          $binName='noname';
+        }
+        $x=1;
+        $newBinName=$binName;
+        while (in_array($newBinName,$exisingBinNames)){
+          $x++;
+          $newBinName=$binName.$x;
+        }
+        $binName=$newBinName;
+        #endregion vyřešení unikátnosti jmen jednotlivých BINů
 
+        $valuesBin=new ValuesBin();
+        $valuesBin->name=$binName;
+        $valuesBin->format=$format;
+        $this->saveValuesBin($valuesBin);
 
-      //endregion nominal enumeration
+        foreach($bin['values'] as $value){
+          $value=$this->findOrSaveValue($format,$value);
+          /** @noinspection PhpMethodParametersCountMismatchInspection */
+          $valuesBin->addToValues($value);
+        }
+        $this->saveValuesBin($valuesBin);
+      }
+      #endregion nominal enumeration
     }else{
       throw  new \InvalidArgumentException('Invalid preprocessing type: '.@$definition['type']);
     }
@@ -473,7 +643,8 @@ class MetaAttributesFacade {
     if (!empty($definition['name'])){
       $preprocessing->name=$definition['name'];
     }
-
+    $this->savePreprocessing($preprocessing);
+    return $preprocessing;
   }
 
 

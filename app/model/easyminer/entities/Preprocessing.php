@@ -20,6 +20,8 @@ use Nette\Utils\Strings;
  * @property bool $shared = false
  * @property ValuesBin[] $valuesBins m:hasMany
  * @property Attribute[] $generatedAttributes m:belongsToMany
+ * @method addToValuesBins
+ * @method removeFromValuesBins
  */
 class Preprocessing extends Entity{
 

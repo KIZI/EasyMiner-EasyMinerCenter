@@ -97,7 +97,7 @@ class AttributesPresenter extends BaseResourcePresenter {
       $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($datasourceColumn->format);
     }elseif(!empty($inputData['newPreprocessing'])){
       //vytvoření nového preprocessingu z definičního pole (z inputu)
-      $preprocessing=$this->metaAttributesFacade->generateNewPreprocessingFromDefinitionArray($inputData['newPreprocessing']);
+      $preprocessing=$this->metaAttributesFacade->generateNewPreprocessingFromDefinitionArray($datasourceColumn->format,$inputData['newPreprocessing']);
     }elseif(!empty($inputData['preprocessing'])){
       //nalezení aktuálního preprocessingu
       $preprocessing=$this->metaAttributesFacade->findPreprocessing($inputData['preprocessing']);

@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
+use Nette\Utils\Strings;
 
 /**
  * Class Interval
@@ -33,6 +34,23 @@ class Interval extends Entity{
     $interval->leftMargin=$leftMargin;
     $interval->rightMargin=$rightMargin;
     return $interval;
+  }
+
+  /**
+   * @param string $closure
+   */
+  public function setClosure($closure){
+    $closure=Strings::lower($closure);
+    if (Strings::startsWith($closure,self::CLOSURE_CLOSED)){
+      $this->leftClosure=self::CLOSURE_CLOSED;
+    }else{
+      $this->leftClosure=self::CLOSURE_OPEN;
+    }
+    if (Strings::endsWith($closure,self::CLOSURE_CLOSED)){
+      $this->rightClosure=self::CLOSURE_CLOSED;
+    }else{
+      $this->rightClosure=self::CLOSURE_OPEN;
+    }
   }
 
   /**
