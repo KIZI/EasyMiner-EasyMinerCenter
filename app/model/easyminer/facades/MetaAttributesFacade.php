@@ -432,15 +432,15 @@ class MetaAttributesFacade {
       $format=$this->formatsRepository->find($format);
     }
     try{
-      $value=$this->findValue($format, $value);
+      $valueObject=$this->findValue($format, $value);
     }catch(\Exception $e){
       //uložení hodnoty, pokud nebyla nalezena...
-      $value=new Value();
-      $value->format=$format;
-      $value->value=$value;
-      $this->saveValue($value);
+      $valueObject=new Value();
+      $valueObject->format=$format;
+      $valueObject->value=$value;
+      $this->saveValue($valueObject);
     }
-    return $value;
+    return $valueObject;
   }
 
 
@@ -566,7 +566,7 @@ class MetaAttributesFacade {
         //projdeme jednotlivé biny a uložíme je do DB
         #region vyřešení unikátnosti jmen jednotlivých BINů
         $binName=trim(@$bin['name']);
-        if (empty($bin['values'])){
+        if (empty($bin['intervals'])){
           continue;
         }
         if ($binName==''){
@@ -592,9 +592,10 @@ class MetaAttributesFacade {
           $interval=new Interval();
           $interval->format=$format;
           $interval->leftMargin=$intervalConfig['leftMargin'];
-          $interval->rightMargin=$intervalConfig['leftMargin'];
+          $interval->rightMargin=$intervalConfig['rightMargin'];
           $interval->setClosure($intervalConfig['closure']);
           if (!empty($intervals)){
+            //kontrola, jestli se interval nepřekrývá s jiným, již definovaným intervalem
             $intervalOverlap=false;
             foreach($intervals as $existingInterval){
               if ($interval->isInOverlapWithInterval($existingInterval)){
@@ -604,12 +605,14 @@ class MetaAttributesFacade {
             }
             if ($intervalOverlap){continue;}
           }
-          //kontrola, jestli se interval nepřekrývá s jiným, již definovaným intervalem
+          $this->saveInterval($interval);
           /** @noinspection PhpMethodParametersCountMismatchInspection */
           $valuesBin->addToIntervals($interval);
           $intervals[]=$interval;
         }
         $this->saveValuesBin($valuesBin);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $preprocessing->addToValuesBins($valuesBin);
       }
       #endregion interval enumeration
     }elseif($preprocessingType==Preprocessing::TYPE_NOMINAL_ENUMERATION){
@@ -650,11 +653,13 @@ class MetaAttributesFacade {
         $this->saveValuesBin($valuesBin);
 
         foreach($bin['values'] as $value){
-          $value=$this->findOrSaveValue($format,$value);
+          $valueItem=$this->findOrSaveValue($format,$value);
           /** @noinspection PhpMethodParametersCountMismatchInspection */
-          $valuesBin->addToValues($value);
+          $valuesBin->addToValues($valueItem);
         }
         $this->saveValuesBin($valuesBin);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $preprocessing->addToValuesBins($valuesBin);
       }
       #endregion nominal enumeration
     }else{

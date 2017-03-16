@@ -54,6 +54,13 @@ class Interval extends Entity{
   }
 
   /**
+   * @return string
+   */
+  public function getClosure(){
+    return $this->leftClosure.Strings::firstUpper($this->rightClosure);
+  }
+
+  /**
    * Funkce pro kontrolu, jestli se interval překrývá s jiným intervalem
    * @param Interval $interval
    * @return bool
