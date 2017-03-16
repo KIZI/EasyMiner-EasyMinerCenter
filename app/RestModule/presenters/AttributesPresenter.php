@@ -173,14 +173,16 @@ class AttributesPresenter extends BaseResourcePresenter {
         //kontrola, jestli je zadán podporovaný typ preprocessingu
         return false;
       }
-      if ($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS || $preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
-        if (!isset($inputData['from']) || !is_numeric($inputData['from'])){return false;}
-        if (!isset($inputData['to']) || !is_numeric($inputData['to'])){return false;}
-      }
       if ($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
         if (!isset($inputData['count']) || !is_numeric($inputData['count'])){return false;}
       }
+      if ($preprocessingType==Preprocessing::TYPE_EQUISIZED_INTERVALS){
+        if (!isset($inputData['count']) || !is_numeric($inputData['count'])){return false;}
+        if (!isset($inputData['support']) || !is_numeric($inputData['support'])){return false;}
+      }
       if($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){
+        if (!isset($inputData['from']) || !is_numeric($inputData['from'])){return false;}
+        if (!isset($inputData['to']) || !is_numeric($inputData['to'])){return false;}
         if ((!isset($inputData['count']) || !is_numeric($inputData['count']))&&(empty($inputData['length']) || !is_numeric($inputData['length']))){return false;}
       }
       return true;

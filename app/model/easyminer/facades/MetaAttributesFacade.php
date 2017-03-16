@@ -468,22 +468,57 @@ class MetaAttributesFacade {
       #endregion eachOne
     }elseif($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){
       #region equifrequent intervals
-      $specialParams=['from'=>floatval($definition['from']),'to'=>floatval($definition['to']),'count'=>floatval($definition['count'])];
-      if ($specialParams['from']==$specialParams['to']){
-        throw new \InvalidArgumentException('From and To params of equifrequent intervals have to be different.');
+      $specialParams=['count'=>floatval($definition['count'])];
+      if (isset($definition['from']) && isset($definition['to'])){
+        $specialParams['from']=floatval($definition['from']);
+        $specialParams['to']=floatval($definition['to']);
+        if ($specialParams['from']==$specialParams['to']){
+          throw new \InvalidArgumentException('From and To params of equifrequent intervals have to be different.');
+        }
+        if ($specialParams['from']>$specialParams['to']){
+          //pokud máme chybně zadané pořadí hodnot, prohodíme je
+          $from=$specialParams['to'];
+          $specialParams['to']=$specialParams['from'];
+          $specialParams['from']=$from;
+        }
+        $preprocessing->name=$specialParams['count'].' equfreq. int. from '.$specialParams['from'].' to '.$specialParams['to'];
+      }else{
+        $preprocessing->name=$specialParams['count'].' equfreq. int.';
       }
       if ($specialParams['count']<=1){
         throw new \InvalidArgumentException('Count param of equifrequent intervals has to be greater than 1.');
       }
-      if ($specialParams['from']>$specialParams['to']){
-        //pokud máme chybně zadané pořadí hodnot, prohodíme je
-        $from=$specialParams['to'];
-        $specialParams['to']=$specialParams['from'];
-        $specialParams['from']=$from;
-      }
-      $preprocessing->name=$specialParams['count'].' equfreq. int. from '.$specialParams['from'].' to '.$specialParams['to'];
+      $preprocessing->specialType=$preprocessingType;
       $preprocessing->setSpecialTypeParams($specialParams);
       #endregion equifrequent intervals
+    }elseif($preprocessingType==Preprocessing::TYPE_EQUISIZED_INTERVALS){
+      #region equisized intervals
+      $specialParams=['count'=>floatval($definition['count']),'support'=>floatval(@$definition['support'])];
+      if ($specialParams['support']<=0){
+        throw new \InvalidArgumentException('Min support of equisized intervals have to be greater than 0.');
+      }
+      if (isset($definition['from']) && isset($definition['to'])){
+        $specialParams['from']=floatval($definition['from']);
+        $specialParams['to']=floatval($definition['to']);
+        if ($specialParams['from']==$specialParams['to']){
+          throw new \InvalidArgumentException('From and To params of equisized intervals have to be different.');
+        }
+        if ($specialParams['from']>$specialParams['to']){
+          //pokud máme chybně zadané pořadí hodnot, prohodíme je
+          $from=$specialParams['to'];
+          $specialParams['to']=$specialParams['from'];
+          $specialParams['from']=$from;
+        }
+        $preprocessing->name=$specialParams['count'].' equisized int. from '.$specialParams['from'].' to '.$specialParams['to'];
+      }else{
+        $preprocessing->name=$specialParams['count'].' equisized int.';
+      }
+      if ($specialParams['count']<=1){
+        throw new \InvalidArgumentException('Count param of equisized intervals has to be greater than 1.');
+      }
+      $preprocessing->specialType=$preprocessingType;
+      $preprocessing->setSpecialTypeParams($specialParams);
+      #endregion equisized intervals
     }elseif($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){
       #region equidistant intervals
       $specialParams=['from'=>floatval($definition['from']),'to'=>floatval($definition['to'])];
