@@ -44,7 +44,17 @@ class Preprocessing extends Entity{
    * @return string[]
    */
   public static function getSpecialTypes() {
-    return [self::SPECIALTYPE_EACHONE, self::TYPE_EQUIFREQUENT_INTERVALS];
+    $arr=self::getSpecialTypesWithoutEachOne();
+    $arr[]=self::SPECIALTYPE_EACHONE;
+    return $arr;
+  }
+
+  /**
+   * Funkce vracející seznam speciálních typů preprocessingu
+   * @return string[]
+   */
+  public static function getSpecialTypesWithoutEachOne() {
+    return [self::SPECIALTYPE_EQUIFREQUENT_INTERVALS, self::SPECIALTYPE_EQUISIZED_INTERVALS];
   }
 
   /**
@@ -96,7 +106,7 @@ class Preprocessing extends Entity{
    * Funkce ukládající parametry speciálního preprocessingu
    * @param array|null $params
    */
-  public function setSpecialTypeParams(array $params){
+  public function setSpecialTypeParams($params){
     if (!empty($params)){
       /** @noinspection PhpUndefinedFieldInspection */
       $this->row->special_type_params=Json::encode($params);

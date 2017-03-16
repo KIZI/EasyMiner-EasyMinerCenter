@@ -177,7 +177,6 @@ class AttributesPresenter extends BaseResourcePresenter {
         if (!isset($inputData['count']) || !is_numeric($inputData['count'])){return false;}
       }
       if ($preprocessingType==Preprocessing::TYPE_EQUISIZED_INTERVALS){
-        if (!isset($inputData['count']) || !is_numeric($inputData['count'])){return false;}
         if (!isset($inputData['support']) || !is_numeric($inputData['support'])){return false;}
       }
       if($preprocessingType==Preprocessing::TYPE_EQUIDISTANT_INTERVALS){

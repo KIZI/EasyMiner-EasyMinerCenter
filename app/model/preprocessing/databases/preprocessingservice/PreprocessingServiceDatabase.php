@@ -99,7 +99,27 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     }
   }
 
-
+  /**
+   * Funkce vracející jeden atribut
+   *
+   * @param PpDataset $ppDataset
+   * @param string $ppAttributeId
+   * @return PpAttribute
+   * @throws PreprocessingException
+   */
+  public function getPpAttribute(PpDataset $ppDataset, $ppAttributeId) {
+    try{
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/dataset/'.$ppDataset->id.'/attribute/'.$ppAttributeId),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      if ($responseCode==200){
+        $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+        return new PpAttribute($responseData['id'], $responseData['dataset'], $responseData['field'], $responseData['name'], (empty($responseData['type'])?PpAttribute::TYPE_NOMINAL:$responseData['type']), $responseData['uniqueValuesSize']);
+      }else{
+        throw new PreprocessingCommunicationException('responseCode: '.$responseCode);
+      }
+    }catch (\Exception $e){
+      throw new PreprocessingException();
+    }
+  }
 
 
 

@@ -3,15 +3,19 @@
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
+use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
 use EasyMinerCenter\Model\EasyMiner\Repositories\AttributesRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\MetasourceTasksRepository;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
@@ -35,6 +39,8 @@ class MetasourcesFacade {
   private $metasourceTasksRepository;
   /** @var DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
+  /** @var  MetaAttributesFacade $metaAttributesFacade */
+  private $metaAttributesFacade;
 
   /**
    * Funkce pro export pole s informacemi z TransformationDictionary
@@ -275,13 +281,15 @@ class MetasourcesFacade {
    * @param MetasourcesRepository $metasourcesRepository
    * @param MetasourceTasksRepository $metasourceTasksRepository
    * @param DatasourcesFacade $datasourcesFacade
+   * @param MetaAttributesFacade $metaAttributesFacade
    */
-  public function __construct(PreprocessingFactory $preprocessingFactory, AttributesRepository $attributesRepository, MetasourcesRepository $metasourcesRepository, MetasourceTasksRepository $metasourceTasksRepository, DatasourcesFacade $datasourcesFacade) {
+  public function __construct(PreprocessingFactory $preprocessingFactory, AttributesRepository $attributesRepository, MetasourcesRepository $metasourcesRepository, MetasourceTasksRepository $metasourceTasksRepository, DatasourcesFacade $datasourcesFacade, MetaAttributesFacade $metaAttributesFacade) {
     $this->preprocessingFactory=$preprocessingFactory;
     $this->attributesRepository=$attributesRepository;
     $this->metasourcesRepository=$metasourcesRepository;
     $this->metasourceTasksRepository=$metasourceTasksRepository;
     $this->datasourcesFacade=$datasourcesFacade;
+    $this->metaAttributesFacade=$metaAttributesFacade;
   }
 
   #region inicializace metasource
@@ -495,11 +503,30 @@ class MetasourcesFacade {
         $resultAttributes[$resultItem->name]=$resultItem->id;
       }
       $attributes=$metasourceTask->attributes;
+      $ppDataset=$preprocessing->getPpDataset($metasource->ppDatasetId);
       foreach($attributes as $attribute){
         if (isset($resultAttributes[$attribute->name])){
           $attribute->ppDatasetAttributeId=$resultAttributes[$attribute->name];
           $attribute->active=true;
           $this->saveAttribute($attribute);
+
+          if (!empty($attribute->preprocessing->specialType) && in_array($attribute->preprocessing->specialType,Preprocessing::getSpecialTypesWithoutEachOne())){
+            //potřebujeme naparsovat intervaly z předzpracovaných hodnot
+            /** @var PpAttribute $ppAttribute */
+            $ppAttribute=$preprocessing->getPpAttribute($ppDataset,$attribute->ppDatasetAttributeId);
+            $unprocessedIntervalsCount=$ppAttribute->uniqueValuesSize;
+            $createdIntervalValuesArr=[];
+            while ($unprocessedIntervalsCount>0){
+              $ppValues=$preprocessing->getPpValues($ppDataset,$ppAttribute->id,0,100);
+              if (!empty($ppValues)){
+                foreach($ppValues as $ppValue){
+                  $createdIntervalValuesArr[]=$ppValue->value;
+                }
+              }
+              $unprocessedIntervalsCount-=100;
+            }
+            $this->updateAttributePreprocessingFromPpIntervalValues($attribute->preprocessing,$createdIntervalValuesArr);
+          }
         }
       }
       $metasourceTask->state=MetasourceTask::STATE_DONE;
@@ -507,6 +534,37 @@ class MetasourcesFacade {
     }else{
       throw new \Exception('Unexpected type of result!');
     }
+  }
+
+  /**
+   * Funkce pro aktualizaci definice preprocessingu na základě hodnot popisujících vytvořené intervaly
+   * @param Preprocessing $preprocessing
+   * @param string[] $createdIntervalValues
+   */
+  private function updateAttributePreprocessingFromPpIntervalValues(Preprocessing $preprocessing, array $createdIntervalValues){
+    $preprocessing->specialType='';
+    $preprocessing->setSpecialTypeParams(null);
+    if (count($createdIntervalValues)){
+      foreach($createdIntervalValues as $createdIntervalValue){
+        try{
+          $interval=Interval::createFromString($createdIntervalValue);
+        }catch(\Exception $e){
+          continue;
+        }
+        $interval->format=$preprocessing->format;
+        $this->metaAttributesFacade->saveInterval($interval);
+        $valuesBin=new ValuesBin();
+        $valuesBin->name=$createdIntervalValue;
+        $valuesBin->format=$preprocessing->format;
+        $this->metaAttributesFacade->saveValuesBin($valuesBin);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $valuesBin->addToIntervals($interval);
+        $this->metaAttributesFacade->saveValuesBin($valuesBin);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $preprocessing->addToValuesBins($valuesBin);
+      }
+    }
+    $this->metaAttributesFacade->savePreprocessing($preprocessing);
   }
 
 

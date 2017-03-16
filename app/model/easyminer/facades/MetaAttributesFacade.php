@@ -493,7 +493,7 @@ class MetaAttributesFacade {
       #endregion equifrequent intervals
     }elseif($preprocessingType==Preprocessing::TYPE_EQUISIZED_INTERVALS){
       #region equisized intervals
-      $specialParams=['count'=>floatval($definition['count']),'support'=>floatval(@$definition['support'])];
+      $specialParams=['support'=>floatval(@$definition['support'])];
       if ($specialParams['support']<=0){
         throw new \InvalidArgumentException('Min support of equisized intervals have to be greater than 0.');
       }
@@ -509,9 +509,9 @@ class MetaAttributesFacade {
           $specialParams['to']=$specialParams['from'];
           $specialParams['from']=$from;
         }
-        $preprocessing->name=$specialParams['count'].' equisized int. from '.$specialParams['from'].' to '.$specialParams['to'];
+        $preprocessing->name='Equisized int. from '.$specialParams['from'].' to '.$specialParams['to'];
       }else{
-        $preprocessing->name=$specialParams['count'].' equisized int.';
+        $preprocessing->name='Equisized int.';
       }
       if ($specialParams['count']<=1){
         throw new \InvalidArgumentException('Count param of equisized intervals has to be greater than 1.');

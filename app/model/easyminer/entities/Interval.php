@@ -37,6 +37,41 @@ class Interval extends Entity{
   }
 
   /**
+   * Funkce pro vytvoření intervalu na základě zadaného textového popisu
+   * @param string $str
+   * @return Interval
+   */
+  public static function createFromString($str){
+    $str=Strings::trim($str);
+    $str=str_replace(' ','',$str);
+    $interval=new Interval();
+    $strStart=$str[0];
+    $strEnd=$str[strlen($str)-1];
+    if ($strStart=='[' || $strStart=='<'){
+      $interval->leftClosure=self::CLOSURE_CLOSED;
+    }else{
+      $interval->leftClosure=self::CLOSURE_OPEN;
+    }
+    if ($strEnd==']' || $strEnd=='>'){
+      $interval->rightClosure=self::CLOSURE_CLOSED;
+    }else{
+      $interval->rightClosure=self::CLOSURE_OPEN;
+    }
+    $str=trim($str,'[]()<>');
+    if (strpos($str,',')){
+      $strArr=explode(',',$str);
+    }else{
+      $strArr=explode(';',$str);
+    }
+    if (count($strArr)!=2){
+      throw new \InvalidArgumentException('Invalid interval string.');
+    }
+    $interval->leftMargin=floatval(trim($strArr[0]));
+    $interval->rightMargin=floatval(trim($strArr[1]));
+    return $interval;
+  }
+
+  /**
    * @param string $closure
    */
   public function setClosure($closure){

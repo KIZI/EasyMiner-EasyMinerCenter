@@ -56,6 +56,15 @@ interface IPreprocessing {
   public function getPpAttributes(PpDataset $ppDataset);
 
   /**
+   * Funkce vracející jeden atribut
+   *
+   * @param PpDataset $ppDataset
+   * @param string $ppAttributeId
+   * @return PpAttribute
+   */
+  public function getPpAttribute(PpDataset $ppDataset, $ppAttributeId);
+
+  /**
    * Funkce pro inicializaci preprocessingu atributů
    *
    * @param Attribute[] $attributes
