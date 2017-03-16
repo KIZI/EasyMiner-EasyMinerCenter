@@ -1,0 +1,1 @@
+The following examples contain definition of attribute creation using EasyMinerCenter API. POST request to <strong>{$basePath}/api/attributes</strong>:

@@ -279,6 +279,10 @@ class AttributesPresenter extends BaseResourcePresenter {
  *     description="Type of special preprocessing",
  *     type="string",
  *     enum={"eachOne"}
+ *   ),
+ *   @SWG\Property(
+ *     property="newPreprocessing",
+ *     description="Definition of new preprocessing - <a href='./swagger/examples'>see examples</a>"
  *   )
  * )
  */

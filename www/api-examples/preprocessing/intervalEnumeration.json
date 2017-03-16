@@ -1,0 +1,31 @@
+{
+  "miner": 0,
+  "name": "new attribute name",
+  "columnName": "data column name",
+  "newPreprocessing": {
+    "name":"preprocessing name (optional)",
+    "type": "intervalEnumeration",
+    "bins":[
+        {
+            "name":"group1",
+            "intervals":[
+                {
+                    "leftMargin":0,
+                    "rightMargin":10000,
+                    "closure":"closedOpen"
+                }
+            ]
+        },
+        {
+            "name":"group2",
+            "intervals":[
+                {
+                    "leftMargin":10000,
+                    "rightMargin":1000000,
+                    "closure":"closedClosed"
+                }
+            ]
+        }
+    ]
+  }
+}
