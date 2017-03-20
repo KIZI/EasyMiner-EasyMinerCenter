@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade;
+use Nette\NotImplementedException;
 
 /**
  * Class PreprocessingsPresenter
@@ -30,92 +31,10 @@ class PreprocessingsPresenter extends BaseResourcePresenter {
   #region actionCreate
   /**
    * Akce pro vytvoření nového atributu
-   * @SWG\Post(
-   *   tags={"Preprocessing"},
-   *   path="/preprocessings",
-   *   summary="Create new preprocessing definition",
-   *   consumes={"application/json","application/xml"},
-   *   produces={"application/json","application/xml"},
-   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
-   *   @SWG\Parameter(
-   *     description="New preprocessing",
-   *     name="body",
-   *     required=true,
-   *     @SWG\Schema(ref="#/definitions/NewPreprocessingInput"),
-   *     in="body"
-   *   ),
-   *   @SWG\Response(
-   *     response=201,
-   *     description="Preprocessing created",
-   *     @SWG\Schema(
-   *       ref="#/definitions/PreprocessingResponse"
-   *     )
-   *   ),
-   *   @SWG\Response(
-   *     response=400,
-   *     description="Invalid API key supplied",
-   *     @SWG\Schema(ref="#/definitions/StatusResponse")
-   *   )
-   * )
    * @throws \InvalidArgumentException
    */
   public function actionCreate() {
-    /** @var array $inputData */
-    $inputData=$this->input->getData();
-    $miner=$this->findMinerWithCheckAccess(@$inputData['miner']);
-    $this->minersFacade->checkMinerMetasource($miner);
-
-    $currentUser=$this->getCurrentUser();
-    //aktualizace informace o datových sloupcích
-    $this->datasourcesFacade->updateDatasourceColumns($miner->datasource,$currentUser);
-
-    try{
-      if (!empty($inputData['column'])){
-        $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,@$inputData['column']);
-      }else{
-        $datasourceColumn=$this->datasourcesFacade->findDatasourceColumnByName($miner->datasource,@$inputData['columnName']);
-      }
-    }catch (\Exception $e){
-      throw new InvalidArgumentException("Datasource columns was not found: ".@$inputData['columnName']);
-    }
-
-    //inicializace formátu
-    $format=$datasourceColumn->format;
-    if (!$format){
-      //TODO implementovat podporu automatického mapování
-      $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $currentUser);
-      $datasourceColumn->format=$format;
-      $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
-    }
-
-    //vytvoření nového atributu
-    $attribute=new Attribute();
-    $attribute->metasource=$miner->metasource;
-    $attribute->datasourceColumn=$datasourceColumn;
-    $attribute->name=$this->minersFacade->prepareNewAttributeName($miner,$inputData['name']);
-    $attribute->type=$attribute->datasourceColumn->type;
-
-    if (@$inputData['specialPreprocessing']==Preprocessing::SPECIALTYPE_EACHONE){
-      $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($datasourceColumn->format);
-      $attribute->preprocessing=$preprocessing;
-    }else{
-      throw new \BadMethodCallException('Selected preprocessing type is not supported.');
-      //FIXME je nutné nalézt příslušný preprocessing...
-    }
-    $attribute->active=false;
-    $this->metasourcesFacade->saveAttribute($attribute);
-
-    //inicializace preprocessingu
-    $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
-    while($metasourceTask && $metasourceTask->state!=MetasourceTask::STATE_DONE){
-      $metasourceTask=$this->metasourcesFacade->preprocessAttributes($metasourceTask);
-    }
-    //smazání předzpracovávací úlohy
-    $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
-
-    $this->setXmlMapperElements('attribute');
-    $this->resource=$attribute->getDataArr();
-    $this->sendResource();
+    throw new NotImplementedException();//FIXME implementovat
   }
 
   /**
