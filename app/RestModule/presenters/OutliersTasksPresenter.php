@@ -3,6 +3,8 @@
 namespace EasyMinerCenter\RestModule\Presenters;
 
 use Drahak\Restful\NotImplementedException;
+use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTask;
+use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Application\BadRequestException;
@@ -17,6 +19,8 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
   private $xmlSerializersFactory;
   /** @var  XmlTransformator $xmlTransformator */
   private $xmlTransformator;
+  /** @var  MinersFacade $minersFacade */
+  private $minersFacade;
 
   #region actionRead
   /**
@@ -45,6 +49,11 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionRead($id){
+    //TODO testování vytvoření instance outlier mining driveru
+    $outliersTask=new OutliersTask();
+    $outliersTask->miner=$this->minersFacade->findMiner(2144);
+    $miningDriver=$this->minersFacade->getOutliersTaskMiningDriver($outliersTask, $this->currentUser);
+    //////
     throw new NotImplementedException();//FIXME
   }
   #endregion actionRead
@@ -268,6 +277,12 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
     //nastaven basePath
     /** @noinspection PhpUndefinedFieldInspection */
     $this->xmlTransformator->setBasePath($this->template->basePath);
+  }
+  /**
+   * @param MinersFacade $minersFacade
+   */
+  public function injectMinersFacade(MinersFacade $minersFacade){
+    $this->minersFacade=$minersFacade;
   }
   #endregion injections
 

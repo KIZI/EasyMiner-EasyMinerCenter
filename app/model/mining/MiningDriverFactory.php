@@ -72,7 +72,7 @@ class MiningDriverFactory extends Object{
    */
   public function getDriverInstance(Task $task ,MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user,$backgroundImportLink=""){
     if (isset($this->params['driver_'.$task->type])){
-      $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
+      $driverClass='\\'.(!empty($this->params['driver_'.$task->type]['rules_class'])?$this->params['driver_'.$task->type]['rules_class']:$this->params['driver_'.$task->type]['class']);
       return new $driverClass($task, $minersFacade, $rulesFacade, $metaAttributesFacade, $user, $this->xmlSerializersFactory, $this->params['driver_'.$task->type],$backgroundImportLink);
     }
     throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
@@ -80,17 +80,16 @@ class MiningDriverFactory extends Object{
 
   /**
    * Funkce pro vytvoření nové instance mineru pro práci s outliery
-   * @param OutliersTask $task
+   * @param OutliersTask $outliersTask
    * @param MinersFacade $minersFacade
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param User $user
    * @return IOutliersMiningDriver
    */
-  public function getOutlierDriverInstance(OutliersTask $task, MinersFacade $minersFacade, MetaAttributesFacade $metaAttributesFacade, User $user){
-    if (isset($this->params['driver_'.$task->type])){
-      $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
-      $driver=new $driverClass($task, $minersFacade, null, $metaAttributesFacade, $user, $this->xmlSerializersFactory, $this->params['driver_'.$task->type]);
-      exit(var_dump($driver));//FIXME
+  public function getOutlierDriverInstance(OutliersTask $outliersTask, MinersFacade $minersFacade, MetaAttributesFacade $metaAttributesFacade, User $user){
+    if (isset($this->params['driver_'.$outliersTask->type])){
+      $driverClass='\\'.(!empty($this->params['driver_'.$outliersTask->type]['outliers_class'])?$this->params['driver_'.$outliersTask->type]['outliers_class']:$this->params['driver_'.$outliersTask->type]['class']);
+      $driver=new $driverClass($outliersTask, $minersFacade, null, $metaAttributesFacade, $user, $this->xmlSerializersFactory, $this->params['driver_'.$outliersTask->type]);
       if ($driverClass instanceof IOutliersMiningDriver){
         return $driver;
       }else{
