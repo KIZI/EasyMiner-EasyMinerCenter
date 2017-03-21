@@ -68,7 +68,11 @@ use Nette\Utils\Strings;
  * )
  * @SWG\Tag(
  *   name="Miners",
- *   description="Management of miners"
+ *   description="Management of rule miners"
+ * )
+ * @SWG\Tag(
+ *   name="Outliers",
+ *   description="Management of outlier detection tasks"
  * )
  * @SWG\Tag(
  *   name="Users",
@@ -84,7 +88,7 @@ use Nette\Utils\Strings;
  * )
  * @SWG\Tag(
  *   name="Tasks",
- *   description="Management of data mining tasks"
+ *   description="Management of rule mining tasks"
  * )
  */
 abstract class BaseResourcePresenter extends ResourcePresenter {

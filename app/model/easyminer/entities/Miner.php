@@ -24,6 +24,7 @@ use Nette\Utils\Json;
  * @property \DateTime|null $lastOpened = null
  * @property string $config
  * @property-read Task[] $tasks m:belongsToMany
+ * @property-read OutliersTask[] $outliersTasks m:belongsToMany
  * @property-read string $typeName
  */
 class Miner extends Entity implements IOwnerResource{

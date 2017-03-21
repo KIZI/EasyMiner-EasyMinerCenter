@@ -168,6 +168,66 @@ class MinersPresenter extends BaseResourcePresenter{
     $this->sendResource();
   }
 
+  /**
+   * Akce vracející seznam úloh asociovaných s vybraným minerem
+   * @param $id
+   * @throws BadRequestException
+   *
+   * @SWG\Get(
+   *   tags={"Miners"},
+   *   path="/miners/{id}/outliersTasks",
+   *   summary="Get list of tasks in the selected miner",
+   *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
+   *   produces={"application/json","application/xml"},
+   *   @SWG\Parameter(
+   *     name="id",
+   *     description="Miner ID",
+   *     required=true,
+   *     type="integer",
+   *     in="path"
+   *   ),
+   *   @SWG\Response(
+   *     response=200,
+   *     description="List of outlier tasks",
+   *     @SWG\Schema(
+   *       @SWG\Property(property="miner",ref="#/definitions/MinerBasicResponse"),
+   *       @SWG\Property(
+   *         property="outlierTask",
+   *         type="array",
+   *         @SWG\Items(ref="#/definitions/OutliersTaskResponse")
+   *       )
+   *     )
+   *   ),
+   *   @SWG\Response(response=404, description="Requested miner was not found.")
+   * )
+   */
+  public function actionReadOutliersTasks($id) {
+    $this->setXmlMapperElements('miner');
+    if (empty($id)){$this->forward('list');return;}
+    $miner=$this->findMinerWithCheckAccess($id);
+
+    $result=[
+      'miner'=>[
+        'id'=>$miner->minerId,
+        'name'=>$miner->name,
+        'type'=>$miner->type
+      ],
+      'outliersTask'=>[]
+    ];
+    $outliersTasks=$miner->outliersTasks;
+    if (!empty($outliersTasks)){
+      foreach ($outliersTasks as $outliersTask){
+        $result['outliersTask'][]=[
+          'id'=>$outliersTask->outliersTaskId,
+          'minSupport'=>$outliersTask->minSupport,
+          'state'=>$outliersTask->state
+        ];
+      }
+    }
+    $this->resource=$result;
+    $this->sendResource();
+  }
+
   #region actionCreate
   /**
    * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
@@ -376,5 +436,13 @@ class MinersPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
  *   @SWG\Property(property="state",type="string",description="State of the task"),
  *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules")
+ * )
+ * @SWG\Definition(
+ *   definition="OutliersTaskResponse",
+ *   title="OutliersTaskInfo",
+ *   required={"id","minSupport","state"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
+ *   @SWG\Property(property="minSupport",type="float",default=0,description="Minimal support used for detection of outliers"),
+ *   @SWG\Property(property="state",type="string",description="State of the task")
  * )
  */

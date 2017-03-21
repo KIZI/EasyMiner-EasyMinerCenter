@@ -2,6 +2,7 @@
 namespace EasyMinerCenter\Model\Mining;
 
 
+use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
@@ -60,7 +61,7 @@ class MiningDriverFactory extends Object{
   }
 
   /**
-   * Funkce pro vytvoření nové instance mineru
+   * Funkce pro vytvoření nové instance mineru pro dolování pravidel
    * @param Task $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
@@ -73,6 +74,28 @@ class MiningDriverFactory extends Object{
     if (isset($this->params['driver_'.$task->type])){
       $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
       return new $driverClass($task, $minersFacade, $rulesFacade, $metaAttributesFacade, $user, $this->xmlSerializersFactory, $this->params['driver_'.$task->type],$backgroundImportLink);
+    }
+    throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
+  }
+
+  /**
+   * Funkce pro vytvoření nové instance mineru pro práci s outliery
+   * @param OutliersTask $task
+   * @param MinersFacade $minersFacade
+   * @param MetaAttributesFacade $metaAttributesFacade
+   * @param User $user
+   * @return IOutliersMiningDriver
+   */
+  public function getOutlierDriverInstance(OutliersTask $task, MinersFacade $minersFacade, MetaAttributesFacade $metaAttributesFacade, User $user){
+    if (isset($this->params['driver_'.$task->type])){
+      $driverClass='\\'.$this->params['driver_'.$task->type]['class'];
+      $driver=new $driverClass($task, $minersFacade, null, $metaAttributesFacade, $user, $this->xmlSerializersFactory, $this->params['driver_'.$task->type]);
+      exit(var_dump($driver));//FIXME
+      if ($driverClass instanceof IOutliersMiningDriver){
+        return $driver;
+      }else{
+        throw new ArgumentOutOfRangeException('Requested mining driver does not support outlier detection!',500);
+      }
     }
     throw new ArgumentOutOfRangeException('Requested mining driver was not found!',500);
   }
