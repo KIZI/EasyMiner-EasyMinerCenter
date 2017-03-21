@@ -117,31 +117,41 @@ class AbstractCloudDriver{
 
   /**
    * @param string $url
-   * @param string $postData = ''
+   * @param string|null $postData = ''
+   * @param string $method='GET'
+   * @param array $headersArr=array()
    * @param string $apiKey = ''
    * @param int|null &$responseCode - proměnná pro vrácení stavového kódu odpovědi
    * @return string - response data
    * @throws MinerCommunicationException - curl error
    */
-  protected static function curlRequestResponse($url, $postData='', $apiKey='', &$responseCode=null){
+  protected function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], $apiKey='', &$responseCode=null){
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch,CURLOPT_MAXREDIRS,0);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    $headersArr=[
-      'Content-Type: application/xml; charset=utf-8'
-    ];
+    if (empty($headersArr['Content-Type']) & !empty($postData)){
+      $headersArr['Content-Type']='application/xml; charset=utf-8';
+    }
     if (!empty($apiKey)){
-      $headersArr[]='Authorization: ApiKey '.$apiKey;
+      $headersArr['Authorization']='ApiKey '.$apiKey;
     }
     if ($postData!=''){
       curl_setopt($ch,CURLOPT_POST,true);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ($method?$method:"POST"));
       curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-      $headersArr[]='Content-length: '.strlen($postData);
+      $headersArr['Content-length']=strlen($postData);
+    }else{
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ($method?$method:"GET"));
     }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArr);
+    $httpHeadersArr=[];
+    if (!empty($headersArr)){
+      foreach($headersArr as $header=>$value){
+        $httpHeadersArr[]=$header.': '.$value;
+      }
+    }
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeadersArr);
 
     $responseData = curl_exec($ch);
     $responseCode=curl_getinfo($ch,CURLINFO_HTTP_CODE);
@@ -149,7 +159,7 @@ class AbstractCloudDriver{
     if(curl_errno($ch)){
       $exception=curl_error($ch);
       curl_close($ch);
-      throw new MinerCommunicationException($exception);
+      throw new MinerCommunicationException($exception,$responseCode);
     }
     curl_close($ch);
     return $responseData;

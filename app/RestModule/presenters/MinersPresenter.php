@@ -205,7 +205,7 @@ class MinersPresenter extends BaseResourcePresenter{
     $this->setXmlMapperElements('miner');
     if (empty($id)){$this->forward('list');return;}
     $miner=$this->findMinerWithCheckAccess($id);
-
+//TODO kontrola, jestli jsou dané úlohy pořád ještě dostupné
     $result=[
       'miner'=>[
         'id'=>$miner->minerId,

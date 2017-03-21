@@ -22,17 +22,20 @@ class MinersFacade {
   private $rulesFacade;
   /** @var  TasksFacade $tasksFacade */
   private $tasksFacade;
+  /** @var  OutliersTasksFacade $outliersTasksFacade */
+  private $outliersTasksFacade;
   /** @var  MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
   /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
 
-  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade, RulesFacade $rulesFacade, TasksFacade $tasksFacade, MetaAttributesFacade $metaAttributesFacade){
+  public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade, RulesFacade $rulesFacade, TasksFacade $tasksFacade, OutliersTasksFacade $outliersTasksFacade, MetaAttributesFacade $metaAttributesFacade){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
     $this->miningDriverFactory=$miningDriverFactory;
     $this->rulesFacade=$rulesFacade;
     $this->tasksFacade=$tasksFacade;
+    $this->outliersTasksFacade=$outliersTasksFacade;
     $this->metaAttributesFacade=$metaAttributesFacade;
   }
 
@@ -166,7 +169,6 @@ class MinersFacade {
     if (!$miner instanceof Miner){
       $miner=$this->findMiner($miner);
     }
-    //TODO musí tu tato kontrola vůbec být?
     if (empty($miner->metasource)){
       //kontrola, jestli má minet vytvořené metasource
       $this->saveMiner($miner);
@@ -217,9 +219,8 @@ class MinersFacade {
    */
   public function getOutliersTaskMiningDriver($outliersTask, User $user){
     if (!($outliersTask instanceof OutliersTask)){
-      //FIXME $outliersTask=$this->
+      $outliersTask=$this->outliersTasksFacade->findOutliersTask($outliersTask);
     }
-    //FIXME
     return $this->miningDriverFactory->getOutlierDriverInstance($outliersTask,$this,$this->metaAttributesFacade,$user);
   }
 

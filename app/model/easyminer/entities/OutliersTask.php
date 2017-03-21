@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 
+use EasyMinerCenter\Model\Mining\Entities\MinerOutliersTask;
 use LeanMapper\Entity;
 
 /**
@@ -13,7 +14,7 @@ use LeanMapper\Entity;
  * @property string $type = 'cloud' m:Enum(self::TYPE_*)
  * @property float $minSupport
  * @property string $state m:Enum(self::STATE_*)
- * @property int|null $minetTaskId = null
+ * @property int|null $minerOutliersTaskId = null
  * @property string $resultsUrl = ''
  * @property \DateTime $updated
  */
@@ -25,5 +26,25 @@ class OutliersTask extends Entity{
   const STATE_INVALID='invalid';
 
   const TYPE_CLOUD='cloud';
+
+  /**
+   * Funkce vracející óbjekt prezentující vzdálenou úlohu miner driveru
+   * @return MinerOutliersTask
+   */
+  public function getMinerOutliersTask(){
+    return new MinerOutliersTask($this->minerOutliersTaskId,$this->miner->metasource->ppDatasetId);
+  }
+
+  /**
+   * Funkce vracející základní data v podobě pole
+   * @return array
+   */
+  public function getDataArr(){
+    return [
+      'id'=>$this->outliersTaskId,
+      'minSupport'=>$this->minSupport,
+      'state'=>$this->state
+    ];
+  }
 
 }

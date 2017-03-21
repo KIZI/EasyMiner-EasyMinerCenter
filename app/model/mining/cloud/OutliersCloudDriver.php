@@ -9,6 +9,8 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\Mining\Entities\Outlier;
+use EasyMinerCenter\Model\Mining\Exceptions\MinerCommunicationException;
+use EasyMinerCenter\Model\Mining\Exceptions\OutliersTaskInvalidArgumentException;
 use EasyMinerCenter\Model\Mining\IOutliersMiningDriver;
 
 /**
@@ -54,15 +56,33 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
    * @param OutliersTask $outliersTask
    */
   public function setOutliersTask(OutliersTask $outliersTask){
-    // TODO: Implement setOutliersTask() method.
+    $this->outliersTask=$outliersTask;
   }
 
   /**
    * Funkce pro odstranění aktivní úlohy
    * @return bool
+   * @throws OutliersTaskInvalidArgumentException
+   * @throws MinerCommunicationException
    */
   public function deleteOutliersTask(){
-    // TODO: Implement deleteOutliersTask() method.
+    //kontrola, jestli není úloha aktuálně v procesu řešení
+    if ($this->outliersTask->state==OutliersTask::STATE_IN_PROGRESS){
+      $outliersTaskState=$this->checkOutliersTaskState();
+      if ($outliersTaskState->state==OutliersTask::STATE_IN_PROGRESS){
+        throw new OutliersTaskInvalidArgumentException('Outliers task is in progress - it is not possible to remove it.');
+      }
+    }
+    $minerOutliersTask=$this->outliersTask->getMinerOutliersTask();
+    try{
+      self::curlRequestResponse($this->getRequestUrl('/result/'.$minerOutliersTask->dataset.'/'.$minerOutliersTask->id),'','DELETE',[],$this->getApiKey(),$responseCode);
+      if ($responseCode=='200' || $responseCode=='404'){
+        return true;
+      }
+    }catch(MinerCommunicationException $e){
+      throw $e;
+    }
+    return false;
   }
 
   /**
@@ -70,7 +90,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
    * @return mixed
    */
   public function deleteMiner(){
-    // TODO: Implement deleteMiner() method.
+    return true;
   }
 
   /**
@@ -82,4 +102,15 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   public function getOutliersTaskResults($limit, $offset=0){
     // TODO: Implement getOutliersTaskResults() method.
   }
+
+  /**
+   * Funkce vracející URL pro odeslání požadavku na datovou službu
+   *
+   * @param string $relativeUrl
+   * @return string
+   */
+  private function getRequestUrl($relativeUrl){
+    return $this->getRemoteMinerUrl().'/outlier-detection'.$relativeUrl;
+  }
+
 }

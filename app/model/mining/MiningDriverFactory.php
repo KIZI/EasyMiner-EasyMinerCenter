@@ -89,8 +89,8 @@ class MiningDriverFactory extends Object{
   public function getOutlierDriverInstance(OutliersTask $outliersTask, MinersFacade $minersFacade, MetaAttributesFacade $metaAttributesFacade, User $user){
     if (isset($this->params['driver_'.$outliersTask->type])){
       $driverClass='\\'.(!empty($this->params['driver_'.$outliersTask->type]['outliers_class'])?$this->params['driver_'.$outliersTask->type]['outliers_class']:$this->params['driver_'.$outliersTask->type]['class']);
-      $driver=new $driverClass($outliersTask, $minersFacade, null, $metaAttributesFacade, $user, $this->xmlSerializersFactory, $this->params['driver_'.$outliersTask->type]);
-      if ($driverClass instanceof IOutliersMiningDriver){
+      $driver=new $driverClass($outliersTask, $minersFacade, $metaAttributesFacade, $user, $this->xmlSerializersFactory, $this->params['driver_'.$outliersTask->type]);
+      if ($driver instanceof IOutliersMiningDriver){
         return $driver;
       }else{
         throw new ArgumentOutOfRangeException('Requested mining driver does not support outlier detection!',500);

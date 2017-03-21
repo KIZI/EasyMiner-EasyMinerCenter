@@ -2,7 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Repositories;
 
-class OutlierTasksRepository extends BaseRepository{
+class OutliersTasksRepository extends BaseRepository{
 
 
 }

@@ -154,6 +154,7 @@ services:
 
 	- EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade
+	- EasyMinerCenter\Model\EasyMiner\Facades\OutliersTasksFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade
@@ -162,6 +163,7 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\TasksRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\OutliersTasksRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\MinersRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\UsersRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\AttributesRepository

@@ -3,10 +3,14 @@
 namespace EasyMinerCenter\RestModule\Presenters;
 
 use Drahak\Restful\NotImplementedException;
+use Drahak\Restful\Validation\IValidator;
+use EasyMinerCenter\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTask;
-use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\OutliersTasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
+use EasyMinerCenter\Model\Mining\Exceptions\OutliersTaskInvalidArgumentException;
 use Nette\Application\BadRequestException;
 
 /**
@@ -15,12 +19,14 @@ use Nette\Application\BadRequestException;
  * @author Stanislav Vojíř
  */
 class OutliersTasksPresenter extends BaseResourcePresenter {
+  use MinersFacadeTrait;
+
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
   /** @var  XmlTransformator $xmlTransformator */
   private $xmlTransformator;
-  /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
+  /** @var  OutliersTasksFacade $outliersTasksFacade */
+  private $outliersTasksFacade;
 
   #region actionRead
   /**
@@ -49,12 +55,11 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionRead($id){
-    //TODO testování vytvoření instance outlier mining driveru
-    $outliersTask=new OutliersTask();
-    $outliersTask->miner=$this->minersFacade->findMiner(2144);
-    $miningDriver=$this->minersFacade->getOutliersTaskMiningDriver($outliersTask, $this->currentUser);
-    //////
-    throw new NotImplementedException();//FIXME
+    $outliersTask=$this->findOutliersTaskWithCheckAccess($id);
+    //TODO kontrola, jestli je outlierstask pořád dostupná na serveru
+    $this->setXmlMapperElements('outliersTask');
+    $this->resource=$outliersTask->getDataArr();
+    $this->sendResource();
   }
   #endregion actionRead
 
@@ -111,7 +116,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
     throw new NotImplementedException();//FIXME
   }
 
-
+  #region actionCreate
   /**
    * Akce pro zadání nové úlohy detekce outlierů
    * @SWG\Post(
@@ -136,9 +141,49 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionCreate(){
-    throw new NotImplementedException();//FIXME
+    $inputData=$this->input->getData();
+    $miner=$this->findMinerWithCheckAccess($inputData['miner']);
+    try{
+      /** @var OutliersTask $outliersTask */
+      $outliersTask=$this->outliersTasksFacade->findOutliersTaskByParams($miner,$inputData['minSupport']);
+    }catch(\Exception $e){
+      $outliersTask=new OutliersTask();
+      $outliersTask->miner=$miner;
+      $outliersTask->type=$miner->type;
+      $outliersTask->minSupport=$inputData['minSupport'];
+    }
+    if (!empty($outliersTask->type) && in_array($outliersTask->type,[OutliersTask::STATE_INVALID, OutliersTask::STATE_FAILED])){
+      $outliersTask->state=OutliersTask::STATE_NEW;
+    }
+    $this->outliersTasksFacade->saveOutliersTask($outliersTask);
+    $this->resource=$outliersTask->getDataArr();
+    $this->setXmlMapperElements('outliersTask');
+    $this->sendResource();
   }
 
+  /**
+   * Validace vstupních parametrů pro vytvoření nové úlohy
+   */
+  public function validateCreate(){
+    $currentUser=$this->getCurrentUser();
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
+    $this->input->field('miner')
+      ->addRule(IValidator::REQUIRED,'Miner ID is required!')
+      ->addRule(IValidator::CALLBACK,'Requested miner is not available!',function($value)use($currentUser){
+        try{
+          $miner=$this->minersFacade->findMiner($value);
+        }catch(\Exception $e){
+          return false;
+        }
+        if (!($miner->getUserId()==$currentUser->userId)){return false;}
+        return $miner->metasource->state==Metasource::STATE_AVAILABLE;
+      });
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
+    $this->input->field('minSupport')
+      ->addRule(IValidator::REQUIRED,'Min value of support is required!')
+      ->addRule(IValidator::RANGE,'Min value of support has to be in interval [0;1]!',[0,1]);
+  }
+  #endregion actionCreate
 
   #region actionStart/actionState
   /**
@@ -247,19 +292,46 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    *     in="path"
    *   ),
    *   @SWG\Response(
-   *     response=201,
-   *     description="Outlier detection task created",
-   *     @SWG\Schema(ref="#/definitions/OutliersTaskResponse")
+   *     response=200,
+   *     description="Outlier detection task deleted",
+   *     @SWG\Schema(ref="#/definitions/StatusResponse")
    *   ),
    *   @SWG\Response(response=404, description="Requested miner was not found.")
    * )
    */
   public function actionDelete($id){
-    throw new NotImplementedException();//FIXME
+    $outliersTask=$this->findOutliersTaskWithCheckAccess($id);
+    $outliersTaskMiningDriver=$this->minersFacade->getOutliersTaskMiningDriver($id,$this->currentUser);
+    try{
+      $outliersTaskMiningDriver->deleteOutliersTask();
+    }catch(OutliersTaskInvalidArgumentException $e){
+      $this->error('Outlier detection task cannot be removed now.',403);
+    }
+    $this->setXmlMapperElements('response');
+    $this->outliersTasksFacade->deleteOutliersTask($outliersTask);
+    $this->resource=['code'=>200,'status'=>'OK','message'=>'Outlier detection task deleted: '.$outliersTask->outliersTaskId];
+    $this->sendResource();
   }
   #endregion actionDelete
 
-
+  /**
+   * Funkce pro nalezení úlohy dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným minerem
+   *
+   * @param int $outliersTaskId
+   * @return OutliersTask
+   * @throws \Nette\Application\BadRequestException
+   */
+  protected function findOutliersTaskWithCheckAccess($outliersTaskId){
+    try{
+      /** @var OutliersTask $outliersTask */
+      $outliersTask=$this->outliersTasksFacade->findOutliersTask($outliersTaskId);
+    }catch (EntityNotFoundException $e){
+      $this->error('Requested outlier detection task was not found.');
+      return null;
+    }
+    $this->minersFacade->checkMinerAccess($outliersTask->miner,$this->getCurrentUser());
+    return $outliersTask;
+  }
 
 
   #region injections
@@ -279,10 +351,10 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
     $this->xmlTransformator->setBasePath($this->template->basePath);
   }
   /**
-   * @param MinersFacade $minersFacade
+   * @param OutliersTasksFacade $outliersTasksFacade
    */
-  public function injectMinersFacade(MinersFacade $minersFacade){
-    $this->minersFacade=$minersFacade;
+  public function injectOutliersTasksFacade(OutliersTasksFacade $outliersTasksFacade){
+    $this->outliersTasksFacade=$outliersTasksFacade;
   }
   #endregion injections
 
