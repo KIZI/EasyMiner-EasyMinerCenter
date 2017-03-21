@@ -137,7 +137,6 @@ class Miner extends Entity implements IOwnerResource{
   /**
    * Funkce pro nastavení externí konfigurace
    * @param array $externalConfig
-   * @return array
    */
   public function setExternalConfig($externalConfig){
     $config=$this->getConfig();
