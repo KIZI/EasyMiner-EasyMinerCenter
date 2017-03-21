@@ -417,14 +417,14 @@ class MinersPresenter extends BaseResourcePresenter{
  *   required={"id","name","type"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the miner"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the miner"),
- *   @SWG\Property(property="type",type="string",description="Type of data mining backend",enum={"r","lm"})
+ *   @SWG\Property(property="type",type="string",description="Type of data mining backend",enum={"cloud","r","lm"})
  * )
  * @SWG\Definition(
  *   definition="MinerInput",
  *   title="Miner",
  *   required={"name","type","datasourceId"},
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the miner"),
- *   @SWG\Property(property="type",type="string",description="Type of data mining backend",enum={"r","lm"}),
+ *   @SWG\Property(property="type",type="string",description="Type of data mining backend",enum={"cloud","r","lm"}),
  *   @SWG\Property(property="datasourceId",type="integer",description="ID of existing datasource"),
  *   @SWG\Property(property="ruleSetId",type="integer",description="ID of existing rule set (optional)"),
  * )
