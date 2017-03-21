@@ -159,8 +159,8 @@ class Miner extends Entity implements IOwnerResource{
       'metasourceId'=>$rowData['metasource_id'],
       'ruleSetId'=>$rowData['rule_set_id'],
       'config'=>$this->getConfig(),
-      'created'=>$this->created,
-      'lastOpened'=>$this->lastOpened
+      'created'=>!empty($this->created)?$this->created->format('c'):null,
+      'lastOpened'=>!empty($this->lastOpened)?$this->lastOpened->format('c'):null
     ];
   }
 

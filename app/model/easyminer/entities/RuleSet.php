@@ -15,6 +15,7 @@ use LeanMapper\Fluent;
  * @property string $description = ''
  * @property int $rulesCount = 0
  * @property User $user m:hasOne
+ * @property \DateTime|null $lastModified = null
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
  */
 class RuleSet extends Entity implements IOwnerResource{
@@ -28,7 +29,8 @@ class RuleSet extends Entity implements IOwnerResource{
       'id'=>$this->ruleSetId,
       'name'=>$this->name,
       'description'=>(!empty($this->description)?$this->description:""),
-      'rulesCount'=>$this->rulesCount
+      'rulesCount'=>$this->rulesCount,
+      'lastModified'=>(!empty($this->lastModified))?$this->lastModified->format('c'):null
     ];
   }
 

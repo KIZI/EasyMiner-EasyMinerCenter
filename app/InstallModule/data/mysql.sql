@@ -1,4 +1,3 @@
-
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -83,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `datasources` (
   `db_username` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `db_password` varchar(300) COLLATE utf8_czech_ci NOT NULL,
   `db_name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
-  `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_czech_ci NOT NULL,
   `size` int(11) DEFAULT NULL COMMENT 'Informace o počtu řádků',
   PRIMARY KEY (`datasource_id`),
   KEY `is_user` (`user_id`)
@@ -155,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `intervals` (
   `right_closure` enum('closed','open') COLLATE utf8_czech_ci NOT NULL,
   PRIMARY KEY (`interval_id`),
   KEY `format_id` (`format_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -177,13 +176,15 @@ CREATE TABLE IF NOT EXISTS `knowledge_bases` (
 
 CREATE TABLE IF NOT EXISTS `knowledge_base_rule_relations` (
   `knowledge_base_rule_relation_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `rule_set_id` int(11) NOT NULL,
   `rule_id` bigint(20) NOT NULL,
-  `knowledge_base_rule_id` int(11) NOT NULL,
+  `knowledge_base_rule_id` bigint(20) NOT NULL,
+  `relation` enum('positive','neutral','negative') COLLATE utf8_czech_ci NOT NULL,
   `rate` float NOT NULL COMMENT 'Míra podobnosti',
   PRIMARY KEY (`knowledge_base_rule_relation_id`),
-  UNIQUE KEY `rule_id` (`rule_id`,`knowledge_base_rule_id`),
-  KEY `rule_set_id` (`knowledge_base_rule_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+  UNIQUE KEY `rule_id_rule_set_id_unique` (`rule_id`,`rule_set_id`),
+  KEY `rule_id_rule_set_id` (`rule_id`,`rule_set_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -283,6 +284,25 @@ CREATE TABLE IF NOT EXISTS `miners` (
 -- --------------------------------------------------------
 
 --
+-- Struktura tabulky `outlier_tasks`
+--
+
+CREATE TABLE IF NOT EXISTS `outlier_tasks` (
+  `outliers_task_id` int(11) NOT NULL AUTO_INCREMENT,
+  `miner_id` int(11) NOT NULL,
+  `type` enum('cloud') COLLATE utf8_czech_ci NOT NULL DEFAULT 'cloud',
+  `min_support` float NOT NULL,
+  `state` enum('new','in_progress','solved','failed','invalid') COLLATE utf8_czech_ci NOT NULL,
+  `miner_task_id` int(11) DEFAULT NULL COMMENT 'ID úlohy v rámci dolovací služby',
+  `results_url` varchar(255) COLLATE utf8_czech_ci NOT NULL COMMENT 'URL pro vyzvednutí výsledků úlohy',
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`outliers_task_id`),
+  KEY `miner_id` (`miner_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující informace o zadání úloh pro detekci outlierů';
+
+-- --------------------------------------------------------
+
+--
 -- Struktura tabulky `preprocessings`
 --
 
@@ -290,7 +310,8 @@ CREATE TABLE IF NOT EXISTS `preprocessings` (
   `preprocessing_id` int(11) NOT NULL AUTO_INCREMENT,
   `format_id` int(11) NOT NULL,
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
-  `special_type` enum('','eachOne') COLLATE utf8_czech_ci NOT NULL DEFAULT '',
+  `special_type` enum('','eachOne','equifrequentIntervals','equisizedIntervals','equidistantIntervals') COLLATE utf8_czech_ci NOT NULL DEFAULT '',
+  `special_type_params` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL COMMENT 'Parametry definující speciální preprocessing (kódované v JSONu)',
   `user_id` int(11) DEFAULT NULL,
   `shared` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`preprocessing_id`),
@@ -358,6 +379,21 @@ CREATE TABLE IF NOT EXISTS `rule_attributes` (
 -- --------------------------------------------------------
 
 --
+-- Struktura tabulky `rule_rule_relations`
+--
+
+CREATE TABLE IF NOT EXISTS `rule_rule_relations` (
+  `rule_set_id` int(11) NOT NULL,
+  `rule_id` bigint(20) NOT NULL,
+  `rule_set_rule_id` bigint(20) NOT NULL,
+  `relation` enum('positive','neutral','negative') COLLATE utf8_czech_ci NOT NULL,
+  `rate` float NOT NULL,
+  KEY `rule_set_id_rule_id` (`rule_set_id`,`rule_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struktura tabulky `rule_sets`
 --
 
@@ -367,6 +403,7 @@ CREATE TABLE IF NOT EXISTS `rule_sets` (
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `description` varchar(200) COLLATE utf8_czech_ci NOT NULL,
   `rules_count` int(11) NOT NULL,
+  `last_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`rule_set_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující definici jednotlivých rulesetů';
@@ -386,7 +423,7 @@ CREATE TABLE IF NOT EXISTS `rule_set_rule_relations` (
   PRIMARY KEY (`rule_set_rule_relation_id`),
   UNIQUE KEY `rule_id` (`rule_id`,`rule_set_id`),
   KEY `rule_set_id` (`rule_set_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -431,7 +468,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_login` datetime NOT NULL,
   `active` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users';
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users' ;
 
 -- --------------------------------------------------------
 
@@ -446,7 +483,7 @@ CREATE TABLE IF NOT EXISTS `user_forgotten_passwords` (
   `generated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_forgotten_password_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující bezpečnostní kódy pro změnu hesel';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Tabulka obsahující bezpečnostní kódy pro změnu hesel' ;
 
 -- --------------------------------------------------------
 
@@ -461,7 +498,7 @@ CREATE TABLE IF NOT EXISTS `values` (
   PRIMARY KEY (`value_id`),
   KEY `format_id` (`format_id`),
   KEY `value` (`value`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci ;
 
 -- --------------------------------------------------------
 
@@ -475,7 +512,7 @@ CREATE TABLE IF NOT EXISTS `values_bins` (
   `format_id` int(11) NOT NULL,
   PRIMARY KEY (`values_bin_id`),
   KEY `format_id` (`format_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- --------------------------------------------------------
 
@@ -588,6 +625,12 @@ ALTER TABLE `miners`
   ADD CONSTRAINT `miners_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `miners_ibfk_2` FOREIGN KEY (`datasource_id`) REFERENCES `datasources` (`datasource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `miners_ibfk_3` FOREIGN KEY (`metasource_id`) REFERENCES `metasources` (`metasource_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Omezení pro tabulku `outlier_tasks`
+--
+ALTER TABLE `outlier_tasks`
+  ADD CONSTRAINT `outlier_tasks_ibfk_1` FOREIGN KEY (`miner_id`) REFERENCES `miners` (`miner_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Omezení pro tabulku `preprocessings`

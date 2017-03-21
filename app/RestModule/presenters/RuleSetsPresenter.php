@@ -544,7 +544,8 @@ class RuleSetsPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule set"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
  *   @SWG\Property(property="description",type="string",description="Description of the rule set"),
- *   @SWG\Property(property="rulesCount",type="integer",description="Count of rules in the rule set")
+ *   @SWG\Property(property="rulesCount",type="integer",description="Count of rules in the rule set"),
+ *   @SWG\Property(property="lastModified",type="dateTime",description="DateTime of last modification of rule set")
  * )
  * @SWG\Definition(
  *   definition="RuleSetInput",
