@@ -3,6 +3,7 @@
 namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use EasyMinerCenter\Libs\StringsHelper;
 use LeanMapper\Entity;
+use Nette\Utils\Strings;
 
 /**
  * Class Interval
@@ -33,6 +34,65 @@ class Interval extends Entity{
     $interval->leftMargin=$leftMargin;
     $interval->rightMargin=$rightMargin;
     return $interval;
+  }
+
+  /**
+   * Funkce pro vytvoření intervalu na základě zadaného textového popisu
+   * @param string $str
+   * @return Interval
+   */
+  public static function createFromString($str){
+    $str=Strings::trim($str);
+    $str=str_replace(' ','',$str);
+    $interval=new Interval();
+    $strStart=$str[0];
+    $strEnd=$str[strlen($str)-1];
+    if ($strStart=='[' || $strStart=='<'){
+      $interval->leftClosure=self::CLOSURE_CLOSED;
+    }else{
+      $interval->leftClosure=self::CLOSURE_OPEN;
+    }
+    if ($strEnd==']' || $strEnd=='>'){
+      $interval->rightClosure=self::CLOSURE_CLOSED;
+    }else{
+      $interval->rightClosure=self::CLOSURE_OPEN;
+    }
+    $str=trim($str,'[]()<>');
+    if (strpos($str,',')){
+      $strArr=explode(',',$str);
+    }else{
+      $strArr=explode(';',$str);
+    }
+    if (count($strArr)!=2){
+      throw new \InvalidArgumentException('Invalid interval string.');
+    }
+    $interval->leftMargin=floatval(trim($strArr[0]));
+    $interval->rightMargin=floatval(trim($strArr[1]));
+    return $interval;
+  }
+
+  /**
+   * @param string $closure
+   */
+  public function setClosure($closure){
+    $closure=Strings::lower($closure);
+    if (Strings::startsWith($closure,self::CLOSURE_CLOSED)){
+      $this->leftClosure=self::CLOSURE_CLOSED;
+    }else{
+      $this->leftClosure=self::CLOSURE_OPEN;
+    }
+    if (Strings::endsWith($closure,self::CLOSURE_CLOSED)){
+      $this->rightClosure=self::CLOSURE_CLOSED;
+    }else{
+      $this->rightClosure=self::CLOSURE_OPEN;
+    }
+  }
+
+  /**
+   * @return string
+   */
+  public function getClosure(){
+    return $this->leftClosure.Strings::firstUpper($this->rightClosure);
   }
 
   /**

@@ -1,0 +1,9 @@
+{
+  "miner": 0,
+  "name": "new attribute name",
+  "columnName": "data column name",
+  "newPreprocessing": {
+    "type": "equisizedIntervals",
+    "support":0.2
+  }
+}

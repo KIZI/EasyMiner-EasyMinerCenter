@@ -12,6 +12,7 @@ use Nette\Application\Responses\TextResponse;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IAuthenticator;
 use Nette\Security\IIdentity;
+use Nette\Utils\Strings;
 
 /**
  * Class BaseResourcePresenter
@@ -67,7 +68,11 @@ use Nette\Security\IIdentity;
  * )
  * @SWG\Tag(
  *   name="Miners",
- *   description="Management of miners"
+ *   description="Management of rule miners"
+ * )
+ * @SWG\Tag(
+ *   name="Outliers",
+ *   description="Management of outlier detection tasks"
  * )
  * @SWG\Tag(
  *   name="Users",
@@ -83,7 +88,7 @@ use Nette\Security\IIdentity;
  * )
  * @SWG\Tag(
  *   name="Tasks",
- *   description="Management of data mining tasks"
+ *   description="Management of rule mining tasks"
  * )
  */
 abstract class BaseResourcePresenter extends ResourcePresenter {
@@ -190,11 +195,10 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
       $args=array_merge($this->params,$args);
     }
     $link=$this->link($destination, $args, $rel)->getHref();
-    if ($link[0]=='/'){
-      return $this->getHttpRequest()->getUrl()->getHostUrl().$link;
-    }else{
-      return $link;
+    if (Strings::startsWith($link,'/')=='/'){
+      $link=rtrim($this->getHttpRequest()->getUrl()->getHostUrl(),'/').$link;
     }
+    return $link;
   }
 
 

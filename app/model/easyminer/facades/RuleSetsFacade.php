@@ -163,6 +163,9 @@ class RuleSetsFacade {
    * @param RuleSet $ruleSet
    */
   public function saveRuleSet(RuleSet &$ruleSet){
+    if (empty($ruleSet->lastModified)){
+      $ruleSet->lastModified=new \DateTime();
+    }
     $this->ruleSetsRepository->persist($ruleSet);
   }
 
@@ -257,6 +260,7 @@ class RuleSetsFacade {
       $ruleSet=$this->findRuleSet($ruleSet);
     }
     $ruleSet->rulesCount=$this->ruleSetRuleRelationsRepository->findCountRulesByRuleSet($ruleSet);
+    $ruleSet->lastModified=new \DateTime();
     $this->saveRuleSet($ruleSet);
   }
 

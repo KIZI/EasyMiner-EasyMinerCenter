@@ -230,7 +230,7 @@ var Config = new Class({
    * @returns {string}
    */
   getKnowledgeBaseRemoveRulesUrl: function (rulesetId, ruleId, returnRules) {
-    return this.knowledgeBaseRemoveRulesUrl.replace('__RULESETID__',rulesetId).replace('__RULEIDS',ruleId).replace('__RESULT__',(returnRules?'rules':''));
+    return this.knowledgeBaseRemoveRulesUrl.replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleId).replace('__RESULT__',(returnRules?'rules':''));
   },
 
   getKnowledgeBaseRemoveAllRulesUrl: function (rulesetId) {

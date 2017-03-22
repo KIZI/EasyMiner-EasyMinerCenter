@@ -12,6 +12,7 @@ use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Utils\Json;
+use Nette\Utils\Strings;
 
 /**
  * Class TasksPresenter - presenter pro práci s úlohami...
@@ -94,10 +95,11 @@ class TasksPresenter  extends BasePresenter{
       return;
     }
 
+    //zakážeme ukončení načítání
+    RequestHelper::ignoreUserAbort();
+
     //import budeme provádět pouze v případě, že zatím neběží jiný import (abychom předešli konfliktům a zahlcení serveru)
     if ($task->importState==Task::IMPORT_STATE_WAITING){
-      //zakážeme ukončení načítání
-      ignore_user_abort(true);
       //označíme částečný probíhající import
       $taskState=$task->getTaskState();
       $importData=$taskState->getImportData();
@@ -336,7 +338,11 @@ class TasksPresenter  extends BasePresenter{
    */
   private function getBackgroundImportLink(Task $task){
     $this->absoluteUrls=true;
-    return $this->link('importMiningResults',['task'=>$task->taskId]);
+    $link=$this->link('importMiningResults',['task'=>$task->taskId]);
+    if (Strings::startsWith($link,'/')){
+      $link=rtrim($this->getHttpRequest()->getUrl()->getHostUrl(),'/').$link;
+    }
+    return $link;
   }
 
   #region injections

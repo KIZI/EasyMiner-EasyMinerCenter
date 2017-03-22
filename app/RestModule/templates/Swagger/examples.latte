@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Examples - REST API - EasyMinerCenter</title>
+  <link rel="icon" type="image/png" href="{$basePath}/images/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="{$basePath}/images/favicon-16x16.png" sizes="16x16" />
+  <link rel="icon" type="image/x-icon" href="{$basePath}/images/favicon.ico" sizes="16x16" />
+</head>
+
+<body>
+  <h1>API Examples</h1>
+  {if !empty($exampleFiles)}
+    {foreach $exampleFiles as $directory=>$arr}
+      {if $directory!='.'}
+        <h2>{$directory}</h2>
+      {/if}
+      {if !empty($exampleFilesDirectoryDescriptions[$directory])}
+        {str_replace('{$basePath}',$basePath,$exampleFilesDirectoryDescriptions[$directory])|noescape}
+      {/if}
+      {if !empty($arr)}
+        <ul>
+        {foreach $arr as $file}
+          <li><a href="{$basePath}/api-examples/{$directory}/{$file}" target="_blank">{$file}</a></li>
+        {/foreach}
+        </ul>
+      {/if}
+    {/foreach}
+  {/if}
+
+</body>
+</html>

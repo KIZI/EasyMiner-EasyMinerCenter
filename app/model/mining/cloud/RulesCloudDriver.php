@@ -3,7 +3,6 @@ namespace EasyMinerCenter\Model\Mining\Cloud;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
-use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleAttribute;
@@ -18,38 +17,21 @@ use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Serializers\TaskSettingsJson;
 use EasyMinerCenter\Model\Mining\IMiningDriver;
-use Nette\InvalidArgumentException;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Strings;
 use Tracy\Debugger;
 use Tracy\ILogger;
 
 /**
- * Class CloudDriver - ovladač pro dolování za využití nové verze R/Hadoop Cloud driveru s postupným vracením výsledků
+ * Class CloudRulesDriver - ovladač pro dolování za využití nové verze R/Hadoop Cloud driveru s postupným vracením výsledků
  * @package EasyMinerCenter\Model\Mining\Cloud
  * @author Stanislav Vojíř
  */
-class CloudDriver implements IMiningDriver{
+class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   /** @var  Task $task */
   private $task;
-  /** @var  Miner $miner */
-  private $miner;
-  /** @var  array $minerConfig */
-  private $minerConfig = null;
-  /** @var  MinersFacade $minersFacade */
-  private $minersFacade;
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
-  /** @var MetaAttributesFacade $metaAttributesFacade */
-  private $metaAttributesFacade;
-  /** @var XmlSerializersFactory $xmlSerializersFactory */
-  private $xmlSerializersFactory;
-  /** @var array $params - parametry výchozí konfigurace */
-  private $params;
-  /** @var  User $user */
-  private $user;
-  /** @var  string $apiKey - API KEY pro konktrétního uživatele */
-  private $apiKey;
 
   #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
   const MAX_MINING_REQUESTS=5;
@@ -103,7 +85,7 @@ class CloudDriver implements IMiningDriver{
     sendStartRequest:
     try{
       #region pracovní zjednodušený request
-      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),$this->getApiKey(),$responseCode);
+      $response=$this->curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),'GET',[],$this->getApiKey(),$responseCode);
       $taskState=$this->parseResponse($response,$responseCode);
     #endregion
     }catch (\Exception $e){
@@ -129,7 +111,7 @@ class CloudDriver implements IMiningDriver{
         try{
           #region zjištění stavu úlohy, případně import pravidel
           $url=$this->getRemoteMinerUrl().'/'.$this->task->resultsUrl.'?apiKey='.$this->getApiKey();
-          $response=self::curlRequestResponse($url,'',$this->getApiKey(),$responseCode);
+          $response=self::curlRequestResponse($url,'','GET',$this->getApiKey(),$responseCode);
           return $this->parseResponse($response,$responseCode);
           #endregion
         }catch (\Exception $e){
@@ -171,53 +153,12 @@ class CloudDriver implements IMiningDriver{
 
   /**
    * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * @param User $user
    * @return true
    */
   public function checkMinerState(User $user){
     return true;
   }
-
-  /**
-   * Funkce vracející adresu R connectu
-   * @return string
-   */
-  private function getRemoteMinerUrl(){
-    $minerUrl=trim(@$this->params['minerUrl'],'/');
-    return $this->getRemoteServerUrl().($minerUrl!=''?'/'.$minerUrl:'');
-  }
-
-  /**
-   * Funkce vracející adresu serveru, kde běží R connect
-   * @return string
-   */
-  private function getRemoteServerUrl(){
-    return rtrim(@$this->params['server']);
-  }
-
-  /**
-   * Funkce vracející konfiguraci aktuálně otevřeného mineru
-   * @return array
-   */
-  private function getMinerConfig(){
-    if (!$this->minerConfig){
-      $this->minerConfig=$this->miner->getConfig();
-    }
-    return $this->minerConfig;
-  }
-
-  /**
-   * Funkce nastavující konfiguraci aktuálně otevřeného mineru
-   * @param array $minerConfig
-   * @param bool $save = true
-   */
-  private function setMinerConfig($minerConfig,$save=true){//TODO
-    $this->miner->setConfig($minerConfig);
-    $this->minerConfig=$minerConfig;
-    if ($save){
-      $this->minersFacade->saveMiner($this->miner);
-    }
-  }
-
   #endregion
 
   /**
@@ -231,7 +172,10 @@ class CloudDriver implements IMiningDriver{
     $this->basicParseRulesPMML($pmmlString,$rulesCount);
     $taskState=$this->task->getTaskState();
     $taskState->setRulesCount($taskState->getRulesCount()+$rulesCount);
-    $taskState->importState=Task::IMPORT_STATE_WAITING;
+    if ($taskState->importState!=Task::IMPORT_STATE_PARTIAL){
+      //pokud zrovna neprobíhá import...
+      $taskState->importState=Task::IMPORT_STATE_WAITING;
+    }
     return $taskState;
   }
 
@@ -387,6 +331,7 @@ class CloudDriver implements IMiningDriver{
             continue;
           }
           $process = true;
+          /** @noinspection PhpUndefinedFieldInspection */
           foreach ($dbaItem->BARef as $BARef) {
             $BARefStr = (string)$BARef;
             if (isset($alternativeCedentIdsArr[$BARefStr])) {
@@ -408,6 +353,7 @@ class CloudDriver implements IMiningDriver{
             }
             $this->rulesFacade->saveCedent($cedent);
             $cedentsArr[$idStr] = $cedent;
+            /** @noinspection PhpUndefinedFieldInspection */
             foreach ($dbaItem->BARef as $BARef){
               $BARefStr = (string)$BARef;
               if (isset($alternativeCedentIdsArr[$BARefStr])) {
@@ -599,14 +545,9 @@ class CloudDriver implements IMiningDriver{
    * @param array $params = array()
    */
   public function __construct(Task $task = null, MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user, XmlSerializersFactory $xmlSerializersFactory, $params = array()) {
-    $this->minersFacade=$minersFacade;
+    parent::__construct($minersFacade,$metaAttributesFacade,$user,$xmlSerializersFactory,$params);
     $this->setTask($task);
-    $this->params=$params;
     $this->rulesFacade=$rulesFacade;
-    $this->metaAttributesFacade=$metaAttributesFacade;
-    $this->user=$user;
-    $this->xmlSerializersFactory=$xmlSerializersFactory;
-    $this->setApiKey($user->getEncodedApiKey());
   }
 
   /**
@@ -621,46 +562,6 @@ class CloudDriver implements IMiningDriver{
   #endregion constructor
 
   /**
-   * @param string $url
-   * @param string $postData = ''
-   * @param string $apiKey = ''
-   * @param int|null &$responseCode - proměnná pro vrácení stavového kódu odpovědi
-   * @return string - response data
-   * @throws \Exception - curl error
-   */
-  private static function curlRequestResponse($url, $postData='', $apiKey='', &$responseCode=null){
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch,CURLOPT_MAXREDIRS,0);
-    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,false);
-    $headersArr=[
-      'Content-Type: application/xml; charset=utf-8'
-    ];
-    if (!empty($apiKey)){
-      $headersArr[]='Authorization: ApiKey '.$apiKey;
-    }
-    if ($postData!=''){
-      curl_setopt($ch,CURLOPT_POST,true);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-      $headersArr[]='Content-length: '.strlen($postData);
-    }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArr);
-
-    $responseData = curl_exec($ch);
-    $responseCode=curl_getinfo($ch,CURLINFO_HTTP_CODE);
-
-    if(curl_errno($ch)){
-      $exception=curl_error($ch);
-      curl_close($ch);
-      throw new \Exception($exception);
-    }
-    curl_close($ch);
-    return $responseData;
-  }
-
-  /**
    * Funkce vracející cestu k souboru, který má být updatován
    * @return string
    */
@@ -671,44 +572,6 @@ class CloudDriver implements IMiningDriver{
     $taskImportData[$uniqid]=$filename;
     $this->task->setImportData($taskImportData);
     return $filename;
-  }
-
-
-  #region apiKey
-
-  /**
-   * Funkce nastavující API klíč
-   * @param string $apiKey
-   */
-  public function setApiKey($apiKey){
-    $this->apiKey=$apiKey;
-  }
-
-  /**
-   * Funkce vracející nastavený API klíč
-   * @return string
-   * @throws InvalidArgumentException
-   */
-  private function getApiKey(){
-    if (empty($this->apiKey)){
-      throw new InvalidArgumentException("Missing API KEY!");
-    }
-    return $this->apiKey;
-  }
-
-  #endregion apiKey
-
-  /**
-   * Funkce pro kontrolu, jestli je dostupný dolovací server
-   *
-   * @param string $serverUrl
-   * @throws \Exception
-   * @return bool
-   */
-  public static function checkMinerServerState($serverUrl) {
-    $response=self::curlRequestResponse($serverUrl);
-    return !empty($response);
-    //TODO implementace kontroly dostupnosti serveru
   }
 
   /**

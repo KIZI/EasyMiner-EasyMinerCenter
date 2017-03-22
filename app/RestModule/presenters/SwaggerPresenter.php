@@ -4,6 +4,7 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 use Nette\Application\UI\Presenter;
 use Nette\Http\Url;
+use Nette\Utils\Finder;
 use Nette\Utils\Strings;
 
 /**
@@ -19,6 +20,37 @@ class SwaggerPresenter extends Presenter{
   public function renderUi(){
     /** @noinspection PhpUndefinedFieldInspection */
     $this->template->apiUrl=$this->link("json");
+  }
+
+  /**
+   * Akce pro vypsání příkladů preprocessingu
+   */
+  public function renderExamples(){
+    $subfiles=['.'=>[]];
+    $subfilesDirectoryDescriptions=[];
+    $directories=Finder::findDirectories('*')->from(__DIR__.'/../../../www/api-examples');
+    if (!empty($directories)){
+      foreach($directories as $directory){
+        /** @var  \SplFileInfo $directory */
+        $subfiles[$directory->getFilename()]=[];
+      }
+    }
+    foreach($subfiles as $directory=>&$arr){
+      $files=Finder::findFiles('*')->in(__DIR__.'/../../../www/api-examples/'.$directory);
+      if (!empty($files)){
+        foreach($files as $file){
+          /** @var \SplFileInfo $file */
+          $filename=$file->getFilename();
+          if ($filename=='readme.txt'){
+            $subfilesDirectoryDescriptions[$directory]=file_get_contents($file->getRealPath());
+          }else{
+            $arr[]=$filename;
+          }
+        }
+      }
+    }
+    $this->template->exampleFiles=$subfiles;
+    $this->template->exampleFilesDirectoryDescriptions=$subfilesDirectoryDescriptions;
   }
 
   /**

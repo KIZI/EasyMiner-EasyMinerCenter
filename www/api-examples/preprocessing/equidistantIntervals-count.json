@@ -1,0 +1,11 @@
+{
+  "miner": 0,
+  "name": "new attribute name",
+  "columnName": "data column name",
+  "newPreprocessing": {
+    "type":"equidistantIntervals",
+    "from":10,
+    "to":50,
+    "count":5
+  }
+}

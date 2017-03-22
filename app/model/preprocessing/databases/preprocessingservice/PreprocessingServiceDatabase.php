@@ -99,7 +99,27 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     }
   }
 
-
+  /**
+   * Funkce vracející jeden atribut
+   *
+   * @param PpDataset $ppDataset
+   * @param string $ppAttributeId
+   * @return PpAttribute
+   * @throws PreprocessingException
+   */
+  public function getPpAttribute(PpDataset $ppDataset, $ppAttributeId) {
+    try{
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/dataset/'.$ppDataset->id.'/attribute/'.$ppAttributeId),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      if ($responseCode==200){
+        $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+        return new PpAttribute($responseData['id'], $responseData['dataset'], $responseData['field'], $responseData['name'], (empty($responseData['type'])?PpAttribute::TYPE_NOMINAL:$responseData['type']), $responseData['uniqueValuesSize']);
+      }else{
+        throw new PreprocessingCommunicationException('responseCode: '.$responseCode);
+      }
+    }catch (\Exception $e){
+      throw new PreprocessingException();
+    }
+  }
 
 
 
@@ -142,6 +162,9 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
    * @throws PreprocessingCommunicationException
    */
   private function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], &$responseCode=null){
+    if (Strings::startsWith($url,'/')){
+      $url='http://localhost/'.$url;
+    }
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -261,7 +284,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
    * @return string[]
    */
   public static function getSupportedPreprocessingTypes() {
-    return [Preprocessing::TYPE_EACHONE];
+    return [Preprocessing::TYPE_EACHONE, Preprocessing::TYPE_INTERVAL_ENUMERATION, Preprocessing::TYPE_NOMINAL_ENUMERATION, Preprocessing::TYPE_EQUIFREQUENT_INTERVALS, Preprocessing::TYPE_EQUIDISTANT_INTERVALS];
   }
 
   /**

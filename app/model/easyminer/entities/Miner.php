@@ -24,6 +24,7 @@ use Nette\Utils\Json;
  * @property \DateTime|null $lastOpened = null
  * @property string $config
  * @property-read Task[] $tasks m:belongsToMany
+ * @property-read OutliersTask[] $outliersTasks m:belongsToMany
  * @property-read string $typeName
  */
 class Miner extends Entity implements IOwnerResource{
@@ -136,7 +137,6 @@ class Miner extends Entity implements IOwnerResource{
   /**
    * Funkce pro nastavení externí konfigurace
    * @param array $externalConfig
-   * @return array
    */
   public function setExternalConfig($externalConfig){
     $config=$this->getConfig();
@@ -158,8 +158,8 @@ class Miner extends Entity implements IOwnerResource{
       'metasourceId'=>$rowData['metasource_id'],
       'ruleSetId'=>$rowData['rule_set_id'],
       'config'=>$this->getConfig(),
-      'created'=>$this->created,
-      'lastOpened'=>$this->lastOpened
+      'created'=>!empty($this->created)?$this->created->format('c'):null,
+      'lastOpened'=>!empty($this->lastOpened)?$this->lastOpened->format('c'):null
     ];
   }
 
