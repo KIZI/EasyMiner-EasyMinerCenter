@@ -119,7 +119,6 @@ class RuleSetsPresenter extends BasePresenter{
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     //smazání
     if ($this->ruleSetsFacade->deleteRuleSet($ruleSet)){
-        $this->knowledgeBaseFacade->removeRuleSetRelations($id);
       $this->sendJsonResponse(['state'=>'ok']);
     }
   }
@@ -387,7 +386,6 @@ class RuleSetsPresenter extends BasePresenter{
           $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
         }catch (\Exception $e){continue;}
       }
-        $this->knowledgeBaseFacade->removeRuleSetRulesRelations($ruleIdsArr);
     }
     $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
 
@@ -413,7 +411,6 @@ class RuleSetsPresenter extends BasePresenter{
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     //smazání
     $this->ruleSetsFacade->removeAllRulesFromRuleSet($ruleSet);
-      $this->knowledgeBaseFacade->removeRuleSetRelations($id);
     $this->sendJsonResponse(['state'=>'ok']);
   }
 

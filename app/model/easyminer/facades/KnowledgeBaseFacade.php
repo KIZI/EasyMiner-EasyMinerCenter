@@ -125,24 +125,6 @@ class KnowledgeBaseFacade {
     }
 
     /**
-     * Smazání všech vztahů s pravidly z daného rulesetu
-     * @param $ruleSetId
-     */
-    public function removeRuleSetRelations($ruleSetId){
-        $this->ruleComparingCache->deleteAllByRuleSet($ruleSetId);
-        $this->knowledgeBaseRuleRelationsRepository->deleteAllByRuleSet($ruleSetId);
-    }
-
-    /**
-     * Smazání všech vztahů s pravidly z parametru
-     * @param $ruleIds
-     */
-    public function removeRuleSetRulesRelations($ruleIds){
-        $this->ruleComparingCache->deleteAllByRuleSetRules($ruleIds);
-        $this->knowledgeBaseRuleRelationsRepository->deleteAllByRuleSetRules($ruleIds);
-    }
-
-    /**
      * Nastavení dekomponovaného tvaru pravidla v KB
      * @param Int $ruleId
      * @param String $decomposed

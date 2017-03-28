@@ -35,26 +35,6 @@ class RuleRuleRelationsRepository{
     }
 
     /**
-     * Removes all records, where were rules compared with rules from ruleSet
-     * @param $ruleSetId
-     */
-    public function deleteAllByRuleSet($ruleSetId){
-        $this->connection->query(
-            'DELETE FROM %n WHERE %n = ?', self::TABLE_NAME, self::COLUMN_RULE_SET, $ruleSetId
-        );
-    }
-
-    /**
-     * Removes all records, where were rules compared with rules from param
-     * @param array $ruleIds
-     */
-    public function deleteAllByRuleSetRules($ruleIds){
-        $this->connection->query(
-            'DELETE FROM %n WHERE %n IN (?)', self::TABLE_NAME, self::COLUMN_RULESET_RULE, $ruleIds
-        );
-    }
-
-    /**
      * Multiinsert of comparing results
      * @param $data values to be inserted
      */
