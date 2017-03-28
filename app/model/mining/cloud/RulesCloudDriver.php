@@ -85,7 +85,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
     sendStartRequest:
     try{
       #region pracovní zjednodušený request
-      $response=$this->curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),'GET',[],$this->getApiKey(),$responseCode);
+      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),'POST',[],$this->getApiKey(),$responseCode);
       $taskState=$this->parseResponse($response,$responseCode);
     #endregion
     }catch (\Exception $e){
@@ -111,7 +111,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         try{
           #region zjištění stavu úlohy, případně import pravidel
           $url=$this->getRemoteMinerUrl().'/'.$this->task->resultsUrl.'?apiKey='.$this->getApiKey();
-          $response=self::curlRequestResponse($url,'','GET',$this->getApiKey(),$responseCode);
+          $response=self::curlRequestResponse($url,'','GET',[],$this->getApiKey(),$responseCode);
           return $this->parseResponse($response,$responseCode);
           #endregion
         }catch (\Exception $e){

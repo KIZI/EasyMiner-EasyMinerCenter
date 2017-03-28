@@ -125,7 +125,7 @@ class AbstractCloudDriver{
    * @return string - response data
    * @throws MinerCommunicationException - curl error
    */
-  protected function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], $apiKey='', &$responseCode=null){
+  protected static function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], $apiKey='', &$responseCode=null){
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
