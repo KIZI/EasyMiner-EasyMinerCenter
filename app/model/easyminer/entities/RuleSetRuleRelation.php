@@ -10,6 +10,7 @@ use LeanMapper\Entity;
  * @property Rule $rule m:hasOne
  * @property RuleSet $ruleSet m:hasOne
  * @property string $relation m:Enum(self::RELATION_*)
+ * @property string $decomposed
  */
 class RuleSetRuleRelation extends Entity{
   const RELATION_POSITIVE='positive';

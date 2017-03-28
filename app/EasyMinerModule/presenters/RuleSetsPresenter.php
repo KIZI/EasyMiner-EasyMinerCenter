@@ -148,7 +148,7 @@ class RuleSetsPresenter extends BasePresenter{
       $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
       if (!empty($rules)){
         foreach($rules as $rule){
-          $result['rules'][$rule[0]->ruleId]=$rule[0]->getBasicDataArr();
+          $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
         }
       }
     }
@@ -174,9 +174,9 @@ class RuleSetsPresenter extends BasePresenter{
             if (!empty($rules)){
                 //$result['rules'] = $rules;
                 foreach($rules as $rule){
-                    $result['rules'][$rule[0]->ruleId]=[
-                        'name' => $rule[0]->text,
-                        'relation' => $rule[1]
+                    $result['rules'][$rule->ruleId]=[
+                        'name' => $rule->text,
+                        'relation' => $rule->relation
                     ];
                 }
             }
@@ -211,7 +211,11 @@ class RuleSetsPresenter extends BasePresenter{
             if(!$ruleSimilarity){
                 $ruleSimilarity = $rule;
             }
-            $ruleComponents = $this->decomposeRule($rule);
+            $ruleObj = $this->rulesFacade->findRule($rule);
+            $ruleParts = [
+                "ant" => $this->decomposeRulePart($ruleObj, "antecedent"),
+                "con" => $this->decomposeRulePart($ruleObj, "consequent")
+            ];
             $result['max'] = 0;
             $result['rule'] = [
                 RuleRuleRelationsRepository::COLUMN_RELATION => ''
@@ -223,11 +227,11 @@ class RuleSetsPresenter extends BasePresenter{
                 $result['max'] = $result['rule'][RuleRuleRelationsRepository::COLUMN_RATE];
             }
 
-            foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRuleArray){ //TO-DO save in cache/session etc.
-                if(isset($ruleCompareResults[$ruleSetRuleArray[0]->ruleId])){ // has been already compared and is impossible to have higher rate due to DB ordering
+            foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRule){ //TO-DO save in cache/session etc.
+                if(isset($ruleCompareResults[$ruleSetRule->ruleId])){ // has been already compared and is impossible to have higher rate due to DB ordering
                     continue;
                 }
-                $compareResult = $this->compareRules($ruleComponents, $ruleSetRuleArray);
+                $compareResult = $this->compareRules($ruleParts, $ruleSetRule);
                 if($compareResult[RuleRuleRelationsRepository::COLUMN_RATE] > $result['max']){
                     $result['max'] = $compareResult[RuleRuleRelationsRepository::COLUMN_RATE];
                     $result['rule'] = $compareResult;
@@ -255,89 +259,78 @@ class RuleSetsPresenter extends BasePresenter{
 
     /**
      * Porovnání dvou pravidel
-     * @param Array $ruleComponents části pravidla k porovnání
-     * @param Array $ruleArray pravidlo se vztahem, se kterým je porovnáváno
+     * @param Array $ruleParts části pravidla k porovnání
+     * @param Array $ruleSetRule pravidlo Rulesetu
      * @return Array míra podobnosti, id a vztah, ve kterém je pravidlo uloženo v KB
      */
-    private function compareRules($ruleComponents, $ruleArray){
-        $ruleSetRule = $ruleArray[0];
-        $ruleAttributes = $ruleComponents[0];
-        $ruleValues = $ruleComponents[1];
+    private function compareRules($ruleParts, $ruleSetRule){
         $antecedentAttributesCount = $consequentAttributesCount = 0;
         $antecedentAttributesSame = $consequentAttributesSame = 0;
         $crossAttributesConflict = false;
-        foreach($ruleSetRule->antecedent->ruleAttributes as $ruleAttribute){
-            $attributeId = $ruleAttribute->attribute->attributeId;
-            if(in_array($attributeId, $ruleAttributes['consequent'])){
+        $ruleSetRuleDecomposed = json_decode($ruleSetRule->decomposed, true);
+        if(!$ruleSetRuleDecomposed){ // if hasn't rule decomposed yet
+            $ruleSetRuleDecomposed = [
+                "ant" => $this->decomposeRulePart($ruleSetRule, "antecedent"),
+                "con" => $this->decomposeRulePart($ruleSetRule, "consequent")
+            ];
+            try{
+                $this->knowledgeBaseFacade->setDecomposedRuleSetRule($ruleSetRule->ruleId, json_encode($ruleSetRuleDecomposed));
+            }catch (\Exception $e){}
+        }
+        foreach($ruleSetRuleDecomposed['ant'] as $attribute => $value){
+            if(isset($ruleParts['con'][$attribute]) || array_key_exists($attribute, $ruleParts['con'])){
                 $crossAttributesConflict = true; // attribute on opposite site of rule
                 break;
             }
-            if(isset($ruleAttributes['antecedent'][$ruleAttribute->ruleAttributeId]) || array_key_exists($ruleAttribute->ruleAttributeId, $ruleAttributes['antecedent'])){
-                $antecedentAttributesSame += 2; // same rule attribute
-            } else{
-                if(in_array($attributeId, $ruleAttributes['antecedent'])){
-                    $antecedentAttributesSame++; // same attribute
-                    if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['antecedent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['antecedent']))){
-                        $antecedentAttributesSame++; // same value or values bin - mohu vynechat
-                    }
+            if(isset($ruleParts['ant'][$attribute]) || array_key_exists($attribute, $ruleParts['ant'])){
+                $antecedentAttributesSame++; // same attribute
+                if($ruleParts['ant'][$attribute] == $value){
+                    $antecedentAttributesSame++; // same value or values bin
                 }
             }
             $antecedentAttributesCount++;
         }
-        foreach($ruleSetRule->consequent->ruleAttributes as $ruleAttribute){
-            $attributeId = $ruleAttribute->attribute->attributeId;
-            if(in_array($attributeId, $ruleAttributes['antecedent'])){
+        foreach($ruleSetRuleDecomposed['con'] as $attribute => $value){
+            if(isset($ruleParts['ant'][$attribute]) || array_key_exists($attribute, $ruleParts['ant'])){
                 $crossAttributesConflict = true; // attribute on opposite site of rule
                 break;
             }
-            if(isset($ruleAttributes['consequent'][$ruleAttribute->ruleAttributeId]) || array_key_exists($ruleAttribute->ruleAttributeId, $ruleAttributes['consequent'])){
-                $consequentAttributesSame += 2; // same rule attribute
-            } else{
-                if(in_array($attributeId, $ruleAttributes['consequent'])){
-                    $consequentAttributesSame++; // same attribute
-                    if(($ruleAttribute->value && in_array($ruleAttribute->value->valueId, $ruleValues['consequent'])) || ($ruleAttribute->valuesBin && in_array($ruleAttribute->valuesBin->valuesBinId, $ruleValues['consequent']))){
-                        $consequentAttributesSame++; // same value or values bin
-                    }
+            if(isset($ruleParts['con'][$attribute]) || array_key_exists($attribute, $ruleParts['con'])){
+                $consequentAttributesSame++; // same attribute
+                if($ruleParts['con'][$attribute] == $value){
+                    $consequentAttributesSame++; // same value or values bin
                 }
             }
             $consequentAttributesCount++;
         }
-        $sameRateAntecedent = $antecedentAttributesSame/($antecedentAttributesCount+count($ruleAttributes['antecedent']));
-        $sameRateConsequent = $consequentAttributesSame/($consequentAttributesCount+count($ruleAttributes['consequent']));
+        $sameRateAntecedent = $antecedentAttributesSame/($antecedentAttributesCount+count($ruleParts['ant']));
+        $sameRateConsequent = $consequentAttributesSame/($consequentAttributesCount+count($ruleParts['con']));
         $sameRateFinal = $crossAttributesConflict ? 0 : ($sameRateAntecedent+$sameRateConsequent)/2;
 
         return [
             RuleRuleRelationsRepository::COLUMN_RULESET_RULE => $ruleSetRule->ruleId,
-            RuleRuleRelationsRepository::COLUMN_RELATION => $ruleArray[1],
+            RuleRuleRelationsRepository::COLUMN_RELATION => $ruleSetRule->relation,
             RuleRuleRelationsRepository::COLUMN_RATE => $sameRateFinal
         ];
     }
 
     /**
-     * @param Int $rule pravidlo na dekomponování
-     * @return Array pole atributů a hodnot
+     * @param Rule $rule pravidlo na dekomponování
+     * @param String $rulePart název části pravidla
+     * @return Array atribut => hodnota
      */
-    private function decomposeRule($rule){
-        $ruleObj=$this->rulesFacade->findRule($rule);
-        //$ruleObj->antecedent->connective
-        $ruleAttributes = $ruleValues = [];
-        foreach($ruleObj->antecedent->ruleAttributes as $ruleAttribute){
-            $ruleAttributes['antecedent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->attribute->attributeId;
+    private function decomposeRulePart($rule, $rulePart){
+        $rulePartAttributes = [];
+        foreach($rule->{$rulePart}->ruleAttributes as $ruleAttribute){
             if($ruleAttribute->value){
-                $ruleValues['antecedent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->value->valueId;
+                $rulePartAttributes[$ruleAttribute->attribute->attributeId] = $ruleAttribute->value->valueId;
             } elseif($ruleAttribute->valuesBin){
-                $ruleValues['antecedent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->valuesBin->valuesBinId;
+                $rulePartAttributes[$ruleAttribute->attribute->attributeId] = $ruleAttribute->valuesBin->valuesBinId;
+            } else{
+                $rulePartAttributes[$ruleAttribute->attribute->attributeId] = "";
             }
         }
-        foreach($ruleObj->consequent->ruleAttributes as $ruleAttribute){
-            $ruleAttributes['consequent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->attribute->attributeId;
-            if($ruleAttribute->value){
-                $ruleValues['consequent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->value->valueId;
-            } elseif($ruleAttribute->valuesBin){
-                $ruleValues['consequent'][$ruleAttribute->ruleAttributeId]=$ruleAttribute->valuesBin->valuesBinId;
-            }
-        }
-        return [$ruleAttributes, $ruleValues];
+        return $rulePartAttributes;
     }
 
   /**

@@ -59,7 +59,7 @@ class KnowledgeBaseFacade {
       $rulesInRuleset = $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet);
       $toReturn = [];
       foreach($rulesInRuleset as $rule){
-          if($rule[0]->task->miner->datasource->datasourceId === $currentDatasource){
+          if($rule->task->miner->datasource->datasourceId === $currentDatasource){
               $toReturn[] = $rule;
           }
       }
@@ -140,6 +140,15 @@ class KnowledgeBaseFacade {
     public function removeRuleSetRulesRelations($ruleIds){
         $this->ruleComparingCache->deleteAllByRuleSetRules($ruleIds);
         $this->knowledgeBaseRuleRelationsRepository->deleteAllByRuleSetRules($ruleIds);
+    }
+
+    /**
+     * Nastavení dekomponovaného tvaru pravidla v KB
+     * @param Int $ruleId
+     * @param String $decomposed
+     */
+    public function setDecomposedRuleSetRule($ruleId, $decomposed){
+        $this->ruleSetRuleRelationsRepository->setDecomposed($ruleId, $decomposed);
     }
 
 } 
