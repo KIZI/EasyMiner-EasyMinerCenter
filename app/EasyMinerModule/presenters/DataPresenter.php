@@ -497,7 +497,7 @@ class DataPresenter extends BasePresenter{
           $this->metasourcesFacade->deleteMetasource($metasource);
           $this->redirect('initMiner',['id'=>$id]);
         }else{
-          throw new InvalidStateException('Requested miner is not available! (metasource error)',$e);
+          throw new InvalidStateException('Requested miner is not available! (metasource error)',$e->getCode(),$e);
         }
       }
     }
