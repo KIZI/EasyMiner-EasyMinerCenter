@@ -19,7 +19,9 @@ var DataUpload=function(){
     uploadColumnsListBlock:null,
 
     nameInput: null,
+    allowLongNamesInput: null,
     databaseTypeInput: null,
+    importTypeInput: null,
     escapeCharacterInput: null,
     delimiterInput: null,
     nullValueInput: null,
@@ -27,13 +29,17 @@ var DataUpload=function(){
     enclosureInput: null,
     localeInput: null
   };
-  this.dataServiceUrlsByDbTypes=null;
+  this.dataServicesConfigByDbTypes=null;
   this.apiKey=null;
   this.previewUrl=null;
   this.uploadPreviewDataUrl=null;
   this.zipSupport=false;
   this.uploadFinishUrl=null;
   this.fileCompression='';
+
+  const LONG_NAMES_MAX_LENGTH=255;
+  const SHORT_NAMES_MAX_LENGTH=40;
+
   /**
    * @type {FileUploader}
    */
@@ -58,6 +64,7 @@ var DataUpload=function(){
    * @returns {string}
    */
   var getPreviewUrl=function(reloadParams){
+    var requireSafeNames=(self.jqElements.allowLongNamesInput.val()==1?0:1);
     var result=self.previewUrl;
     var inputParams=self.getInputParams();
     result=result
@@ -66,7 +73,8 @@ var DataUpload=function(){
       .replace('__ENCLOSURE__',encodeURIComponent(inputParams.quotesChar))
       .replace('__ESCAPE_CHARACTER__',encodeURIComponent(inputParams.escapeChar))
       .replace('__NULL_VALUE__',encodeURIComponent(inputParams.nullValues[0]))
-      .replace('__LOCALE__',encodeURIComponent(inputParams.locale));
+      .replace('__LOCALE__',encodeURIComponent(inputParams.locale))
+      .replace('__REQUIRE_SAFE_NAMES__',requireSafeNames);
     //pokud by mělo dojít k přenačtení parametrů, tak nebudeme uvádět následující parametry
     if (reloadParams==true){
       result=result.replace('__DELIMITER__','');
@@ -109,11 +117,16 @@ var DataUpload=function(){
     var name=filename.substring(0,lastDotPosition);
     var ext =filename.substring(lastDotPosition+1);
     //zpracování jména souboru na název tabulky v DB
-    name=seoUrl(name);
-    name=name.replace(/-/g,'_');//nahrazení pomlček za podtržítka
+    var seoName=seoUrl(name);
+    seoName=seoName.replace(/-/g,'_');//nahrazení pomlček za podtržítka
     ext=ext.toLowerCase();
     //přiřazení získaných hodnot do inputu a do proměnné s info o kompresi
-    this.jqElements.nameInput.val(name);
+    if (this.jqElements.allowLongNamesInput.val()=='1'){
+      this.jqElements.nameInput.val(name);
+    }else{
+      this.jqElements.nameInput.val(seoName);
+    }
+
     switch (ext){
       case 'zip':
         this.fileCompression='zip';
@@ -136,7 +149,14 @@ var DataUpload=function(){
    * Funkce pro vygenerování formuláře pro konfiguraci datových sloupců a jeho zobrazení
    */
   this.showColumnsConfigBlock=function(){
-    const VALIDATION_ATTRIBUTES='required data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":UniqueNamesValidator","msg":"This name is already used."},{"op":":pattern","msg":"Attribute name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Attribute name can contain only letters, numbers and _ and has start with a letter."';
+    var columnNamesValidationAttributes='required';
+    if (this.jqElements.allowLongNamesInput.val()=='1'){
+      //kontrola s podporou dlouhých jmen sloupců
+      columnNamesValidationAttributes+='maxlength="'+LONG_NAMES_MAX_LENGTH+'" data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":maxLength","msg":"Max length of the column name is '+LONG_NAMES_MAX_LENGTH+' characters!","arg":'+LONG_NAMES_MAX_LENGTH+'},{"op":":UniqueNamesValidator","msg":"This name is already used."}]\' title="Attribute name is required."';
+    }else{
+      //kontrola pro krátká jména sloupců
+      columnNamesValidationAttributes+='maxlength="'+SHORT_NAMES_MAX_LENGTH+'" data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":UniqueNamesValidator","msg":"This name is already used."},{"op":":maxLength","msg":"Max length of the column name is '+SHORT_NAMES_MAX_LENGTH+' characters!","arg":'+SHORT_NAMES_MAX_LENGTH+'},{"op":":pattern","msg":"Column name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Column name can contain only letters, numbers and _ and has start with a letter."';
+    }
 
     //připravení položek příslušného formuláře...
     var listBlock=this.jqElements.uploadColumnsListBlock;
@@ -144,7 +164,7 @@ var DataUpload=function(){
     for (var i in columnNames){
       //položka konkrétního sloupce
       var columnDetailsTr=$('<tr></tr>');
-      var nameInput=$('<input type="text" id="column_'+i+'_name" '+VALIDATION_ATTRIBUTES+' />').val(columnNames[i]).addClass('columnName');
+      var nameInput=$('<input type="text" id="column_'+i+'_name" '+columnNamesValidationAttributes+' />').val(columnNames[i]).addClass('columnName');
       columnDetailsTr.append($('<td></td>').html(nameInput));
       var dataTypeSelect=$('<select id="column_'+i+'_type"><option value="nominal">nominal [ABC]</option><option value="numeric">numerical [123]</option><option value="null">--ignore--</option></select>');
       dataTypeSelect.val(columnDataTypes[i]);
@@ -179,6 +199,7 @@ var DataUpload=function(){
    * Funkce pro upload ukázky dat
    */
   this.reloadPreview=function(reloadParams){
+    this.jqElements.allowLongNamesInput.val(this.dataServicesConfigByDbTypes[this.jqElements.databaseTypeInput.val()]['allowLongNames']?'1':'0');
     if (previewFileName==""){
       this.uploadPreviewData();
       return;
@@ -237,7 +258,7 @@ var DataUpload=function(){
    */
   this.submitAllData=function(){
     //inicializace file uploaderu
-    fileUploader.setDataServiceUrl(this.dataServiceUrlsByDbTypes[self.jqElements.databaseTypeInput.val()]);//nastavení URL dle zvoleného typu databáze
+    fileUploader.setDataServiceUrl(this.dataServicesConfigByDbTypes[self.jqElements.databaseTypeInput.val()].url);//nastavení URL dle zvoleného typu databáze
     fileUploader.onUploadStart=function(){
       //zobrazení upload bloku a spuštění uploadu
       self.jqElements.uploadFormBlock.hide();
@@ -341,7 +362,8 @@ var DataUpload=function(){
   this.getInputParams=function(){
     var result={
       "name": this.jqElements.nameInput.val(),
-      "mediaType": "csv",
+      "mediaType": this.jqElements.importTypeInput.val(),
+      //TODO podpora uploadu RDF - issue kizi/EasyMiner-EasyMinerCenter#174 (neměly by být vyplněny další parametry)
       "dbType": this.jqElements.databaseTypeInput.val(),
       "separator": this.jqElements.delimiterInput.val(),
       "encoding": this.jqElements.encodingInput.val(),
@@ -419,10 +441,19 @@ var DataUpload=function(){
   var initUploadFormActions=function(){
     var form=self.jqElements.uploadFormBlock.find('form');
     form.addClass('ajax');
+    self.jqElements.importTypeInput.change(function(){
+      //při změně typu dat spustíme validaci na poli pro výběr databáze
+      Nette.validateControl(self.jqElements.databaseTypeInput);
+    });
+    form.find('input[name="cancel"]').click(function(){
+      form.attr('data-cancel','ok');
+    });
     form.submit(function(e){
+      if (form.attr('data-cancel')=='ok'){return;}
       e.preventDefault();
       e.stopPropagation();
       if (Nette.validateForm(this)){
+        //TODO tady bude potřeba úprava pro podporu uploadu RDF dat
         //načteme preview, posléze dojde k zobrazení konfigurace importu
         self.reloadPreview(true);
       }
@@ -533,7 +564,9 @@ $(document).ready(function(){
     uploadProgressMessage: uploadProgressBlock.find('.message'),
 
     databaseTypeInput: uploadFormBlock.find('[name="dbType"]'),
+    importTypeInput: uploadFormBlock.find('[name="importType"]'),
     nameInput: uploadConfigBlock.find('[name="name"]'),
+    allowLongNamesInput: uploadConfigBlock.find('[name="allowLongNames"]'),
     escapeCharacterInput: uploadConfigBlock.find('[name="escape"]'),
     delimiterInput: uploadConfigBlock.find('[name="separator"]'),
     nullValueInput: uploadConfigBlock.find('[name="nullValue"]'),
@@ -544,7 +577,7 @@ $(document).ready(function(){
     flashMessages: $('.flash')//blok klasických flash zpráv v rámci Nette
   };
 
-  dataUpload.dataServiceUrlsByDbTypes=dataServiceUrlsByDbTypes;
+  dataUpload.dataServicesConfigByDbTypes=dataServicesConfigByDbTypes;
   dataUpload.apiKey=apiKey;
   dataUpload.previewUrl=previewUrl;
   dataUpload.uploadPreviewDataUrl=uploadPreviewDataUrl;

@@ -42,6 +42,9 @@ class MetasourcesFacade {
   /** @var  MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
 
+  const LONG_NAMES_MAX_LENGTH=255;
+  const SHORT_NAMES_MAX_LENGTH=40;
+
   /**
    * Funkce pro export pole s informacemi z TransformationDictionary
    * @param Metasource $metasource
@@ -425,6 +428,15 @@ class MetasourcesFacade {
     $metasource->ppDatasetId=null;
     $metasource->state=Metasource::STATE_UNAVAILABLE;
     $this->saveMetasource($metasource);
+  }
+
+  /**
+   * Funkce vracející informaci o tom, zda metasource podporuje dlouhé názvy sloupců
+   * @param Metasource $metasource
+   * @return bool
+   */
+  public function metasourceSupportsLongNames(Metasource $metasource){
+    return $this->datasourcesFacade->dbTypeSupportsLongNames($metasource->type);
   }
 
 

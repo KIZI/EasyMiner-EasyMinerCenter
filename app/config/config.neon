@@ -53,6 +53,16 @@ parameters:
             class: EasyMinerCenter\Model\Scoring\ModelTester\ModelTesterScorer
         driver_easyMinerScorer:
             class: EasyMinerCenter\Model\Scoring\EasyMinerScorer\EasyMinerScorer
+    databases:
+        mysql:
+            allowLongNames: false
+            supportedImportTypes: ['csv']
+        limited:
+            allowLongNames: true
+            supportedImportTypes: ['csv','rdf']
+        unlimited:
+            allowLongNames: true
+            supportedImportTypes: ['csv','rdf']
 
 restful:
     convention: 'camelCase'

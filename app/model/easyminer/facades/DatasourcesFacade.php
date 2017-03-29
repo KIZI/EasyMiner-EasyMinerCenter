@@ -68,20 +68,76 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce vracející URL pro přímý přístup ke službám pro práci s databázemi (využíváno v JS pro upload dat)
+   * Funkce vracející konfiguraci pro přímý přístup ke službám pro práci s databázemi (využíváno v JS pro upload dat)
    * @return array
-   * @throws \Exception
    */
-  public function getDataServiceUrlsByDbTypes(){
+  public function getDataServicesConfigByDbTypes(){
+    $result = [];
     $dbTypes=$this->getDbTypes();
     if (!empty($dbTypes)){
       foreach($dbTypes as $dbType=>&$value){
         //zjistíme URL pro každou z datových služeb
         $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
-        $value=!empty($databaseConfig['api'])?$databaseConfig['api']:'local';
+        $result[$dbType]=[
+          'url'=>!empty($databaseConfig['apiExternalUrl'])?$databaseConfig['apiExternalUrl']:(!empty($databaseConfig['api'])?$databaseConfig['api']:'local'),
+          'allowLongNames'=>isset($databaseConfig['allowLongNames'])?(bool)$databaseConfig['allowLongNames']:false,
+          'supportedImportTypes'=>$databaseConfig['supportedImportTypes']
+        ];
       }
     }
-    return $dbTypes;
+    return $result;
+  }
+
+  /**
+   * Funkce vracející informaci o tom, zda zvolený typ databáze podporuje dlouhé názvy sloupců
+   * @param string $dbType
+   * @return bool
+   */
+  public function dbTypeSupportsLongNames($dbType){
+    $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
+    return isset($databaseConfig['allowLongNames'])?$databaseConfig['allowLongNames']:false;
+  }
+
+  /**
+   * Funkce vracející informaci o tom, zda datový zdroj podporuje dlouhé názvy sloupců
+   * @param Datasource $datasource
+   * @return bool
+   */
+  public function datasourceSupportsLongNames(Datasource $datasource){
+    return $this->dbTypeSupportsLongNames($datasource->type);
+  }
+
+  /**
+   * Funkce vracející pole se seznamy databází dle podpory konkrétních typů importovaných dat
+   * @return array
+   */
+  public function getDbTypesByImportTypes(){
+    $result=[];
+    $dataServicesConfigByDbTypes=$this->getDataServicesConfigByDbTypes();
+    if (!empty($dataServicesConfigByDbTypes)){
+      foreach($dataServicesConfigByDbTypes as $dbType=>$dbTypeConfig){
+        if (!empty($dbTypeConfig['supportedImportTypes'])){
+          foreach($dbTypeConfig['supportedImportTypes'] as $importType){
+            if (!isset($result[$importType])){
+              $result[$importType]=[];
+            }
+            $result[$importType][]=$dbType;
+          }
+        }
+      }
+    }
+    return $result;
+  }
+
+
+  /**
+   * Funkce vracející podporované datové typy dle vybraného typu databáze
+   * @param string $dbType
+   * @return string[]
+   */
+  public function getSupportedImportTypesByDbType($dbType){
+    $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
+    return $databaseConfig['supportedImportTypes'];
   }
 
   /**
