@@ -154,6 +154,122 @@ class RuleSetsPresenter extends BasePresenter{
     $this->sendJsonResponse($result);
   }
 
+  /**
+   * Akce pro přidání pravidel do rulesetu
+   * @param int $id
+   * @param string|int $rules - ID pravidel oddělená čárkami či středníky
+   * @param string $relation = 'positive'
+   * @param string $result = "simple" (varianty "simple", "rules")
+   */
+  public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE, $result="simple"){
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    /** @var int[] $ruleIdsArr */
+    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
+    if (!empty($ruleIdsArr)){
+      foreach($ruleIdsArr as $ruleId){
+        if (!$ruleId){continue;}
+        try{
+          $rule=$this->rulesFacade->findRule($ruleId);
+          $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
+        }catch (\Exception $e){continue;}
+      }
+    }
+    if ($result=="rules"){
+      $result=[
+        'ruleset'=>$ruleSet->getDataArr(),
+        'rules'=>[]
+      ];
+      $result['rules']=$this->prepareRulesResult($ruleIdsArr,$ruleSet);
+      $this->sendJsonResponse($result);
+    }else{
+      $this->sendJsonResponse(['state'=>'ok']);
+    }
+  }
+
+  /**
+   * Akce pro odebrání pravidel z rulesetu
+   * @param int $id
+   * @param string|int $rules
+   * @param string $result = "simple" (varianty "simple", "rules")
+   */
+  public function actionRemoveRules($id, $rules, $result="simple"){
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    /** @var int[] $ruleIdsArr */
+    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
+    if (!empty($ruleIdsArr)){
+      foreach($ruleIdsArr as $ruleId){
+        if (!$ruleId){continue;}
+        try{
+          $rule=$this->rulesFacade->findRule($ruleId);
+          $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
+        }catch (\Exception $e){continue;}
+      }
+    }
+    $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
+
+    if ($result=="rules"){
+      $result=[
+        'ruleset'=>$ruleSet->getDataArr(),
+        'rules'=>[]
+      ];
+      $result['rules']=$this->prepareRulesResult($ruleIdsArr, $ruleSet);
+      $this->sendJsonResponse($result);
+    }else{
+      $this->sendJsonResponse(['state'=>'ok']);
+    }
+  }
+
+  /**
+   * Akce pro odebrání všech pravidel z rulesetu
+   * @param int $id
+   */
+  public function actionRemoveAllRules($id){
+    //najití RuleSetu a kontroly
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //smazání
+    $this->ruleSetsFacade->removeAllRulesFromRuleSet($ruleSet);
+    $this->sendJsonResponse(['state'=>'ok']);
+  }
+
+  /**
+   * Funkce připravující pole s informacemi o vybraných pravidlech pro vrácení v rámci JSON odpovědi
+   * @param int[] $ruleIdsArr
+   * @param RuleSet|int $ruleSet
+   * @return array
+   */
+  private function prepareRulesResult($ruleIdsArr, $ruleSet=null){
+    $result=[];
+    if (!empty($ruleIdsArr)) {
+      foreach ($ruleIdsArr as $ruleId) {
+        if (!$ruleId) {
+          continue;
+        }
+        try {
+          $rule = $this->rulesFacade->findRule($ruleId);
+          $result[$rule->ruleId]=$rule->getBasicDataArr();
+          if (!empty($ruleSet)){
+            $relation=$rule->getRuleSetRelation($ruleSet);
+            if (!empty($relation)){
+              $result[$rule->ruleId]['ruleSetRelation']=$relation->relation;
+            }else{
+              $result[$rule->ruleId]['ruleSetRelation']='';
+            }
+          }
+        }catch (\Exception $e){continue;}
+      }
+    }
+    return $result;
+  }
+
+  #endregion akce pro manipulaci s pravidly v rulesetech
+
+    #region akce pro porovnávání pravidel
+
     /**
      * Akce vracející jeden konkrétní ruleset se jmény pravidel a vztahy z datasource daného mineru
      * @param Int $id RuleSet id
@@ -332,119 +448,7 @@ class RuleSetsPresenter extends BasePresenter{
         return $rulePartAttributes;
     }
 
-  /**
-   * Akce pro přidání pravidel do rulesetu
-   * @param int $id
-   * @param string|int $rules - ID pravidel oddělená čárkami či středníky
-   * @param string $relation = 'positive'
-   * @param string $result = "simple" (varianty "simple", "rules")
-   */
-  public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE, $result="simple"){
-    //najití RuleSetu a kontroly
-    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    /** @var int[] $ruleIdsArr */
-    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
-    if (!empty($ruleIdsArr)){
-      foreach($ruleIdsArr as $ruleId){
-        if (!$ruleId){continue;}
-        try{
-          $rule=$this->rulesFacade->findRule($ruleId);
-          $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
-        }catch (\Exception $e){continue;}
-      }
-    }
-    if ($result=="rules"){
-      $result=[
-        'ruleset'=>$ruleSet->getDataArr(),
-        'rules'=>[]
-      ];
-      $result['rules']=$this->prepareRulesResult($ruleIdsArr,$ruleSet);
-      $this->sendJsonResponse($result);
-    }else{
-      $this->sendJsonResponse(['state'=>'ok']);
-    }
-  }
-
-  /**
-   * Akce pro odebrání pravidel z rulesetu
-   * @param int $id
-   * @param string|int $rules
-   * @param string $result = "simple" (varianty "simple", "rules")
-   */
-  public function actionRemoveRules($id, $rules, $result="simple"){
-    //najití RuleSetu a kontroly
-    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    /** @var int[] $ruleIdsArr */
-    $ruleIdsArr=explode(',',str_replace(';',',',$rules));
-    if (!empty($ruleIdsArr)){
-      foreach($ruleIdsArr as $ruleId){
-        if (!$ruleId){continue;}
-        try{
-          $rule=$this->rulesFacade->findRule($ruleId);
-          $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
-        }catch (\Exception $e){continue;}
-      }
-    }
-    $this->ruleSetsFacade->updateRuleSetRulesCount($ruleSet);
-
-    if ($result=="rules"){
-      $result=[
-        'ruleset'=>$ruleSet->getDataArr(),
-        'rules'=>[]
-      ];
-      $result['rules']=$this->prepareRulesResult($ruleIdsArr, $ruleSet);
-      $this->sendJsonResponse($result);
-    }else{
-      $this->sendJsonResponse(['state'=>'ok']);
-    }
-  }
-
-  /**
-   * Akce pro odebrání všech pravidel z rulesetu
-   * @param int $id
-   */
-  public function actionRemoveAllRules($id){
-    //najití RuleSetu a kontroly
-    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    //smazání
-    $this->ruleSetsFacade->removeAllRulesFromRuleSet($ruleSet);
-    $this->sendJsonResponse(['state'=>'ok']);
-  }
-
-  /**
-   * Funkce připravující pole s informacemi o vybraných pravidlech pro vrácení v rámci JSON odpovědi
-   * @param int[] $ruleIdsArr
-   * @param RuleSet|int $ruleSet
-   * @return array
-   */
-  private function prepareRulesResult($ruleIdsArr, $ruleSet=null){
-    $result=[];
-    if (!empty($ruleIdsArr)) {
-      foreach ($ruleIdsArr as $ruleId) {
-        if (!$ruleId) {
-          continue;
-        }
-        try {
-          $rule = $this->rulesFacade->findRule($ruleId);
-          $result[$rule->ruleId]=$rule->getBasicDataArr();
-          if (!empty($ruleSet)){
-            $relation=$rule->getRuleSetRelation($ruleSet);
-            if (!empty($relation)){
-              $result[$rule->ruleId]['ruleSetRelation']=$relation->relation;
-            }else{
-              $result[$rule->ruleId]['ruleSetRelation']='';
-            }
-          }
-        }catch (\Exception $e){continue;}
-      }
-    }
-    return $result;
-  }
-
-  #endregion akce pro manipulaci s pravidly v rulesetech
+    #endregion akce pro porovnávání pravidel
 
   #region injections
   /**
