@@ -328,8 +328,8 @@ class RuleSetsPresenter extends BasePresenter{
             }
             $ruleObj = $this->rulesFacade->findRule($rule);
             $ruleParts = [
-                "ant" => $this->decomposeRulePart($ruleObj, "antecedent"),
-                "con" => $this->decomposeRulePart($ruleObj, "consequent")
+                "ant" => $this->decomposeCedent($ruleObj->antecedent),
+                "con" => $this->decomposeCedent($ruleObj->consequent)
             ];
             $result['max'] = 0;
             $result['rule'] = [
@@ -385,8 +385,8 @@ class RuleSetsPresenter extends BasePresenter{
         $ruleSetRuleDecomposed = json_decode($ruleSetRule->decomposed, true);
         if(!$ruleSetRuleDecomposed){ // if hasn't rule decomposed yet
             $ruleSetRuleDecomposed = [
-                "ant" => $this->decomposeRulePart($ruleSetRule, "antecedent"),
-                "con" => $this->decomposeRulePart($ruleSetRule, "consequent")
+                "ant" => $this->decomposeCedent($ruleSetRule->antecedent),
+                "con" => $this->decomposeCedent($ruleSetRule->consequent)
             ];
             try{
                 $this->knowledgeBaseFacade->setDecomposedRuleSetRule($ruleSetRule->ruleId, json_encode($ruleSetRuleDecomposed));
@@ -430,22 +430,24 @@ class RuleSetsPresenter extends BasePresenter{
     }
 
     /**
-     * @param Rule $rule pravidlo na dekomponování
-     * @param String $rulePart název části pravidla
+     * @param Cedent $cedent cedent na dekomponování
      * @return Array atribut => hodnota
      */
-    private function decomposeRulePart($rule, $rulePart){
-        $rulePartAttributes = [];
-        foreach($rule->{$rulePart}->ruleAttributes as $ruleAttribute){
+    private function decomposeCedent($cedent){
+        $ruleAttributes = [];
+        foreach($cedent->cedents as $childCedent){
+            $ruleAttributes = array_merge($ruleAttributes, $this->decomposeCedent($childCedent));
+        }
+        foreach($cedent->ruleAttributes as $ruleAttribute){
             if($ruleAttribute->value){
-                $rulePartAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->value->valueId;
+                $ruleAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->value->valueId;
             } elseif($ruleAttribute->valuesBin){
-                $rulePartAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->valuesBin->valuesBinId;
+                $ruleAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->valuesBin->valuesBinId;
             } else{
-                $rulePartAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = "";
+                $ruleAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = "";
             }
         }
-        return $rulePartAttributes;
+        return $ruleAttributes;
     }
 
     #endregion akce pro porovnávání pravidel
