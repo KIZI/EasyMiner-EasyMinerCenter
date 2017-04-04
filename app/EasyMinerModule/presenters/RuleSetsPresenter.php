@@ -438,11 +438,11 @@ class RuleSetsPresenter extends BasePresenter{
         $rulePartAttributes = [];
         foreach($rule->{$rulePart}->ruleAttributes as $ruleAttribute){
             if($ruleAttribute->value){
-                $rulePartAttributes[$ruleAttribute->attribute->attributeId] = $ruleAttribute->value->valueId;
+                $rulePartAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->value->valueId;
             } elseif($ruleAttribute->valuesBin){
-                $rulePartAttributes[$ruleAttribute->attribute->attributeId] = $ruleAttribute->valuesBin->valuesBinId;
+                $rulePartAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->valuesBin->valuesBinId;
             } else{
-                $rulePartAttributes[$ruleAttribute->attribute->attributeId] = "";
+                $rulePartAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = "";
             }
         }
         return $rulePartAttributes;
