@@ -316,11 +316,12 @@ class RuleSetsPresenter extends BasePresenter{
         }catch (\Exception $e){
             $ruleSimilarity = null;
         }
-        if(false && $ruleSimilarity){ // TO-DO lastmodified ruleset
+        if($ruleSimilarity && ($ruleSimilarity->resultDate->getTimestamp() >= $ruleSet->lastModified->getTimestamp())){ // result from past, which is newer than Rule set last modification
             $result['max'] = $ruleSimilarity->rate;
             $result['rule'] = [
-                'id' => $ruleSimilarity->knowledgeBaseRuleId,
-                'relation' => $ruleSimilarity->relation
+                RuleRuleRelationsRepository::COLUMN_RULESET_RULE => $ruleSimilarity->knowledgeBaseRuleId,
+                RuleRuleRelationsRepository::COLUMN_RELATION => $ruleSimilarity->relation,
+                RuleRuleRelationsRepository::COLUMN_RATE=> $ruleSimilarity->rate
             ];
         } elseif ($ruleSet->rulesCount>0 && $rule){
             if(!$ruleSimilarity){

@@ -12,6 +12,7 @@ use LeanMapper\Entity;
  * @property int $knowledgeBaseRuleId
  * @property string $relation m:Enum(self::RELATION_*)
  * @property float $rate
+ * @property \DateTime|null $resultDate = null
  */
 class KnowledgeBaseRuleRelation extends Entity{
     const RELATION_POSITIVE='positive';

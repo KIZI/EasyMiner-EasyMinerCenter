@@ -87,6 +87,7 @@ class KnowledgeBaseFacade {
         $ruleToKBRuleRelation->knowledgeBaseRuleId=$KBrule;
         $ruleToKBRuleRelation->relation=$relation;
         $ruleToKBRuleRelation->rate=$rate;
+        $ruleToKBRuleRelation->resultDate=new \DateTime();
         $result=$this->knowledgeBaseRuleRelationsRepository->persist($ruleToKBRuleRelation);
         return $result;
     }
