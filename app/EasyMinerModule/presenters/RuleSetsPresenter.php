@@ -339,8 +339,11 @@ class RuleSetsPresenter extends BasePresenter{
 
             $ruleCompareResults = $this->knowledgeBaseFacade->getRulesComparingResults($rule, $id);
             if(count($ruleCompareResults) > 0){
-                $result['rule'] = array_slice($ruleCompareResults,0,1)[0];
-                $result['max'] = $result['rule'][RuleRuleRelationsRepository::COLUMN_RATE];
+                $bestResult = array_slice($ruleCompareResults,0,1)[0];
+                if($bestResult[RuleRuleRelationsRepository::COLUMN_RATE] > 0){
+                    $result['rule'] = $bestResult;
+                    $result['max'] = $bestResult[RuleRuleRelationsRepository::COLUMN_RATE];
+                }
             }
 
             foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRule){ //TO-DO save in cache/session etc.
