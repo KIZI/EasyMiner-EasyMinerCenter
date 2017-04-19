@@ -13,7 +13,7 @@ use LeanMapper\Entity;
  * @property Miner $miner m:hasOne
  * @property string $type = 'cloud' m:Enum(self::TYPE_*)
  * @property float $minSupport
- * @property string $state m:Enum(self::STATE_*)
+ * @property string $state = 'new' m:Enum(self::STATE_*)
  * @property int|null $minerOutliersTaskId = null
  * @property string $resultsUrl = ''
  * @property \DateTime $updated
@@ -45,6 +45,14 @@ class OutliersTask extends Entity{
       'minSupport'=>$this->minSupport,
       'state'=>$this->state
     ];
+  }
+
+
+  /**
+   * @return OutliersTaskState
+   */
+  public function getTaskState(){
+    return new OutliersTaskState($this,$this->state,$this->resultsUrl);
   }
 
 }

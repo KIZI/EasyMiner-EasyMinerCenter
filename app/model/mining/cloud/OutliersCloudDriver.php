@@ -12,6 +12,7 @@ use EasyMinerCenter\Model\Mining\Entities\Outlier;
 use EasyMinerCenter\Model\Mining\Exceptions\MinerCommunicationException;
 use EasyMinerCenter\Model\Mining\Exceptions\OutliersTaskInvalidArgumentException;
 use EasyMinerCenter\Model\Mining\IOutliersMiningDriver;
+use Nette\Utils\Json;
 
 /**
  * Class OutliersCloudDriver - driver pro práci s outliery pomocí dolovací služby easyminer-miner
@@ -21,6 +22,11 @@ use EasyMinerCenter\Model\Mining\IOutliersMiningDriver;
 class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMiningDriver{
   /** @var  OutliersTask $outliersTask */
   private $outliersTask;
+
+  #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
+  const MAX_MINING_REQUESTS=5;
+  const REQUEST_DELAY=1;// delay between requests (in seconds)
+  #endregion
 
   /**
    * @param OutliersTask $outliersTask
@@ -38,9 +44,30 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   /**
    * Funkce pro definování úlohy na základě dat z EasyMineru
    * @return OutliersTaskState
+   * @throws \Exception
    */
   public function startMining(){
-    // TODO: Implement startMining() method.
+    //import úlohy a spuštění dolování...
+    $numRequests=1;
+    sendStartRequest:
+    try{
+      #region pracovní zjednodušený request
+      $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/outlier-detection', Json::encode([
+        'datasetId'=>$this->outliersTask->miner->metasource->ppDatasetId,
+        'minSupport'=>$this->outliersTask->minSupport
+      ]),'POST',[
+        'Content-Type'=>'application/json; charset=utf-8'
+      ],$this->getApiKey(),$responseCode);
+      $taskState=$this->parseResponse($response,$responseCode);
+      #endregion
+    }catch (\Exception $e){
+      if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
+    }
+    if (!empty($taskState)){
+      return $taskState;
+    }else{
+      throw new \Exception('Task import failed!');
+    }
   }
 
   /**
@@ -48,8 +75,63 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
    * @return OutliersTaskState
    */
   public function checkOutliersTaskState(){
-    // TODO: Implement checkOutliersTaskState() method.
+    if ($this->outliersTask->state==OutliersTask::STATE_IN_PROGRESS){
+      if($this->outliersTask->resultsUrl!=''){
+        $numRequests=1;
+        sendStartRequest:
+        try{
+          #region zjištění stavu úlohy
+          $url=$this->getRemoteMinerUrl().'/'.$this->outliersTask->resultsUrl.'?apiKey='.$this->getApiKey();
+          $response=self::curlRequestResponse($url,'','GET',[],$this->getApiKey(),$responseCode);
+          $taskState=$this->parseResponse($response,$responseCode);
+          if ($taskState!==null){
+            return $taskState;
+          }
+          #endregion
+        }catch (\Exception $e){
+          if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
+        }
+      }else{
+        $taskState=$this->outliersTask->getTaskState();
+        $taskState->state=OutliersTask::STATE_FAILED;
+        return $taskState;
+      }
+    }
+    return $this->outliersTask->getTaskState();
   }
+
+  /**
+   * Function for parsing of task mining start/check state request
+   * @param string $response
+   * @param int $responseCode
+   * @return OutliersTaskState|null
+   */
+  private function parseResponse($response, $responseCode){
+    if ($responseCode==202 || $responseCode==204){
+      //task accepted
+      $responseData=Json::decode($response,Json::FORCE_ARRAY);
+      if (!empty($responseData['statusLocation']) && !empty($responseData['taskId'])){
+        //došlo ke spuštění úlohy...
+        $taskState=$this->outliersTask->getTaskState();
+        $taskState->state=OutliersTask::STATE_IN_PROGRESS;
+        $taskState->resultsUrl='outlier-detection/'.$responseData['taskId'];
+        return $taskState;
+      }
+    }elseif($responseCode==201){
+      $responseData=Json::decode($response,Json::FORCE_ARRAY);
+      if (!empty($responseData['id'])){
+        $taskState=$this->outliersTask->getTaskState();
+        $taskState->resultsUrl=null;
+        $taskState->minerOutliersTaskId=$responseData['id'];
+        $taskState->state=OutliersTask::STATE_SOLVED;
+        return $taskState;
+      }
+    }elseif($responseCode>=400){
+      return new OutliersTaskState($this->outliersTask,OutliersTask::STATE_FAILED);
+    }
+    return null;
+  }
+
 
   /**
    * Funkce pro nastavení aktivní úlohy

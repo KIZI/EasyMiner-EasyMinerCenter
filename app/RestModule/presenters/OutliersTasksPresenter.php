@@ -2,9 +2,11 @@
 
 namespace EasyMinerCenter\RestModule\Presenters;
 
-use Drahak\Restful\NotImplementedException;
+use Drahak\Restful\Resource\Link;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Libs\RequestHelper;
+use EasyMinerCenter\Model\Mining\Entities\Outlier;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTask;
 use EasyMinerCenter\Model\EasyMiner\Facades\OutliersTasksFacade;
@@ -20,6 +22,11 @@ use Nette\Application\BadRequestException;
  */
 class OutliersTasksPresenter extends BaseResourcePresenter {
   use MinersFacadeTrait;
+
+  /** @const MINING_STATE_CHECK_INTERVAL - doba čekání mezi kontrolami stavu úlohy (v sekundách) */
+  const MINING_STATE_CHECK_INTERVAL=1;
+  /** @const MINING_TIMEOUT_INTERVAL - časový interval pro dokončení dolování od timestampu spuštění úlohy (v sekundách) */
+  const MINING_TIMEOUT_INTERVAL=600;
 
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
@@ -57,6 +64,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
   public function actionRead($id){
     $outliersTask=$this->findOutliersTaskWithCheckAccess($id);
     //TODO kontrola, jestli je outlierstask pořád dostupná na serveru
+
     $this->setXmlMapperElements('outliersTask');
     $this->resource=$outliersTask->getDataArr();
     $this->sendResource();
@@ -109,11 +117,28 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    *       )
    *     )
    *   ),
-   *   @SWG\Response(response=404, description="Requested outlier detection task was not found.")
+   *   @SWG\Response(response=404, description="Requested outlier detection task was not found or results are not available.")
    * )
    */
   public function actionReadOutliers($id, $limit, $offset=0){
-    throw new NotImplementedException();//FIXME
+    /** @var OutliersTask $task */
+    $task=$this->findOutliersTaskWithCheckAccess($id);
+    $miningDriver=$this->minersFacade->getOutliersTaskMiningDriver($task,$this->currentUser);
+    if ($task->state==OutliersTask::STATE_SOLVED){
+      //TODO kontrola, jestli je úloha dostupná na serveru
+
+      /** @var Outlier[] $outliers */
+      $outliers[]=$miningDriver->getOutliersTaskResults($limit,$offset);
+
+      $this->resource=[
+        'outliersTask'=>$task->getDataArr(),
+        'outlier'=>$outliers
+      ];
+
+      $this->sendResource();
+    }else{
+      $this->error('Outliers task results are not available!',404);
+    }
   }
 
   #region actionCreate
@@ -213,32 +238,30 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionReadStart($id) {
-    //TODO implementovat...
-    throw new NotImplementedException();
-    /*
-
-    $task=$this->findTaskWithCheckAccess($id);
-    $miningDriver=$this->minersFacade->getTaskMiningDriver($task, $this->currentUser);
-    if ($task->state==Task::STATE_NEW){
-      //runTask
+    /** @var OutliersTask $task */
+    $task=$this->findOutliersTaskWithCheckAccess($id);
+    $miningDriver=$this->minersFacade->getOutliersTaskMiningDriver($task,$this->currentUser);
+    if ($task->state==OutliersTask::STATE_NEW){
+      //run task
       $taskState=$miningDriver->startMining();
-      $this->tasksFacade->updateTaskState($task,$taskState);
+      $this->outliersTasksFacade->updateTaskState($task,$taskState);
 
       //spustíme background požadavek na kontrolu stavu úlohy (jestli je dokončená atp.
       $backgroundImportUrl=$this->getAbsoluteLink('readMiningCheckState',['id'=>$id,'relation'=>'miningCheckState','timeout'=>time()+self::MINING_TIMEOUT_INTERVAL],Link::SELF,true);
       RequestHelper::sendBackgroundGetRequest($backgroundImportUrl);
 
       //send task simple details
-      $this->resource=$task->getDataArr(false);
+      $this->setXmlMapperElements('outliersTask');
+      $this->resource=$task->getDataArr();
       $this->sendResource();
+
     }else{
       $this->forward('readState',['id'=>$id]);
     }
-    */
   }
 
   /**
-   * Akce pro spuštění dolování konkrétní úlohy
+   * Action for check of the task state
    * @param int $id
    * @SWG\Get(
    *   tags={"Outliers"},
@@ -264,13 +287,11 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionReadState($id) {
-    throw new NotImplementedException();//FIXME
-    /*
-    $task=$this->findTaskWithCheckAccess($id);
-    //send task simple details
-    $this->resource=$task->getDataArr(false);
+    /** @var OutliersTask $task */
+    $task=$this->findOutliersTaskWithCheckAccess($id);
+    $this->setXmlMapperElements('outliersTask');
+    $this->resource=$task->getDataArr();
     $this->sendResource();
-    */
   }
   #endregion actionStart/actionState
 
@@ -313,6 +334,38 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
     $this->sendResource();
   }
   #endregion actionDelete
+
+  /**
+   * Akce pro periodickou kontrolu stavu úlohy na serveru
+   * @param int $id - ID úlohy, kterou chceme zkontrolovat
+   */
+  public function actionReadMiningCheckState($id) {
+    //zakážeme ukončení skriptu při zavření přenosového kanálu
+    RequestHelper::ignoreUserAbort();
+
+    //nejprve pozastavíme běh skriptu (abychom měli nějakou pauzu mezi jednotlivými kontrolami stavu úlohy)
+    sleep(self::MINING_STATE_CHECK_INTERVAL);
+
+    //najdeme úlohu a mining driver
+    $task=$this->findOutliersTaskWithCheckAccess($id);
+    $miningDriver=$this->minersFacade->getOutliersTaskMiningDriver($task,$this->currentUser);
+
+    //zkontrolujeme stav vzdálené úlohy a zaktualizujeme ho
+    $taskState=$miningDriver->checkOutliersTaskState();
+    $this->outliersTasksFacade->updateTaskState($task,$taskState);
+
+    #region akce v závislosti na aktuálním běhu úlohy
+    if ($taskState->state==OutliersTask::STATE_IN_PROGRESS){
+      //odešleme samostatný požadavek na opakované načtení této akce (se všemi stávajícími parametry)
+      RequestHelper::sendBackgroundGetRequest($this->getAbsoluteLink('self',[],Link::SELF,true));
+    }
+    #endregion
+    $this->sendTextResponse(time().' DONE '.$this->action);
+  }
+
+
+
+
 
   /**
    * Funkce pro nalezení úlohy dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným minerem

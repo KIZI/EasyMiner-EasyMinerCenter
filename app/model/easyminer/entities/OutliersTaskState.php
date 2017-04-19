@@ -9,6 +9,7 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @author Stanislav Vojíř
  * @property string|null $state
+ * @property int|null $minerOutliersTaskId
  * @property string|null $resultsUrl
  */
 class OutliersTaskState extends Object{
@@ -18,6 +19,8 @@ class OutliersTaskState extends Object{
   private $state;
   /** @var string|null $resultsUrl */
   private $resultsUrl;
+  /** @var int $minerTaskId */
+  private $minerOutliersTaskId;
 
   /**
    * TaskState constructor.
@@ -76,6 +79,20 @@ class OutliersTaskState extends Object{
   }
 
   /**
+   * @return int
+   */
+  public function getMinerOutliersTaskId(){
+    return $this->minerOutliersTaskId;
+  }
+
+  /**
+   * @param int $minerOutliersTaskId
+   */
+  public function setMinerOutliersTaskId($minerOutliersTaskId){
+    $this->minerOutliersTaskId=$minerOutliersTaskId;
+  }
+
+  /**
    * Funkce vracející info o stavu úlohy v podobě pole
    * @return array
    */
@@ -86,6 +103,7 @@ class OutliersTaskState extends Object{
     ];
 
     $result['resultsUrl']=$this->resultsUrl;
+    $result['minerOutliersTaskId']=$this->minerOutliersTaskId;
 
     return $result;
   }

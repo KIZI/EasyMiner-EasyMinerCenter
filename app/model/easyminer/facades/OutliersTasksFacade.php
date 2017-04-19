@@ -5,10 +5,11 @@ namespace EasyMinerCenter\Model\EasyMiner\Facades;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTask;
+use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTaskState;
 use EasyMinerCenter\Model\EasyMiner\Repositories\OutliersTasksRepository;
 
 /**
- * Class OutliersTasksFacade - fasáda pro práci s OutliersTasks
+ * Class OutliersTasksFacade - facade for work with OutliersTasks
  * @package EasyMinerCenter\Model\EasyMiner\Facades
  * @author Stanislav Vojíř
  */
@@ -63,6 +64,30 @@ class OutliersTasksFacade {
       return false;
     }
     return true;
+  }
+
+  /**
+   * @param OutliersTask $outliersTask
+   * @param OutliersTaskState $outliersTaskState
+   */
+  public function updateTaskState(OutliersTask &$outliersTask,OutliersTaskState $outliersTaskState){
+    /** @var OutliersTask $task - aktualizujeme data o konkrétní úloze*/
+    $outliersTask=$this->findOutliersTask($outliersTask->outliersTaskId);
+
+    //stav řešení úlohy
+    if (($outliersTask->state!=OutliersTask::STATE_SOLVED)&&($outliersTask->state!=$outliersTaskState->state)){
+      $outliersTask->state=$outliersTaskState->state;
+    }
+
+    //URL s výsledky
+    $outliersTask->resultsUrl=(!empty($outliersTaskState->resultsUrl)?$outliersTaskState->resultsUrl:'');
+
+    //ID of remote miner task
+    $outliersTask->minerOutliersTaskId=$outliersTaskState->minerOutliersTaskId;
+
+    if ($outliersTask->isModified()){
+      $this->saveOutliersTask($outliersTask);
+    }
   }
 
 }
