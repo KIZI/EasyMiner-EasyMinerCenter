@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
 use EasyMinerCenter\Model\EasyMiner\Entities\KnowledgeBaseRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
@@ -439,8 +440,11 @@ class RuleSetsPresenter extends BasePresenter{
      */
     private function decomposeCedent($cedent){
         $ruleAttributes = [];
+        if(!($cedent instanceof Cedent)){
+            return $ruleAttributes;
+        }
         foreach($cedent->cedents as $childCedent){
-            $ruleAttributes = array_merge($ruleAttributes, $this->decomposeCedent($childCedent));
+            $ruleAttributes = $ruleAttributes + $this->decomposeCedent($childCedent);
         }
         foreach($cedent->ruleAttributes as $ruleAttribute){
             if($ruleAttribute->value){
