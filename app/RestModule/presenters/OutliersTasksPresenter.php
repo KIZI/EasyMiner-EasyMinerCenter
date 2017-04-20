@@ -113,7 +113,8 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    *       @SWG\Property(property="outliersTask",ref="#/definitions/OutliersTaskResponseWithOffsetAndLimit"),
    *       @SWG\Property(
    *         property="outlier",
-   *         type="array"
+   *         type="array",
+   *         @SWG\Items(ref="#/definitions/OutlierDetails")
    *       )
    *     )
    *   ),
@@ -128,7 +129,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
       //TODO kontrola, jestli je úloha dostupná na serveru
 
       /** @var Outlier[] $outliers */
-      $outliers[]=$miningDriver->getOutliersTaskResults($limit,$offset);
+      $outliers=$miningDriver->getOutliersTaskResults($limit,$offset);
 
       $this->resource=[
         'outliersTask'=>$task->getDataArr(),
@@ -428,6 +429,14 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    *   @SWG\Property(property="state",type="string",description="State of the task"),
    *   @SWG\Property(property="offset",type="integer",default=0,description="Offset"),
    *   @SWG\Property(property="limit",type="integer",default=0,description="Limit")
+   * )
+   * @SWG\Definition(
+   *   definition="OutlierDetails",
+   *   title="OutlierDetails",
+   *   required={"id","score","attributeValues"},
+   *   @SWG\Property(property="id",type="integer",default=0),
+   *   @SWG\Property(property="score",type="float",default=0),
+   *   @SWG\Property(property="attributeValues",type="object")
    * )
    */
 }

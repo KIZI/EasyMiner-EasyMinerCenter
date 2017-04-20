@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\Mining\Cloud;
 
+use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTaskState;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -22,6 +23,8 @@ use Nette\Utils\Json;
 class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMiningDriver{
   /** @var  OutliersTask $outliersTask */
   private $outliersTask;
+  /** @var  Attribute[] $attributesArrByPpDatasetAttributeId */
+  private $attributesArrByPpDatasetAttributeId;
 
   #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
   const MAX_MINING_REQUESTS=5;
@@ -52,8 +55,9 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
     sendStartRequest:
     try{
       #region pracovní zjednodušený request
+      $minerOutliersTask=$this->outliersTask->getMinerOutliersTask();
       $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/outlier-detection', Json::encode([
-        'datasetId'=>$this->outliersTask->miner->metasource->ppDatasetId,
+        'datasetId'=>$minerOutliersTask->dataset,
         'minSupport'=>$this->outliersTask->minSupport
       ]),'POST',[
         'Content-Type'=>'application/json; charset=utf-8'
@@ -180,10 +184,64 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
    * @param int $limit
    * @param int $offset
    * @return Outlier[]
+   * @throws MinerCommunicationException
    */
   public function getOutliersTaskResults($limit, $offset=0){
-    // TODO: Implement getOutliersTaskResults() method.
+    try{
+      $minerOutliersTask=$this->outliersTask->getMinerOutliersTask();
+      $response=self::curlRequestResponse($this->getRequestUrl('/result/'.$minerOutliersTask->dataset.'/'.$minerOutliersTask->id.'/outliers?offset='.$offset.'&limit='.$limit),'','GET',[],$this->getApiKey(),$responseCode);
+      if ($responseCode=='200'){
+        //zpracování výsledků
+        return $this->parseOutliersTaskResultsResponse($response);
+      }else{
+        throw new MinerCommunicationException('Results not found.');
+      }
+    }catch(MinerCommunicationException $e){
+      throw $e;
+    }
   }
+
+  /**
+   * @param string $response
+   * @return Outlier[]
+   */
+  private function parseOutliersTaskResultsResponse($response){
+    $responseData=Json::decode($response,Json::FORCE_ARRAY);
+    $result=[];
+    if (!empty($responseData)){
+      foreach($responseData as $responseItem){
+        $outlier=new Outlier();
+        $outlier->score=$responseItem['score'];
+        $outlier->id=$responseItem['instance']['id'];
+        if (!empty($responseItem['instance']['values'])){
+          foreach($responseItem['instance']['values'] as $valueItem){
+            $outlier->attributeValues[$this->getAttributeName($valueItem['attribute'])]=$valueItem['value'];
+          }
+        }
+        $result[]=$outlier;
+      }
+    }
+
+    return $result;
+  }
+
+  /**
+   * Function returning the name of attribute with the given ppAttributeId
+   * @param string $ppAttributeId
+   * @return string
+   */
+  private function getAttributeName($ppAttributeId){
+    if (empty($this->attributesArrByPpDatasetAttributeId)){
+      $attributesArr=$this->outliersTask->miner->metasource->attributes;
+      if (!empty($attributesArr)){
+        foreach($attributesArr as $attribute){
+          $this->attributesArrByPpDatasetAttributeId[$attribute->ppDatasetAttributeId]=$attribute;
+        }
+      }
+    }
+    return $this->attributesArrByPpDatasetAttributeId[$ppAttributeId]->name;
+  }
+
 
   /**
    * Funkce vracející URL pro odeslání požadavku na datovou službu
