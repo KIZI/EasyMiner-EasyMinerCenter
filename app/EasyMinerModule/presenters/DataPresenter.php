@@ -374,7 +374,7 @@ class DataPresenter extends BasePresenter{
       ','=>'Comma (,)',
       ';'=>'Semicolon (;)',
       '|'=>'Vertical line (|)',
-      '\t'=>'Tab (\t)'
+      chr(9) =>'Tab (\t)'
     ])->setRequired();
 
     $form->addSelect('encoding','Encoding:',[
