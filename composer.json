@@ -3,7 +3,7 @@
 	"description": "EasyMinerCenter is a data mining project developed on University of Economics, Prague",
 	"homepage": "http://easyminer.eu",
 	"type": "project",
-	"license": ["BSD-3-Clause"],
+	"license": ["Apache-2.0"],
 	"authors": [
 		{
 			"name": "EasyMiner Project Group",
