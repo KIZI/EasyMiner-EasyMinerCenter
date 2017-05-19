@@ -2,7 +2,6 @@
 
 namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\Validation\IValidator;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
@@ -28,8 +27,6 @@ class MinersPresenter extends BaseResourcePresenter{
   private $ruleSetsFacade;
   /** @var  MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
-  /** @var  DatabasesFacade $databasesFacade */
-  private $databasesFacade;
   /** @var  MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
 
@@ -383,12 +380,6 @@ class MinersPresenter extends BaseResourcePresenter{
    */
   public function injectMetaAttributesFacade(MetaAttributesFacade $metaAttributesFacade) {
     $this->metaAttributesFacade=$metaAttributesFacade;
-  }
-  /**
-   * @param DatabasesFacade $databasesFacade
-   */
-  public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
-    $this->databasesFacade=$databasesFacade;
   }
   /**
    * @param MetasourcesFacade $metasourcesFacade

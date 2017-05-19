@@ -3,7 +3,6 @@
 namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Model\Data\Databases\IDatabase;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
@@ -26,8 +25,6 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   private $datasourcesFacade;
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
-  /** @var  DatabasesFacade $databasesFacade */
-  private $databasesFacade;
   /** @var  MinersFacade $minersFacade */
   private $minersFacade;
 
@@ -468,12 +465,6 @@ class DatasourcesPresenter extends BaseResourcePresenter{
    */
   public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade) {
     $this->fileImportsFacade=$fileImportsFacade;
-  }
-  /**
-   * @param DatabasesFacade $databasesFacade
-   */
-  public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
-    $this->databasesFacade=$databasesFacade;
   }
   /**
    * @param MinersFacade $minersFacade

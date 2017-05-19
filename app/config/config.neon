@@ -157,7 +157,6 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade(%usersPhotosDirectory%,%usersPhotosUrl%)
-	- EasyMinerCenter\Model\Data\Facades\DatabasesFacade
 
 	- EasyMinerCenter\Model\Data\Databases\DatabaseFactory(%databases%)
 	- EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory(%databases%)
@@ -194,7 +193,6 @@ services:
 
 	- EasyMinerCenter\Model\Data\Facades\FileImportsFacade(%csvImportsDirectory%,%databases%)
 
-	- EasyMinerCenter\EasyMinerModule\Components\IMetaAttributesSelectControlFactory
 	- EasyMinerCenter\EasyMinerModule\Components\MailerControlFactory(%emailFrom%)
 
 	- EasyMinerCenter\Model\Scoring\ScorerDriverFactory(%scorerDriverFactory%)
