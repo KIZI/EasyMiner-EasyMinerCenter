@@ -4,9 +4,10 @@ namespace EasyMinerCenter\InstallModule\Model;
 use Nette\Utils\Json;
 
 /**
- * Class PhpConfigManager - část modelu pro kontrolu jednotlivých PHP nastavení
- *
+ * Class PhpConfigManager - part of model for checking of PHP extensions, variables etc.
  * @package EasyMinerCenter\InstallModule\Model
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class PhpConfigManager {
 
@@ -19,9 +20,9 @@ class PhpConfigManager {
   const STATE_REQUIRED_OK='required_ok';
   const STATE_ERRORS='errors';
 
-  #region kontrola verze PHP
+  #region check PHP version
   /**
-   * Funkce vracející minimální požadovanou verzi PHP
+   * Method returning the minimal required version of PHP
    * @return string
    */
   public static function getPhpMinVersion() {
@@ -29,7 +30,7 @@ class PhpConfigManager {
       $composerConfig=Json::decode(file_get_contents(FilesManager::getRootDirectory().'/composer.json'),Json::FORCE_ARRAY);
       $phpVersion=$composerConfig['require']['php'];
       $phpVersion=ltrim($phpVersion,'>=~ ');
-    }catch (\Exception $e){/*chybu ignorujeme...*/}
+    }catch (\Exception $e){/*ignore the error...*/}
     if (empty($phpVersion)){
       $phpVersion='5.3.1';
     }
@@ -37,7 +38,7 @@ class PhpConfigManager {
   }
 
   /**
-   * Funkce pro kontrolu, jestli skript běží na minimální verzi PHP
+   * Method for check, if the script runs using at least the min version of PHP
    * @param string|null $requestedMinPhpVersion=null
    * @return bool
    */
@@ -45,11 +46,11 @@ class PhpConfigManager {
     if (empty($requestedMinPhpVersion)){$requestedMinPhpVersion=self::getPhpMinVersion();}
     return version_compare(PHP_VERSION,$requestedMinPhpVersion,'>=');
   }
-  #endregion kontrola verze PHP
+  #endregion check PHP version
 
 
   /**
-   * Funkce pro kontrolu splnění konfiguračních požadavků Nette
+   * Method for checking of Nette cofiguration requirements
    * @return array
    */
   private static function getNetteRequirementsResultsArr() {
@@ -205,46 +206,6 @@ class PhpConfigManager {
       'description' => 'Multibyte String function overloading is enabled. If it is enabled, some string function may not work properly.',
     ];
     #endregion extensions
-    /* AKTUÁLNĚ NEPOUŽÍVANÉ KONTROLY (funkce, které aplikace aktuálně nepoužívá)
-    $tests[] = [
-      'title' => 'Memcache extension',
-      'type'=>self::TEST_TYPE_EXTENSIONS,
-      'required' => FALSE,
-      'passed' => extension_loaded('memcache'),
-      'description' => 'Memcache extension is absent. You will not be able to use <code>Nette\Caching\Storages\MemcachedStorage</code>.',
-    ];
-
-    $tests[] = [
-      'title' => 'GD extension',
-      'type'=>self::TEST_TYPE_EXTENSIONS,
-      'required' => FALSE,
-      'passed' => extension_loaded('gd'),
-      'description' => 'GD extension is absent. You will not be able to use <code>Nette\Image</code>.',
-    ];
-
-    $tests[] = [
-      'title' => 'Bundled GD extension',
-      'type'=>self::TEST_TYPE_EXTENSIONS,
-      'required' => FALSE,
-      'passed' => extension_loaded('gd') && GD_BUNDLED,
-      'description' => 'Bundled GD extension is absent. You will not be able to use some functions such as <code>Nette\Image::filter()</code> or <code>Nette\Image::rotate()</code>.',
-    ];
-
-    $tests[] = array(
-      'title' => 'Fileinfo extension',
-      'type'=>self::TEST_TYPE_EXTENSIONS,
-      'required' => FALSE,
-      'passed' => extension_loaded('fileinfo'),
-      'description' => 'Fileinfo extension is absent.',
-    );
-
-    $tests[] = array(
-      'title' => 'Fileinfo extension or mime_content_type()',
-      'type'=>self::TEST_TYPE_EXTENSIONS,
-      'required' => FALSE,
-      'passed' => extension_loaded('fileinfo') || function_exists('mime_content_type'),
-      'description' => 'Fileinfo extension or function <code>mime_content_type()</code> are absent. You will not be able to determine mime type of uploaded files.',
-    );*/
     #region variables
     $tests[] = [
       'title' => 'HTTP_HOST or SERVER_NAME',
@@ -287,7 +248,7 @@ class PhpConfigManager {
   }
 
   /**
-   * Funkce pro kontrolu splnění konfiguračních požadavků EasyMinerCenter (navazuje na konfigurační požadavky nette)
+   * Method for checking of EasyMinerCenter configuration requirements (follows after the check of Nette configuration requirements)
    * @return array
    */
   private static function getApplicationRequirementsResultsArr() {
@@ -368,7 +329,7 @@ class PhpConfigManager {
   }
 
   /**
-   * Funkce pro kompletní otestování konfiguračních požadavků aplikace
+   * Method for checking of complete configuration requirements
    * @return array
    */
   public static function getTestResultsArr() {
@@ -389,7 +350,7 @@ class PhpConfigManager {
   }
 
   /**
-   * Funkce pro kontrolu, jestli jsou splněny všechny požadavky
+   * Method for checking of requirements
    * @param $resultsArr
    * @return string (self::STATE_*)
    */
@@ -423,7 +384,7 @@ class PhpConfigManager {
 
 
   /**
-   * Funkce pro konverzi velikosti paměti udávané v PHP na číselné vyjádření v bytech
+   * Method for conversion of memory sizes in PHP to the numerical representation in bytes
    * @param string|int $sSize
    * @return int
    */

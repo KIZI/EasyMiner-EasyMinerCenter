@@ -17,6 +17,9 @@ use Nette\Utils\Strings;
 /**
  * Class BaseResourcePresenter
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property IInput|IDataProvider $input
  *
  * @SWG\Swagger(
@@ -102,13 +105,13 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   protected $xmlMapper=null;
 
   /**
-   * @param bool $allowAnonymous=false - pokud je true, je ignorována kontrola API klíče
+   * @param bool $allowAnonymous=false - if it us true, the API KEY check will be ignored
    * @throws AuthenticationException
    * @throws \Drahak\Restful\Application\BadRequestException
    * @throws \Exception
    */
   public function startup($allowAnonymous=false) {
-    //kontrola přihlášeného uživatele
+    //check of user credentials via API KEY
     $apiKey=@$this->getInput()->getData()['apiKey'];
     if (empty($apiKey)){
       $authorizationHeader=$this->getHttpRequest()->getHeader('Authorization');
@@ -125,12 +128,12 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
         throw $e;
       }
     }
-    //spuštění výchozí startup() akce
+    //run default startup() method
     parent::startup();
   }
 
-    /**
-   * Funkce vracející instanci aktuálně přihlášeného uživatele (buď dle přihlášení, nebo podle API KEY)
+  /**
+   * Method returning instance of actually logged-in User (using session login or API KEY)
    * @return User
    */
   public function getCurrentUser(){
@@ -138,7 +141,7 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   }
 
   /**
-   * Funkce pro odeslání XML odpovědi
+   * Generic method for sending a XML response
    * @param \SimpleXMLElement|string $simpleXml
    */
   protected function sendXmlResponse($simpleXml){
@@ -148,7 +151,7 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   }
 
   /**
-   * Funkce pro odeslání textové odpovědi
+   * Generic method for sending PLAINTEXT response
    * @param string $text
    */
   protected function sendTextResponse($text) {
@@ -158,7 +161,7 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   }
 
   /**
-   * Funkce pro odeslání HTML odpovědi
+   * Generic method for sending HTML response
    * @param string $text
    */
   protected function sendHtmlResponse($text) {
@@ -168,24 +171,23 @@ abstract class BaseResourcePresenter extends ResourcePresenter {
   }
 
   /**
-   * Funkce pro nastavení specifikace XML elementů
+   * Method for configuration of XML element names (for automatic XML response)
    * @param string $rootElement
    * @param string $itemElement
    */
   protected function setXmlMapperElements($rootElement, $itemElement="") {
     $this->xmlMapper->setRootElement($rootElement);
-    //TODO set namespace
     if (!empty($itemElement)){
       $this->xmlMapper->setItemElement($itemElement);
     }
   }
 
   /**
-   * Funkce vracející absolutní URL zadaného linku
+   * Method returning absolute URL of the given link
    * @param string $destination
    * @param array $args
    * @param string $rel
-   * @param bool $includeCurrentParams=false - pokud je true, dojde ke sloučení aktuálních parametrů a parametrů nových
+   * @param bool $includeCurrentParams=false - it if is true, the link should merge actually params with the new params given in $args
    * @return string
    */
   protected function getAbsoluteLink($destination, $args=[], $rel=Link::SELF, $includeCurrentParams=false) {

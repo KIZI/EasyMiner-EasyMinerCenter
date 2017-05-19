@@ -5,9 +5,10 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 
 /**
- * Class CronPresenter - presenter pro pravidelnou údržbu
- * @author Stanislav Vojíř
+ * Class CronPresenter - presenter for regular, periodical maintenance
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class CronPresenter extends BasePresenter{
   use ResponsesTrait;
@@ -17,7 +18,7 @@ class CronPresenter extends BasePresenter{
   private $fileImportsFacade;
 
   /**
-   * Akce pro smazání starých souborů
+   * Action for delete of old import files
    * @inheritdoc run once per day
    */
   public function actionDeleteImportFiles(){
@@ -25,8 +26,12 @@ class CronPresenter extends BasePresenter{
     $this->sendTextResponse('DONE');
   }
 
-
+  #region injections
+  /**
+   * @param FileImportsFacade $fileImportsFacade
+   */
   public function injectFileImportsFacade(FileImportsFacade $fileImportsFacade){
     $this->fileImportsFacade=$fileImportsFacade;
   }
+  #endregion injections
 }

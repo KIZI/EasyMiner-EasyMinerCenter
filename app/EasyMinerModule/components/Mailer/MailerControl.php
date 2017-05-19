@@ -12,6 +12,8 @@ use Nette\Mail\Message;
 /**
  * Class MailerControl
  * @package EasyMinerCenter\EasyMinerModule\Components
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MailerControl extends Control{
 
@@ -24,7 +26,7 @@ class MailerControl extends Control{
 
 
   /**
-   * Funkce pro odeslání e-mailu pro obnovu zapomenutého hesla
+   * Method to send e-mail to recover forgotten password
    * @param UserForgottenPassword $userForgottenPassword
    * @return bool
    */

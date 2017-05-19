@@ -11,9 +11,10 @@ use Nette\Application\ForbiddenRequestException;
 use Nette\Utils\Strings;
 
 /**
- * Class MiningUiPresenter - presenter obsahující funkcionalitu vyžadovanou javascriptovým uživatelským rozhraním (migrace PHP kódu z projektu EasyMiner2)
- * @author Stanislav Vojíř
+ * Class MiningUiPresenter - presented with the functionality required by the submodule EasyMiner-MiningUI (UI for mining of association rules)
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MiningUiPresenter extends BasePresenter{
   use MinersFacadeTrait;
@@ -30,7 +31,7 @@ class MiningUiPresenter extends BasePresenter{
   private $ruleSetsFacade;
 
   /**
-   * Akce vracející data description a konfiguraci pro EasyMiner UI
+   * Action for sending of data description and configuration for EasyMiner-MiningUI
    * @param int $id_dm
    * @param int $miner
    * @throws ForbiddenRequestException
@@ -46,7 +47,7 @@ class MiningUiPresenter extends BasePresenter{
     $FLPathElement='FLPath_'.Strings::upper($minerType);
 
     //------------------------------------------------------------------------------------------------------------------
-    #region připravení informací pro UI - s odděleným připravením DataDictionary
+    #region preparation of information for UI - with separated preparation of DataDictionary
     $dataDescriptionPMML=null;
     $dataParser = new DataParser($dataDescriptionPMML, $this->config->$FLPathElement, $this->config->FGCPath, null, null, $this->translator->getLang());
     $dataParser->loadData();
@@ -59,14 +60,13 @@ class MiningUiPresenter extends BasePresenter{
       'transformationDictionary'=>$this->metasourcesFacade->exportTransformationDictionaryArr($miner->metasource, $user),
       'recordCount'=>$rowsCount
     ];
-    #endregion připravení informací pro UI - s odděleným připravením DataDictionary
+    #endregion preparation of information for UI - with separated preparation of DataDictionary
 
     uksort($responseContent['DD']['transformationDictionary'],function($a,$b){
       return strnatcasecmp($a,$b);
     });
     uksort($responseContent['DD']['dataDictionary'],function($a,$b){
       return strnatcasecmp($a,$b);
-      //return strnatcasecmp(mb_strtolower($a,'utf-8'),mb_strtolower($b,'utf-8'));
     });
 
     $responseContent['status'] = 'ok';
@@ -89,8 +89,8 @@ class MiningUiPresenter extends BasePresenter{
 
 
   /**
-   * Akce pro zobrazení EasyMiner-MiningUI
-   * @param int $id
+   * Action for display of EasyMiner-MiningUI
+   * @param int $id - Miner ID
    */
   public function renderDefault($id) {
 
@@ -127,5 +127,5 @@ class MiningUiPresenter extends BasePresenter{
   public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
     $this->ruleSetsFacade=$ruleSetsFacade;
   }
-  #endregion
+  #endregion injections
 } 

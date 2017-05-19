@@ -2,14 +2,14 @@
 
 namespace EasyMinerCenter\InstallModule\DevModule\Presenters;
 
-
 use EasyMinerCenter\InstallModule\DevModule\Model\DevConfigManager;
 use Nette\Application\UI\Presenter;
 
 /**
- * Class BasePresenter - základní kostra presenterů pro DEV submodul
+ * Class BasePresenter - base presenter for DEV module
  * @package EasyMinerCenter\InstallModule\DevModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 abstract class BasePresenter extends Presenter{
   /** @var  DevConfigManager $devConfigManager */
@@ -22,7 +22,7 @@ abstract class BasePresenter extends Presenter{
   protected $ignoreUserCheck=false;
 
   /**
-   * Funkce po spuštění, která kontroluje uživatelská oprávnění pro přístup k funkcionalitě DEV modulu
+   * Startup method, checks, if the current User can run the DEV module functionality
    */
   public function startup() {
     parent::startup();

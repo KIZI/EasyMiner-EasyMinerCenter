@@ -11,8 +11,9 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 
 /**
  * Class AttributesPresenter
- *
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class AttributesPresenter extends BaseResourcePresenter {
   /** @var  MetasourcesFacade $metasourcesFacade */
@@ -26,7 +27,7 @@ class AttributesPresenter extends BaseResourcePresenter {
 
   #region actionCreate
   /**
-   * Akce pro vytvoření nového atributu
+   * Action for creating a new attribute
    * @SWG\Post(
    *   tags={"Attributes"},
    *   path="/attributes",
@@ -63,7 +64,7 @@ class AttributesPresenter extends BaseResourcePresenter {
     $this->minersFacade->checkMinerMetasource($miner);
 
     $currentUser=$this->getCurrentUser();
-    //aktualizace informace o datových sloupcích
+    //update list of datasource columns
     $this->datasourcesFacade->updateDatasourceColumns($miner->datasource,$currentUser);
 
     try{
@@ -76,7 +77,7 @@ class AttributesPresenter extends BaseResourcePresenter {
       throw new InvalidArgumentException("Datasource columns was not found: ".@$inputData['columnName']);
     }
 
-    //inicializace formátu
+    //initialize the Format
     $format=$datasourceColumn->format;
     if (!$format){
       //TODO implementovat podporu automatického mapování
@@ -85,7 +86,7 @@ class AttributesPresenter extends BaseResourcePresenter {
       $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
     }
 
-    //vytvoření nového atributu
+    //creation of a new Attribute
     $attribute=new Attribute();
     $attribute->metasource=$miner->metasource;
     $attribute->datasourceColumn=$datasourceColumn;
@@ -93,30 +94,30 @@ class AttributesPresenter extends BaseResourcePresenter {
     $attribute->type=$attribute->datasourceColumn->type;
 
     if (@$inputData['specialPreprocessing']==Preprocessing::SPECIALTYPE_EACHONE){
-      //použití speciálního preprocessingu
+      //use special mapping
       $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($datasourceColumn->format);
     }elseif(!empty($inputData['newPreprocessing'])){
-      //vytvoření nového preprocessingu z definičního pole (z inputu)
+      //create new preprocessing from definition array [from input]
       $preprocessing=$this->metaAttributesFacade->generateNewPreprocessingFromDefinitionArray($datasourceColumn->format,$inputData['newPreprocessing']);
     }elseif(!empty($inputData['preprocessing'])){
-      //nalezení aktuálního preprocessingu
+      //fing actual preprocessing
       $preprocessing=$this->metaAttributesFacade->findPreprocessing($inputData['preprocessing']);
     }
     if (!isset($preprocessing) || !($preprocessing instanceof Preprocessing)){
       throw new \InvalidArgumentException('Preprocessing not found or invalid definition of preprocessing given!');
     }
 
-    //máme preprocessing => přiřadíme ho k atributu a necháme ho předzpracovat...
+    //we have preprocessing => attach it to the attribute and let it preprocess...
     $attribute->preprocessing=$preprocessing;
     $attribute->active=false;
     $this->metasourcesFacade->saveAttribute($attribute);
 
-    //inicializace preprocessingu
+    //preprocessing initialization
     $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
     while($metasourceTask && $metasourceTask->state!=MetasourceTask::STATE_DONE){
       $metasourceTask=$this->metasourcesFacade->preprocessAttributes($metasourceTask);
     }
-    //smazání předzpracovávací úlohy
+    //delete finished preprocessing task
     $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
 
     $this->setXmlMapperElements('attribute');
@@ -125,7 +126,7 @@ class AttributesPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Funkce pro validaci vstupních hodnot pro vytvoření nového atributu
+   * Method for validation of input values for actionCreate()
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
@@ -170,7 +171,7 @@ class AttributesPresenter extends BaseResourcePresenter {
       }
       $preprocessingType=Preprocessing::decodeAlternativePrepreprocessingTypeIdentification(@$inputData['type']);
       if (!in_array($preprocessingType,Preprocessing::getPreprocessingTypes())){
-        //kontrola, jestli je zadán podporovaný typ preprocessingu
+        //check, if there is a supported type of preprocessing
         return false;
       }
       if ($preprocessingType==Preprocessing::TYPE_EQUIFREQUENT_INTERVALS){

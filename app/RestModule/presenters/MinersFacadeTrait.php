@@ -9,8 +9,9 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 
 /**
  * Trait MinersFacadeTrait
- * @author Stanislav Vojíř
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property MinersFacade $minersFacade
  * @method User getCurrentUser()
@@ -21,7 +22,7 @@ trait MinersFacadeTrait {
   protected $minersFacade;
 
   /**
-   * Metoda pro nalezení příslušného mineru s kontrolou přístupu
+   * Method for finding a miner by $minerId and checking of user privileges to work with the found miner
    * @param int $minerId
    * @return null|Miner
    * @throws \Nette\Application\BadRequestException
@@ -39,7 +40,7 @@ trait MinersFacadeTrait {
   }
 
   /**
-   * Metoda pro kontrolu oprávněnosti přistupovat ke zvolenému mineru
+   * Method for check of the user privileges to work with the selected miner
    * @param Miner|int|null $miner
    * @throws UnauthorizedRequestException
    */

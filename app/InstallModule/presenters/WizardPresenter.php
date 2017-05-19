@@ -17,8 +17,9 @@ use Nette\Utils\Strings;
 
 /**
  * Class WizardPresenter
- *
  * @package EasyMinerCenter\InstallModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class WizardPresenter extends Presenter {
   const GOOGLE_LOGIN_URL='em/user/oauth-google';
@@ -26,13 +27,13 @@ class WizardPresenter extends Presenter {
   private $configManager=null;
   /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
-  /** @var array $wizardSteps - pole s definicí jednotlivých kroků instalačního wizardu */
+  /** @var array $wizardSteps - array with definition of steps of the installation wizard*/
   private $wizardSteps=[
     'default',
-    'phpConfig',    //kontrola nastavení PHP (dostupnosti potřebných funkcí atp.)
-    'files',        //kontrola přístupů k souborům a adresářům
-    'timezone',     //nastavení časové zóny
-    'https',        //nastavení zabazpečeného přístupu
+    'phpConfig',    //check of PHP configuration (availability of required functions etc.)
+    'files',        //check of accessibility of files and directories
+    'timezone',     //configuration of time zone
+    'https',        //https config
     'miners',       //zadání přístupů k dolovacím serverům FIXME doplnit možnost konfigurace jednotlivých služeb
 //XXX    'dataMysql',    //přístupy k databázi pro uživatelská data
     'dataLimited',    //přístupy k databázi pro uživatelská data
@@ -46,17 +47,20 @@ class WizardPresenter extends Presenter {
   ];
 
   /**
-   * Tento presenter nemá výchozí view => přesměrování na vhodný krok
+   * Default action - this presenter has not default view => redirect the request to the right step of the wizard
    */
   public function actionDefault() {
     $this->redirect($this->getNextStep('default'));
   }
 
+  /**
+   * Action for check of the PHP config requirements
+   */
   public function actionPhpConfig() {
     $resultsArr=PhpConfigManager::getTestResultsArr();
     $resultsArrCheck=PhpConfigManager::checkTestResultsArrState($resultsArr);
     if ($resultsArrCheck==PhpConfigManager::STATE_ALL_OK){
-      //pokud jsou všechny direktivy v pořádku, provedeme přesměrování
+      //all directives are OK, go to the next step
       $this->redirect($this->getNextStep('phpConfig'));
     }
     $this->template->resultsArrCheck=$resultsArrCheck;
@@ -65,7 +69,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro kontrolu přístupů ke složkám a souborům
+   * Action for check of accessibility of directories and files
    */
   public function actionFiles() {
     $filesManager=$this->createFilesManager();
@@ -91,7 +95,7 @@ class WizardPresenter extends Presenter {
     }
 
     if($stateError) {
-      //vyskytla se chyba
+      //some error occurred
       $this->template->states=$statesArr;
     } else {
       $this->redirect($this->getNextStep('files'));
@@ -99,7 +103,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro zadání přístupového hesla pro instalaci
+   * Action for input of installation password
    * @param string $backlink
    */
   public function actionCheckPassword($backlink="") {
@@ -109,7 +113,7 @@ class WizardPresenter extends Presenter {
   }
   
   /**
-   * Akce pro nastavení vyžadované časové zóny
+   * Action for selection of http or https
    */
   public function actionHttps() {
     $this->checkAccessRights();
@@ -120,7 +124,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro nastavení vyžadované časové zóny
+   * Action for timezone selection
    */
   public function actionTimezone() {
     $this->checkAccessRights();
@@ -138,8 +142,8 @@ class WizardPresenter extends Presenter {
   }
 
   /**
- * Akce pro zadání přístupu k hlavní aplikační databázi
- */
+   * Action for checking of availability of the main application database
+   */
   public function actionDatabase() {
     $this->checkAccessRights();
     $configManager=$this->createConfigManager();
@@ -162,7 +166,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro zadání přístupu k MySQL databázi pro uživatelská data
+   * Action for config of MySQL databases for data of the users
    */
   public function actionDataMysql() {
     $this->checkAccessRights();
@@ -178,7 +182,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro zadání přístupu k MySQL databázi pro uživatelská data
+   * Action for input of access params for Limited data service
    */
   public function actionDataLimited() {
     $this->checkAccessRights();
@@ -194,7 +198,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro zadání přístupu k MySQL databázi pro uživatelská data
+   * Action for input of access params for Unlimited data service
    */
   public function actionDataUnlimited() {
     $this->checkAccessRights();
@@ -210,11 +214,11 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro zadání způsobů přihlašování
+   * Action for configuration of user login methods
    */
   public function actionLogins() {
     $this->checkAccessRights();
-    //naplnění výchozích parametrů
+    //fill in the default values
     $configManager=$this->createConfigManager();
     /** @var Form $form */
     $form=$this->getComponent('loginsForm');
@@ -247,7 +251,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro volbu podporovaných typů minerů
+   * Action for configuration of supported miner types
    */
   public function actionMiners() {
     $this->checkAccessRights();
@@ -286,7 +290,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Akce pro zadání doplňujících parametrů
+   * Action for input of additional params
    */
   public function actionDetails() {
     $this->checkAccessRights();
@@ -299,12 +303,12 @@ class WizardPresenter extends Presenter {
         $form->setDefaults(['emailFrom'=>$configManager->data['parameters']['emailFrom']]);
       }catch (\Exception $e){/*ignore error*/}
     }
-    //nastavení automaticky vyplněných parametrů
+    //save automatic configured params
     $this->saveAutomaticParams($configManager);
   }
   
   /**
-   * Akce pro ukončení průvodce - smazání cache, přesměrování
+   * Action for finishing of the wizard - delete cache, redirect...
    */
   public function actionFinish() {
     $this->checkAccessRights();
@@ -321,7 +325,7 @@ class WizardPresenter extends Presenter {
 
 
   /**
-   * Formulář pro nastavení časové zóny
+   * Factory method returning TimezoneForm
    * @return Form
    */
   public function createComponentTimezoneForm() {
@@ -345,7 +349,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání přenosového protokolu
+   * Factory method returning HttpsForm
    * @return Form
    */
   public function createComponentHttpsForm() {
@@ -367,7 +371,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání přístupů k databázi pro aplikační data
+   * Factory method returning MainDatabaseForm (config of database for the main application data)
    * @return Form
    */
   public function createComponentMainDatabaseForm() {
@@ -433,7 +437,7 @@ class WizardPresenter extends Presenter {
           $databaseConfigArr['password']=$createPassword;
           $databaseConfigArr['database']=$createDatabase;
         }//TODO doplnit ošetření situace, kdy daný uživatelský účet už existuje
-        #region
+        #region auto_create_database
         $error=false;
         try {
           unset($databaseConfigArr['auto_create_database']);
@@ -448,7 +452,7 @@ class WizardPresenter extends Presenter {
           $form->addError('Database connection failed! Please check, if the database exists and if it is accessible.');
           return;
         }
-        #endregion
+        #endregion auto_create_database
         //create database
         try{
           /** @noinspection PhpUndefinedVariableInspection */
@@ -463,6 +467,8 @@ class WizardPresenter extends Presenter {
         $configManager->saveConfig();
         $this->redirect($this->getNextStep('database'));
       };
+    /** @noinspection PhpUndefinedFieldInspection */
+    /** @noinspection PhpDocSignatureInspection */
     $form->addSubmit('storno', 'Skip database creation')
       ->setAttribute('class','hidden')
       ->onClick[]=function(SubmitButton $submitButton){
@@ -487,7 +493,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání přístupů k Limited DB pro uživatelská data
+   * Factory method returning DataLimitedForm (form for configuration of limited data service)
    * @return Form
    */
   public function createComponentDataLimitedForm() {
@@ -543,7 +549,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání přístupů k unlimited DB pro uživatelská data
+   * Factory method returning DataLimitedForm (form for configuration of unlimited data service)
    * @return Form
    */
   public function createComponentDataUnlimitedForm() {
@@ -588,7 +594,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání přístupů k MySQL pro uživatelská data
+   * Factory method returning DataMysqlForm (configuration of mysql for users data)
    * @return Form
    */
   public function createComponentDataMysqlForm() {
@@ -653,7 +659,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání údajů pro přihlašování přes sociální sítě
+   * Factory method returning LoginsForm - form for logins using social networks
    * @return Form
    */
   public function createComponentLoginsForm() {
@@ -724,7 +730,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání údajů pro přístup k minerům
+   * Factory method returning MinersForm (form for selection of supported mining drivers)
    * @return Form
    */
   public function createComponentMinersForm() {
@@ -865,7 +871,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání doplňujících parametrů
+   * Factory method returning DetailsForm (form for configuration of other params)
    * @return Form
    */
   public function createComponentDetailsForm() {
@@ -875,7 +881,7 @@ class WizardPresenter extends Presenter {
       ->setRequired("Input valid e-mail address!")
       ->addRule(Form::EMAIL,'Input valid e-mail address!');
     $form->addSubmit('submit','Save & continue')->onClick[]=function(SubmitButton $submitButton){
-      //uložení e-mailu
+      //save e-mail
       $configManager=$this->createConfigManager();
       $values=$submitButton->form->getValues(true);
       $configManager->data['parameters']['emailFrom']=$values['emailFrom'];
@@ -886,7 +892,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro zadání hesla pro opětovnou instalaci
+   * Factory method returning SetPasswordForm (form for configuration of installation password)
    * @return Form
    */
   public function createComponentSetPasswordForm() {
@@ -898,7 +904,7 @@ class WizardPresenter extends Presenter {
       ->addRule(Form::EQUAL,'Passwords does not match!',$password);
     $form->addSubmit('submit','Save & continue')
       ->onClick[]=function(SubmitButton $submitButton){
-        //uložení instalačního hesla
+        //save installation password
         $values=$submitButton->form->getValues(true);
         $configManager=$this->createConfigManager();
         $configManager->saveInstallationPassword($values['password']);
@@ -909,7 +915,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Formulář pro kontrolu přístupového instalačního hesla
+   * Factory method returning CheckPasswordForm (form for checking of installation password)
    * @return Form
    */
   public function createComponentCheckPasswordForm() {
@@ -922,14 +928,14 @@ class WizardPresenter extends Presenter {
         $values=$submitButton->form->getValues(true);
         $configManager=$this->createConfigManager();
         if ($configManager->checkInstallationPassword($values['password'])){
-          //heslo je správně
+          //installation password is valid
           $this->setInstallPasswordChecked(true);
           if (!empty($values['backlink'])){
             $this->restoreRequest($values['backlink']);
           }
           $this->redirect($this->getNextStep('default'));
         }else{
-          //heslo je chybně
+          //installation password is not valid
           $submitButton->form->addError('The installation password is invalid!');
         }
       };
@@ -937,7 +943,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce volaná před vykreslením šablony; předává do template info o aktuálním kroku průvodce
+   * Method called before rendering of the template; sets info about the current step of the wizard to the template
    */
   protected function beforeRender() {
     parent::beforeRender();
@@ -949,13 +955,13 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce pro kontrolu, jestli je aktuální uživatel oprávněn pracovat s wizardem
+   * Method for check, if the user can work with the wizard
    */
   private function checkAccessRights() {
     if (!$this->isInstallPasswordChecked()){
       $configManager=$this->createConfigManager();
       if ($configManager->isSetInstallationPassword()){
-        //redirect na zadání hesla pro přístup k instalaci
+        //redirect to form with check of the installation password
         $this->redirect('checkPassword', array('backlink' => $this->storeRequest()));
       }else{
         $this->setInstallPasswordChecked(true);
@@ -964,7 +970,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce pro kontrolu, zda již bylo zkontrolováno instalační heslo
+   * Method for checking if the user inputted valid installation password
    * @return bool
    */
   private function isInstallPasswordChecked() {
@@ -973,6 +979,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
+   * Method for setting up, that the installation password was valid
    * Funkce pro nastavení, zda již bylo zkontrolováno instalační heslo
    * @param bool $isChecked
    */
@@ -982,7 +989,6 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce pro
    * @param ConfigManager $configManager
    */
   private function saveAutomaticParams(ConfigManager $configManager){
@@ -1003,7 +1009,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce vracející číslo kroku průvodce (od 1 výš)
+   * Method returning the next wizard step
    * @param string $step
    * @return int
    */
@@ -1016,7 +1022,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce vracející počet kroků průvodce
+   * Method returning the count of wizard steps
    * @return int
    */
   private function getStepsCount() {
@@ -1024,8 +1030,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce vracející URL dalšího kroku wizardu
-   *
+   * Method returning URL of the next wizard step
    * @param string $currentStep
    * @return string
    */
@@ -1035,7 +1040,7 @@ class WizardPresenter extends Presenter {
 
   #region model constructors
   /**
-   * Funkce vracející instanci config manageru
+   * Factory method returning instance of ConfigManager
    * @return ConfigManager
    */
   private function createConfigManager() {
@@ -1046,7 +1051,7 @@ class WizardPresenter extends Presenter {
   }
 
   /**
-   * Funkce vracející instanci files manageru
+   * Factory method returning FilesManages
    * @return FilesManager
    */
   private function createFilesManager(){

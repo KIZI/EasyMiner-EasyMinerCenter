@@ -1,6 +1,12 @@
-  <a class="backButton" href="{link SelectMetaAttribute datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">&lt;&nbsp;{_'Back'}</a>
+{**
+ * Template for MetaAttributesSelectControl
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
 
-  <h1>{_'Meta-attribute - data field:'} {@$datasourceColumn->name}</h1>
-  <h2>{_'New meta-attribute from data field'}</h2>
+<a class="backButton" href="{link SelectMetaAttribute datasource=>$datasourceColumn->datasource->datasourceId,column=>$datasourceColumn->datasourceColumnId}">&lt;&nbsp;{_'Back'}</a>
 
-  {control newMetaAttributeForm}
+<h1>{_'Meta-attribute - data field:'} {@$datasourceColumn->name}</h1>
+<h2>{_'New meta-attribute from data field'}</h2>
+
+{control newMetaAttributeForm}

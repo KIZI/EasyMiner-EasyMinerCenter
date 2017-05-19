@@ -14,6 +14,8 @@ use Nette\InvalidArgumentException;
 /**
  * Class RuleSetsPresenter - presenter pro práci s rulesety
  * @package EasyMinerCenter\KnowledgeBaseModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RuleSetsPresenter extends BasePresenter{
   use ResponsesTrait;
@@ -29,28 +31,28 @@ class RuleSetsPresenter extends BasePresenter{
 
 
   /**
-   * Akce pro vykreslení detailů úlohy ve formátu PMML
-   * @param int $id - id of the rule set
+   * Action for serialization of Rules in the RuleSet in DRL form
+   * @param int $id - id of the RuleSet
    * @throws \Exception
    * @throws \Nette\Application\ForbiddenRequestException
    */
   public function renderDRL($id){
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    //vygenerování a zobrazení DRL
+    //generate DRL and send it as text response
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($ruleSet->findRules());
     $xml=$associationRulesXmlSerializer->getXml();
-    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml,$this->template->basePath));
+    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml));
   }
 
   /**
-   * Akce pro vypsání existujících rulesetů
+   * Action for list of existing RuleSets
    */
   public function actionList(){
     $ruleSets=$this->ruleSetsFacade->findRuleSetsByUser($this->user->id);
     $result=[];
     if (empty($ruleSets)) {
-      //pokud není nalezen ani jeden RuleSet, jeden založíme...
+      //if no RuleSet found, create a new one...
       $ruleSet=new RuleSet();
       $user=$this->usersFacade->findUser($this->user->id);
       $ruleSet->user=$user;
@@ -65,75 +67,75 @@ class RuleSetsPresenter extends BasePresenter{
     $this->sendJsonResponse($result);
   }
 
-  #region akce pro manipulaci s rulesetem
+  #region actions for manipulation with a RuleSet
 
   /**
-   * Akce pro vytvoření nového rulesetu (se zadaným jménem)
+   * Action for creation of a new RuleSet (with the given name)
    * @param string $name
    * @param string $description=""
    * @throws InvalidArgumentException
    */
   public function actionNew($name, $description=""){
     $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($name,$this->user->id);
-    //vytvoření rulesetu
+    //create new RuleSet
     $ruleSet=new RuleSet();
     $ruleSet->name=$name;
     $ruleSet->description=$description;
     $ruleSet->user=$this->usersFacade->findUser($this->user->id);
     $this->ruleSetsFacade->saveRuleSet($ruleSet);
-    //odeslání výsledku
+    //send the response
     $this->sendJsonResponse($ruleSet->getDataArr());
   }
 
   /**
-   * Akce pro přejmenování existujícího rulesetu
+   * Action for renaming of an existing RuleSet (description change is also supported)
    * @param int $id
    * @param string $name
    * @param string $description=""
    */
   public function actionRename($id,$name,$description=""){
-    //najití RuleSetu a kontroly
+    //find the RuleSet and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($name,$this->user->id,$ruleSet);
-    //změna a uložení
+    //change the name and description and save it
     $ruleSet->name=$name;
     $ruleSet->description=$description;
     $this->ruleSetsFacade->saveRuleSet($ruleSet);
-    //odeslání výsledku
+    //send the response
     $this->sendJsonResponse($ruleSet->getDataArr());
   }
 
   /**
-   * Akce pro smazání konkrétního rulesetu
+   * Action for deleting of a RuleSet
    * @param int $id
    */
   public function actionDelete($id){
-    //najití RuleSetu a kontroly
+    //find RuleSet and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    //smazání
+    //delete the RuleSet and send confirmation response
     if ($this->ruleSetsFacade->deleteRuleSet($ruleSet)){
       $this->sendJsonResponse(['state'=>'ok']);
     }
   }
 
-  #endregion akce pro manipulaci s rulesetem
+  #endregion actions for manipulation with a RuleSet
 
-  #region akce pro manipulaci s pravidly v rulesetech
+  #region actions for manipulation of relations between Rules and RuleSets
 
   /**
-   * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
+   * Action returning one concrete RuleSet with basic list of Rules
    * @param int $id
    * @param int $offset
    * @param int $limit
    * @param string|null $order = null
    */
   public function actionGetRules($id,$offset=0,$limit=25,$order=null){
-    //najití RuleSetu a kontroly
+    //find RuleSet and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    //připravení výstupu
+    //prepare the result
     $result=[
       'ruleset'=>$ruleSet->getDataArr(),
       'rules'=>[]
@@ -150,14 +152,14 @@ class RuleSetsPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro přidání pravidel do rulesetu
+   * Action for adding of Rules to a RuleSet
    * @param int $id
-   * @param string|int $rules - ID pravidel oddělená čárkami či středníky
+   * @param string|int $rules - ID of Rules, separated with commas or semicolons
    * @param string $relation = 'positive'
    * @param string $result = "simple" (varianty "simple", "rules")
    */
   public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE, $result="simple"){
-    //najití RuleSetu a kontroly
+    //fing RuleSet and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     /** @var int[] $ruleIdsArr */
@@ -184,13 +186,13 @@ class RuleSetsPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro odebrání pravidel z rulesetu
+   * Action for removing of Rules from a RuleSet
    * @param int $id
    * @param string|int $rules
    * @param string $result = "simple" (varianty "simple", "rules")
    */
   public function actionRemoveRules($id, $rules, $result="simple"){
-    //najití RuleSetu a kontroly
+    //find RuleSet and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     /** @var int[] $ruleIdsArr */
@@ -219,20 +221,20 @@ class RuleSetsPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro odebrání všech pravidel z rulesetu
+   * Action for removing of all Rules from the given RuleSet
    * @param int $id
    */
   public function actionRemoveAllRules($id){
-    //najití RuleSetu a kontroly
+    //find RuleSet and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    //smazání
+    //remove the relations
     $this->ruleSetsFacade->removeAllRulesFromRuleSet($ruleSet);
     $this->sendJsonResponse(['state'=>'ok']);
   }
 
   /**
-   * Funkce připravující pole s informacemi o vybraných pravidlech pro vrácení v rámci JSON odpovědi
+   * Method for preparation of an array with information about selected Rules for sending in a JSON response
    * @param int[] $ruleIdsArr
    * @param RuleSet|int $ruleSet
    * @return array
@@ -261,7 +263,7 @@ class RuleSetsPresenter extends BasePresenter{
     return $result;
   }
 
-  #endregion akce pro manipulaci s pravidly v rulesetech
+  #endregion actions for manipulation of relations between Rules and RuleSets
 
   #region injections
   /**

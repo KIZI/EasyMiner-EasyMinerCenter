@@ -5,9 +5,10 @@ use Tracy\Debugger;
 use Tracy\ILogger;
 
 /**
- * Class Git - wrapper pro možnost práce s GITem
+ * Class Git - wrapper for work with GIT repository
  * @package EasyMinerCenter\InstallModule\DevModule\Model
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class Git {
   /** @var string $repositoryPath */
@@ -72,7 +73,7 @@ class Git {
 
 
   /**
-   * Funkce pro spuštění konzolového příkazu
+   * Method for running a console/shell command
    * @param string $command
    * @return string
    * @throws \Exception

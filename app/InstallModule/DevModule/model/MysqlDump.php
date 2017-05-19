@@ -2,14 +2,17 @@
 
 namespace EasyMinerCenter\InstallModule\DevModule\Model;
 
-
-use EasyMinerCenter\InstallModule\Model\ConfigManager;
-
+/**
+ * Class MysqlDump
+ * @package EasyMinerCenter\InstallModule\DevModule\Model
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class MysqlDump {
   const MYSQL_FILE='/../../data/mysql.sql';
 
   /**
-   * Funkce pro export struktury databáze
+   * Method for export of database structure
    * @param string $host
    * @param null $port
    * @param string $username
@@ -35,7 +38,7 @@ class MysqlDump {
   }
 
   /**
-   * Funkce pro kontrolu možnosti spustit mysqldump pomocí funkce exec
+   * Method for check, if it is possible to run mysqldump using exec function
    * @param string|null $message
    * @return bool
    */
@@ -58,7 +61,7 @@ class MysqlDump {
   }
 
   /**
-   * Funkce vracející obsah aktuálního SQL souboru
+   * Method returning content of actual SQL file
    * @return string
    */
   public static function getExistingSqlFileContent() {
@@ -66,7 +69,7 @@ class MysqlDump {
   }
 
   /**
-   * Funkce pro uložení aktualizovaného obsahu souboru
+   * Method for saving of updated SQL file
    * @param string $content
    */
   public static function saveSqlFileContent($content) {
@@ -74,7 +77,7 @@ class MysqlDump {
   }
 
   /**
-   * Funkce vracející cestu k souboru s konfigurací databáze
+   * Method returning path to file with database config
    * @return string
    */
   public static function getSqlFilePath() {

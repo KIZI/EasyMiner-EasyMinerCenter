@@ -5,8 +5,10 @@ use Nette\Utils\FileSystem;
 use Nette\Utils\Finder;
 
 /**
- * Class FilesManager - třída spravující soubory a složky při instalaci
+ * Class FilesManager - model class for management of files and directories
  * @package EasyMinerCenter\InstallModule\Model
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class FilesManager {
   /** @var  array $config */
@@ -17,7 +19,7 @@ class FilesManager {
   }
 
   /**
-   * Funkce pro kontrolu zapisovatelnosti souboru - pokud neexistuje, pokusí se jej vytvořit
+   * Method for check of writtability of a directory - if it does not exist, try to create it
    * @param string $filename
    * @return bool
    */
@@ -33,7 +35,7 @@ class FilesManager {
   }
 
   /**
-   * Funkce pro kontrolu zapisovatelnosti souboru - pokud neexistuje, pokusí se jej vytvořit
+   * Method for check of writtability of a file - if it does not exist, try to create it
    * @param string $filename
    * @param bool $chmod = true
    * @return bool
@@ -98,7 +100,7 @@ class FilesManager {
   }
 
   /**
-   * Funkce pro provedení závěrečných operací
+   * Method for doing of the finalization operations
    */
   public function finallyOperations() {
     #region chmod
@@ -145,7 +147,7 @@ class FilesManager {
   }
 
   /**
-   * Funkce vracející pole souborů, které by měly být nastavené do režimu jen pro čtení s výsledkem jejich kontroly
+   * Method returning array of files, which should be configured as readonly, with results of the check of this configuration
    * @return array
    */
   public function checkFinallyReadonlyFiles() {

@@ -11,6 +11,7 @@ use EasyMinerCenter\Model\Scoring\ScorerDriverFactory;
  * Class EvaluationPresenter
  * @package EasyMinerCenter\RestModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class EvaluationPresenter extends BaseResourcePresenter {
   use TasksFacadeTrait;
@@ -23,8 +24,8 @@ class EvaluationPresenter extends BaseResourcePresenter {
   private $datasourcesFacade;
 
   /**
-   * Akce pro spuštění evaluace
-   * @param string $id - identifikace typu klasifikace
+   * Action managing the run of a concrete validation method
+   * @param string $id - type of validation
    */
   public function actionRead($id) {
     if ($id=='classification'){
@@ -35,7 +36,7 @@ class EvaluationPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Akce pro vyhodnocení klasifikace
+   * Action for evaluation of classification model
    * @SWG\Get(
    *   tags={"Evaluation"},
    *   path="/evaluation/classification",

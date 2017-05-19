@@ -4,6 +4,12 @@ namespace EasyMinerCenter\EasyMinerModule\Components;
 use Nette\Localization\ITranslator;
 use Nette\Mail\IMailer;
 
+/**
+ * Class MailerControlFactory
+ * @package EasyMinerCenter\EasyMinerModule\Components
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class MailerControlFactory {
 
   /** @var  ITranslator $translator */

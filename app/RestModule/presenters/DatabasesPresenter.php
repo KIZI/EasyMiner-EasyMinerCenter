@@ -5,8 +5,9 @@ use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 
 /**
  * Class DatabasesPresenter
- *
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DatabasesPresenter extends BaseResourcePresenter {
   /** @var  DatasourcesFacade $datasourcesFacade */
@@ -17,7 +18,7 @@ class DatabasesPresenter extends BaseResourcePresenter {
   public $dbType;
 
   /**
-   * Akce pro ověření přihlášeného uživatele
+   * Action returning database connection details for the current user
    * @param string $dbType
    * @SWG\Get(
    *   tags={"Databases"},
@@ -59,7 +60,7 @@ class DatabasesPresenter extends BaseResourcePresenter {
   public function actionRead($dbType) {
     $this->setXmlMapperElements('database');
     $dbType=strtolower($dbType);
-    //kontrola toho, kdy byl naposled kontrolován přístup k DB
+    //check, when was realized the last check of DB connection (availability)
     if ($this->currentUser->getLastDbCheck($dbType)<time()-DatabaseFactory::DB_AVAILABILITY_CHECK_INTERVAL){
       if (!in_array($dbType, $this->databaseFactory->getDbTypes())){
         $this->error('Database is not configured: '.$dbType);
@@ -71,12 +72,12 @@ class DatabasesPresenter extends BaseResourcePresenter {
     }else{
       $dbAvailabilityCheck=false;
     }
-    
-    //připravení informací o datovém zdroji pro konkrétního uživatele...
+
+    //prepare info about the datasource for the current User
     $datasource=$this->datasourcesFacade->prepareNewDatasourceForUser($dbType, $this->currentUser,!$dbAvailabilityCheck);
 
     $dbConnection=$datasource->getDbConnection();
-    #region sestavení data arr
+    #region prepare result array
     $result=[];
     if (!empty($dbConnection->dbServer)){
       $result['server']=$dbConnection->dbServer;
@@ -87,7 +88,7 @@ class DatabasesPresenter extends BaseResourcePresenter {
     if (!empty($dbConnection->dbPort)){
       $result['port']=$dbConnection->dbPort;
     }
-    #endregion sestavení data arr
+    #endregion prepare result array
 
     $arr=&$result;
     if (!empty($datasource->dbUsername)){

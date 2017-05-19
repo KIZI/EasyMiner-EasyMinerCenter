@@ -5,14 +5,15 @@ use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
 
 /**
- * Class DefaultPresenter - výchozí presenter pro DEV submodule
+ * Class DefaultPresenter - main presenter for DEV module
  * @package EasyMinerCenter\InstallModule\DevModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DefaultPresenter extends BasePresenter{
 
   /**
-   * Výchozí akce, pokud není uživatel přihlášen, je přesměrován...
+   * Default action, if the User is not logged in, then redirects him to login view
    */
   public function renderDefault() {
     if (!$this->devConfigManager->checkUserCredentials($this->username,$this->password)){
@@ -21,7 +22,7 @@ class DefaultPresenter extends BasePresenter{
   }
 
   /**
-   * Přihlašovací formulář
+   * Factory method returning login form
    * @return Form
    */
   public function createComponentLoginForm() {
@@ -40,7 +41,7 @@ class DefaultPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce po spuštění, ruší kontrolu uživatelských přístupových údajů
+   * Startup method - does not require logged in User
    */
   public function startup() {
     $this->ignoreUserCheck=true;

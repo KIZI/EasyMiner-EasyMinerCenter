@@ -16,9 +16,10 @@ use EasyMinerCenter\Model\Mining\Exceptions\OutliersTaskInvalidArgumentException
 use Nette\Application\BadRequestException;
 
 /**
- * Class OutliersTasksPresenter - presenter pro práci s outliery
+ * Class OutliersTasksPresenter - presenter for work with outliers and outlier tasks
  * @package EasyMinerCenter\RestModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class OutliersTasksPresenter extends BaseResourcePresenter {
   use MinersFacadeTrait;
@@ -37,7 +38,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
 
   #region actionRead
   /**
-   * Akce vracející detaily konkrétní úlohy
+   * Action for reading a outlier task details
    * @param int $id
    * @throws BadRequestException
    * @SWG\Get(
@@ -74,9 +75,10 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
 
   /**
    * Akce vracející přehled outlierů z již vyřešené úlohy
+   * Action returning list of outliers from a solved outlier detection task
    * @param int $id
-   * @param int $limit - informace o počtu outlierů, které chceme vrátit
-   * @param int $offset = 0 - informace o počtu outlierů, které se mají přeskočit
+   * @param int $limit - count of outliers we want to read
+   * @param int $offset = 0 - count of outliers we want to skip
    * @throws BadRequestException
    * @SWG\Get(
    *   tags={"Outliers"},
@@ -144,7 +146,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
 
   #region actionCreate
   /**
-   * Akce pro zadání nové úlohy detekce outlierů
+   * Action for creating a new outlier detection task
    * @SWG\Post(
    *   tags={"Outliers"},
    *   path="/outliers-tasks",
@@ -188,7 +190,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Validace vstupních parametrů pro vytvoření nové úlohy
+   * Method for validation of input params for actionCreate()
    */
   public function validateCreate(){
     $currentUser=$this->getCurrentUser();
@@ -213,7 +215,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
 
   #region actionStart/actionState
   /**
-   * Akce pro spuštění dolování konkrétní úlohy
+   * Action for starting of run of a concrete outlier detection task
    * @param int $id
    * @SWG\Get(
    *   tags={"Outliers"},
@@ -247,7 +249,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
       $taskState=$miningDriver->startMining();
       $this->outliersTasksFacade->updateTaskState($task,$taskState);
 
-      //spustíme background požadavek na kontrolu stavu úlohy (jestli je dokončená atp.
+      //run background request for outlier detection task state check
       $backgroundImportUrl=$this->getAbsoluteLink('readMiningCheckState',['id'=>$id,'relation'=>'miningCheckState','timeout'=>time()+self::MINING_TIMEOUT_INTERVAL],Link::SELF,true);
       RequestHelper::sendBackgroundGetRequest($backgroundImportUrl);
 
@@ -262,7 +264,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Action for check of the task state
+   * Action for checking of the task state
    * @param int $id
    * @SWG\Get(
    *   tags={"Outliers"},
@@ -298,7 +300,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
 
   #region actionDelete
   /**
-   * Akce pro smazání
+   * Action for removing a selected outlier detection task
    * @param int $id
    * @SWG\Delete(
    *   tags={"Outliers"},
@@ -337,40 +339,35 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
   #endregion actionDelete
 
   /**
-   * Akce pro periodickou kontrolu stavu úlohy na serveru
-   * @param int $id - ID úlohy, kterou chceme zkontrolovat
+   * Action for periodical checking of the task state on remote server (using outlier task mining driver)
+   * @param int $id - task id
    */
   public function actionReadMiningCheckState($id) {
-    //zakážeme ukončení skriptu při zavření přenosového kanálu
+    //ignore user disconnection (it is background running action)
     RequestHelper::ignoreUserAbort();
 
-    //nejprve pozastavíme běh skriptu (abychom měli nějakou pauzu mezi jednotlivými kontrolami stavu úlohy)
+    //sleep for a while (to get pause between individual checks of the task state)
     sleep(self::MINING_STATE_CHECK_INTERVAL);
 
-    //najdeme úlohu a mining driver
+    //find the outlier detection task and the appropriate driver
     $task=$this->findOutliersTaskWithCheckAccess($id);
     $miningDriver=$this->minersFacade->getOutliersTaskMiningDriver($task,$this->currentUser);
 
-    //zkontrolujeme stav vzdálené úlohy a zaktualizujeme ho
+    //check the task state on remote server and update it in DB
     $taskState=$miningDriver->checkOutliersTaskState();
     $this->outliersTasksFacade->updateTaskState($task,$taskState);
 
-    #region akce v závislosti na aktuálním běhu úlohy
+    #region actions dependent of the current task state
     if ($taskState->state==OutliersTask::STATE_IN_PROGRESS){
-      //odešleme samostatný požadavek na opakované načtení této akce (se všemi stávajícími parametry)
+      //resend the current action request (with the same params)
       RequestHelper::sendBackgroundGetRequest($this->getAbsoluteLink('self',[],Link::SELF,true));
     }
-    #endregion
+    #endregion actions dependent of the current task state
     $this->sendTextResponse(time().' DONE '.$this->action);
   }
 
-
-
-
-
   /**
-   * Funkce pro nalezení úlohy dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným minerem
-   *
+   * Method for finding of an outlier detection task by $outliersTaskId and check of user privileges to work with the found task
    * @param int $outliersTaskId
    * @return OutliersTask
    * @throws \Nette\Application\BadRequestException

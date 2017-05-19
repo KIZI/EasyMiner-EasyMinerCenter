@@ -15,8 +15,10 @@ use Nette\Http\FileUpload;
 use Nette\Utils\FileSystem;
 
 /**
- * Class DatasourcesPresenter - presenter pro práci s datovými zdroji
+ * Class DatasourcesPresenter
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DatasourcesPresenter extends BaseResourcePresenter{
 
@@ -31,7 +33,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
 
   #region actionCreate
   /**
-   * Akce pro import CSV souboru (případně komprimovaného v ZIP archívu)
+   * Action for import of a CSV file (optinally ZIPped)
    * @SWG\Post(
    *   tags={"Datasources"},
    *   path="/datasources",
@@ -116,10 +118,10 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     #region move uploaded file
     /** @var FileUpload $file */
     $file=$this->request->files['file'];
-    //detekce typu souboru
+    //file type detection
     $fileType=$this->fileImportsFacade->detectFileType($file->getName());
     if ($fileType==FileImportsFacade::FILE_TYPE_UNKNOWN){
-      //jedná se o nepodporovaný typ souboru
+      //it is unsupported file type
       try{
         FileSystem::delete($this->fileImportsFacade->getTempFilename());
       }catch (\Exception $e){}
@@ -128,7 +130,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     //move file
     $filename=$this->fileImportsFacade->getTempFilename();
     $file->move($this->fileImportsFacade->getFilePath($filename));
-    //pokus o automatickou extrakci souboru
+    //try to unzip the file
     if ($fileType==FileImportsFacade::FILE_TYPE_ZIP){
       $fileType=$this->fileImportsFacade->tryAutoUnzipFile($filename);
       if ($fileType!=FileImportsFacade::FILE_TYPE_CSV){
@@ -164,7 +166,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $datasource=$this->datasourcesFacade->prepareNewDatasourceFromDbDatasource($dbDatasource,$currentUser);
     $this->datasourcesFacade->saveDatasource($datasource);
 
-    //aktualizace informace o datových sloupcích
+    //update info about available datasource columns
     $this->datasourcesFacade->updateDatasourceColumns($datasource,$currentUser);
 
     //send response
@@ -172,7 +174,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Funkce pro validaci vstupních hodnot
+   * Method for validation of input values for actionCreate()
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
@@ -246,7 +248,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Akce vracející seznam datových zdrojů pro aktuálního uživatele
+   * Action returning list of available datasources for the current User
    * @SWG\Get(
    *   tags={"Datasources"},
    *   path="/datasources",
@@ -435,7 +437,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
+   * Private method for finding a concrete datasource with check of user privileges
    * @param int $datasourceId
    * @throws BadRequestException
    * @return Datasource

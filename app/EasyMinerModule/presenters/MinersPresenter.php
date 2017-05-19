@@ -8,8 +8,9 @@ use Nette\Application\ForbiddenRequestException;
 
 /**
  * Class MinersPresenter
- * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MinersPresenter extends BasePresenter{
   use MinersFacadeTrait;
@@ -20,6 +21,7 @@ class MinersPresenter extends BasePresenter{
 
   /**
    * Akce pro přiřazení rule setu ke zvolenému mineru
+   * Action for setting up a selected rule set to selected miner
    * @param int $miner
    * @param int $ruleSet
    * @throws BadRequestException
@@ -34,7 +36,7 @@ class MinersPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro uložení nastavení konkrétního mineru
+   * Action for saving of miner configuration
    * @param int $miner
    * @param string $property
    * @param string $value
@@ -51,7 +53,7 @@ class MinersPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce vracející detaily nastavení zvoleného mineru
+   * Action returning miner configuration as JSON response
    * @param int $miner
    * @param string $property=""
    * @throws BadRequestException

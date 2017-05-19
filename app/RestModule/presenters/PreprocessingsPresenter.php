@@ -15,6 +15,7 @@ use Nette\NotImplementedException;
  * Class PreprocessingsPresenter
  * @package EasyMinerCenter\RestModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class PreprocessingsPresenter extends BaseResourcePresenter {
   /** @var  PreprocessingsFacade $preprocessingsFacade */
@@ -30,7 +31,7 @@ class PreprocessingsPresenter extends BaseResourcePresenter {
 
   #region actionCreate
   /**
-   * Akce pro vytvoření nového atributu
+   * Action for creating of a new preprocessing
    * @throws \InvalidArgumentException
    */
   public function actionCreate() {
@@ -38,42 +39,13 @@ class PreprocessingsPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Funkce pro validaci vstupních hodnot pro vytvoření nového atributu
+   * Method for checking of input params for actionCreate()
    * @throws \Drahak\Restful\Application\BadRequestException
    */
   public function validateCreate() {
-    //TODO kontrola vstupních parametrů
-    /*
-    $this->input->field('miner')
-      ->addRule(IValidator::REQUIRED,'You have to select miner ID!');
-    $this->input->field('columnName')
-      ->addRule(IValidator::CALLBACK,'You have to input column name or ID!',function(){
-      $inputData=$this->input->getData();
-      return (@$inputData['columnName']!="" || $inputData['column']>0);
-    });
-    $this->input->field('name')
-      ->addRule(IValidator::REQUIRED,'You have to input attribute name!');
-    $this->input->field('preprocessing')
-      ->addRule(IValidator::CALLBACK,'Requested preprocessing was not found!',function($value){
-        if ($value>0){
-          try{
-            $this->preprocessingsFacade->findPreprocessing($value);
-          }catch (\Exception $e){
-            return false;
-          }
-        }
-        return true;
-      });
-    $this->input->field('specialPreprocessing')
-      ->addRule(IValidator::CALLBACK,'Requested special preprocessing does not exist!',function($value){
-        return ($value=="")||in_array($value,Preprocessing::getSpecialTypes());
-      });
-    $inputData=$this->input->getData();
-    if (empty($inputData['specialPreprocessing'])){
-      $this->input->field('preprocessing')->addRule(IValidator::REQUIRED,'You have to select a preprocessing type or ID!');
-    }*/
+    //TODO check input params
   }
-  #endregion
+  #endregion actionCreate
 
 
 

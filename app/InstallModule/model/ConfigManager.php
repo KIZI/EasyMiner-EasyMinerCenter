@@ -5,8 +5,10 @@ use Nette\Neon\Neon;
 use Nette\Security\Passwords;
 
 /**
- * Class ConfigModel - třída spravující aktuální konfiguraci aplikace
+ * Class ConfigModel - model class for management of actual configuration of EasyMiner app
  * @package EasyMinerCenter\InstallModule\Model
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ConfigManager {
   /** @var string $neonFileName */
@@ -27,7 +29,7 @@ class ConfigManager {
   }
 
   /**
-   * Funkce kontrolující, zda zadané heslo odpovídá hodnotě uložené v configu
+   * Method for check, if the given installation password matches the value saved in config file
    * @param string $password
    * @return bool
    */
@@ -43,7 +45,7 @@ class ConfigManager {
   }
 
   /**
-   * Funkce pro uložení nového instalačního hesla do config souboru
+   * Method for saving of new installation password to config file
    * @param string $newPassword
    */
   public function saveInstallationPassword($newPassword) {
@@ -52,7 +54,7 @@ class ConfigManager {
   }
 
   /**
-   * Funkce pro kontrolu, jestli je nastaveno instalační heslo
+   * Method for checking, if there is a installation password in config file
    * @return bool
    */
   public function isSetInstallationPassword() {
@@ -60,7 +62,7 @@ class ConfigManager {
   }
 
   /**
-   * Funkce pro uložení konfigurace do souboru
+   * Method for updating of config file
    */
   public function saveConfig() {
     $encodedData=Neon::encode($this->data,Neon::BLOCK);

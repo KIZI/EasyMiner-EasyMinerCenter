@@ -1,4 +1,8 @@
-{*Šablona pro znázornění postupu*}
+{**
+ * Template for WizardPresenter for displaying the progress
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
 {if @$stepNumber>0}
   {var $progress=round($stepNumber*100/$stepsCount)}
   <div id="progress" title="Installation progress">

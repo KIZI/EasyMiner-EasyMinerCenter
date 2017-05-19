@@ -21,6 +21,9 @@ use Nette\Localization\ITranslator;
 /**
  * Class MetaAttributesSelectControl
  * @package EasyMinerCenter\EasyMinerModule\Components
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @method onComponentHide
  * @method onComponentShow
  */
@@ -59,7 +62,7 @@ class MetaAttributesSelectControl extends Control{
   }
 
   /**
-   * Vykreslení komponenty (na základě zavolaného signálu)
+   * Render the component (based on the received signal)
    */
   public function render(){
     $template=$this->template;
@@ -67,7 +70,7 @@ class MetaAttributesSelectControl extends Control{
   }
 
   /**
-   * Signál pro výběr metaatributu
+   * Signal to meta-attribute selection
    * @param int $datasource
    * @param int $column
    */
@@ -88,7 +91,7 @@ class MetaAttributesSelectControl extends Control{
 
 
   /**
-   * Signál pro výběr formátu z existujícího metaatributu
+   * Signal to selection of a format from an existing meta-attribute
    * @param int $datasource
    * @param int $column
    * @param string $metaAttribute
@@ -115,14 +118,14 @@ class MetaAttributesSelectControl extends Control{
   }
 
   /**
-   * Signál pro skrytí komponenty...
+   * Signal to hide of the component
    */
   public function handleClose(){
     $this->onComponentHide();
   }
 
   /**
-   * Signál pro zobrazení formuláře pro vytvoření nového metaatributu a formátu
+   * Signal to display of the form for the meta-attribute and format creation
    * @param $datasource
    * @param $column
    */
@@ -156,7 +159,7 @@ class MetaAttributesSelectControl extends Control{
   }
 
   /**
-   * Signál pro zobrazení formuláře pro vytvoření nového metaatributu a formátu
+   * Signal to display the form for new meta-attribute and format creation
    * @param int $datasource
    * @param int $column
    * @param string $metaAttribute
@@ -196,7 +199,7 @@ class MetaAttributesSelectControl extends Control{
   }
 
   /**
-   * Signál pro propojení DatasourceColumn s Formátem
+   * Signal to connection of DatasourceColumn with a Format
    * @param int $datasource
    * @param int $column
    * @param string $format
@@ -216,7 +219,7 @@ class MetaAttributesSelectControl extends Control{
 
 
   /**
-   * Formulář pro vytvoření nového metaatributu
+   * Form for creation of a new meta-attribute
    * @return Form
    */
   protected function createComponentNewMetaAttributeForm(){
@@ -231,7 +234,7 @@ class MetaAttributesSelectControl extends Control{
         if ($metaAttribute instanceof MetaAttribute){
           return false;
         }
-      }catch (\Exception $e){/*chybu ignorujeme (nenalezený metaatribut je OK)*/}
+      }catch (\Exception $e){/*ignore the error (not found MetaAttribute is OK)*/}
       return true;
     },'Meta-attribute with this name already exists!');
     $formatName=$form->addText('formatName','Format name:')->setRequired()->addRule(Form::MIN_LENGTH,'Min length of format name is %s characters!',3);
@@ -276,7 +279,7 @@ class MetaAttributesSelectControl extends Control{
 
 
   /**
-   * Formulář pro vytvoření nového formátu
+   * Form for creation of a new Format
    * @return Form
    */
   protected function createComponentNewFormatForm(){
@@ -332,6 +335,7 @@ class MetaAttributesSelectControl extends Control{
   }
 
   /**
+   * Function for creation of new MetaAttribute and Format based on the values from a DatasourceColumn
    * Funkce pro vytvoření metaatributu a formátu na základě hodnot datového sloupce
    * @param string $metaAttributeName
    * @param string $formatName
