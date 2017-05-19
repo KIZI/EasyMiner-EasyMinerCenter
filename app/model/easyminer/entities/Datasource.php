@@ -7,8 +7,10 @@ use LeanMapper\Entity;
 
 /**
  * Class Datasource
+ * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
-*@package EasyMinerCenter\Model\EasyMiner\Entities
  * @property int|null $datasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
@@ -27,7 +29,7 @@ use LeanMapper\Entity;
  */
 class Datasource extends Entity{
   /**
-   * Funkce vracející základní parametry datového zdroje
+   * Method returning an array with basic data properties of the given datasource
    * @return array
    */
   public function getDataArr(){
@@ -42,8 +44,7 @@ class Datasource extends Entity{
   }
 
   /**
-   * Funkce pro připravení entity nového datového zdroje podle DbConnection
-   *
+   * Method returing a new Datasource using a DbConnection   *
    * @param DbConnection $dbConnection
    * @return Datasource
    */

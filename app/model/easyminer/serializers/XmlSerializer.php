@@ -15,9 +15,11 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Value;
 /**
  * Class XmlSerializer - Serializer pro export pravidel v jednoduchém formátu
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class XmlSerializer {
-#region base Xml templates
+  #region base XML templates
   const METAATTRIBUTES_XML_BASE = '<MetaAttributes xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttributes>';
   const METAATTRIBUTE_XML_BASE  = '<MetaAttribute xmlns="http://keg.vse.cz/easyminer/BKEF"></MetaAttribute>';
   const ATTRIBUTES_XML_BASE     = '<Attributes xmlns="http://keg.vse.cz/easyminer/BKEF"></Attributes>';
@@ -30,7 +32,7 @@ class XmlSerializer {
   const KNOWLEDGEBASES_XML_BASE = '<KnowledgeBases xmlns="http://keg.vse.cz/easyminer/KB"></KnowledgeBases>';
 
   /**
-   * Funkce vracecící základ XML dokumentu pro zachycení metaatributů
+   * Static method returning basic structure of XML file for list of metaattributes
    * @return \SimpleXMLElement
    */
   public static function baseMetaAttributesXml(){
@@ -38,7 +40,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracecící základ XML dokumentu pro zachycení jednoho metaatributu
+   * Static method returning basic structure of XML file for one metaattribute
    * @return \SimpleXMLElement
    */
   public static function baseMetaAttributeXml(){
@@ -46,7 +48,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracecící základ XML dokumentu pro zachycení atributů
+   * Static method returning basic structure of XML file for list of attributes
    * @return \SimpleXMLElement
    */
   public static function baseAttributesXml(){
@@ -54,7 +56,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracecící základ XML dokumentu pro zachycení jednoho atributu
+   * Static method returning basic structure of XML file for one attribute
    * @return \SimpleXMLElement
    */
   public static function baseAttributeXml(){
@@ -62,7 +64,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracející základ XML dokumentu pro zachycení pravidel
+   * Static method returning basic structure of XML file for list of rules
    * @return \SimpleXMLElement
    */
   public static function baseRulesXml(){
@@ -70,7 +72,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracející základ XML dokumentu pro zachycení jednoho pravidla
+   * Static method returning basic structure of XML file for one rule
    * @return \SimpleXMLElement
    */
   public static function baseRuleXml(){
@@ -78,7 +80,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracející základ XML dokumentu pro zachycení jednoho rulesetu
+   * Static method returning basic structure of XML file for ruleset
    * @return \SimpleXMLElement
    */
   public static function baseRuleSetXml() {
@@ -86,7 +88,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracející základ XML dokumentu pro zachycení sady rulesetů
+   * Static method returning basic structure of XML file for list of rulesets
    * @return \SimpleXMLElement
    */
   public static function baseRuleSetsXml() {
@@ -94,7 +96,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracející základ XML dokumentu pro zachycení jedné KnowledgeBase
+   * Static method returning basic structure of XML file for one knowledgeBase
    * @return \SimpleXMLElement
    */
   public static function baseKnowledgeBaseXml() {
@@ -102,17 +104,17 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce vracející základ XML dokumentu pro zachycení sady rulesetů
+   * Static method returning basic structure of XML file for list of knowledgeBases
    * @return \SimpleXMLElement
    */
   public static function baseKnowledgeBasesXml() {
     return simplexml_load_string(self::KNOWLEDGEBASES_XML_BASE);
   }
 
-#endregion
+  #endregion base XML templates
 
   /**
-   * Funkce pro serializaci kompletního metaatributu včetně celé struktury
+   * Method for serialization of complete metaattribute with the full structure
    * @param MetaAttribute $metaAttribute
    * @param \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -130,7 +132,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci metaatributu pouze se seznamem formátů (s uri a názvy, bez vnitřní struktury)
+   * Method for serialization of one metaattribute only with list of formats (with URIs and names, without the inner structure)
    * @param MetaAttribute $metaAttribute
    * @param \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -148,7 +150,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci základních info o metaatributu bez vnitřní struktury
+   * Method for serialization of basic info about metaattribute without inner structure
    * @param MetaAttribute $metaAttribute
    * @param \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -167,7 +169,7 @@ class XmlSerializer {
 
 
   /**
-   * Funkce pro serializaci základních info o metaatributu bez vnitřní struktury
+   * Method for serialization of basic info about attribute (without inner structure)
    * @param Attribute $attribute
    * @param \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -189,7 +191,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci základních info o formátu (bez vnitřní struktury)
+   * Method for serialization of basic info about Format (without inner structure)
    * @param Format $format
    * @param \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -203,7 +205,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci základních info o formátu (bez vnitřní struktury)
+   * Method for serialization of basic info about RuleSet (without inner structure)
    * @param  RuleSet $ruleSet
    * @param  \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -221,7 +223,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci základních info o formátu (bez vnitřní struktury)
+   * Method for serialization of basic info about KnowledgeBase (without inner structure)
    * @param  KnowledgeBase $knowledgeBase
    * @param  \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -239,7 +241,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci formátu včetně kompletní struktury zabaleně do základní struktury metaatributu
+   * Method for serialization of Format packed in basic structure of metaattribute
    * @param Format $format
    * @param \SimpleXMLElement|null $parentXml
    * @return \SimpleXMLElement
@@ -252,7 +254,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci formátu včetně kompletní struktury
+   * Method for serialization of a format (with complete structure)
    * @param Format $format
    * @param \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -281,7 +283,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci rozsahu hodnot (výčet hodnot či intervalů)
+   * Method for serialization of a range (enumeration of values or intervals)
    * @param \SimpleXMLElement $parentXml
    * @param Interval[]|Value[] $range
    */
@@ -289,14 +291,14 @@ class XmlSerializer {
     if (count($range) > 0){
       foreach ($range as $rangeItem){
         if ($rangeItem instanceof Value){
-          //serializace konkrétní hodnoty
+          //serialize concrete values
           $valueXml=$parentXml->addChild('Value');
           $valueXml[0]=$rangeItem->value;
           if ($rangeItem->valueId){
             $valueXml->addAttribute('id',$rangeItem->valueId);
           }
         }elseif($rangeItem instanceof Interval){
-          //serializace intervalu
+          //serialize intervals
           $intervalXml=$parentXml->addChild('Interval');
           $intervalXml->addAttribute('id',$rangeItem->intervalId);
           $closure=@$rangeItem->closure;//XXX
@@ -311,7 +313,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci pravidla ze znalostní báze (jen ID a text)
+   * Method for serialization of a rule from knowledge base (only ID and text)
    * @param Rule $rule
    * @param \SimpleXMLElement $parentXml
    * @return \SimpleXMLElement
@@ -331,7 +333,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci pravidla ze znalostní báze (včetně kompletní struktury)
+   * Method for serialization fo a rule from knowledge base (with complete inner structure)
    * @param Rule $rule
    * @param \SimpleXMLElement $parentXml
    * @return \SimpleXMLElement
@@ -343,19 +345,12 @@ class XmlSerializer {
     }
     if (!empty($rule->consequent)) {
       $this->cedentAsXml($rule->consequent, $ruleXml, 'Consequent');
-    }/*FIXME
-    $ratingArr=$rule->getRatingArr();//XXX
-    if (!empty($ratingArr)){
-      $rating=$ruleXml->addChild('Rating');
-      foreach ($ratingArr as $key=>$value){
-        $rating->addAttribute($key,$value);
-      }
-    }*/
+    }
     return $ruleXml;
   }
 
   /**
-   * Funkce pro serializaci cedentu z pravidla
+   * Private method for serialization of a cedent
    * @param Cedent $cedent
    * @param \SimpleXMLElement $parentXml
    * @param string $elementName = 'Cedent'
@@ -380,7 +375,7 @@ class XmlSerializer {
   }
 
   /**
-   * Funkce pro serializaci atributu z konkrétního pravidla
+   * Private method for serialization of a ruleattribute (attribute from rule)
    * @param RuleAttribute $ruleAttribute
    * @param \SimpleXMLElement &$parentXml
    * @return \SimpleXMLElement
@@ -431,7 +426,7 @@ class XmlSerializer {
 
 
   /**
-   * Funkce pro serializaci kompletního atributu včetně celé struktury
+   * Method for serialization of complete attribute with complete inner structure
    * @param Attribute $attribute
    * @param \SimpleXMLElement|null &$parentXml
    * @return \SimpleXMLElement
@@ -441,7 +436,7 @@ class XmlSerializer {
 
     if ($format=$attribute->preprocessing->format){
       $rangeXml=$attributeXml->addChild('Range');
-      //pro zjednodušení sem seserializujeme také Range z formátu
+      //for simplification, serialize also Range from Format
       $this->rangeAsXml($format->intervals,$rangeXml);
       $this->rangeAsXml($format->values,$rangeXml);
     }

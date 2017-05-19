@@ -8,6 +8,9 @@ use LeanMapper\Entity;
 /**
  * Class Metasource
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $metasourceId = null
  * @property User|null $user = null m:hasOne
  * @property string $type = m:Enum('mysql','limited','unlimited')
@@ -33,7 +36,7 @@ class Metasource extends Entity{
   const STATE_PREPARATION='preparation';
 
   /**
-   * Funkce pro připravení entity nového Metasource podle DbConnection
+   * Method for creation of new Metasource using a PpConnection
    * @param PpConnection $ppConnection
    * @return Metasource
    */
@@ -52,7 +55,7 @@ class Metasource extends Entity{
   }
 
   /**
-   * Funkce vracející PpConnection (instrukce pro připojení k DB/preprocessing službě)
+   * Method returning PpConnection (instructions for connection to Data/Preprocessing service)
    * @return PpConnection
    */
   public function getPpConnection(){
@@ -89,7 +92,7 @@ class Metasource extends Entity{
   }
 
   /**
-   * Funkce vracející pole atributů zahrnutých v rámci tohoto Metasource
+   * Method returning array of Attributes belonging to this Metasource; keys = IDs ot Attributes
    * @return Attribute[]
    */
   public function getAttributesArr(){
@@ -103,7 +106,7 @@ class Metasource extends Entity{
   }
 
   /**
-   * Funkce vracející pole atributů zahrnutých v rámci tohoto Metasource
+   * Method returning array of Attributes belonging to this Metasource; keys = names of Attributes
    * @return Attribute[]
    */
   public function getAttributesByNamesArr(){
@@ -117,7 +120,7 @@ class Metasource extends Entity{
   }
 
   /**
-   * Funkce vracející atribut dle zadaného jména
+   * Method returning Attribute by the given name
    * @param string $name
    * @return Attribute|null
    */

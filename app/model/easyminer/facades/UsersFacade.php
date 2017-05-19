@@ -2,7 +2,6 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
-
 use EasyMinerCenter\Libs\StringsHelper;
 use EasyMinerCenter\Model\EasyMiner\Authorizators\OwnerRole;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -17,6 +16,12 @@ use Nette\Security\Passwords;
 use Nette\Utils\DateTime;
 use Nette\Utils\Strings;
 
+/**
+ * Class UsersFacade
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class UsersFacade implements IAuthenticator{
   /** @var UsersRepository $usersRepository */
   private $usersRepository;
@@ -86,7 +91,7 @@ class UsersFacade implements IAuthenticator{
    */
   public function saveUser(User &$user){
     if ($user->isDetached() && $user->getDbPassword()==''){
-      //při ukládání nového uživatele mu přiřadíme heslo...
+      //during the save, create a new database password for the user, if it is not configured yet
       $user->setDbPassword(StringsHelper::randString(8));
     }
     try{
@@ -95,33 +100,34 @@ class UsersFacade implements IAuthenticator{
       $apiKey='';
     }
     if ($apiKey==''){
-      //při ukládání uživatele bez apiKey mu vygenerujeme náhodný
+      //during the save, create a new random API KEY, if it is not configured yet
       $user->apiKey=StringsHelper::randString(20).round(rand(3911,89301)).StringsHelper::randString(20);
     }
     return $this->usersRepository->persist($user);
   }
 
   /**
+   * Method for authentication of an User by google ID (if not existing, creates a new User account)
    * @param string $googleUserId
    * @param object $googleProfile
+   * @return Identity
    * @throws AuthenticationException
-   * @return User
    */
   public function authenticateUserFromGoogle($googleUserId,$googleProfile){
     $googleProfile->email=Strings::lower($googleProfile->email);
     $user=null;
     try{
-      //zkusíme najít existujícího uživatele
+      //try to find existing User by googleId
       $user=$this->findUserByGoogleId($googleUserId);
-    }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    }catch (\Exception $e){/*ignore the error, it is OK*/}
     if ($user){
-      //pokud máme uživatele dle googleId, musíme zkontrolovat, jestli tu není kolize v mailech... (jestli nemáme uživatele registrovaného samostatně, který by měl zadaný stejný mail)
+      //we have there an existing User found by googleId; we have to check, if there is not a collision in e-mails with another User account (if we have not there an User with the given e-mail, but created using manual registration using combination of e-mail and password)
       if ($user->email!=$googleProfile->email){
         try{
           $userByMail=$this->findUserByEmail($googleProfile->email);
-        }catch (\Exception $e){/*chyba nás nezajímá*/}
+        }catch (\Exception $e){/*ignore the error, it is OK*/}
         if (isset($userByMail) && ($userByMail instanceof User)){
-          //sloučení uživatelských účtů
+          //merge the Users (user accounts)
           $user=$this->mergeUsers($userByMail,$user);
         }else{
           if ($user->email!=$googleProfile->email){
@@ -130,15 +136,15 @@ class UsersFacade implements IAuthenticator{
         }
       }
     }else{
-      //pokud ho zatím nemáme připárovaného, zkusíme uživatele najít podle mailu
+      //the User is not registered by googleId - try to find an User account by e-mail gained from google oauth
       try{
         $user=$this->findUserByEmail($googleProfile->email);
         $user->googleId=$googleUserId;
-      }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+      }catch (\Exception $e){/*ignore the error, it is OK*/}
     }
 
     if (!$user){
-      //registrace nového uživatele
+      //register new User
       $user=new User();
       $user->email=$googleProfile->email;
       $user->googleId=$googleUserId;
@@ -147,43 +153,44 @@ class UsersFacade implements IAuthenticator{
       $user->lastLogin=new DateTime();
       $this->saveUser($user);
     }else{
-      //kontrola, jestli není uživatel zablokován
+      //check, if the User is not blocked
       if (!$user->active){
         throw new AuthenticationException('User account is blocked.',self::NOT_APPROVED);
       }
-      //update info o stávajícím uživateli
+      //update the User account details
       if ($user->name!=$googleProfile->givenName.' '.$googleProfile->familyName){
         $user->name=$googleProfile->givenName.' '.$googleProfile->familyName;;
       }
       $user->lastLogin=new DateTime();
       $this->saveUser($user);
     }
-    //stáhnutí obrázku
+    //download image from google profile
     $this->saveUserImageFromUrl($user,$googleProfile->picture);
     return $this->getUserIdentity($user);
   }
 
   /**
+   * Method for authentication of an User by facebook ID (if not existing, creates a new User account)
    * @param string $facebookUserId
    * @param object $facebookMe
+   * @return Identity
    * @throws AuthenticationException
-   * @return User
    */
   public function authenticateUserFromFacebook($facebookUserId,$facebookMe){
     $facebookMe->email=Strings::lower($facebookMe->email);
     $user=null;
     try{
-      //zkusíme najít existujícího uživatele
+      //try to find an existing User
       $user=$this->findUserByFacebookId($facebookUserId);
-    }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+    }catch (\Exception $e){/*ignore the error, it is OK*/}
     if ($user){
-      //pokud máme uživatele dle facebookId, musíme zkontrolovat, jestli tu není kolize v mailech... (jestli nemáme uživatele registrovaného samostatně, který by měl zadaný stejný mail)
+      //we have there an existing User found by facebookId; we have to check, if there is not a collision in e-mails with another User account (if we have not there an User with the given e-mail, but created using manual registration using combination of e-mail and password)
       if ($user->email!=$facebookMe->email){
         try{
           $userByMail=$this->findUserByEmail($facebookMe->email);
-        }catch (\Exception $e){/*chyba nás nezajímá*/}
+        }catch (\Exception $e){/*ignore the error, it is OK*/}
         if (isset($userByMail) && ($userByMail instanceof User)){
-          //sloučení uživatelských účtů
+          //merge Users (user accounts)
           $user=$this->mergeUsers($userByMail,$user);
         }else{
           if ($user->email!=$facebookMe->email){
@@ -192,16 +199,16 @@ class UsersFacade implements IAuthenticator{
         }
       }
     }else{
-      //pokud ho zatím nemáme připárovaného, zkusíme uživatele najít podle mailu
+      //the User is not registered by facebookId - try to find an User account by e-mail gained from google oauth
       try{
         $user=$this->findUserByEmail($facebookMe->email);
         $user->facebookId=$facebookUserId;
-      }catch (\Exception $e){/*chybu ignorujeme (dala se čekat)*/}
+      }catch (\Exception $e){/*ignore the error, it is OK*/}
     }
 
 
     if (!$user){
-      //registrace nového uživatele
+      //register new User account
       $user=new User();
       $user->email=$facebookMe->email;
       $user->facebookId=$facebookUserId;
@@ -210,24 +217,24 @@ class UsersFacade implements IAuthenticator{
       $user->lastLogin=new DateTime();
       $this->saveUser($user);
     }else{
-      //kontrola, jestli není uživatel zablokován
+      //check, if the User is not blocked
       if (!$user->active){
         throw new AuthenticationException('User account is blocked.',self::NOT_APPROVED);
       }
-      //update info o stávajícím uživateli
+      //update the User account details
       if ($user->name!=$facebookMe->first_name.' '.$facebookMe->last_name){
         $user->name=$facebookMe->first_name.' '.$facebookMe->last_name;
       }
       $user->lastLogin=new DateTime();
       $this->usersRepository->persist($user);
     }
-    //stáhnutí obrázku
+    //download User image from facebook profile
     $this->saveUserImageFromUrl($user,'https://graph.facebook.com/'.$facebookUserId.'/picture?width=200&height=200');
     return $this->getUserIdentity($user);
   }
 
   /**
-   * Funkce vracející URL k aktuální složce (relativní)
+   * Method returning URL of the profile image of the given User (relative path)
    * @param User|int $user
    * @return string|null
    */
@@ -242,7 +249,7 @@ class UsersFacade implements IAuthenticator{
   }
 
   /**
-   * Funkce pro uložení uživatelovy fotky lokálně na disk
+   * Method for saving of a profile image of the User to the local disk
    * @param User|int $user
    * @param string $url
    */
@@ -289,7 +296,7 @@ class UsersFacade implements IAuthenticator{
   }
 
   /**
-   * Funkce pro autentifikaci uživatele pomocí API KEY
+   * Method for the user authentication using API KEY
    * @param string $apiKey
    * @param User $user=null
    * @throws AuthenticationException
@@ -312,7 +319,7 @@ class UsersFacade implements IAuthenticator{
   }
 
   /**
-   * Funkce pro zaregistrování lokálního uživatelského účtu
+   * Method for registration of a new local User account
    * @param array $params
    * @return User
    */
@@ -350,7 +357,7 @@ class UsersFacade implements IAuthenticator{
 
     $imageUrl=$this->getUserImageUrl($user);
 
-    /*TODO uživatelské role
+    /*TODO user roles
     $userRoles=$user->roles;
     if (!empty($userRoles)){
       foreach ($userRoles as $userRole){
@@ -362,7 +369,7 @@ class UsersFacade implements IAuthenticator{
   }
 
   /**
-   * Funkce pro vytvoření kódu pro změnu hesla a jeho odeslání na mail
+   * Method for preparation of a security code for the change of User password
    * @param User|int $user
    * @throws \Exception
    * @return UserForgottenPassword
@@ -400,21 +407,21 @@ class UsersFacade implements IAuthenticator{
   }
   
   /**
-   * Funkce pro vyčištění záznamů o zapomenutých heslech
+   * Method for deletion of expired forgotten passwords (security codes for password renewal)
    * @param User|int $user
    */
   public function cleanForgottenPasswords($user){
     if ($user instanceof User){
       $user=$user->userId;
     }
-    //vyčištění kódů pro změnu hesla u daného uživatele
+    //remove security codes for the password change for the given user
     $userForgottenPasswords=$this->userForgottenPasswordsRepository->findAllBy(['user_id'=>$user]);
     if (!empty($userForgottenPasswords)){
       foreach($userForgottenPasswords as $userForgottenPassword){
         $this->userForgottenPasswordsRepository->delete($userForgottenPassword);
       }
     }
-    //vyčištění starých kódů pro změnu hesla
+    //remove expired security codes for the password change
     $userForgottenPasswords=$this->userForgottenPasswordsRepository->findAllBy([['[generated] < %s',date('Y-m-d H:i:s',strtotime('-2DAY'))]]);
     if (!empty($userForgottenPasswords)){
       foreach($userForgottenPasswords as $userForgottenPassword){

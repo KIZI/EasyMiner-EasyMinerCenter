@@ -13,8 +13,11 @@ use Nette\Utils\Finder;
 use Nette\Utils\Strings;
 
 /**
- * Class FileImportsFacade - model pro práci s importy souborů
+ * Class FileImportsFacade - facade for direct file import
  * @package EasyMinerCenter\Model\Data\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
  */
 class FileImportsFacade {
   /** @var  string $dataDirectory */
@@ -27,11 +30,11 @@ class FileImportsFacade {
   const FILE_TYPE_ZIP='Zip';
   const FILE_TYPE_CSV='Csv';
   const FILE_TYPE_UNKNOWN='';
-  /*počet řádků, které mají být analyzovány pro určení datových typů v CSV souboru*/
+  /** @const CSV_ANALYZE_ROWS - count of rows which should be analyzed for auto-detection of data types */
   const CSV_ANALYZE_ROWS=100;
 
   /**
-   * FileImportsFacade constructor.
+   * FileImportsFacade constructor
    * @param string $dataDirectory
    * @param array $databases
    * @param DatabaseFactory $databaseFactory
@@ -49,7 +52,8 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro automatické dekódování ZIP archívu (pokud projde, soubor přesune na místo původního souboru a následně vrátí finální typ souboru
+   * Method for automatic decompression of ZIP archive
+   * (if it is successfull, the file will be moved to the original place and the method returns final type of file)
    * @param string $fileName
    * @return string
    */
@@ -65,7 +69,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro extrakci konkrétního souboru ze ZIP archívu (na místo původního souboru)
+   * Method for decompression of one file from ZIP (to the place of original ZIP archive)
    * @param string $fileName
    * @param int $selectedFileIndex
    * @throws \Exception
@@ -83,7 +87,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce vracející seznam souborů v ZIP archívu
+   * Method returning list of files in ZIP archive
    * @param string $fileName
    * @return array
    */
@@ -92,7 +96,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce vracející seznam souborů ze ZIP archívu, které je možné dál zpracovat
+   * Method returning list of files from ZIP archive, which could be processed
    * @param string $fileName
    * @return array
    */
@@ -111,7 +115,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro změnu kódování datového souboru
+   * Method for changing of file encoding
    * @param string $filename
    * @param string $originalEncoding
    */
@@ -120,7 +124,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro smazání pracovních souborů sloužících k importům dat
+   * Method for deleting of a working file (file for data import)
    * @param string $filename
    */
   public function deleteFile($filename){
@@ -139,7 +143,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro smazání starých souborů importů (starších, než daný počet dnů)
+   * Method for deleting of old import files
    * @param int $minusDays
    */
   public function deleteOldFiles($minusDays){
@@ -149,7 +153,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce detekující typ souboru podle jeho přípony
+   * Method for detecting of file type using its extension
    * @param string $filename
    * @return string self::FILE_TYPE_ZIP|self::FILE_TYPE_CSV
    */
@@ -165,13 +169,13 @@ class FileImportsFacade {
 
 
   /**
-   * Funkce vracející data z CSV souboru
+   * Method returning rows from CSV file
    * @param string $filename
    * @param int $count
    * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
-   * @param int $offset = 0 - počet řádek, které se mají na začátku souboru přeskočit...
+   * @param int $offset = 0 - count of rows, which should be skipped
    * @param string|null $nullValue = null
    * @return array
    */
@@ -180,7 +184,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce vracející počet řádků
+   * Method returning count of rows in CSV file
    * @param string $filename
    * @return int
    */
@@ -189,7 +193,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce vracející počet sloupců v CSV souboru
+   * Method returning count of columns in CSV file
    * @param string $filename
    * @param string $delimiter
    * @param string $enclosure
@@ -201,14 +205,14 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce vracející přehled sloupců v CSV souboru
+   * Method returning list of columns in CSV file
    * @param string $filename
    * @param string $delimiter
    * @param string $enclosure
    * @param string $escapeCharacter
    * @param int $analyzeRowsCount = max(self::CSV_ANALYZE_ROWS,given value)
-   * @param bool $requireSafeColumnNames=true - pokud je true, budou upraveny názvy sloupců tak, aby je bylo možné importovat do libovolné databáze
-   * @param string $nullValue="" - hodnota, která má být interpretována jako null
+   * @param bool $requireSafeColumnNames=true - if true, the column names will be sanitized to be usable in all database types
+   * @param string $nullValue="" - value which should be interpreted ar null
    * @return DbField[]
    */
   public function getColsInCSV($filename,$delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=self::CSV_ANALYZE_ROWS, $requireSafeColumnNames=true, $nullValue=""){
@@ -217,6 +221,7 @@ class FileImportsFacade {
 
   /**
    * Funkce vracející výchozí oddělovač...
+   * Method returning the default columns delimiter
    * @param string $filename
    * @return string
    */
@@ -225,7 +230,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce vracející nové pracovní jméno souboru
+   * Method returning new working filename
    * @param  string $extension
    * @return string
    */
@@ -242,7 +247,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro kontrolu, jestli existuje příslušný importovaný soubor
+   * Method for check, if there exists the selected file for import
    * @param string $filename
    * @return bool
    */
@@ -251,7 +256,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro uložení obsahu dočasného souboru (s nově vygenerovaným dočasným názvem), v případě komprese dojde k jeho rozbalení
+   * Method for saving temporal file content, in case o archive, it will be unpacked
    * @param $fileContent
    * @param string $compression
    * @return string
@@ -269,7 +274,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro rozbalení 1. souboru z archívu
+   * Method for decompression of first file from archive
    * @param string $filename
    * @return string
    */
@@ -290,7 +295,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro uložení obsahu dočasného souboru (s nově vygenerovaným dočasným názvem)
+   * Method for saving a temp file
    * @param string $fileContent
    * @param string $extension
    * @return string
@@ -302,7 +307,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro import CSV souboru
+   * Method for import of a CSV file
    * @param string $filename
    * @param string $dbType
    * @param User $user
@@ -329,75 +334,9 @@ class FileImportsFacade {
     $database=$this->databaseFactory->getDatabaseInstanceWithDefaultDbConnection($dbType, $user);
     return $database->importCsvFile($this->getFilePath($filename),$tableName,$encoding,$delimiter,$enclosure,$escapeCharacter,$nullValue,$dataTypes);
   }
-  
 
   /**
-   * TODO odstranit - respektive přepracovat pro import v MySQLDatabase.php
-   * Funkce pro import CSV souboru
-   * @param string $filename
-   * @param DbConnection $dbConnection
-   * @param string $table
-   * @param string $encoding
-   * @param string $delimiter
-   * @param string $enclosure
-   * @param string $escapeCharacter
-   * @param string|null $nullValue=null
-   * @throws ApplicationException
-   */
-  public function OLD_importCsvFile($filename,DbConnection $dbConnection,&$table,$encoding='utf-8',$delimiter=',',$enclosure='"',$escapeCharacter='\\',$nullValue=""){
-    //připravení parametrů pro DB tabulku
-    $this->changeFileEncoding($filename,$encoding);
-    $csvColumns=$this->getColsInCSV($filename,$delimiter,$enclosure,$escapeCharacter);
-
-    //otevření databáze a vytvoření DB tabulky
-    $this->databasesFacade->openDatabase($dbConnection);
-    if (!$this->databasesFacade->createTable($table,$csvColumns)){
-      throw new ApplicationException('Table creation failed!');
-    }
-
-    //projití CSV souboru a import dat do DB
-    $colsNames=array();
-    foreach ($csvColumns as $column){
-      $colsNames[]=$column->name;
-    }
-    $colsCount=count($colsNames);
-
-    if (@$this->tryDirectFileImport[$dbConnection->type]){
-      #region try direct import...
-      $result=$this->databasesFacade->importCsvFile($table,$colsNames,$this->getFilePath($filename),$delimiter,$enclosure,$escapeCharacter,$nullValue,1,DatabasesFacade::FIRST_DB);
-      if ($result){
-        return;
-      }else{
-        $this->databasesFacade->truncateTable($table);
-      }
-      #endregion
-    }
-
-    #region postupný import pomocí samostatných dotazů
-    $csvFile=CsvImport::openCsv($this->getFilePath($filename));
-    CsvImport::getRowsFromOpenedCSVFile($csvFile,1,$delimiter,$enclosure,$escapeCharacter,$nullValue);//přeskakujeme první řádek
-
-    while($row=CsvImport::getRowsFromOpenedCSVFile($csvFile,1,$delimiter,$enclosure,$escapeCharacter,$nullValue)){
-      if (isset($row[0])){
-        $row=$row[0];//chceme jen jeden řádek
-      }
-      $insertArr=array();
-      for ($i=0;$i<$colsCount;$i++){
-        if (isset($row[$i])){
-          $insertArr[$colsNames[$i]]=$row[$i];
-        }else{
-          $insertArr[$colsNames[$i]]=null;
-        }
-
-      }
-      $this->databasesFacade->insertRow($table,$insertArr);
-    }
-    CsvImport::closeCsv($csvFile);
-    #endregion
-  }
-
-  /**
-   * Funkce vracející maximální velikost souboru, který lze uploadovat
+   * Method returning max size of file, which can be uploaded
    * @return int
    */
   public function getMaximumFileUploadSize() {
@@ -405,7 +344,7 @@ class FileImportsFacade {
   }
 
   /**
-   * Funkce pro konverzi velikosti paměti udávané v PHP na číselné vyjádření v bytech
+   * Method for conversion of file sizes from PHP value to size in bytes
    * @param string|int $sSize
    * @return int
    */

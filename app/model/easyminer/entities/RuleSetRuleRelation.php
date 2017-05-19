@@ -6,6 +6,9 @@ use LeanMapper\Entity;
 /**
  * Class RuleSetRuleRelation
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int $ruleSetRuleRelationId
  * @property Rule $rule m:hasOne
  * @property RuleSet $ruleSet m:hasOne

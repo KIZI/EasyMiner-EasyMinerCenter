@@ -3,9 +3,10 @@
 namespace EasyMinerCenter\Model\Preprocessing\Entities;
 
 /**
- * Class PpValue - třída představující jednu hodnotu předzpracovaného atributu
+ * Class PpValue - class representing one value of a preprocessed attribute
  * @package EasyMinerCenter\Model\Preprocessing\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int $id
  * @property int $frequency

@@ -3,10 +3,10 @@
 namespace EasyMinerCenter\Model\Preprocessing\Entities;
 
 /**
- * Class PpAttribute - třída představující datový sloupec (atribut) v tabulce předzpracovaných dat
- *
+ * Class PpAttribute - class representing an attribute on preprocessing service
  * @package EasyMinerCenter\Model\Preprocessing\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int $id
  * @property int $dataset

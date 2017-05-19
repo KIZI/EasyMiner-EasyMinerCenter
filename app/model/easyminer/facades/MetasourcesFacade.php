@@ -24,9 +24,9 @@ use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingException;
 
 /**
  * Class MetasourcesFacade - fasáda pro práci s jednotlivými metasources (datasety)
- *
  * @package EasyMinerCenter\Model\EasyMiner\Facades
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MetasourcesFacade {
   /** @var PreprocessingFactory $preprocessingFactory */
@@ -46,7 +46,7 @@ class MetasourcesFacade {
   const SHORT_NAMES_MAX_LENGTH=40;
 
   /**
-   * Funkce pro export pole s informacemi z TransformationDictionary
+   * Method for exporting array with info from TransformationDictionary
    * @param Metasource $metasource
    * @param User $user
    * @param int &rowsCount = null - počet řádků v datasource
@@ -54,7 +54,7 @@ class MetasourcesFacade {
    */
   public function exportTransformationDictionaryArr(Metasource $metasource, User $user, &$rowsCount = null) {
     $output = [];
-    $this->updateMetasourceAttributes($metasource, $user);//aktualizace seznamu datových sloupců
+    $this->updateMetasourceAttributes($metasource, $user);//update list of attributes
 
     foreach($metasource->attributes as $attribute){
       if (!$attribute->active){continue;}
@@ -69,7 +69,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro nalezení metasource dle zadaného ID
+   * Method for finding metasource by the given MetasourceId
    * @param int $id
    * @return Metasource
    */
@@ -78,7 +78,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro nalezení MetasourceTask podle ID
+   * Method for finding MetasourceTask by MetasourceTaskId
    * @param int $id
    * @return MetasourceTask
    * @throws \EasyMinerCenter\Exceptions\EntityNotFoundException
@@ -89,8 +89,7 @@ class MetasourcesFacade {
 
 
   /**
-   * Funkce pro nalezení všech metasources vycházejících z konkrétního datasource
-   *
+   * Method for finding all metasources based on the selected datasource
    * @param int|Datasource $datasource
    * @return Metasource[]|null
    */
@@ -102,7 +101,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro uložení MetasourceTask
+   * Method for saving of MetasourceTask
    * @param MetasourceTask $metasourceTask
    */
   public function saveMetasourceTask(MetasourceTask $metasourceTask) {
@@ -110,6 +109,7 @@ class MetasourcesFacade {
   }
 
   /**
+   * Method for saving of Metasource
    * @param Metasource $metasource
    */
   public function saveMetasource(Metasource $metasource) {
@@ -117,6 +117,7 @@ class MetasourcesFacade {
   }
 
   /**
+   * Method for deleting of MetasourceTask
    * @param MetasourceTask $metasourceTask
    * @return int
    * @throws \LeanMapper\Exception\InvalidStateException
@@ -126,7 +127,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce vracející přehled typů preprocessingů, které jsou podporované daným ovladačem preprocessingu
+   * Method returning list of preprocessing types, supported by the given preprocessing driver
    * @param Metasource $metasource
    * @param User $user
    * @return string[]
@@ -138,7 +139,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro aktualizaci info o atributech v DB
+   * Method for updating the info about attributes in database
    * @param Metasource &$metasource
    * @param User $user
    */
@@ -151,7 +152,7 @@ class MetasourcesFacade {
     $metasource->size=$ppDataset->size;
     $ppAttributes=$preprocessing->getPpAttributes($ppDataset);
 
-    #region připravení seznamu aktuálně existujících datasourceColumns
+    #region prepare list of actually existing metasource attributes
     /** @var Attribute[] $existingAttributesByPpDatasetAttributeId */
     $existingAttributesByPpDatasetAttributeId=[];
     /** @var Attribute[] $existingAttributesByName */
@@ -165,16 +166,15 @@ class MetasourcesFacade {
         }else{
           $existingAttributesByName[$attribute->name]=$attribute;
         }
-
       }
     }
-    #endregion
+    #endregion prepare list of actually existing metasource attributes
 
-    #region aktualizace seznamu sloupců získaných z DB
+    #region update list of attributes gained from database
     if (!empty($ppAttributes)){
       foreach($ppAttributes as $ppAttribute){
         if (!empty($ppAttribute->id) && is_int($ppAttribute->id) && isset($existingAttributesByPpDatasetAttributeId[$ppAttribute->id])){
-          //sloupec s daným ID již je v databázi
+          //attribute with the given ID already exists in the metasource (remote database)
           $attribute=$existingAttributesByPpDatasetAttributeId[$ppAttribute->id];
           $modified=false;
           if ($attribute->name!=$ppAttribute->name){
@@ -190,7 +190,7 @@ class MetasourcesFacade {
           }
           unset($existingAttributesByPpDatasetAttributeId[$ppAttribute->id]);
         }elseif(!empty($ppAttribute->name) && isset($existingAttributesByName[$ppAttribute->name])){
-          //sloupec najdeme podle jména
+          //find attribute
           $attribute=$existingAttributesByName[$ppAttribute->name];
           if (!empty($ppAttribute->id) && $attribute->ppDatasetAttributeId!=$ppAttribute->id){
             $attribute->ppDatasetAttributeId=$ppAttribute->id;
@@ -202,7 +202,7 @@ class MetasourcesFacade {
           }
           unset($existingAttributesByName[$ppAttribute->name]);
         }elseif (!empty($ppAttribute->field)){
-          //máme tu nový datový sloupec (který má svoji vazbu na datasource)
+          //we have there new attribute
           $attribute=new Attribute();
           $attribute->metasource=$metasource;
           try{
@@ -221,8 +221,9 @@ class MetasourcesFacade {
         }
       }
     }
-    #endregion
-    #region deaktivace již neexistujících sloupců
+    #endregion update list of columns gained from metasource
+
+    #region deactivate currently not existing attributes
     //TODO kontrola, jestli je není možné kompletně smazat (pokud ještě nebyly dovytvořeny v rámci preprocessingu)
     if (!empty($existingAttributesByPpDatasetAttributeId)){
       foreach($existingAttributesByPpDatasetAttributeId as &$attribute){
@@ -240,12 +241,12 @@ class MetasourcesFacade {
         }
       }
     }
-    #endregion
+    #endregion deactivate currently not existing attributes
 
-    //aktualizace datového zdroje z DB
+    //update object $metasource from database
     $metasource=$this->findMetasource($metasource->metasourceId);
 
-    #region vyčištění preprocessing úloh
+    #region cleanup preprocessing tasks
     if (!empty($metasource->metasourceTasks)){
       $attributesArr=$metasource->getAttributesArr();
       if (!empty($attributesArr)){
@@ -266,7 +267,7 @@ class MetasourcesFacade {
         }
       }
     }
-    #endregion
+    #endregion cleanup preprocessing tasks
   }
 
   /**
@@ -295,17 +296,15 @@ class MetasourcesFacade {
     $this->metaAttributesFacade=$metaAttributesFacade;
   }
 
-  #region inicializace metasource
-
+  #region initialization of metasource
   /**
-   * Funkce pro inicializaci Metasource pro konkrétní miner
-   *
+   * Method for initialization of Metasource for the given Miner
    * @param Miner $miner
    * @param MinersFacade $minersFacade
    * @return MetasourceTask
    */
   public function startMinerMetasourceInitialization(Miner $miner, MinersFacade $minersFacade) {
-    //vytvoření úlohy pro
+    //create new metasource
     $ppType = $this->preprocessingFactory->getPreprocessingTypeByDatabaseType($miner->datasource->type);
     /** @var PpConnection $ppConnection - DB/API connection for preprocessing */
     $ppConnection = $this->preprocessingFactory->getDefaultPpConnection($ppType, $miner->user);
@@ -315,11 +314,11 @@ class MetasourcesFacade {
     $metasource->user=$miner->user;
     $this->saveMetasource($metasource);
 
-    //připojení metasource k mineru
+    //connect metasource to miner
     $miner->metasource=$metasource;
     $minersFacade->saveMiner($miner);
 
-    //vytvoření úlohy, v rámci které dojde k inicializaci
+    //create task for initialization of metasource
     $metasourceTask = new MetasourceTask();
     $metasourceTask->type=MetasourceTask::TYPE_INITIALIZATION;
     $metasourceTask->state=MetasourceTask::STATE_NEW;
@@ -329,8 +328,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro inicializaci metasource pomocí preprocessing driveru
-   *
+   * Method for initialization of metasource using preprocessing driver
    * @param Miner $miner
    * @param MetasourceTask $metasourceTask
    * @return MetasourceTask
@@ -344,18 +342,18 @@ class MetasourcesFacade {
 
     $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(), $miner->user);
     if ($metasourceTask->state==MetasourceTask::STATE_NEW){
-      //inicializace
+      //initialization
       $datasource=$metasource->datasource;
       $result=$preprocessing->createPpDataset(new PpDataset(null,$miner->name,$datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->dbTable,null,null),null);
     }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
-      //kontrola stavu
+      //check the metasource task state
       try{
         $result=$preprocessing->createPpDataset(null,$metasourceTask->getPpTask());
       }catch (PreprocessingCommunicationException $e){
         if($e->getCode()==404){
-          //pokud nebyla nalezena běžící preprocessing úloha, zkusíme inicializovat novou
-          $this->deleteMetasourceTask($metasourceTask);//smažeme stávající MetasourceTask
-          //odešleme požadavek na vytvoření nového datasetu
+          //if there is no currently running preprocessing task, try to retry the initialization
+          $this->deleteMetasourceTask($metasourceTask);//delete existing MetasourceTask
+          //send request for preparing of new metasource (PpDataset)
           $datasource=$metasource->datasource;
           $result=$preprocessing->createPpDataset(new PpDataset(null,$miner->name,$datasource->dbDatasourceId?$datasource->dbDatasourceId:$datasource->dbTable,null,null),null);
         }else{
@@ -367,12 +365,12 @@ class MetasourcesFacade {
     }
 
     if ($result instanceof PpTask){
-      //byla vytvořena dlouhotrvající úloha
+      //there was created a long running task
       $metasourceTask->state=MetasourceTask::STATE_IN_PROGRESS;
       $metasourceTask->setPpTask($result);
       $this->saveMetasourceTask($metasourceTask);
     }elseif($result instanceof PpDataset){
-      //byl dovytvořen dataset
+      //dataset created successfully
       $metasource->state=Metasource::STATE_AVAILABLE;
       $metasource->ppDatasetId=$result->id;
       $metasource->size=$result->size;
@@ -387,11 +385,10 @@ class MetasourcesFacade {
     return $metasourceTask;
   }
 
-
-  #endregion inicializace metasource
+  #endregion initialization of metasource
 
   /**
-   * Funkce pro kontrolu dostupnosti metasource a případnou aktualizaci seznamu atributů
+   * Method for checking the availability of metasource (and update of list of attributes)
    * @param Metasource $metasource
    * @throws \Exception
    */
@@ -405,7 +402,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro smazání metasource
+   * Method for deleting the metasource
    * @param Metasource $metasource
    * @return int
    * @throws \LeanMapper\Exception\InvalidStateException
@@ -416,7 +413,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro smazání dat z metasource
+   * Method for deleting data from metasource
    * @param Metasource $metasource
    * @throws \LeanMapper\Exception\InvalidStateException
    * @throws PreprocessingException
@@ -431,7 +428,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce vracející informaci o tom, zda metasource podporuje dlouhé názvy sloupců
+   * Method returning info about the support of long column names in metasource
    * @param Metasource $metasource
    * @return bool
    */
@@ -439,12 +436,9 @@ class MetasourcesFacade {
     return $this->datasourcesFacade->dbTypeSupportsLongNames($metasource->type);
   }
 
-
-  #region preprocessing atributů
-
+  #region preprocessing of attributes
   /**
-   * Funkce pro přípravu úlohy pro preprocessing atributů
-   *
+   * Method for preparation of metasourcetask for preprocessing of attributes
    * @param Metasource $metasource
    * @param Attribute[] $attributes
    * @return MetasourceTask
@@ -454,7 +448,7 @@ class MetasourcesFacade {
       throw new \BadMethodCallException('No attributes found.');
     }
 
-    //vytvoření úlohy, v rámci které dojde k preprocessingu
+    //create task for preprocessing of attributes
     $metasourceTask = new MetasourceTask();
     $metasourceTask->type=MetasourceTask::TYPE_PREPROCESSING;
     $metasourceTask->state=MetasourceTask::STATE_NEW;
@@ -472,8 +466,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro preprocessing atributů pomocí preprocessing driveru
-   *
+   * Method for preprocessing of attributes using preprocessing driver
    * @param MetasourceTask $metasourceTask
    * @return MetasourceTask
    * @throws \Exception
@@ -483,15 +476,15 @@ class MetasourcesFacade {
     $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->ppConnection, $metasource->user);
 
     if ($metasourceTask->state==MetasourceTask::STATE_NEW){
-      //spuštění nového preprocessingu
+      //execute new preprocessing
       $result=$preprocessing->createAttributes($metasourceTask->attributes,null);
     }elseif($metasourceTask->state==MetasourceTask::STATE_IN_PROGRESS){
-      //zjištění stavu probíhajícího preprocessingu
+      //check state of already running preprocessing task
       try{
         $result=$preprocessing->createAttributes(null,$metasourceTask->getPpTask());
       }catch (PreprocessingCommunicationException $e){
         if($e->getCode()==404){
-          //pokud úloha nebyla nalezena, označíme ji jako dokončenou...
+          //task was not found, mark it as finished
           $metasourceTask->state=MetasourceTask::STATE_DONE;
           return $metasourceTask;
         }else{
@@ -508,8 +501,7 @@ class MetasourcesFacade {
       $this->saveMetasourceTask($metasourceTask);
       return $metasourceTask;
     }elseif(is_array($result)){
-      //TODO zpracování odpovědi - pole s atributy...
-      //připravíme pracovní pole přiřazující fieldId k jednotlivým názvům vytvořených atributů
+      //prepare working array for assignment od fieldIds to individual names of created attributes
       $resultAttributes=[];
       foreach($result as $resultItem){
         $resultAttributes[$resultItem->name]=$resultItem->id;
@@ -523,7 +515,7 @@ class MetasourcesFacade {
           $this->saveAttribute($attribute);
 
           if (!empty($attribute->preprocessing->specialType) && in_array($attribute->preprocessing->specialType,Preprocessing::getSpecialTypesWithoutEachOne())){
-            //potřebujeme naparsovat intervaly z předzpracovaných hodnot
+            //we need to parse intervals from preprocessed values
             /** @var PpAttribute $ppAttribute */
             $ppAttribute=$preprocessing->getPpAttribute($ppDataset,$attribute->ppDatasetAttributeId);
             $unprocessedIntervalsCount=$ppAttribute->uniqueValuesSize;
@@ -549,7 +541,7 @@ class MetasourcesFacade {
   }
 
   /**
-   * Funkce pro aktualizaci definice preprocessingu na základě hodnot popisujících vytvořené intervaly
+   * Method for updating preprocessing definition using names of created intervals
    * @param Preprocessing $preprocessing
    * @param string[] $createdIntervalValues
    */
@@ -578,8 +570,6 @@ class MetasourcesFacade {
     }
     $this->metaAttributesFacade->savePreprocessing($preprocessing);
   }
-
-
-  #endregion inicializace metasource
+  #endregion preprocessing of attributes
 
 }

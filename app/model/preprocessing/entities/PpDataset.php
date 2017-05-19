@@ -3,16 +3,16 @@
 namespace EasyMinerCenter\Model\Preprocessing\Entities;
 
 /**
- * Class PpDataset - třída představující předzpracovanou datovou tabulku
- *
+ * Class PpDataset - class representing one preprocessed dataset on preprocessing service
  * @package EasyMinerCenter\Model\Preprocessing\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int $id
  * @property string $name
  * @property int $dataSource
  * @property string $type
- * @property int|null $size - počet instancí
+ * @property int|null $size - count of rows
  */
 class PpDataset {
 

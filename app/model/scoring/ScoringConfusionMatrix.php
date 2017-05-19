@@ -3,9 +3,10 @@
 namespace EasyMinerCenter\Model\Scoring;
 
 /**
- * Class ScoringResult - třída pro záznam výsledků testování rulesetu či úlohy v podobě CONFUSION MATRIX
+ * Class ScoringResult - class for representation fo test results of a ruleset or a task in form of CONFUSION MATRIX
  * @package EasyMinerCenter\Model\Scoring
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ScoringConfusionMatrix {
   private $labelsArr;
@@ -15,7 +16,7 @@ class ScoringConfusionMatrix {
   /**
    * @param string[] $labelsArr
    * @param int[][] $rowsArr
-   * @param int $scoredRowsCount=0 - pokud je 0, bude hodnota spočítána z tabulky
+   * @param int $scoredRowsCount=0 - if it is 0, the value will be counted from the table
    */
   public function __construct($labelsArr, $rowsArr, $scoredRowsCount=0) {
     $this->labelsArr=$labelsArr;
@@ -24,7 +25,7 @@ class ScoringConfusionMatrix {
   }
 
   /**
-   * Funkce pro sloučení další tabulky s výsledky do stávající
+   * Method for merging of another confusion matrix to this one
    * @param ScoringConfusionMatrix $confusionMatrix2
    */
   public function mergeScoringConfusionMatrix(ScoringConfusionMatrix $confusionMatrix2) {
@@ -32,9 +33,8 @@ class ScoringConfusionMatrix {
   }
 
   /**
-   * Funkce pro vysčítání hodnot v tabulce
-   *
-*@param bool $nullValuesIncluded=true
+   * Method for summing of values in the table
+   * @param bool $nullValuesIncluded=true
    * @return ScoringResult
    */
   public function getScoringResult($nullValuesIncluded=true) {
@@ -42,11 +42,11 @@ class ScoringConfusionMatrix {
     $falsePositive=0;
     $trueNegative=0;
     $falseNegative=0;
-    /** @var int[] $ignoredLabelsPositions - pole pro určení těch pozic v tabulce, které mají být ignorovány */
+    /** @var int[] $ignoredLabelsPositions - array for identification of ignored positions in the table*/
     $ignoredLabelsPositions=[];
     if (!empty($this->labelsArr) && !empty($this->rowsArr)){
 
-      //region XXX sečtění řádků se stejnými hodnotami (chybná práce s čísly) issue KIZI/EasyMiner-EasyMinerCenter#153
+      //region sum rows with the same values (invalid works with numbers) - TODO issue KIZI/EasyMiner-EasyMinerCenter#153
       $labelMappings=[];
       for ($labelI=0;$labelI<count($this->labelsArr);$labelI++){
         if (is_numeric($this->labelsArr[$labelI])){
@@ -58,14 +58,14 @@ class ScoringConfusionMatrix {
         }
       }
       if (!empty($labelMappings)){
-        //sečteme nejdřív příslušné řádky a poté příslušné sloupce
+        //sum the appropriate rows and then the appropriate columns
         foreach($labelMappings as $duplikatI => $hlavniI){
           foreach($this->rowsArr[$duplikatI] as $column=>$value){
             $this->rowsArr[$hlavniI][$column]+=$value;
           }
           unset($this->rowsArr[$duplikatI]);
         }
-        //sečteme příslušné sloupce
+        //sum the appropriate columns
         $odstranitSloupce=[];
         foreach($labelMappings as $duplikatI => $hlavniI){
           foreach($this->rowsArr as &$row){
@@ -81,9 +81,9 @@ class ScoringConfusionMatrix {
           }
         }
       }
-      //endregion XXX sečtění řádků se stejnými hodnotami (chybná práce s čísly)
+      //region sum rows with the same values (invalid works with numbers) - issue KIZI/EasyMiner-EasyMinerCenter#153
 
-      //určení ignorování konkrétních pozic v tabulce
+      //identify ignored positions in the table
       if($nullValuesIncluded){
         for ($labelI=0;$labelI<count($this->labelsArr); $labelI++){
           if ($this->labelsArr[$labelI]=='null'||$this->labelsArr[$labelI]==''){
@@ -91,11 +91,11 @@ class ScoringConfusionMatrix {
           }
         }
       }
-      //spočítání hodnot v jednotlivých řádcích
+      //calculate values in individual rows
       foreach ($this->rowsArr as $rowI=>$rowData){
         $nullRow=(in_array($rowI,$ignoredLabelsPositions));
         if ($nullRow){
-          //jde o null řádek
+          //it is null row
           foreach($rowData as $columnI=>$value){
             if ($columnI==$rowI){
               $trueNegative+=$value;
@@ -106,7 +106,7 @@ class ScoringConfusionMatrix {
             }
           }
         }else{
-          //nejde o null řádek
+          //it is not a null row
           foreach($rowData as $columnI=>$value){
             if ($columnI==$rowI){
               $truePositive+=$value;

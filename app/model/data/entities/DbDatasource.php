@@ -6,6 +6,8 @@ namespace EasyMinerCenter\Model\Data\Entities;
  * Class DbDatasource - třída pro zabalení datového zdroje z datové služby
  * @package EasyMinerCenter\Model\Data\Databases\DataService
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $id
  * @property string $name
  * @property string $type m:Enum("limited","unlimited")

@@ -4,6 +4,12 @@ namespace EasyMinerCenter\Model\EasyMiner\Repositories;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 
+/**
+ * Class RulesRepository
+ * @package EasyMinerCenter\Model\EasyMiner\Repositories
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class RulesRepository extends BaseRepository{
 
   /**
@@ -11,7 +17,6 @@ class RulesRepository extends BaseRepository{
    * @param bool $forceCount=false
    */
   public function calculateMissingInterestMeasures($taskId=null, $forceCount=false){
-    //TODO zkontrolovat vzorec liftu
     if ($taskId){
       if ($forceCount){
         $this->connection->query('UPDATE ['.$this->getTable().'] SET confidence=(a/(a+b)),support=(a/(a+b+c+d)),lift=((a*(a+b+c+d))/((a+b)*(a+c)))  WHERE task_id=%s',$taskId,';');
@@ -72,8 +77,6 @@ class RulesRepository extends BaseRepository{
     if (!empty($insertArr)){
       $this->connection->query($insertSql,$insertArr);
     }
-
-    //FIXME implement!
   }
   
 }

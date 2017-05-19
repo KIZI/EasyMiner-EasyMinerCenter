@@ -19,6 +19,7 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
  * Class MySQLDatabase - třída zajišťující preprocessing v rámci MySQL databáze
  * @package EasyMinerCenter\Model\Preprocessing\Databases\MySQL
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MySQLDatabase implements IPreprocessing{
 
@@ -26,7 +27,7 @@ class MySQLDatabase implements IPreprocessing{
   const PP_TYPE_NAME=PpConnection::TYPE_MYSQL_NAME;
 
   /**
-   * Funkce vracející seznam datových zdrojů v DB
+   * Method returning list of available datasets
    * @return PpDataset[]
    */
   public function getPpDatasets() {
@@ -34,7 +35,7 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Funkce vracející informace o konkrétním datovém zdroji
+   * Method returning info about one selected dataset
    * @param int|string $ppDatasetId
    * @return PpDataset
    */
@@ -43,7 +44,7 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Funkce vracející počet řádků v tabulce
+   * Method returning count of rows in a DB table
    * @param string $ppDatasetId
    * @return int
    */
@@ -54,7 +55,7 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Funkce vracející seznam sloupců v datovém zdroji
+   * Method returning list of attributes (data columns) in selected dataset
    * @param PpDataset $ppDataset
    * @return PpAttribute[]
    */
@@ -68,8 +69,6 @@ class MySQLDatabase implements IPreprocessing{
     }
     return $result;
   }
-
-
 
   /**
    * @param string $dataType
@@ -87,8 +86,7 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Konstruktor zajišťující připojení k databázi
-   *
+   * MySQLDatabase constructor, providing connection to remote database
    * @param PpConnection $ppConnection
    * @param string $apiKey
    */
@@ -97,18 +95,16 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Funkce vracející přehled podporovaných typů preprocessingu
-   *
+   * Method returning list of available preprocessing types
    * @return string[]
    */
   public static function getSupportedPreprocessingTypes() {
     return [Preprocessing::TYPE_EACHONE, Preprocessing::TYPE_EQUIDISTANT_INTERVALS, Preprocessing::TYPE_INTERVAL_ENUMERATION, Preprocessing::TYPE_NOMINAL_ENUMERATION];
   }
 
-  #region funkce vracející identifikační konstanty
+  #region methods returning identification constants
   /**
-   * Funkce vracející uživatelsky srozumitelný název databáze
-   *
+   * Method returning user understandable name of database
    * @return string
    */
   public static function getPpTypeName() {
@@ -116,20 +112,19 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Funkce vracející identifikaci daného typu databáze
-   *
+   * Method returning identification of the database type
    * @return string
    */
   public static function getPpType() {
     return self::PP_TYPE_NAME;
   }
-  #endregion
+  #endregion methods returning identification constants
+
   /**
-   * Funkce pro inicializaci preprocessind datasetu
-   *
+   * Method for creating (initializating) a dataset
    * @param PpDataset|null $ppDataset = null
    * @param PpTask|null $ppTask = null
-   * @return PpTask|PpDataset - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   * @return PpTask|PpDataset - when the operation is finished, it returns PpDataset, others it returns PpTask
    */
   public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null) {
     throw new NotImplementedException();
@@ -137,8 +132,7 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Funkce pro odstranění preprocessing datasetu
-   *
+   * Method for deleting a dataset
    * @param PpDataset $ppDataset
    */
   public function deletePpDataset(PpDataset $ppDataset) {
@@ -147,19 +141,18 @@ class MySQLDatabase implements IPreprocessing{
   }
 
   /**
-   * Funkce pro inicializaci preprocessingu atributů
-   *
+   * Method for initialization of preprocessing of an attribute
    * @param Attribute[] $attributes
    * @param PpTask $ppTask = null
    * @return PpTask|PpAttribute[]
    */
   public function createAttributes(array $attributes=null, PpTask $ppTask=null){
     // TODO: Implement createAttributes() method.
+    throw new NotImplementedException();
   }
 
   /**
-   * Funkce vracející hodnoty zvoleného atributu
-   *
+   * Method returning values of one selected attribute
    * @param PpDataset $ppDataset
    * @param int $ppAttributeId
    * @param int $offset
@@ -168,16 +161,17 @@ class MySQLDatabase implements IPreprocessing{
    */
   public function getPpValues(PpDataset $ppDataset, $ppAttributeId, $offset=0, $limit=1000){
     // TODO: Implement getPpValues() method.
+    throw new NotImplementedException();
   }
 
   /**
-   * Funkce vracející jeden atribut
-   *
+   * Method returning details of one attribute
    * @param PpDataset $ppDataset
    * @param string $ppAttributeId
    * @return PpAttribute
    */
   public function getPpAttribute(PpDataset $ppDataset, $ppAttributeId){
     // TODO: Implement getPpAttribute() method.
+    throw new NotImplementedException();
   }
 }

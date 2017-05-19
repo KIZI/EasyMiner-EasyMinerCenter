@@ -7,6 +7,9 @@ use LeanMapper\Entity;
 /**
  * Class UserForgottenPassword
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $userForgottenPasswordId
  * @property User $user m:hasOne
  * @property string $code

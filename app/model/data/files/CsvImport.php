@@ -5,13 +5,15 @@ use EasyMinerCenter\Model\Data\Entities\DbField;
 use Nette\Utils\Strings;
 
 /**
- * Class CsvImport - model pro import CSV souborů
+ * Class CsvImport - class for import of CSV files
  * @package EasyMinerCenter\Model\Data\Files
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class CsvImport {
 
   /**
-   * Funkce vracející pole se seznamem možných null hodnot
+   * Method returning array with list of possible null values
    * @return array
    */
   public static function getDefaultNullValuesArr() {
@@ -40,7 +42,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce pro změnu kódování souboru (ze zadaného kódování na UTF8)
+   * Method for changing the file encoding (from the given encoding to UTF8)
    * @param string $filename
    * @param string $originalEncoding
    */
@@ -66,7 +68,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce vracející zvolený počet řádků z CSV souboru (ignoruje 1. řádek se záhlavím)
+   * Method returning rows from CSV file
    * @param $filename
    * @param int $count = 10000
    * @param string $delimiter = ','
@@ -85,14 +87,14 @@ class CsvImport {
       $delimiter="\t";
     }
     while($offset>0){
-      //přeskakujeme řádky, které nemají být importovány...
+      //skip rows
       fgets($file);
       $offset--;
     }
 
     while (($counter<$count)&&($data=fgetcsv($file,null,$delimiter,$enclosure,$escapeCharacter))){
       if ($nullValue!==null){
-        //ošetření null hodnot
+        //ignore null values...
         foreach ($data as &$value) {
           if($value==$nullValue) {
             $value='';
@@ -107,7 +109,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce vracející počet řádků v CSV souboru
+   * Method returning column names from CSV file
    * @param string $filename
    * @param string $delimiter = ','
    * @param string $enclosure  = '"'
@@ -127,7 +129,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce vracející počet řádků v CSV souboru
+   * Method returning count of columns in CSV file
    * @param string $filename
    * @param string $delimiter = ','
    * @param string $enclosure  = '"'
@@ -139,7 +141,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce vracející počet řádků v CSV souboru
+   * Method returning count of rows from CSV file
    * @param string $filename
    * @return int
    */
@@ -154,7 +156,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce vracející oddělovač, který je pravděpodobně použit v CSV souboru
+   * Method returning the probably used delimiter detected from CSV file
    * @param string $filename
    * @return string
    */
@@ -178,9 +180,9 @@ class CsvImport {
   }
 
   /**
-   * Funkce pro ošetření jmen sloupců
+   * Method for sanitization of column names
    * @param string[] $columnNamesArr
-   * @param bool $requireSafeColumnNames=true - převod jmen sloupců na bezpečný tvar pro použití v libovolné DB
+   * @param bool $requireSafeColumnNames=true - if true, the column names should be sanitized for import into all databases
    * @param string $defaultColumnName='name'
    * @return string[]
    */
@@ -190,14 +192,14 @@ class CsvImport {
     $i=0;
     foreach($columnNamesArr as $name){
       $i++;
-      //odstranění prázdných znaků ze začátku a konce názvu sloupce
+      //removing of empty characters from start and end of the column name
       $name=Strings::trim($name);
-      //ošetření případného prázdného jména sloupce
+      //check for possible empty column name
       if ($name==''){
         $name=$defaultColumnName.$i;
       }
       if ($requireSafeColumnNames){
-        //ošetření samotného jména
+        //solve the name
         $name=Strings::webalize($name,null,false);
         $name=str_replace('-','_',$name);
         $name=Strings::substring($name,0,25);
@@ -205,7 +207,7 @@ class CsvImport {
           $name='_'.$name;
         }
       }
-      //vyřešení možné duplicity
+      //solve possible duplicities
       $counter=0;
       do{
         if ($requireSafeColumnNames){
@@ -222,26 +224,26 @@ class CsvImport {
   }
 
   /**
-   * Funkce vracející informace o datových sloupcích obsažených v CSV souboru
+   * Method returning info about CSV column names
    * @param string $filename
    * @param string $delimiter = ','
    * @param string $enclosure  = '"'
    * @param string $escapeCharacter = '\\'
    * @param int $analyzeRowsCount=100
-   * @param bool $requireSafeColumnNames=true - pokud je true, budou upraveny názvy sloupců tak, aby je bylo možné importovat do libovolné databáze
-   * @param string $nullValue="" - hodnoty, které mají být považovány za prázdné
+   * @param bool $requireSafeColumnNames=true - if true, the column names should be sanitized for import into all databases
+   * @param string $nullValue="" - values evaluated as null
    * @return DbField[]
    */
   public static function analyzeCSVColumns($filename, $delimiter=',',$enclosure='"',$escapeCharacter='\\',$analyzeRowsCount=100, $requireSafeColumnNames=true, $nullValue=""){
     $columnNamesArr=self::getColsNamesInCsv($filename,$delimiter,$enclosure,$escapeCharacter);
 
-    //ošetření jmen sloupců
+    //sanitization of columns names
     $columnNamesArr=self::sanitizeColumnNames($columnNamesArr, $requireSafeColumnNames);
 
     $numericalArr=[];
     $nonNullArr=[];
     $strlenArr=[];
-    //výchozí inicializace počítacích polí
+    //default initialization of countins arrays
     $columnsCount=count($columnNamesArr);
     for($i=0;$i<$columnsCount;$i++){
       $numericalArr[$i]=1;
@@ -251,15 +253,15 @@ class CsvImport {
 
     $file=fopen($filename,'r');
     fgets($file);
-    //kontrola všech řádků v souboru
+    //check all rows in CSV file
     $rowsCount=0;
     while (($data=fgetcsv($file,0,$delimiter,$enclosure,$escapeCharacter))&&($rowsCount<$analyzeRowsCount)){
-      //načten další řádek
+      //next row loaded
       for ($i=0;$i<$columnsCount;$i++){
         $value=@$data[$i];
-        //kontrola null hodnot
+        //check for null values
         if ($value==$nullValue){
-          //null hodnoty dál neanalyzujeme
+          //skip the analyze of null values
           continue;
         }
         $nonNullArr[$i]=true;
@@ -278,7 +280,7 @@ class CsvImport {
       }
       $rowsCount++;
     }
-    //shromáždíme informace
+    //collect info
     $outputArr=array();
     for ($i=0;$i<$columnsCount;$i++){
       if ($nonNullArr[$i]){
@@ -297,7 +299,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce pro kontrolu, jestli je daná hodnota číslem
+   * Method for checking, if the given value is number
    * @param string|int $value
    * @return int - 0=string, 1=int, 2=float
    */
@@ -305,7 +307,7 @@ class CsvImport {
     if ($value==''){
       return 1;
     }
-    if (is_numeric($value)||(is_numeric(str_replace(',','.',$value)))){//TODO analýza by měla odpovídat nastavení LOCALE
+    if (is_numeric($value)||(is_numeric(str_replace(',','.',$value)))){
       if (((string)intval(str_replace(',','.',$value)))==str_replace(',','.',$value)){
         return 1;
       }else{
@@ -332,7 +334,7 @@ class CsvImport {
   }
 
   /**
-   * Funkce vracející zvolený počet řádků z CSV souboru (ignoruje 1. řádek se záhlavím)
+   * Method returning rows from CSV file (irgnoring 1. line with column names)
    * @param resource $fileResource
    * @param int $count = 10000
    * @param string $delimiter = ','
@@ -351,7 +353,7 @@ class CsvImport {
     while (($counter<$count)&&($data=fgetcsv($fileResource,null,$delimiter,$enclosure,$escapeCharacter))){
       if ($nullValue!==null){
         foreach ($data as &$value){
-          //ošetření null hodnot
+          //filter null values
           if ($value==$nullValue){
             $value=null;
           }

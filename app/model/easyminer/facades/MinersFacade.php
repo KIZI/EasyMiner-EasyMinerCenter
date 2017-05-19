@@ -13,6 +13,12 @@ use EasyMinerCenter\Model\Mining\IMiningDriver;
 use EasyMinerCenter\Model\Mining\IOutliersMiningDriver;
 use EasyMinerCenter\Model\Mining\MiningDriverFactory;
 
+/**
+ * Class MinersFacade
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class MinersFacade {
   /** @var  MinersRepository $minersRepository */
   private $minersRepository;
@@ -29,6 +35,16 @@ class MinersFacade {
   /** @var  MiningDriverFactory $miningDriverFactory */
   private $miningDriverFactory;
 
+  /**
+   * MinersFacade constructor.
+   * @param MiningDriverFactory $miningDriverFactory
+   * @param MinersRepository $minersRepository
+   * @param MetasourcesFacade $metasourcesFacade
+   * @param RulesFacade $rulesFacade
+   * @param TasksFacade $tasksFacade
+   * @param OutliersTasksFacade $outliersTasksFacade
+   * @param MetaAttributesFacade $metaAttributesFacade
+   */
   public function __construct(MiningDriverFactory $miningDriverFactory,MinersRepository $minersRepository, MetasourcesFacade $metasourcesFacade, RulesFacade $rulesFacade, TasksFacade $tasksFacade, OutliersTasksFacade $outliersTasksFacade, MetaAttributesFacade $metaAttributesFacade){
     $this->minersRepository = $minersRepository;
     $this->metasourcesFacade=$metasourcesFacade;
@@ -60,7 +76,7 @@ class MinersFacade {
   }
 
   /**
-   * Funkce pro nalezení všech minerů vycházejících z konkrétního
+   * Method for finding all miners based on given datasource
    * @param int|Datasource $datasource
    * @return Miner[]|null
    */
@@ -72,7 +88,7 @@ class MinersFacade {
   }
 
   /**
-   * Funkce pro nalezení všech minerů vycházejících z konkrétního
+   * Method for finding all miners based on given metasource
    * @param int|Metasource $metasource
    * @return Miner[]|null
    */
@@ -84,7 +100,7 @@ class MinersFacade {
   }
 
   /**
-   * Funkce pro kontrolu, jestli je uživatel vlastníkem daného mineru
+   * Method for check, if the user is owner of the given miner
    * @param Miner|int $miner
    * @param User|int $user
    * @return bool
@@ -102,7 +118,7 @@ class MinersFacade {
        */
       $miner=$this->minersRepository->findBy(array('miner_id'=>$miner,'user_id'=>$user));
       return true;
-    }catch (\Exception $e){/*chybu ignorujeme*/}
+    }catch (\Exception $e){/*ignore the error...*/}
     return false;
   }
 
@@ -132,37 +148,36 @@ class MinersFacade {
   }
 
   /**
-   * Funkce pro smazání mineru včetně všech navázaných úloh
-   *
+   * Method for deleting miner with all its tasks
    * @param Miner $miner
    * @return int
    */
   public function deleteMiner(Miner $miner){
-    #region smazání navázaných úloha a navázané instance driveru
+    #region delete connected tasks and miner instances
     $tasks=$miner->tasks;
     if (!empty($tasks)){
-      //smazání jednotlivých úloh
+      //delete individual tasks
       foreach ($tasks as $task){
         $this->tasksFacade->deleteTask($task);
       }
     }
-    //smazání mineru jako takového
+    //delete miner
     $miningDriver=$this->miningDriverFactory->getDriverInstance(null,$this,$this->rulesFacade,$this->metaAttributesFacade,$miner->user);
     $miningDriver->deleteMiner();
-    #endregion smazání navázaných úloha a navázané instance driveru
-    #region smazání metasource
+    #endregion delete connected tasks and miner instances
+    #region delete metasource
     if (!empty($miner->metasource)){
       if (count($this->findMinersByMetasource($miner->metasource))<=1){
-        //kontrola, jestli daný metasource využívá větší množství minerů - pokud ne, odstraníme i metasource
+        //check, if the given metasource is used by more miners - if not, delete the metasource
         $this->metasourcesFacade->deleteMetasource($miner->metasource);
       }
     }
-    #endregion smazání metasource
+    #endregion delete metasource
     return $this->minersRepository->delete($miner);
   }
 
   /**
-   * Funkce pro kontrolu, jestli má miner správně nakonfigurovanou metabázi
+   * Method for checking, if the miner has already configured metasource
    * @param $miner
    */
   public function checkMinerMetasource($miner){
@@ -170,13 +185,13 @@ class MinersFacade {
       $miner=$this->findMiner($miner);
     }
     if (empty($miner->metasource)){
-      //kontrola, jestli má minet vytvořené metasource
+      //check the existence of metasource
       $this->saveMiner($miner);
     }
   }
 
   /**
-   * Funkce pro připravení nového názvu atributu (takového, který se zatím v seznamu atributů nevyskytuje)
+   * Method for preparing new attribute name (not already existing in list of attributes)
    * @param $miner
    * @param $newAttributeName
    * @return string
@@ -200,6 +215,7 @@ class MinersFacade {
   }
 
   /**
+   * Method returning instance of mining driver for the given task
    * @param Task|int $task
    * @param User $user
    * @return IMiningDriver
@@ -212,7 +228,7 @@ class MinersFacade {
   }
 
   /**
-   * Funkce vracející driver k mineru pro dolování outlierů
+   * Method returning instance of outlier mining driver for given outliers task
    * @param OutliersTask|int $outliersTask
    * @param User $user
    * @return IOutliersMiningDriver
@@ -225,7 +241,7 @@ class MinersFacade {
   }
 
   /**
-   * Funkce pro kontrolu stavu konkrétního mineru (jestli jsou nadefinované všechny atributy atd.
+   * Method for checking the state of concrete miner (existence of all attributes etc.)
    * @param Miner|int $miner
    * @param User $user
    */
@@ -241,8 +257,8 @@ class MinersFacade {
   }
 
   /**
-   * Funkce vracející pole s identifikací dostupných minerů
-   * @param string $datasourceType - typ databáze, ke které se vztahují dané minery
+   * Method returning array with identification of available miner types for the given datasource type
+   * @param string $datasourceType
    * @return array
    */
   public function getAvailableMinerTypes($datasourceType = null) {

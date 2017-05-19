@@ -8,6 +8,9 @@ use LeanMapper\Entity;
 /**
  * Class Rule
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int $ruleId
  * @property Task $task m:hasOne
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
@@ -27,12 +30,15 @@ use LeanMapper\Entity;
  */
 class Rule extends Entity{
 
+  /**
+   * @return array
+   */
   public function getBasicDataArr() {
     return ['id'=>$this->ruleId,'task'=>$this->task->taskId,'text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0')];
   }
 
   /**
-   * Funkce vracející relaci tohoto pravidla ke konkrétnímu rule setu
+   * Method returning the relation of this rule to a concrete RuleSet
    * @param $ruleSet
    * @return RuleSetRuleRelation
    */
@@ -47,8 +53,12 @@ class Rule extends Entity{
         }
       }
     }
+    //TODO add return statement
   }
 
+  /**
+   * @return array
+   */
   public function getRuleHeadDataArr(){
     return [
       'text'=>$this->text,

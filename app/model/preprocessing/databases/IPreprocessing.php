@@ -9,55 +9,49 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpValue;
 
 /**
- * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
- *
+ * Interface IDatabase - unified interface for work with different datasources with preprocessed data
  * @package EasyMinerCenter\Model\Data\Databases
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 interface IPreprocessing {
 
   /**
-   * Funkce vracející seznam datových zdrojů v DB
-   *
+   * Method returning list of available datasets
    * @return PpDataset[]
    */
   public function getPpDatasets();
 
   /**
-   * Funkce vracející informace o konkrétním datovém zdroji
-   *
+   * Method returning info about one selected dataset
    * @param int|string $ppDatasetId
    * @return PpDataset
    */
   public function getPpDataset($ppDatasetId);
 
   /**
-   * Funkce pro inicializaci preprocessind datasetu
-   *
+   * Method for creating (initializating) a dataset
    * @param PpDataset|null $ppDataset = null
    * @param PpTask|null $ppTask = null
-   * @return PpTask|PpDataset - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   * @return PpTask|PpDataset - when the operation is finished, it returns PpDataset, others it returns PpTask
    */
   public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null);
 
   /**
-   * Funkce pro odstranění preprocessing datasetu
-   *
+   * Method for deleting a dataset
    * @param PpDataset $ppDataset
    */
   public function deletePpDataset(PpDataset $ppDataset);
 
   /**
-   * Funkce vracející seznam sloupců v datovém zdroji
-   *
+   * Method returning list of attributes (data columns) in selected dataset
    * @param PpDataset $ppDataset
    * @return PpAttribute[]
    */
   public function getPpAttributes(PpDataset $ppDataset);
 
   /**
-   * Funkce vracející jeden atribut
-   *
+   * Method returning details of one attribute
    * @param PpDataset $ppDataset
    * @param string $ppAttributeId
    * @return PpAttribute
@@ -65,8 +59,7 @@ interface IPreprocessing {
   public function getPpAttribute(PpDataset $ppDataset, $ppAttributeId);
 
   /**
-   * Funkce pro inicializaci preprocessingu atributů
-   *
+   * Method for initialization of preprocessing of an attribute
    * @param Attribute[] $attributes
    * @param PpTask $ppTask = null
    * @return PpTask|PpAttribute[]
@@ -74,8 +67,7 @@ interface IPreprocessing {
   public function createAttributes(array $attributes = null, PpTask $ppTask = null);
 
   /**
-   * Funkce vracející hodnoty zvoleného atributu
-   *
+   * Method returning values of one selected attribute
    * @param PpDataset $ppDataset
    * @param int $ppAttributeId
    * @param int $offset
@@ -83,34 +75,30 @@ interface IPreprocessing {
    * @return PpValue[]
    */
   public function getPpValues(PpDataset $ppDataset, $ppAttributeId, $offset=0, $limit=1000);
-  
+
   /**
-   * Konstruktor zajišťující připojení k databázi
-   *
+   * IPreprocessing constructor, providing connection to remote database
    * @param PpConnection $ppConnection
-   * @param string $apiKey
+   * @param $apiKey
    * @return IPreprocessing
    */
   public function __construct(PpConnection $ppConnection, $apiKey);
 
 
   /**
-   * Funkce vracející uživatelsky srozumitelný název databáze
-   *
+   * Method returning user understandable name of database
    * @return string
    */
   public static function getPpTypeName();
 
   /**
-   * Funkce vracející identifikaci daného typu databáze
-   *
+   * Method returning identification of the database type
    * @return string
    */
   public static function getPpType();
 
   /**
-   * Funkce vracející přehled podporovaných typů preprocessingu
-   *
+   * Method returning list of available preprocessing types
    * @return string[]
    */
   public static function getSupportedPreprocessingTypes();

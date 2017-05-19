@@ -7,6 +7,9 @@ use Nette\Utils\Strings;
 /**
  * Class TaskState - pracovní třída pro zachycení stavu úlohy
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property string|null $state
  * @property int|null $rulesCount
  * @property string $importState
@@ -120,7 +123,7 @@ class TaskState extends Object{
   }
 
   /**
-   * Funkce nastavující data o stavu importu
+   * Method for setting the data of import state
    * @param array $importData
    */
   public function setImportData(array $importData) {
@@ -128,7 +131,7 @@ class TaskState extends Object{
   }
 
   /**
-   * Funkce vracející data o stavu importu
+   * Method returning the data of import state
    * @return array
    */
   public function getImportData() {
@@ -136,7 +139,7 @@ class TaskState extends Object{
   }
 
   /**
-   * Funkce vracející info o stavu úlohy v podobě pole
+   * Method returning the info about the task state in the form of array
    * @return array
    */
   public function asArray(){

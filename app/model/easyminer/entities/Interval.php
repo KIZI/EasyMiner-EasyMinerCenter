@@ -8,6 +8,8 @@ use Nette\Utils\Strings;
 /**
  * Class Interval
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int $intervalId
  * @property Format|null $format m:hasOne
@@ -37,7 +39,7 @@ class Interval extends Entity{
   }
 
   /**
-   * Funkce pro vytvoření intervalu na základě zadaného textového popisu
+   * Method for creation of a new interval based on its string representation
    * @param string $str
    * @return Interval
    */
@@ -96,7 +98,7 @@ class Interval extends Entity{
   }
 
   /**
-   * Funkce pro kontrolu, jestli se interval překrývá s jiným intervalem
+   * Method for check, if this interval is in overlap with another interval
    * @param Interval $interval
    * @return bool
    */
@@ -118,7 +120,7 @@ class Interval extends Entity{
   }
 
   /**
-   * Funkce pro kontrolu, zda zadaná hodnota patří do tohoto intervalu
+   * Method for check, if the given value belongs to this interval
    * @param float|Value $value
    * @return bool
    */
@@ -132,7 +134,7 @@ class Interval extends Entity{
   }
 
   /**
-   * Funkce pro kontrolu, zda je daný interval podmnožinou tohoto intervalu
+   * Method for check, if the given interval is a subset of this interval
    * @param Interval $interval
    * @return bool
    */

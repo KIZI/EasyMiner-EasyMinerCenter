@@ -11,10 +11,11 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\RuleAttributesRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\RulesRepository;
 use Nette\Utils\Strings;
 
-
 /**
- * Class RulesFacade - třída pro práci s pravidly v DB
+ * Class RulesFacade - class for work with individual Rules
  * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RulesFacade {
   /** @var  RulesRepository $rulesRepository */
@@ -42,6 +43,11 @@ class RulesFacade {
     return $this->rulesRepository->findBy(['task_id'=>$taskId,'pmml_rule_id'=>$pmmlRuleId]);
   }
 
+  /**
+   * Private method returning order formula for ordering of rules by selected interest measure
+   * @param $order
+   * @return string
+   */
   private function getRulesOrderFormula($order){
     $formulasArr=[
       'default'=>'rule_id',
@@ -125,7 +131,7 @@ class RulesFacade {
   }
 
   /**
-   * Funkce pro rychlý import identifikace pravidel (název, míry zajímavosti)
+   * Method for quick import of basic info of rules (names, IMs)
    * @param Rule[] $rules
    */
   public function saveRulesHeads($rules){
@@ -143,7 +149,7 @@ class RulesFacade {
   }
 
   /**
-   * Funkce pro výpočet chybějících měr zajímavosti na úrovni databáze
+   * Method for calculation of mission values of interest measures in database
    * @param null $task
    */
   public function calculateMissingInterestMeasures($task=null){

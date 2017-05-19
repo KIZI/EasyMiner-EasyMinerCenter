@@ -11,10 +11,10 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 
 /**
- * Class Pmml42Serializer - třída pro serializaci výsledků DM úlohy do standartního PMML (model AssociationRules) ve verzi 4.2
+ * Class Pmml42Serializer - class for serialization of task result to form of standard PMML (model AssociationRules) in version 4.2
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
- *
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class Pmml42Serializer{
   use PmmlSerializerTrait{
@@ -70,7 +70,7 @@ class Pmml42Serializer{
     if (!$pmml instanceof \SimpleXMLElement){
       $this->prepareBlankPmml();
     }
-    //připojení info do hlavičky PMML
+    //append info into header
     $this->appendTaskInfo();
 
     $this->databaseFactory=$databaseFactory;
@@ -78,7 +78,7 @@ class Pmml42Serializer{
   }
 
   /**
-   * Funkce pro připojení informace o datasetu
+   * Method for appending info about dataset
    * @param \SimpleXMLElement|null $datasetExtension
    */
   protected function appendDatasetInfo(\SimpleXMLElement $datasetExtension){
@@ -90,7 +90,7 @@ class Pmml42Serializer{
   }
 
   /**
-   * Funkce pro připojení kompletního modelu asociačních pravidel do PMML
+   * Method for appending full AssociationModel to PMML
    */
   public function appendRules(){
     /** @var \SimpleXMLElement $associationModel*/
@@ -110,7 +110,7 @@ class Pmml42Serializer{
       }
     }
 
-    //xml z dat itemsetů
+    //xml from itemsets
     if (!empty($this->cedentsXmlDataArr)){
       foreach($this->cedentsXmlDataArr as $cedentId=>$cedentXmlData){
         $itemsetXml=$this->associationModelXml->addChild('Itemset');
@@ -123,7 +123,7 @@ class Pmml42Serializer{
     }
     $this->cedentsXmlDataArr=[];
 
-    //xml z dat pravidel
+    //xml from rules
     if (!empty($this->rulesXmlDataArr)){
       $this->associationModelXml['numberOfRules']=count($this->rulesXmlDataArr);
       foreach($this->rulesXmlDataArr as &$ruleXmlData){
@@ -153,7 +153,7 @@ class Pmml42Serializer{
   }
 
   /**
-   * Funkce pro serializaci asociačního pravidla
+   * Method for serialization of one association rule
    * @param Rule $rule
    */
   private function serializeRule(Rule $rule){
@@ -189,7 +189,7 @@ class Pmml42Serializer{
   }
 
   /**
-   * Funkce pro serializaci jednoho cedentu
+   * Method for serialization of one Cedent
    * @param Cedent $cedent
    */
   private function serializeCedent(Cedent $cedent){
@@ -205,7 +205,7 @@ class Pmml42Serializer{
   }
 
   /**
-   * Funkce pro serializaci atributu v asociačním pravidle (jde o item v associationmodelu)
+   * Method for serialization of one RuleAttribute (result is an item in AssociationModel)
    * @param RuleAttribute $ruleAttribute
    */
   private function serializeRuleAttribute(RuleAttribute $ruleAttribute){
@@ -237,7 +237,7 @@ class Pmml42Serializer{
   }
 
   /**
-   * Funkce pro připravení základu prázdného PMML dokumentu pro záznam modelu AssociationModel
+   * Method for preparing of basic structure of PMML document for AssociationModel
    */
   private function prepareBlankPmml(){
     $this->pmml=simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?>
@@ -268,7 +268,7 @@ class Pmml42Serializer{
   }
 
   /**
-   * Funkce pro připojení elementu MiningSchema
+   * Private method for appending of element MiningSchema
    */
   private function appendMiningSchema(){
     /** @var \SimpleXMLElement $miningSchemaXml */

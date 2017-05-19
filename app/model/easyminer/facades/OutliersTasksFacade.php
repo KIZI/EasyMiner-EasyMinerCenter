@@ -12,6 +12,7 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\OutliersTasksRepository;
  * Class OutliersTasksFacade - facade for work with OutliersTasks
  * @package EasyMinerCenter\Model\EasyMiner\Facades
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class OutliersTasksFacade {
   /** @var  OutliersTasksRepository $outliersTasksRepository */
@@ -22,6 +23,7 @@ class OutliersTasksFacade {
   }
 
   /**
+   * Method for finding of an OutliersTask by the OutliersTaskId
    * @param $id
    * @return OutliersTask
    * @throws \Exception
@@ -31,7 +33,7 @@ class OutliersTasksFacade {
   }
 
   /**
-   * Funkce pro nalezení outliersTask na základě ID úlohy a minSupportu
+   * Method for finding of an OutliersTask with given miner ID and minSupport
    * @param Miner|int $miner
    * @param float $minSupport
    * @return OutliersTask
@@ -45,6 +47,7 @@ class OutliersTasksFacade {
   }
 
   /**
+   * Method for saving of OutlietsTask
    * @param OutliersTask $outliersTask
    * @return mixed
    */
@@ -53,7 +56,7 @@ class OutliersTasksFacade {
   }
 
   /**
-   * Funkce pro smazání DM úlohy včetně připojených pravidel
+   * Method for deleting of OutliersTask
    * @param OutliersTask $outliersTask
    * @return bool
    */
@@ -67,6 +70,7 @@ class OutliersTasksFacade {
   }
 
   /**
+   * Method for updating of OutliersTask state
    * @param OutliersTask $outliersTask
    * @param OutliersTaskState $outliersTaskState
    */
@@ -74,12 +78,12 @@ class OutliersTasksFacade {
     /** @var OutliersTask $task - aktualizujeme data o konkrétní úloze*/
     $outliersTask=$this->findOutliersTask($outliersTask->outliersTaskId);
 
-    //stav řešení úlohy
+    //task solving state
     if (($outliersTask->state!=OutliersTask::STATE_SOLVED)&&($outliersTask->state!=$outliersTaskState->state)){
       $outliersTask->state=$outliersTaskState->state;
     }
 
-    //URL s výsledky
+    //URL with results
     $outliersTask->resultsUrl=(!empty($outliersTaskState->resultsUrl)?$outliersTaskState->resultsUrl:'');
 
     //ID of remote miner task

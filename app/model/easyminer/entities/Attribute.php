@@ -4,8 +4,11 @@ use LeanMapper\Entity;
 
 
 /**
- * Class DatasourceColumn - entita zachycující mapování konkrétního datového sloupce...
+ * Class Attribute - entity representing one attribute
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $attributeId=null
  * @property Metasource $metasource m:hasOne
  * @property int|null $ppDatasetAttributeId = null
@@ -24,7 +27,7 @@ class Attribute extends Entity{
   const TYPE_NUMERIC='numeric';
 
   /**
-   * Funkce vracející přehled základních dat
+   * Method returning an array with basic data properties
    * @return array
    */
   public function getDataArr() {

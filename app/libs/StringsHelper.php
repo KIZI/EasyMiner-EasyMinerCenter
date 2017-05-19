@@ -2,16 +2,21 @@
 
 namespace EasyMinerCenter\Libs;
 
-
 use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
 use Nette\Utils\Strings;
 
+/**
+ * Class StringsHelper
+ * @package EasyMinerCenter\Libs
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class StringsHelper {
 
   const PASSWORDS_SALT='zruiopwkjhgfdsayexcvbnqtm';
 
   /**
-   * Funkce pro připravení bezpečného jména pro atributy, data fields atd.
+   * Method for preparation of a "safe" name for attribute, data field etc.
    * @param $string
    * @return string
    */
@@ -24,7 +29,7 @@ class StringsHelper {
   }
 
   /**
-   * Funkce pro naplnění řetězce pomocí parametrů
+   * Method for filling-in of params in a masked string
    * @param string $string
    * @param array $params
    * @return string
@@ -45,7 +50,7 @@ class StringsHelper {
   }
 
   /**
-   * Funkce vracející náhodný řetězec zadané délky
+   * Method returning a random string with the given length
    * @param int $length
    * @return string
    */
@@ -60,7 +65,7 @@ class StringsHelper {
   }
 
   /**
-   * Funkce pro symetrické zakódování hesla
+   * Method for symetric encoding of a password
    * @param string $password
    * @return string
    */
@@ -76,7 +81,7 @@ class StringsHelper {
   }
 
   /**
-   * Funkce pro symetrické dekódování hesla
+   * Method for symetric decoding of a password encoded using encodePassword()
    * @param string $encodedPassword
    * @return string
    */
@@ -92,7 +97,7 @@ class StringsHelper {
   }
 
   /**
-   * Funkce pro zašifrování textu
+   * Method for text encryption
    * @param string $inputString
    * @param string $key
    * @return string
@@ -120,7 +125,7 @@ class StringsHelper {
 
 
   /**
-   * Funkce pro naformátování textové reprezentace intervalu
+   * Method for preparing a string representation of a interval
    * @param string $leftBound
    * @param float $leftValue
    * @param float $rightValue

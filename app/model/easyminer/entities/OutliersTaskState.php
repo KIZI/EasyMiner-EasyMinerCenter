@@ -5,9 +5,11 @@ use Nette\Object;
 use Nette\Utils\Strings;
 
 /**
- * Class OutliersTaskState - pracovní třída pro zachycení stavu úlohy
+ * Class OutliersTaskState - working class representing a OutlierTask state
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property string|null $state
  * @property int|null $minerOutliersTaskId
  * @property string|null $resultsUrl
@@ -93,7 +95,7 @@ class OutliersTaskState extends Object{
   }
 
   /**
-   * Funkce vracející info o stavu úlohy v podobě pole
+   * Method returning info about the task state in form of an array
    * @return array
    */
   public function asArray(){

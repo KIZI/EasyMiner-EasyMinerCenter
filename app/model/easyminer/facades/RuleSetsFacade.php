@@ -15,6 +15,8 @@ use Nette\InvalidArgumentException;
 /**
  * Class RuleSetsFacade - třída pro práci s pravidly v DB
  * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RuleSetsFacade {
   /** @var  RuleSetsRepository $rulesRepository */
@@ -25,7 +27,7 @@ class RuleSetsFacade {
   private $rulesFacade;
 
   /**
-   * Funkce pro přidání/změnu relace Rule k RuleSet
+   * Method for adding/updating a relation between Rule and RuleSet
    * @param Rule|int $rule
    * @param RuleSet|int $ruleSet
    * @param string $relation
@@ -54,7 +56,7 @@ class RuleSetsFacade {
   }
 
   /**
-   * Funkce pro odebrání pravidla z rulesetu
+   * Method for deleting the relation between Rule and RuleSet
    * @param Rule|int $rule
    * @param RuleSet|int $ruleSet
    * @param bool $updateRulesCount = true
@@ -76,7 +78,7 @@ class RuleSetsFacade {
   }
 
   /**
-   * Funkce pro smazání všech pravidel z daného datasetu (volitelně v závislosti na definované relaci)
+   * Method for removing all rules from the ruleset (deleting the relations between rules and rulesets; optionally only with selected type of relation)
    * @param RuleSet|int $ruleSet
    * @param string|null $relation = null
    * @return bool
@@ -92,7 +94,7 @@ class RuleSetsFacade {
   }
 
   /**
-   * Funkce pro přidání všech pravidel z RuleClipboard konkrétní úlohy do RuleSetu
+   * Method for adding all rules from a Task in RuleClipboard to RuleSet
    * @param Task|int $task
    * @param RuleSet|int $ruleSet
    * @param string $relation
@@ -111,7 +113,7 @@ class RuleSetsFacade {
   }
 
   /**
-   * Funkce pro odebrání všech pravidel z RuleClipboard konkrétní úlohy z RuleSetu
+   * Method for removing all rules from a Task in RuleClipboard from RuleSet
    * @param $task
    * @param $ruleSet
    */
@@ -129,6 +131,7 @@ class RuleSetsFacade {
   }
 
   /**
+   * Method returning rules from given ruleset
    * @param RuleSet|int $ruleSet
    * @param string $order
    * @param null|int $offset
@@ -198,7 +201,7 @@ class RuleSetsFacade {
   }
 
   /**
-   * Funkce pro kontrolu, zda už existuje u daného uživatele ruleset se zadaným názvem
+   * Method for check, if there exists a ruleset with the given name and the same owner
    * @param string $ruleSetName
    * @param int|User $user
    * @param null|int|RuleSet $ignoreRuleSet
@@ -211,7 +214,7 @@ class RuleSetsFacade {
     if ($ignoreRuleSet instanceof RuleSet){
       $ignoreRuleSet=$ignoreRuleSet->ruleSetId;
     }
-    //kontrola, jestli již existuje ruleset se zadaným názvem
+    //check, if there exists a ruleset with the given name
     $existingRuleSets=$this->findRuleSetsByUser($user);
     if (!empty($existingRuleSets)){
       foreach($existingRuleSets as $existingRuleSet){
@@ -223,7 +226,8 @@ class RuleSetsFacade {
   }
 
   /**
-   * Funkce pro vygenerování a uložení nového rule setu pro zadaného uživatele; pokud není jméno rule setu unikátní, je přidáno pořadové číslo...
+   * Method for saving new ruleset for the given user
+   * (if the name is not unique, the method adds a number to the end of the name)
    * @param string $ruleSetName
    * @param User $user
    * @return RuleSet
@@ -243,7 +247,7 @@ class RuleSetsFacade {
         $counter++;
       }
     }
-    //uložení...
+    //save it...
     $ruleSet=new RuleSet();
     $ruleSet->user=$user;
     $ruleSet->name=$newName;
@@ -252,7 +256,7 @@ class RuleSetsFacade {
   }
 
   /**
-   * Funkce pro přepočítání počtu pravidel v rulesetu
+   * Method for updating of count of rules in the given ruleset
    * @param RuleSet|int $ruleSet
    */
   public function updateRuleSetRulesCount($ruleSet){

@@ -26,6 +26,8 @@ use Tracy\ILogger;
  * Class CloudRulesDriver - ovladač pro dolování za využití nové verze R/Hadoop Cloud driveru s postupným vracením výsledků
  * @package EasyMinerCenter\Model\Mining\Cloud
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
  */
 class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   /** @var  Task $task */
@@ -33,13 +35,13 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
 
-  #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
+  #region constants for mining delay/max requests
   const MAX_MINING_REQUESTS=5;
   const REQUEST_DELAY=1;// delay between requests (in seconds)
-  #endregion
+  #endregion constants for mining delay/max requests
 
   /**
-   * Funkce pro kontrolu nezbytných měr zajímavosti v nastavení úlohy
+   * Method for checking of required interest measures config in the task settings
    * @param TaskSettingsJson $taskSettingsJson
    */
   private function checkRequiredIMs(TaskSettingsJson $taskSettingsJson) {
@@ -54,40 +56,39 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
       }
     }
     #endregion
-    #region kontrola zadání RULE_LENGTH
+    #region check for RULE_LENGTH
     if (!in_array('RULE_LENGTH',$usedIMNames)){
       $attributeNames=$taskSettingsJson->getAttributeNames();
       $taskSettingsJson->simpleAddIM('RULE_LENGTH',TaskSettingsJson::THRESHOLD_TYPE_ABS,TaskSettingsJson::COMPARE_LTE,count($attributeNames));
     }
-    #endregion kontrola zadání RULE_LENGTH
+    #endregion check for RULE_LENGTH
   }
 
   /**
-   * Funkce pro definování úlohy na základě dat z EasyMineru
+   * Method for starting of mining of the current task
    * @return TaskState
    * @throws \Exception
    */
   public function startMining() {
-    #region kontrola zadání úlohy v JSONu
+    #region check task setting in JSON
     $taskSettingsJson=new TaskSettingsJson($this->task->taskSettingsJson);
     $this->checkRequiredIMs($taskSettingsJson);
     $this->task->setTaskSettings($taskSettingsJson->getJsonData());
-    #endregion
+    #endregion check task setting in JSON
 
-    //serializace zadání v PMML
+    #region serialize the task config to PMML
     $cloudDriverGuhaPmmlSerializer=$this->xmlSerializersFactory->createCloudDriverGuhaPmmlSerializer($this->task);
     $cloudDriverGuhaPmmlSerializer->appendTaskSettings();
 
     $pmml=$cloudDriverGuhaPmmlSerializer->getPmml();
+    #endregion serialize the task config to PMML
 
-    //import úlohy a spuštění dolování...
+    //import task and let it run...
     $numRequests=1;
     sendStartRequest:
     try{
-      #region pracovní zjednodušený request
       $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),'POST',[],$this->getApiKey(),$responseCode);
       $taskState=$this->parseResponse($response,$responseCode);
-    #endregion
     }catch (\Exception $e){
       if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
     }
@@ -99,7 +100,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro kontrolu aktuálního průběhu úlohy (aktualizace seznamu nalezených pravidel...)
+   * Method for checking the state of the current task
    * @throws \Exception
    * @return TaskState
    */
@@ -109,11 +110,11 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         $numRequests=1;
         sendStartRequest:
         try{
-          #region zjištění stavu úlohy, případně import pravidel
+          #region check task state and import rules, if they are available
           $url=$this->getRemoteMinerUrl().'/'.$this->task->resultsUrl.'?apiKey='.$this->getApiKey();
           $response=self::curlRequestResponse($url,'','GET',[],$this->getApiKey(),$responseCode);
           return $this->parseResponse($response,$responseCode);
-          #endregion
+          #endregion check task state and import rules, if they are available
         }catch (\Exception $e){
           if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
         }
@@ -126,9 +127,9 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
     return $this->task->getTaskState();
   }
 
-  #region funkce pro smazání mineru, kontrolu jeho stavu a jeho smazání
+  #region method for deleting the miner and checking its state
   /**
-   * Funkce pro zastavení dolování
+   * Method for stopping of the current task
    * @return TaskState
    */
   public function stopMining() {
@@ -144,7 +145,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce volaná před smazáním konkrétního mineru
+   * Method for deleting the remote miner instance (on the remote mining server)
    * @return mixed|false
    */
   public function deleteMiner(){
@@ -152,17 +153,17 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * Method for checking the configuration of the miner (including config params etc.)
    * @param User $user
    * @return true
    */
   public function checkMinerState(User $user){
     return true;
   }
-  #endregion
+  #endregion method for deleting the miner and checking its state
 
   /**
-   * Funkce pro načtení pravidel z PMML získaného v rámci odpovědi serveru
+   * Method for parsing of PMML response gained from mining server
    * @param string $pmmlString
    * @return TaskState
    * @throws \Exception
@@ -173,14 +174,14 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
     $taskState=$this->task->getTaskState();
     $taskState->setRulesCount($taskState->getRulesCount()+$rulesCount);
     if ($taskState->importState!=Task::IMPORT_STATE_PARTIAL){
-      //pokud zrovna neprobíhá import...
+      //if there is no import in progress...
       $taskState->importState=Task::IMPORT_STATE_WAITING;
     }
     return $taskState;
   }
 
   /**
-   * Funkce pro načtení základu pravidel z PMML (jen text pravidla, IDčka a míry zajímavosti)
+   * Method for parsing the basic info about rules in PMML (only text representation, IMs and IDs)
    * @param string|\SimpleXMLElement $pmml
    * @param int &$rulesCount = null - informace o počtu importovaných pravidel
    * @throws \Exception
@@ -198,7 +199,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
 
     $associationRules=$xml->xpath('//guha:AssociationModel/AssociationRules/AssociationRule');
 
-    if (empty($associationRules)){return;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+    if (empty($associationRules)){return;}//if there are no rules, do not process cedents
 
     $rulesArr=[];
     foreach ($associationRules as $associationRule){
@@ -219,9 +220,9 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
 
 
   /**
-   * Funkce pro načtení PMML
+   * Method for full parsing of rules from PMML
    * @param string|\SimpleXMLElement $pmml
-   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
+   * @param int &$rulesCount = null - variable returning count of imported rules
    * @param bool $updateImportedRulesHeads=false
    * @return bool
    * @throws \Exception
@@ -241,9 +242,9 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
     /** @var \SimpleXMLElement $associationRulesXml */
     $associationRulesXml=$guhaAssociationModel->AssociationRules;
 
-    if (count($associationRulesXml->AssociationRule)==0){return true;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+    if (count($associationRulesXml->AssociationRule)==0){return true;}//if there are no rules, do not import cedents
 
-    #region zpracování cedentů jen s jedním subcedentem
+    #region process cedent with only one attribute
     $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)=1]');
     $alternativeCedentIdsArr=array();
     if (!empty($dbaItems)){
@@ -264,7 +265,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         }
       }while($repeat);
     }
-    #endregion
+    #endregion process cedent with only one attribute
 
     /** @var Cedent[] $cedentsArr */
     $cedentsArr=[];
@@ -274,15 +275,16 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
     $unprocessedIdsArr=[];
     /** @var ValuesBin[]|Value[] $valuesBinsArr */
     $valuesBinsArr=[];
-    /** @var Attribute[] $attributesArr - pole indexované pomocí názvů atributů použitých v PMML */
+    /** @var Attribute[] $attributesArr - array of attributes, keys are names of attributes used in PMML */
     $attributesArr=$this->miner->metasource->getAttributesByNamesArr();
-    #region zpracování rule attributes
+
+    #region process rule attributes
     $bbaItems=$associationRulesXml->xpath('//BBA');
     if (!empty($bbaItems)){
       foreach ($bbaItems as $bbaItem){
         $ruleAttribute=new RuleAttribute();
         $idStr=(string)$bbaItem['id'];
-        //uložení vazby na Attribute
+        //save the relation to Attribute
         $attributeName=(string)$bbaItem->FieldRef;
         $valueName=(string)$bbaItem->CatRef;
 
@@ -295,7 +297,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         }elseif($valueItem instanceof ValuesBin){
           $ruleAttribute->valuesBin=$valueItem;
         }elseif($attribute->preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
-          //pokud jde o preprocessing each-one a nebyla nalezena příslušná hodnota v DB, tak ji uložíme
+          //if it is preprocessing "each-one" and the value was not found in DB, save it...
           $value=new Value();
           $value->format=$attribute->preprocessing->format;
           $value->value=$valueName;
@@ -306,7 +308,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         $ruleAttributesArr[$idStr]=$ruleAttribute;
       }
     }
-    //pročištění pole s alternativními IDčky
+    //cleanpu the array with alternative IDs
     if (!empty($alternativeCedentIdsArr)){
       foreach ($alternativeCedentIdsArr as $id=>$alternativeId){
         if (isset($ruleAttributesArr[$alternativeId])){
@@ -314,8 +316,9 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         }
       }
     }
-    #endregion
-    #region zpracování cedentů s více subcedenty/hodnotami
+    #endregion process rule attributes
+
+    #region process cedents with more subcedents/valus
     $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)>0]');
     if (!empty($dbaItems)){
       do {
@@ -344,7 +347,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
           }
           if ($process) {
             unset($unprocessedIdsArr[$idStr]);
-            //vytvoření konkrétního cedentu...
+            //create concrete cedent...
             $cedent = new Cedent();
             if (isset($dbaItem['connective'])) {
               $cedent->connective = Strings::lower((string)$dbaItem['connective']);
@@ -372,10 +375,10 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         }
       }while(!empty($unprocessedIdsArr));
     }
-    #endregion
+    #endregion process cedents with more subcedents/valus
 
     #region association rules
-    /** @var Cedent[] $topCedentsArr - pole s cedenty na vrcholné úrovni (pokud je ruleAttribute přímo na vrcholné úrovni, musí být zabalen v cedentu)*/
+    /** @var Cedent[] $topCedentsArr - array with top-level cedents (if a RuleAttribute is on the top level, it has to be packed in a cedent) */
     $topCedentsArr=array();
 
     foreach ($associationRulesXml->AssociationRule as $associationRule){
@@ -391,7 +394,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
       $rule->task=$this->task;
       #region antecedent
       if (isset($associationRule['antecedent'])){
-        //jde o pravidlo s antecedentem
+        //it is rule with antecedent
         $antecedentId=(string)$associationRule['antecedent'];
         if (isset($alternativeCedentIdsArr[$antecedentId])){
           $antecedentId=$alternativeCedentIdsArr[$antecedentId];
@@ -416,7 +419,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         }
 
       }else{
-        //jde o pravidlo bez antecedentu
+        //it is rule without antecedent
         $rule->antecedent=null;
       }
       #endregion antecedent
@@ -462,51 +465,51 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce parsující stav odpovědi od LM connectu
+   * Private method for parting the mining service response
    * @param string $response
    * @param int $responseCode
    * @return TaskState
    * @throws \Exception
    */
   private function parseResponse($response, $responseCode){
-    //kontrola stavového kódu odpovědi a stavu úlohy
+    //check the response state code and the task state
     if ($responseCode==202 && $this->task->state==Task::STATE_NEW){
-      //vytvoření nového mineru (spuštění úlohy)
+      //task is running
       $body=simplexml_load_string($response);
       if (substr($body->code,0,3)==202){
-        //pokud je odpověď ve vhodném formátu, uložíme k úloze info o tom, kde hledat dílčí odpověď
+        //if the response is in appropriate format, save it and attach to the task the info, where to find the partial result
         $this->task->state=Task::STATE_IN_PROGRESS;
         if (!empty($body->miner->{'partial-result-url'})){
-          $resultUrl='partial-result/'.trim($body->miner->{'task-id'});//přidán trim kvůli chybnému chování minovací služby
+          $resultUrl='partial-result/'.trim($body->miner->{'task-id'});//added trim due to invalid responses from mining service
         }
         return new TaskState($this->task,Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
       }
     }elseif($this->task->state==Task::STATE_IN_PROGRESS){
-      #region zpracování již probíhající úlohy
+      #region process already running task
       switch ($responseCode){
         case 200:
-          //import kompletních výsledků
+          //import the complete results
           $taskState=$this->parseRulesPMML($response);
           $taskState->state=Task::STATE_SOLVED;
           return $taskState;
         case 204:
-          //jde o úlohu, která aktuálně nemá žádné další výsledky
+          //it is task with no results yet
           return $this->task->getTaskState();
         case 206:
-          //import částečných výsledků
+          //import partial results
           return $this->parseRulesPMML($response);
         case 303:
           if ($this->task->rulesCount>0){
-            //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
+            //all partial results have been loaded, finish the task (we do not need import the full PMML); the import is probably still running as a background request
             return new TaskState($this->task,Task::STATE_SOLVED,$this->task->rulesCount);
           }else{
             try{
               $body=simplexml_load_string($response);
-              //pokud je odpověď ve vhodném formátu, uložíme k úloze info o tom, kde hledat dílčí odpověď
+              //if the response is in appropriate format, save it and attach to the task the info, where to find the result
               if (!empty($body->miner->{'complete-result-url'})){
-                $this->task->resultsUrl='complete-result/'.trim($body->miner->{'task-id'});//přidán trim kvůli chybnému chování minovací služby
+                $this->task->resultsUrl='complete-result/'.trim($body->miner->{'task-id'});//added trim due to invalid responses from mining service
               }else{
-                //pravděpodobně se tu vyskytla chyba...
+                //probably error occurred...
                 return new TaskState($this->task,Task::STATE_FAILED);
               }
               return $this->checkTaskState();
@@ -522,15 +525,14 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
             return new TaskState($this->task,Task::STATE_FAILED);
           }
         default:
-          //pokud byl vrácen jiný stavový kód, kde pravděpodobně o chybu dolovací služby
+          //if the response status code has another value, it is probably error of mining service
           Debugger::log($response,ILogger::ERROR);
           return new TaskState($this->task,Task::STATE_FAILED);
       }
-      #endregion zpracování již probíhající úlohy
+      #endregion process already running task
     }
-    //úloha není v žádném standartním tvaru...
+    //response is not in acceptable form...
     throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
-    //return new TaskState($this->task,Task::STATE_FAILED);
   }
 
 
@@ -551,7 +553,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro nastavení aktivní úlohy
+   * Method for setting the current (active) task
    * @param Task $task
    */
   public function setTask(Task $task) {
@@ -562,7 +564,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   #endregion constructor
 
   /**
-   * Funkce vracející cestu k souboru, který má být updatován
+   * Method returning path to a PMML file
    * @return string
    */
   private function getImportPmmlPath(){
@@ -575,12 +577,10 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro načtení plných výsledků úlohy z PMML
-   *
+   * Method for full import of task results in PMML
    * @return TaskState
    */
   public function importResultsPMML() {
-    #region zjištění jména souboru, který se má importovat (a kontrola, jestli tu nějaký takový soubor je)
     $importData=$this->task->getImportData();
     $taskState=$this->task->getTaskState();
     if (!empty($importData)){
@@ -590,7 +590,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         $importedRulesCount=0;
         $this->fullParseRulesPMML(simplexml_load_file($filename),$importedRulesCount,true);
 
-        #region aktualizace TaskState
+        #region update TaskState
         $taskState->importData=$importData;
         $taskState->importState=Task::IMPORT_STATE_WAITING;
         if (empty($importData)){
@@ -598,12 +598,12 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
             $taskState->importState=Task::IMPORT_STATE_DONE;
           }
         }
-        #endregion aktualizace TaskState
-        //smažeme importovaný soubor
+        #endregion update TaskState
+
+        //delete imported file
         FileSystem::delete($filename);
       }
     }
-    #endregion
     return $taskState;
   }
 

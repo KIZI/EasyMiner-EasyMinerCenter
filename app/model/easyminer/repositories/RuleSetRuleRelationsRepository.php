@@ -6,10 +6,16 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use LeanMapper\Fluent;
 
+/**
+ * Class RuleSetRuleRelationsRepository
+ * @package EasyMinerCenter\Model\EasyMiner\Repositories
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class RuleSetRuleRelationsRepository extends BaseRepository{
 
   /**
-   * Funkce pro smazání všech vazeb pravidel k danému rulesetu
+   * Method for removing of all relations between Rules and the given RuleSet
    * @param RuleSet $ruleSet
    * @return \DibiResult|int
    */
@@ -20,7 +26,7 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
   }
 
   /**
-   * Funkce vracející pravidla patřící do daného rulesetu
+   * Method returning the Rules with relation to the given RuleSet
    * @param RuleSet $ruleSet
    * @param null|string $order
    * @param null|int $offset
@@ -51,6 +57,7 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
   }
 
   /**
+   * Method returning the count of Rules in relation to the given RuleSet
    * Funkce vracející počet pravidel patřících do daného rulesetu
    * @param RuleSet $ruleSet
    * @return int

@@ -18,6 +18,13 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\ValuesBinsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\ValuesRepository;
 use Nette\Utils\Strings;
 
+/**
+ * Class MetaAttributesFacade - facade for work with metaattributes
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
+ */
 class MetaAttributesFacade {
   /** @var MetaAttributesRepository $metaAttributesRepository */
   private $metaAttributesRepository;
@@ -61,7 +68,7 @@ class MetaAttributesFacade {
   }
 
   /**
-   * Funkce pro základní vytvoření nového formátu na základě datového sloupce
+   * Method for basic creating of new Format based on the given data column
    * @param DatasourceColumn $datasourceColumn
    * @param User $user
    * @return Format
@@ -119,7 +126,7 @@ class MetaAttributesFacade {
   }
 
   /**
-   * Funkce pro vytvoření formátu na základě hodnot datového sloupce
+   * Method for creating new Format based on values from data column
    * @param MetaAttribute $metaAttribute
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
@@ -149,7 +156,6 @@ class MetaAttributesFacade {
   }
 
   /**
-   * Funkce pro aktualizaci formátu na základě hodnot z daného DatasourceColumn
    * TODO implementovat...
    * @param Format $format
    * @param DatasourceColumn $datasourceColumn
@@ -422,7 +428,7 @@ class MetaAttributesFacade {
   }
 
   /**
-   * Funkce pro nalezení hodnoty či její vytvoření, pokud neexistuje
+   * Method for finding a Value from given Format, if it does not exist, creates a new one
    * @param Format|int $format
    * @param string $value
    * @return Value
@@ -434,7 +440,7 @@ class MetaAttributesFacade {
     try{
       $valueObject=$this->findValue($format, $value);
     }catch(\Exception $e){
-      //uložení hodnoty, pokud nebyla nalezena...
+      //save value, if it was not found...
       $valueObject=new Value();
       $valueObject->format=$format;
       $valueObject->value=$value;
@@ -443,10 +449,8 @@ class MetaAttributesFacade {
     return $valueObject;
   }
 
-
-
   /**
-   * Funkce pro definování nového preprocessingu na základě vstupních parametrů
+   * Method for preparation new preprocessing using the array with input params
    * @param Format $format
    * @param array $definition
    * @return Preprocessing
@@ -476,7 +480,7 @@ class MetaAttributesFacade {
           throw new \InvalidArgumentException('From and To params of equifrequent intervals have to be different.');
         }
         if ($specialParams['from']>$specialParams['to']){
-          //pokud máme chybně zadané pořadí hodnot, prohodíme je
+          //if the values have bad order, resort them
           $from=$specialParams['to'];
           $specialParams['to']=$specialParams['from'];
           $specialParams['from']=$from;
@@ -504,7 +508,7 @@ class MetaAttributesFacade {
           throw new \InvalidArgumentException('From and To params of equisized intervals have to be different.');
         }
         if ($specialParams['from']>$specialParams['to']){
-          //pokud máme chybně zadané pořadí hodnot, prohodíme je
+          //if the values have bad order, resort them
           $from=$specialParams['to'];
           $specialParams['to']=$specialParams['from'];
           $specialParams['from']=$from;
@@ -526,7 +530,7 @@ class MetaAttributesFacade {
         throw new \InvalidArgumentException('From and To params of equifrequent intervals have to be different.');
       }
       if ($specialParams['from']>$specialParams['to']){
-        //pokud máme chybně zadané pořadí hodnot, prohodíme je
+        //if the values have bad order, resort them
         $from=$specialParams['to'];
         $specialParams['to']=$specialParams['from'];
         $specialParams['from']=$from;
@@ -535,13 +539,13 @@ class MetaAttributesFacade {
       if (!empty($definition['length'])&&(floatval($definition['length'])>0)){
         $intervalLength=$definition['length'];
       }else{
-        //zadání počtem intervalů => převedeme to na délku intervalu
+        //setting using count of intervals => transform it to length of interval
         $specialParams['count']=floatval($definition['count']);
         if ($specialParams['count']<=1){
           throw new \InvalidArgumentException('Count param of equifrequent intervals has to be greater than 1.');
         }
         $intervalLength=($specialParams['to']-$specialParams['from'])/$specialParams['count'];
-        //zaokrouhleni pro hezci cisla...
+        //rounding to "nicer" numbers
         if ($intervalLength>1){
           $intervalLength=round($intervalLength*1000)/1000;
         }else{
@@ -557,7 +561,7 @@ class MetaAttributesFacade {
       }
       $this->savePreprocessing($preprocessing);
 
-      //vygenerování intervalů
+      //generate intervals
       $start=$specialParams['from'];
       do{
         $interval=new Interval();
@@ -598,8 +602,8 @@ class MetaAttributesFacade {
 
       $exisingBinNames=[];
       foreach($bins as $bin){
-        //projdeme jednotlivé biny a uložíme je do DB
-        #region vyřešení unikátnosti jmen jednotlivých BINů
+        //save all bins to DB
+        #region solve the uniqueness of BIN names
         $binName=trim(@$bin['name']);
         if (empty($bin['intervals'])){
           continue;
@@ -614,7 +618,7 @@ class MetaAttributesFacade {
           $newBinName=$binName.$x;
         }
         $binName=$newBinName;
-        #endregion vyřešení unikátnosti jmen jednotlivých BINů
+        #endregion solve the uniqueness of BIN names
 
         $valuesBin=new ValuesBin();
         $valuesBin->name=$binName;
@@ -630,7 +634,7 @@ class MetaAttributesFacade {
           $interval->rightMargin=$intervalConfig['rightMargin'];
           $interval->setClosure($intervalConfig['closure']);
           if (!empty($intervals)){
-            //kontrola, jestli se interval nepřekrývá s jiným, již definovaným intervalem
+            //check, if the interval is not in overlap with another, already defined interval
             $intervalOverlap=false;
             foreach($intervals as $existingInterval){
               if ($interval->isInOverlapWithInterval($existingInterval)){
@@ -664,8 +668,8 @@ class MetaAttributesFacade {
 
       $exisingBinNames=[];
       foreach($bins as $bin){
-        //projdeme jednotlivé biny a uložíme je do DB
-        #region vyřešení unikátnosti jmen jednotlivých BINů
+        //save all BINs to DB
+        #region solve the uniqueness of BIN names
         $binName=trim(@$bin['name']);
         if (empty($bin['values'])){
           continue;
@@ -680,7 +684,7 @@ class MetaAttributesFacade {
           $newBinName=$binName.$x;
         }
         $binName=$newBinName;
-        #endregion vyřešení unikátnosti jmen jednotlivých BINů
+        #endregion solve the uniqueness of BIN names
 
         $valuesBin=new ValuesBin();
         $valuesBin->name=$binName;

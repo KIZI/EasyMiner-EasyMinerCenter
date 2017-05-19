@@ -7,9 +7,10 @@ use Nette\ArgumentOutOfRangeException;
 use Nette\NotImplementedException;
 
 /**
- * Class ScorerDriverFactory
+ * Class ScorerDriverFactory - class with factory methods for scorer drivers
  * @package EasyMinerCenter\Model\Scoring
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ScorerDriverFactory {
   /** @var  array $params */
@@ -31,7 +32,7 @@ class ScorerDriverFactory {
   }
 
   /**
-   * Funkce vracející instanci konkrétního ScorerDriveru
+   * Factory method returning instance of a selected ScorerDriver
    * @param string $scorerType
    * @return IScorerDriver
    */
@@ -48,11 +49,11 @@ class ScorerDriverFactory {
   }
 
   /**
-   * Funkce vracející výchozí driver (respektive první, u kterého je nalezena konfigurace)
+   * Method returning the default driver (respectively the first one, which is configured)
    * @return IScorerDriver
    * @throws NotImplementedException
    */
-  public function getDefaultScorerInstance(){//TODO doplnit možnost vybrání výchozího driveru
+  public function getDefaultScorerInstance(){//TODO add the possibility to select the default driver
     if (!empty($this->params)){
       foreach($this->params as $driverId=>$params){
         if (!empty($params['server'])){

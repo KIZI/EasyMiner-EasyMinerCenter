@@ -7,9 +7,10 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 
 /**
- * Class XmlSerializersFactory - Factory třída pro vytváření XML serializérů
+ * Class XmlSerializersFactory - class with factory methods returning XML serializers
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class XmlSerializersFactory {
   /** @var string $appVersion */

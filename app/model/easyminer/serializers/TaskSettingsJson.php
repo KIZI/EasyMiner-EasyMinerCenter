@@ -5,10 +5,10 @@ namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 use Nette\Utils\Json;
 
 /**
- * Class TaskSettingsJson - třída pro práci s nastavením úlohy ve formátu JSON
- *
-*@package EasyMinerCenter\Model\EasyMiner\Serializers
+ * Class TaskSettingsJson - class for work with task settings in format JSON
+ * @package EasyMinerCenter\Model\EasyMiner\Serializers
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class TaskSettingsJson {
   const PART_ANTECEDENT='antecedent';
@@ -20,7 +20,7 @@ class TaskSettingsJson {
   /** @var array $data */
   private $data;
 
-  #region globální funkce pro přístup k datům
+  #region global method to work with data
   /**
    * @param null|string $configJson
    * @throws \Nette\Utils\JsonException
@@ -34,7 +34,7 @@ class TaskSettingsJson {
   }
 
   /**
-   * Funkce vracející data zakódovaná jako Json
+   * Method returning config data encoded as JSON
    * @return string
    * @throws \Nette\Utils\JsonException
    */
@@ -43,18 +43,18 @@ class TaskSettingsJson {
   }
 
   /**
-   * Funkce vracející data zakódovaná jako Json
+   * Method returning config data
    * @return array
    */
   public function getJsonData(){
     return $this->data;
   }
-  #endregion globální funkce pro přístup k datům
+  #endregion global method to work with data
 
 
-  #region funkce pro práci s atributy
+  #region methods for work with attributes
   /**
-   * Funkce vracející jména měr atributů použitých ve vzoru pravidla
+   * Method returning names of attributes used in the rule pattern
    * @return string[]
    */
   public function getAttributeNames() {
@@ -89,9 +89,9 @@ class TaskSettingsJson {
     }
     return $result;
   }
-  #endregion funkce pro práci s atributy
+  #endregion methods for work with attributes
 
-  #region práce s měrami zajímavosti
+  #region methods for work with interest measures
   /**
    * @return array
    */
@@ -107,7 +107,7 @@ class TaskSettingsJson {
   }
 
   /**
-   * Funkce vracející pole se jmény použitých měr zajímavosti
+   * Method returning array with names of used interest measures
    * @return string[]
    */
   public function getIMNames(){
@@ -122,7 +122,7 @@ class TaskSettingsJson {
   }
 
   /**
-   * Funkce pro jednoduché přidání míry zajímavosti do nastavení úlohy
+   * Method for simple adding of an interest measure to task settings
    * @param string $imName
    * @param string $thresholdType
    * @param string $compareType
@@ -146,5 +146,5 @@ class TaskSettingsJson {
     ];
     $this->setIMs($IMs);
   }
-  #endregion práce s měrami zajímavosti
+  #endregion methods for work with interest measures
 }

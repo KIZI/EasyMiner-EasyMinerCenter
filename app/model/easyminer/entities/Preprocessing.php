@@ -9,8 +9,10 @@ use Nette\Utils\Strings;
 
 /**
  * Class Preprocessing
- *
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int $preprocessingId
  * @property Format $format m:hasOne
  * @property string $name
@@ -20,8 +22,8 @@ use Nette\Utils\Strings;
  * @property bool $shared = false
  * @property ValuesBin[] $valuesBins m:hasMany
  * @property Attribute[] $generatedAttributes m:belongsToMany
- * @method addToValuesBins
- * @method removeFromValuesBins
+ * @method addToValuesBins(ValuesBin $valuesBin)
+ * @method removeFromValuesBins(ValuesBin $valuesBin)
  */
 class Preprocessing extends Entity{
 

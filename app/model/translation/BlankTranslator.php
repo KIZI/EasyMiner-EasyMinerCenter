@@ -3,8 +3,10 @@
 namespace EasyMinerCenter\Model\Translation;
 
 /**
- * Class BlankTranslator - prázdná třída pro zajištění lokalizací (bude implementováno v budoucnu)
- * @package EasyMinerCenter\Model
+ * Class BlankTranslator - dummy translator class (for future implementation of localizations)
+ * @package EasyMinerCenter\Model\Translation
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class BlankTranslator implements EasyMinerTranslator{
 
@@ -19,6 +21,7 @@ class BlankTranslator implements EasyMinerTranslator{
   }
 
   /**
+   * Method returning the actual language
    * @return string
    */
   public function getLang() {

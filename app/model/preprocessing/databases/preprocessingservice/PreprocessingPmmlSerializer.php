@@ -1,23 +1,22 @@
 <?php
 
-namespace EasyMinerCenter\app\model\preprocessing\databases\preprocessingservice;
+namespace EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingNotSupportedException;
-use Tracy\Debugger;
 
 /**
- * Class PreprocessingPmmlSerializer - třída pro přípravu PMML pro preprocessing službu
- * @package EasyMinerCenter\app\model\preprocessing\databases\preprocessingservice
+ * Class PreprocessingPmmlSerializer - serializer for preparation of PMML for EasyMiner-Preprocessing service
+ * @package EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class PreprocessingPmmlSerializer{
 
 
   /**
-   * Funkce pro sestavení PMML se zadáním preprocessingu jednotlivých atributů
-   *
+   * Method for building PMML with settings of preprocessings for individual attributes
    * @param Attribute[] $attributes
    * @return string
    * @throws PreprocessingNotSupportedException
@@ -118,7 +117,7 @@ class PreprocessingPmmlSerializer{
           }
           #endregion equidistant intervals
         }elseif(!empty($preprocessing->valuesBins)){
-          #region klasický preprocessing pomocí výčtů hodnot či intervalů
+          #region normal preprocessing using enumerations of values or intervals
           $serializeIntervals=false;
           foreach($preprocessing->valuesBins as $valuesBin){
             if (count($valuesBin->intervals)>0){
@@ -127,7 +126,7 @@ class PreprocessingPmmlSerializer{
             break;
           }
           if ($serializeIntervals){
-            #region serializace preprocessingu pomocí intervalů
+            #region serialization of preprocessing using intervals
             $derivedFieldXml=$pmml->addChild('DerivedField');
             $derivedFieldXml->addAttribute('name',$attribute->name);
             $discretizeXml=$derivedFieldXml->addChild('Discretize');
@@ -145,9 +144,9 @@ class PreprocessingPmmlSerializer{
                 }
               }
             }
-            #endregion serializace preprocessingu pomocí intervalů
+            #endregion serialization of preprocessing using intervals
           }else{
-            #region serializace preprocessingu pomocí výčtů hodnot
+            #region serialization of preprocessing using values
             $derivedField=$pmml->addChild('DerivedField');
             $derivedField->addAttribute('name',$attribute->name);
             $mapValues=$derivedField->addChild('MapValues');
@@ -167,9 +166,9 @@ class PreprocessingPmmlSerializer{
                 }
               }
             }
-            #endregion serializace preprocessingu pomocí výčtů hodnot
+            #endregion serialization of preprocessing using values
           }
-          #endregion klasický preprocessing pomocí výčtů hodnot či intervalů
+          #endregion normal preprocessing using enumerations of values or intervals
         }else{
           throw new PreprocessingNotSupportedException('Selected preprocessing type is not supported.');
         }
@@ -181,7 +180,7 @@ class PreprocessingPmmlSerializer{
   }
 
   /**
-   * Funkce vracející kostru prázdného PMML pro preprocessing
+   * Method returning blank SimpleXMLElement for preprocessing PMML
    * @return \SimpleXMLElement
    */
   private static function prepareBlankPreprocessingPmml(){

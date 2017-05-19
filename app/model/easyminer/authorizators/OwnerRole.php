@@ -5,8 +5,10 @@ namespace EasyMinerCenter\Model\EasyMiner\Authorizators;
 use Nette\Security\IRole;
 
 /**
- * Class OwnerRole - třída pro správu oprávnění k vlastním zdrojům uživatelů
- * @package EasyMinerCenter\Model\EasyMiner\Authorizators;
+ * Class OwnerRole - class for management of user privileges - permissions to work with own resources
+ * @package EasyMinerCenter\Model\EasyMiner\Authorizators
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class OwnerRole implements IRole{
   private $userId;

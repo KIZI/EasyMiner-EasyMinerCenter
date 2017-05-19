@@ -6,6 +6,9 @@ use Nette\NotSupportedException;
 /**
  * Class DbConnection
  * @package EasyMinerCenter\Model\Data\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property string $type = m:Enum("mysql","limited","unlimited")
  * @property string|null $dbServer = null
  * @property string|null $dbApi = null
@@ -23,7 +26,7 @@ class DbConnection{
   const TYPE_UNLIMITED_NAME='Unlimited DB';
 
   /**
-   * Funkce vracející connection string inspirovaný connection stringem pro PDO, ale obsahující všechny vlastnosti DbConnection
+   * Function returning a connection string inspired by connection string for PDO, but including some properties of DbConnection
    * @return string
    */
   public function getConnectionString() {
@@ -31,6 +34,7 @@ class DbConnection{
   }
 
   /**
+   * Function returning PDO connection string
    * @return string
    * @throws NotSupportedException
    */

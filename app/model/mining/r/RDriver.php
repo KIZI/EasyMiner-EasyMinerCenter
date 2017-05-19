@@ -26,9 +26,10 @@ use Tracy\Debugger;
 use Tracy\ILogger;
 
 /**
- * Class RDriver - ovladač pro dolování za využití nové verze R driveru s postupným vracením výsledků
+ * Class RDriver - driver for mining using simple R service
  * @package EasyMinerCenter\Model\Mining\R
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RDriver implements IMiningDriver{
   /** @var  Task $task */
@@ -45,24 +46,24 @@ class RDriver implements IMiningDriver{
   private $metaAttributesFacade;
   /** @var XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
-  /** @var array $params - parametry výchozí konfigurace */
+  /** @var array $params - default config params*/
   private $params;
   /** @var  User $user */
   private $user;
-  /** @var  string $apiKey - API KEY pro konktrétního uživatele */
+  /** @var  string $apiKey - API KEY for the current user */
   private $apiKey;
 
-  #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
+  #region constants for mining delay/max requests
   const MAX_MINING_REQUESTS=5;
   const REQUEST_DELAY=1;// delay between requests (in seconds)
-  #endregion
+  #endregion constants for mining delay/max requests
 
   /**
-   * Funkce pro kontrolu nezbytných měr zajímavosti v nastavení úlohy
+   * Method for check of required interest measures in the current task config
    * @param TaskSettingsJson $taskSettingsJson
    */
   private function checkRequiredIMs(TaskSettingsJson $taskSettingsJson) {
-    #region TODO dodělat kontrolu požadovaných měr zajímavosti podle nastavovacího XML (issue #104)
+    #region TODO dodělat kontrolu požadovaných měr zajímavosti podle nastavovacího XML (issue KIZI/EasyMiner-EasyMinerCenter#104)
     $usedIMNames=$taskSettingsJson->getIMNames();
     if (!in_array('AUTO_CONF_SUPP',$usedIMNames)){//FIXME jen dočasná úprava, je nutno kontrolovat dle konfiguračního souboru
       if (!in_array('CONF',$usedIMNames)){
@@ -73,41 +74,39 @@ class RDriver implements IMiningDriver{
       }
     }
     #endregion
-    #region kontrola zadání RULE_LENGTH
+    #region check for RULE_LENGTH
     if (!in_array('RULE_LENGTH',$usedIMNames)){
       $attributeNames=$taskSettingsJson->getAttributeNames();
       $taskSettingsJson->simpleAddIM('RULE_LENGTH',TaskSettingsJson::THRESHOLD_TYPE_ABS,TaskSettingsJson::COMPARE_LTE,count($attributeNames));
     }
-    #endregion kontrola zadání RULE_LENGTH
+    #endregion check for RULE_LENGTH
   }
 
   /**
-   * Funkce pro definování úlohy na základě dat z EasyMineru
+   * Method for starting of mining of the current task
    * @return TaskState
    * @throws \Exception
    */
   public function startMining() {
-    #region kontrola zadání úlohy v JSONu
+    #region check the task config in JSON
     $taskSettingsJson=new TaskSettingsJson($this->task->taskSettingsJson);
     $this->checkRequiredIMs($taskSettingsJson);
-    #endregion
+    #endregion check the task config in JSON
 
-    #region serializace zadání v PMML
+    #region serialize the task config to PMML
     $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($this->task);
     $pmmlSerializer->appendMetabaseInfo();
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $taskSettingsSerializer->settingsFromJson($taskSettingsJson->getJsonString());
-    #endregion
+    #endregion serialize the task config to PMML
 
     $pmml=$taskSettingsSerializer->getPmml();
-    //import úlohy a spuštění dolování...
+    //import the task and run the mining...
     $numRequests=1;
     sendStartRequest:
     try{
-      #region pracovní zjednodušený request
       $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/mine', $pmml->asXML(),$this->getApiKey(),$responseCode);
       $taskState=$this->parseResponse($response,$responseCode);
-    #endregion
     }catch (\Exception $e){
       if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
     }
@@ -119,7 +118,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro kontrolu aktuálního průběhu úlohy (aktualizace seznamu nalezených pravidel...)
+   * Method for checking the state of the current task
    * @throws \Exception
    * @return TaskState
    */
@@ -129,12 +128,12 @@ class RDriver implements IMiningDriver{
         $numRequests=1;
         sendStartRequest:
         try{
-          #region zjištění stavu úlohy, případně import pravidel
+          #region check the task state and import results, if there are available
           $url=$this->getRemoteMinerUrl().'/'.$this->task->resultsUrl.'?apiKey='.$this->getApiKey();
           $response=self::curlRequestResponse($url,'',$this->getApiKey(),$responseCode);
 
           return $this->parseResponse($response,$responseCode);
-          #endregion
+          #endregion check the task state and import results, if there are available
         }catch (\Exception $e){
           if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
         }
@@ -147,9 +146,9 @@ class RDriver implements IMiningDriver{
     return $this->task->getTaskState();
   }
 
-  #region funkce pro smazání mineru, kontrolu jeho stavu a jeho smazání
+  #region Methods for check of the miner state and removing a miner
   /**
-   * Funkce pro zastavení dolování
+   * Method for stopping of the current task
    * @return TaskState
    */
   public function stopMining() {
@@ -165,7 +164,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce volaná před smazáním konkrétního mineru
+   * Method for deleting the remote miner instance (on the remote mining server)
    * @return mixed|false
    */
   public function deleteMiner(){
@@ -173,7 +172,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * Method for checking the configuration of the miner (including config params etc.)
    * @throws \Exception
    */
   public function checkMinerState(User $user){
@@ -181,7 +180,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející adresu R connectu
+   * Method returning the URL of a concrete miner on remote mining server (from config)
    * @return string
    */
   private function getRemoteMinerUrl(){
@@ -190,7 +189,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející adresu serveru, kde běží R connect
+   * Method returning the URL of remote mining server (from config)
    * @return string
    */
   private function getRemoteServerUrl(){
@@ -198,7 +197,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející konfiguraci aktuálně otevřeného mineru
+   * Method returning the current miner config
    * @return array
    */
   private function getMinerConfig(){
@@ -209,11 +208,11 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce nastavující konfiguraci aktuálně otevřeného mineru
+   * Method for setting the current miner config
    * @param array $minerConfig
    * @param bool $save = true
    */
-  private function setMinerConfig($minerConfig,$save=true){//TODO
+  private function setMinerConfig($minerConfig,$save=true){
     $this->miner->setConfig($minerConfig);
     $this->minerConfig=$minerConfig;
     if ($save){
@@ -221,10 +220,10 @@ class RDriver implements IMiningDriver{
     }
   }
 
-  #endregion
+  #endregion Methods for check of the miner state and removing a miner
 
   /**
-   * Funkce pro načtení pravidel z PMML získaného v rámci odpovědi serveru
+   * Methof for parsing the PMML response gained from remote mining server
    * @param string $pmmlString
    * @return TaskState
    * @throws \Exception
@@ -239,9 +238,9 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro načtení základu pravidel z PMML (jen text pravidla, IDčka a míry zajímavosti)
+   * Method for parsing the basic info about rules in PMML (only text representation, IMs and IDs)
    * @param string|\SimpleXMLElement $pmml
-   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
+   * @param int &$rulesCount = null - count of imported rules
    * @throws \Exception
    */
   public function basicParseRulesPMML($pmml,&$rulesCount=null){
@@ -257,7 +256,7 @@ class RDriver implements IMiningDriver{
 
     $associationRules=$xml->xpath('//guha:AssociationModel/AssociationRules/AssociationRule');
 
-    if (empty($associationRules)){return;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+    if (empty($associationRules)){return;}//if there are no rules, do not import cedents...
 
     $rulesArr=[];
     foreach ($associationRules as $associationRule){
@@ -278,9 +277,9 @@ class RDriver implements IMiningDriver{
 
 
   /**
-   * Funkce pro načtení PMML
+   * Method for full parsing of rules from PMML
    * @param string|\SimpleXMLElement $pmml
-   * @param int &$rulesCount = null - informace o počtu importovaných pravidel
+   * @param int &$rulesCount = null - count of imported rules
    * @param bool $updateImportedRulesHeads=false
    * @return bool
    * @throws \Exception
@@ -300,9 +299,9 @@ class RDriver implements IMiningDriver{
     /** @var \SimpleXMLElement $associationRulesXml */
     $associationRulesXml=$guhaAssociationModel->AssociationRules;
 
-    if (count($associationRulesXml->AssociationRule)==0){return true;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+    if (count($associationRulesXml->AssociationRule)==0){return true;}//if there are no rules, do not process cedents...
 
-    #region zpracování cedentů jen s jedním subcedentem
+    #region process cedent with only one subcedent
     $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)=1]');
     $alternativeCedentIdsArr=array();
     if (!empty($dbaItems)){
@@ -323,7 +322,7 @@ class RDriver implements IMiningDriver{
         }
       }while($repeat);
     }
-    #endregion
+    #endregion process cedent with only one subcedent
 
     /** @var Cedent[] $cedentsArr */
     $cedentsArr=[];
@@ -333,15 +332,16 @@ class RDriver implements IMiningDriver{
     $unprocessedIdsArr=[];
     /** @var ValuesBin[]|Value[] $valuesBinsArr */
     $valuesBinsArr=[];
-    /** @var Attribute[] $attributesArr - pole indexované pomocí názvů atributů použitých v PMML */
+    /** @var Attribute[] $attributesArr - array indexed using names of attributes used in PMML */
     $attributesArr=$this->miner->metasource->getAttributesByNamesArr();
-    #region zpracování rule attributes
+
+    #region process rule attributes
     $bbaItems=$associationRulesXml->xpath('//BBA');
     if (!empty($bbaItems)){
       foreach ($bbaItems as $bbaItem){
         $ruleAttribute=new RuleAttribute();
         $idStr=(string)$bbaItem['id'];
-        //uložení vazby na Attribute
+        //save the relation to Attribute
         $attributeName=(string)$bbaItem->FieldRef;
         $valueName=(string)$bbaItem->CatRef;
 
@@ -354,7 +354,7 @@ class RDriver implements IMiningDriver{
         }elseif($valueItem instanceof ValuesBin){
           $ruleAttribute->valuesBin=$valueItem;
         }elseif($attribute->preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
-          //pokud jde o preprocessing each-one a nebyla nalezena příslušná hodnota v DB, tak ji uložíme
+          //if it is preprocessing "each-one" and the given value vas not found in DB, save the value...
           $value=new Value();
           $value->format=$attribute->preprocessing->format;
           $value->value=$valueName;
@@ -365,7 +365,7 @@ class RDriver implements IMiningDriver{
         $ruleAttributesArr[$idStr]=$ruleAttribute;
       }
     }
-    //pročištění pole s alternativními IDčky
+    //cleanup the array with alternative IDs
     if (!empty($alternativeCedentIdsArr)){
       foreach ($alternativeCedentIdsArr as $id=>$alternativeId){
         if (isset($ruleAttributesArr[$alternativeId])){
@@ -373,8 +373,8 @@ class RDriver implements IMiningDriver{
         }
       }
     }
-    #endregion
-    #region zpracování cedentů s více subcedenty/hodnotami
+    #endregion process rule attributes
+    #region process cedents with mode subcedents/values
     $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)>0]');
     if (!empty($dbaItems)){
       do {
@@ -402,7 +402,7 @@ class RDriver implements IMiningDriver{
           }
           if ($process) {
             unset($unprocessedIdsArr[$idStr]);
-            //vytvoření konkrétního cedentu...
+            //create concrete cedent
             $cedent = new Cedent();
             if (isset($dbaItem['connective'])) {
               $cedent->connective = Strings::lower((string)$dbaItem['connective']);
@@ -429,10 +429,10 @@ class RDriver implements IMiningDriver{
         }
       }while(!empty($unprocessedIdsArr));
     }
-    #endregion
+    #endregion process cedents with mode subcedents/values
 
     #region association rules
-    /** @var Cedent[] $topCedentsArr - pole s cedenty na vrcholné úrovni (pokud je ruleAttribute přímo na vrcholné úrovni, musí být zabalen v cedentu)*/
+    /** @var Cedent[] $topCedentsArr - array with top-level cedents (if a RuleAttribute is on the top level, it has to be packed in a cedent) */
     $topCedentsArr=array();
 
     foreach ($associationRulesXml->AssociationRule as $associationRule){
@@ -448,7 +448,7 @@ class RDriver implements IMiningDriver{
       $rule->task=$this->task;
       #region antecedent
       if (isset($associationRule['antecedent'])){
-        //jde o pravidlo s antecedentem
+        //it is rule with antecedent
         $antecedentId=(string)$associationRule['antecedent'];
         if (isset($alternativeCedentIdsArr[$antecedentId])){
           $antecedentId=$alternativeCedentIdsArr[$antecedentId];
@@ -473,7 +473,7 @@ class RDriver implements IMiningDriver{
         }
 
       }else{
-        //jde o pravidlo bez antecedentu
+        //it is rule without antecedent
         $rule->antecedent=null;
       }
       #endregion antecedent
@@ -519,19 +519,19 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce parsující stav odpovědi od LM connectu
+   * Method for parsing of the response from the remote mining server
    * @param string $response
    * @param int $responseCode
    * @return TaskState
    * @throws \Exception
    */
   private function parseResponse($response, $responseCode){
-    //kontrola stavového kódu odpovědi a stavu úlohy
+    //check the state code and the task state
     if ($responseCode==202 && $this->task->state==Task::STATE_NEW){
-      //vytvoření nového mineru (spuštění úlohy)
+      //create new miner (run task)
       $body=simplexml_load_string($response);
       if (substr($body->code,0,3)==202){
-        //pokud je odpověď ve vhodném formátu, uložíme k úloze info o tom, kde hledat dílčí odpověď
+        //if the response is in a suitable format, save to the task, where to find the partial response
         $this->task->state=Task::STATE_IN_PROGRESS;
         if (!empty($body->miner->{'partial-result-url'})){
           $resultUrl='partial-result/'.$body->miner->{'task-id'};
@@ -539,16 +539,16 @@ class RDriver implements IMiningDriver{
         return new TaskState($this->task,Task::STATE_IN_PROGRESS,null,!empty($resultUrl)?$resultUrl:'');
       }
     }elseif($this->task->state==Task::STATE_IN_PROGRESS){
-      #region zpracování již probíhající úlohy
+      #region process already running task
       switch ($responseCode){
         case 204:
-          //jde o úlohu, která aktuálně nemá žádné další výsledky
+          //it is task with no results yet
           return $this->task->getTaskState();
         case 206:
-          //import částečných výsledků
+          //import partial results
           return $this->parseRulesPMML($response);
         case 303:
-          //byly načteny všechny částečné výsledky, ukončíme úlohu (import celého PMML již nepotřebujeme); na pozadí pravděpodobně ještě běží import
+          //all partial results have been loaded, finish the task (we do not need import the full PMML); the import is probably still running as a background request
           return new TaskState($this->task,Task::STATE_SOLVED,$this->task->rulesCount);
         case 404:
           if ($this->task->state==Task::STATE_IN_PROGRESS && $this->task->rulesCount>0){
@@ -557,11 +557,10 @@ class RDriver implements IMiningDriver{
             return new TaskState($this->task,Task::STATE_FAILED);
           }
       }
-      #endregion zpracování již probíhající úlohy
+      #endregion process already running task
     }
-    //úloha není v žádném standartním tvaru...
+    //response is not in an acceptable format
     throw new \Exception(sprintf('Response not in expected format (%s)', htmlspecialchars($response)));
-    //return new TaskState(Task::STATE_FAILED);
   }
 
 
@@ -587,9 +586,8 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro nastavení aktivní úlohy
+   * Method for setting the current (active) task
    * @param Task $task
-   * @return mixed
    */
   public function setTask(Task $task) {
     $this->task=$task;
@@ -602,7 +600,7 @@ class RDriver implements IMiningDriver{
    * @param string $url
    * @param string $postData = ''
    * @param string $apiKey = ''
-   * @param int|null &$responseCode - proměnná pro vrácení stavového kódu odpovědi
+   * @param int|null &$responseCode - variable returning the response code
    * @return string - response data
    * @throws \Exception - curl error
    */
@@ -639,7 +637,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející cestu k souboru, který má být updatován
+   * Method returning path to a file, which should be imported
    * @return string
    */
   private function getImportPmmlPath(){
@@ -655,7 +653,7 @@ class RDriver implements IMiningDriver{
   #region apiKey
 
   /**
-   * Funkce nastavující API klíč
+   * Method for setting the current API KEY
    * @param string $apiKey
    */
   public function setApiKey($apiKey){
@@ -663,7 +661,7 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející nastavený API klíč
+   * Method returning the current API KEY
    * @return string
    * @throws InvalidArgumentException
    */
@@ -677,8 +675,7 @@ class RDriver implements IMiningDriver{
   #endregion apiKey
 
   /**
-   * Funkce pro kontrolu, jestli je dostupný dolovací server
-   *
+   * Method for checking, if the remote mining server is available
    * @param string $serverUrl
    * @throws \Exception
    * @return bool
@@ -690,12 +687,10 @@ class RDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro načtení plných výsledků úlohy z PMML
-   *
+   * Method for full import of task results in PMML
    * @return TaskState
    */
   public function importResultsPMML() {
-    #region zjištění jména souboru, který se má importovat (a kontrola, jestli tu nějaký takový soubor je)
     $importData=$this->task->getImportData();
     $taskState=$this->task->getTaskState();
     if (!empty($importData)){
@@ -705,7 +700,7 @@ class RDriver implements IMiningDriver{
         $importedRulesCount=0;
         $this->fullParseRulesPMML(simplexml_load_file($filename),$importedRulesCount,true);
 
-        #region aktualizace TaskState
+        #region update TaskState
         $taskState->importData=$importData;
         $taskState->importState=Task::IMPORT_STATE_WAITING;
         if (empty($importData)){
@@ -713,12 +708,12 @@ class RDriver implements IMiningDriver{
             $taskState->importState=Task::IMPORT_STATE_DONE;
           }
         }
-        #endregion aktualizace TaskState
-        //smažeme importovaný soubor
+        #endregion update TaskState
+        //delete imported file
         FileSystem::delete($filename);
       }
     }
-    #endregion
+
     return $taskState;
   }
 

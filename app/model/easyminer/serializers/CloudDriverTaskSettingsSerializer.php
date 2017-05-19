@@ -5,9 +5,10 @@ namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 
 /**
- * Class CloudDriverTaskSettingsSerializer - upravený TaskSettingsSerializer pro odeslání zadání úlohy pro cloud mining driver
+ * Class CloudDriverTaskSettingsSerializer - modified TaskSettingsSerializer for sending task settings to cloud mining driver
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class CloudDriverTaskSettingsSerializer extends TaskSettingsSerializer{
   /** @var  Task $task */
@@ -18,7 +19,7 @@ class CloudDriverTaskSettingsSerializer extends TaskSettingsSerializer{
   private $attributeRefPpAttributeIdsById=null;
 
   /**
-   * Funkce pro přípravu polí pro dohledávání IDček atributů v rámci preprocessing služby
+   * Method for preparing of arrays for fingind IDs of attributes in preprocessing service
    */
   private function prepareAttributeRefIdsArr(){
     $attributes=$this->task->miner->metasource->attributes;
@@ -33,7 +34,7 @@ class CloudDriverTaskSettingsSerializer extends TaskSettingsSerializer{
   }
 
   /**
-   * Funkce pro serializaci informace o vazbě BBA na konkrétní atribut
+   * Method for serialization info about relation between BBA anc concrete attribute
    * @param $attribute
    * @return int
    * @throws \Exception
@@ -50,7 +51,7 @@ class CloudDriverTaskSettingsSerializer extends TaskSettingsSerializer{
     if (!empty($attribute->ppAttributeId) && $attribute->PpAttributeId>0){
       $ppDatasetAttributeId=$attribute->ppAttributeId;
     }else{
-      //musíme zjistit ID atributu z metasource
+      //we have to get ID of attribute from metasource
       if ($this->attributeRefPpAttributeIdsByName==null){
         $this->prepareAttributeRefIdsArr();
       }

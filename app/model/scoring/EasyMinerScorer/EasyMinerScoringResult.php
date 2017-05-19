@@ -5,9 +5,10 @@ use EasyMinerCenter\Model\Scoring\ScoringConfusionMatrix;
 use Nette\Utils\Json;
 
 /**
- * Class EasyMinerScoringResult - třída pro zachycení výsledků requestu pro scoring entit pomocí EasyMinerScoreru (scorer Jardy Kuchaře)
+ * Class EasyMinerScoringResult - class for representation of scoring request results using EasyMinerScorer
  * @package EasyMinerCenter\Model\Scoring\EasyMinerScorer
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class EasyMinerScoringResult {
   /** @var string[] $rules */
@@ -20,7 +21,7 @@ class EasyMinerScoringResult {
   private $confusionMatrix;
 
   /**
-   * @param array|string|null $scorerResponseData - data vracená scorerem
+   * @param array|string|null $scorerResponseData - data from the Scorer service
    */
   public function __construct($scorerResponseData=null) {
     if (!empty($scorerResponseData)){
@@ -29,7 +30,7 @@ class EasyMinerScoringResult {
   }
 
   /**
-   * Funkce pro naparsování odpovědi získané od scoreru
+   * Method for parsing of a response from the Scorer service
    * @param array|string $scorerResponseData
    */
   private function parseResultResponse($scorerResponseData){
@@ -66,7 +67,7 @@ class EasyMinerScoringResult {
 
   #region getters
   /**
-   * Funkce vracející pole s IDčky použitých pravidel
+   * Method returning an array with IDs of used Rules
    * @return \string[]
    */
   public function getRules() {
@@ -97,7 +98,7 @@ class EasyMinerScoringResult {
 
 
   /**
-   * Funkce pro připojení dalších výsledků ke stávající instanci
+   * Method for adding of new results to the existing instance of EasyminerScoringResult
    * @param EasyMinerScoringResult $scoringResult2
    */
   public function mergeEasyMinerScoringResult(EasyMinerScoringResult $scoringResult2) {

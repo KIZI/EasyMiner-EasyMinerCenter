@@ -19,6 +19,7 @@ use Nette\Utils\Json;
  * Class OutliersCloudDriver - driver pro práci s outliery pomocí dolovací služby easyminer-miner
  * @package EasyMinerCenter\Model\Mining\Cloud
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMiningDriver{
   /** @var  OutliersTask $outliersTask */
@@ -26,10 +27,10 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   /** @var  Attribute[] $attributesArrByPpDatasetAttributeId */
   private $attributesArrByPpDatasetAttributeId;
 
-  #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
+  #region constants for mining delay/max requests
   const MAX_MINING_REQUESTS=5;
   const REQUEST_DELAY=1;// delay between requests (in seconds)
-  #endregion
+  #endregion constants for mining delay/max requests
 
   /**
    * @param OutliersTask $outliersTask
@@ -45,16 +46,16 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   }
 
   /**
-   * Funkce pro definování úlohy na základě dat z EasyMineru
+   * Method for start of the current data mining task
    * @return OutliersTaskState
    * @throws \Exception
    */
   public function startMining(){
-    //import úlohy a spuštění dolování...
+    //import task and run the mining
     $numRequests=1;
     sendStartRequest:
     try{
-      #region pracovní zjednodušený request
+      #region send request
       $minerOutliersTask=$this->outliersTask->getMinerOutliersTask();
       $response=self::curlRequestResponse($this->getRemoteMinerUrl().'/outlier-detection', Json::encode([
         'datasetId'=>$minerOutliersTask->dataset,
@@ -63,7 +64,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
         'Content-Type'=>'application/json; charset=utf-8'
       ],$this->getApiKey(),$responseCode);
       $taskState=$this->parseResponse($response,$responseCode);
-      #endregion
+      #endregion send request
     }catch (\Exception $e){
       if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
     }
@@ -75,7 +76,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   }
 
   /**
-   * Funkce vracející info o aktuálním stavu dané úlohy
+   * Method for checking the current task state
    * @return OutliersTaskState
    */
   public function checkOutliersTaskState(){
@@ -84,14 +85,14 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
         $numRequests=1;
         sendStartRequest:
         try{
-          #region zjištění stavu úlohy
+          #region check OutliersTask state
           $url=$this->getRemoteMinerUrl().'/'.$this->outliersTask->resultsUrl.'?apiKey='.$this->getApiKey();
           $response=self::curlRequestResponse($url,'','GET',[],$this->getApiKey(),$responseCode);
           $taskState=$this->parseResponse($response,$responseCode);
           if ($taskState!==null){
             return $taskState;
           }
-          #endregion
+          #endregion check OutliersTask state
         }catch (\Exception $e){
           if ((++$numRequests < self::MAX_MINING_REQUESTS)){sleep(self::REQUEST_DELAY); goto sendStartRequest;}
         }
@@ -115,7 +116,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
       //task accepted
       $responseData=Json::decode($response,Json::FORCE_ARRAY);
       if (!empty($responseData['statusLocation']) && !empty($responseData['taskId'])){
-        //došlo ke spuštění úlohy...
+        //OutliersTask started...
         $taskState=$this->outliersTask->getTaskState();
         $taskState->state=OutliersTask::STATE_IN_PROGRESS;
         $taskState->resultsUrl='outlier-detection/'.$responseData['taskId'];
@@ -138,7 +139,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
 
 
   /**
-   * Funkce pro nastavení aktivní úlohy
+   * Method for setting the current (active) OutliersTask
    * @param OutliersTask $outliersTask
    */
   public function setOutliersTask(OutliersTask $outliersTask){
@@ -146,13 +147,13 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   }
 
   /**
-   * Funkce pro odstranění aktivní úlohy
+   * Method for deleting the current OutliersTask
    * @return bool
    * @throws OutliersTaskInvalidArgumentException
    * @throws MinerCommunicationException
    */
   public function deleteOutliersTask(){
-    //kontrola, jestli není úloha aktuálně v procesu řešení
+    //check, if the task is not currently running
     if ($this->outliersTask->state==OutliersTask::STATE_IN_PROGRESS){
       $outliersTaskState=$this->checkOutliersTaskState();
       if ($outliersTaskState->state==OutliersTask::STATE_IN_PROGRESS){
@@ -172,7 +173,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   }
 
   /**
-   * Funkce volaná před smazáním konkrétního mineru
+   * Method for deleting the current miner
    * @return mixed
    */
   public function deleteMiner(){
@@ -180,7 +181,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   }
 
   /**
-   * Funkce vracející výsledky úlohy dolování outlierů
+   * Method returning results of the current task
    * @param int $limit
    * @param int $offset
    * @return Outlier[]
@@ -191,7 +192,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
       $minerOutliersTask=$this->outliersTask->getMinerOutliersTask();
       $response=self::curlRequestResponse($this->getRequestUrl('/result/'.$minerOutliersTask->dataset.'/'.$minerOutliersTask->id.'/outliers?offset='.$offset.'&limit='.$limit),'','GET',[],$this->getApiKey(),$responseCode);
       if ($responseCode=='200'){
-        //zpracování výsledků
+        //process the results
         return $this->parseOutliersTaskResultsResponse($response);
       }else{
         throw new MinerCommunicationException('Results not found.');
@@ -202,6 +203,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   }
 
   /**
+   * Private method for parsing of task results
    * @param string $response
    * @return Outlier[]
    */
@@ -226,7 +228,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
   }
 
   /**
-   * Function returning the name of attribute with the given ppAttributeId
+   * Private method returning the name of attribute with the given ppAttributeId
    * @param string $ppAttributeId
    * @return string
    */
@@ -244,8 +246,7 @@ class OutliersCloudDriver extends AbstractCloudDriver implements IOutliersMining
 
 
   /**
-   * Funkce vracející URL pro odeslání požadavku na datovou službu
-   *
+   * Method returning URL for sending of a request
    * @param string $relativeUrl
    * @return string
    */

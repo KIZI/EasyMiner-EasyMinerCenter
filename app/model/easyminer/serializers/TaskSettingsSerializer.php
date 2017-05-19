@@ -5,6 +5,13 @@ namespace EasyMinerCenter\Model\EasyMiner\Serializers;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use Nette\Utils\Json;
 
+/**
+ * Class TaskSettingsSerializer
+ * @package EasyMinerCenter\Model\EasyMiner\Serializers
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
+ */
 class TaskSettingsSerializer {
   /** @var  \SimpleXMLElement $pmml */
   protected $pmml;
@@ -26,7 +33,7 @@ class TaskSettingsSerializer {
   protected $interestMeasureSetting;
 
   public function getInterestMeasureSetting() {
-    return $this->interestMeasureSetting;//XXX dočasně doplněno...
+    return $this->interestMeasureSetting;
   }
 
   protected static $BOOLEAN_TYPES = ['neg' => 'Negation', 'and' => 'Conjunction', 'or' => 'Disjunction', 'lit' => 'Literal'];
@@ -61,13 +68,13 @@ class TaskSettingsSerializer {
   }
 
   /**
-   * Funkce vracející SimpleXML s PMML...
+   * Method returning SimpleXMLElement with PMML...
    * @return \SimpleXMLElement
    */
   public function getPmml(){
     return $this->pmml;
   }
-  #endregion
+  #endregion construct, (get|set)Pmml
 
   /**
    * @param string|object $json
@@ -110,7 +117,7 @@ class TaskSettingsSerializer {
   }
 
   /**
-   * Funkce pro výchozí inicializaci...
+   * Method for default initialization...
    * @param string $modelName
    * @param int $hypothesesCountMax
    */

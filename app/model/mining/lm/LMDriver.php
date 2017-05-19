@@ -1,7 +1,6 @@
 <?php
 namespace EasyMinerCenter\Model\Mining\LM;
 
-
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
@@ -19,9 +18,16 @@ use EasyMinerCenter\Model\Mining\IMiningDriver;
 use Kdyby\Curl\CurlSender;
 use Kdyby\Curl\Request as CurlRequest;
 use Kdyby\Curl\Response as CurlResponse;
+use Nette\NotImplementedException;
 use Nette\Utils\Strings;
 use Tracy\Debugger;
 
+/**
+ * Class LMDriver - driver for LMConnect
+ * @package EasyMinerCenter\Model\Mining\LM
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class LMDriver implements IMiningDriver{
   /** @var  Task $task */
   private $task;
@@ -35,28 +41,28 @@ class LMDriver implements IMiningDriver{
   private $rulesFacade;
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
-  /** @var array $params - parametry výchozí konfigurace */
+  /** @var array $params - default config params */
   private $params;
   /** @var User $user */
   private $user;
-  /** LISp-Miner šablona pro export informací o stavu úlohy a počtu nalezených pravidel */
+  /** LISp-Miner template for exporting of task state and rules count */
   const TASK_STATE_LM_TEMPLATE=null;//TODO
-  /** LISp-Miner šablona pro export pravidel */
-  const PMML_LM_TEMPLATE='4ftMiner.Task.Template.PMML';//TODO
-  #region konstanty pro dolování (před vyhodnocením pokusu o dolování jako chyby)
+  /** LISp-Miner template for exporting of rules */
+  const PMML_LM_TEMPLATE='4ftMiner.Task.Template.PMML';
+  #region constants for mining delay/max requests
   const MAX_MINING_REQUESTS=10;
   const REQUEST_DELAY=1;// delay between requests (in seconds)
-  #endregion
+  #endregion constants for mining delay/max requests
 
   /**
-   * Funkce pro definování úlohy na základě dat z EasyMineru
+   * Method for starting of mining of the current task
    * @return TaskState
    */
   public function startMining() {
     $pmmlSerializer=$this->xmlSerializersFactory->createGuhaPmmlSerializer($this->task);
     $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
     $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
-    //import úlohy a spuštění dolování...
+    //import task and let it run...
     $numRequests=1;
     sendRequest:
       $result=$this->queryPost($pmml,array('template'=>/*self::TASK_STATE_LM_TEMPLATE*/self::PMML_LM_TEMPLATE));
@@ -73,7 +79,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro kontrolu aktuálního průběhu úlohy (aktualizace seznamu nalezených pravidel...)
+   * Method for checking the state of the current task
    * @throws \Exception
    * @return string
    */
@@ -82,7 +88,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro zastavení dolování
+   * Method for stopping of the current task
    * @return TaskState
    */
   public function stopMining() {
@@ -105,7 +111,7 @@ class LMDriver implements IMiningDriver{
    */
   private function parseTaskState($result){
     if ($modelStartPos=strpos($result,'<guha:AssociationModel')){
-      //jde o plné PMML
+      //it is full PMML
       $xml=simplexml_load_string($result);
       $xml->registerXPathNamespace('guha','http://keg.vse.cz/ns/GUHA0.1rev1');
       $guhaAssociationModel=$xml->xpath('//guha:AssociationModel');
@@ -119,25 +125,8 @@ class LMDriver implements IMiningDriver{
     throw new \Exception('Task state cannot be parsed - UNKNOWN FORMAT!');
   }
 
-  /**XXX
-   * Funkce pro načtení výsledků z DM nástroje a jejich uložení do DB
-
-  public function importResults(){
-    $pmmlSerializer=new GuhaPmmlSerializer($this->task);
-    $taskSettingsSerializer=new TaskSettingsSerializer($pmmlSerializer->getPmml());
-    $pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
-    //import úlohy a spuštění dolování...
-    $numRequests=1;
-    sendRequest:
-    $result=$this->queryPost($pmml,array('template'=>self::PMML_LM_TEMPLATE));
-    $ok = (strpos($result, 'kbierror') === false && !preg_match('/status=\"failure\"/', $result));
-    if ((++$numRequests < self::MAX_MINING_REQUESTS) && !$ok){sleep(self::REQUEST_DELAY); goto sendRequest;}
-
-    return $this->parseRulesPMML($result);
-  }*/
-
   /**
-   * Funkce volaná před smazáním konkrétního mineru
+   * Method for deleting the remote miner instance (on the remote mining server)
    * @return mixed|false
    */
   public function deleteMiner() {
@@ -150,26 +139,27 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * Method for checking the configuration of the miner (including config params etc.)
    * @throws \Exception
    */
   public function checkMinerState(User $user=null){
     $minerConfig=$this->miner->getConfig();
     if ($metasource=$this->miner->metasource){
-      if (empty($metasource->attributes)){//miner budeme kontrolovat jen v situaci, kdy máme alespoň jeden atribut... (do té doby to nemá smysl)
+      if (empty($metasource->attributes)){
+        //miner has to be checked only if we have at least one attribute (until then it makes no sense)
         return true;
       }
     }
     $lmId=$minerConfig['lm_miner_id'];
     if ($lmId){
-      //pokud máme ID vzdáleného mineru, zkusíme otestovat, jestli existuje...
+      //if we have a remote miner ID, we have to check the availability of it
       if (!$this->testRemoteMinerExists()){
         $lmId=null;
       }
     }
 
     if (!$lmId){
-      //zaregistrování nového mineru...
+      //register new remote miner on LMConnect
       try{
         $lmId=$this->registerRemoteMiner($this->miner->metasource->getDbConnection());
         $this->setRemoteMinerId($lmId);
@@ -187,7 +177,7 @@ class LMDriver implements IMiningDriver{
         }
       }
     }catch (\Exception $e){
-      //při exportu se vyskytla chyba... (pravděpodobně nebyl zatím importován dataDictionary)
+      //error occured (probably DataDictionary not imported yet)
     }
     $attributes=$metasource->attributes;
     $attributeIdsArr=array();
@@ -197,7 +187,7 @@ class LMDriver implements IMiningDriver{
       }
     }
     if (count($attributeIdsArr)>0){
-      //máme importovat nový atribut
+      //we have to import a new Attribute
       $pmml=$this->prepareImportPmml($attributeIdsArr);
       $this->importDataDictionary($pmml);
     }
@@ -205,7 +195,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce připravující PMML pro import dataDictionary
+   * Method for preparing PMML for import of DataDictionary
    * @param int[] $attributesArr
    * @return \SimpleXMLElement
    */
@@ -257,7 +247,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející ID aktuálního vzdáleného mineru (lispmineru)
+   * Method returning the current miner ID
    * @return null|string
    */
   private function getRemoteMinerId(){
@@ -270,7 +260,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce nastavující ID aktuálně otevřeného mineru
+   * Method for setting the current remote miner ID
    * @param string|null $lmMinerId
    */
   private function setRemoteMinerId($lmMinerId){
@@ -280,7 +270,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející adresu LM connectu
+   * Method returning the URL of LMConnect
    * @return string
    */
   private function getRemoteMinerUrl(){
@@ -288,7 +278,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející typ požadovaného LM pooleru
+   * Method returning the type of required LISpMiner pooler
    * @return string
    */
   private function getRemoteMinerPooler(){
@@ -300,7 +290,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející jméno úlohy na LM connectu
+   * Method returning the remote task name on LMConnect
    * @return string
    */
   private function getRemoteMinerTaskName(){
@@ -315,7 +305,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce vracející konfiguraci aktuálně otevřeného mineru
+   * Method returning the current miner config
    * @return array
    */
   private function getMinerConfig(){
@@ -326,7 +316,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce nastavující konfiguraci aktuálně otevřeného mineru
+   * Method for setting the current miner config
    * @param array $minerConfig
    * @param bool $save = true
    */
@@ -339,7 +329,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro načtení PMML
+   * Method for parsing the PMML
    * @param string $pmml
    * @return bool
    */
@@ -351,9 +341,9 @@ class LMDriver implements IMiningDriver{
     /** @var \SimpleXMLElement $associationRulesXml */
     $associationRulesXml=$guhaAssociationModel->AssociationRules;
 
-    if (count($associationRulesXml->AssociationRule)==0){return true;}//pokud nejsou vrácena žádná pravidla, nemá smysl zpracovávat cedenty...
+    if (count($associationRulesXml->AssociationRule)==0){return true;}//if there are no rules, do not process cedents...
 
-    #region zpracování cedentů jen s jedním subcedentem
+    #region process cedent with only one attribute
     $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)=1]');
     $alternativeCedentIdsArr=array();
     if (!empty($dbaItems)){
@@ -375,17 +365,19 @@ class LMDriver implements IMiningDriver{
         }
       }
     }
-    #endregion
+    #endregion process cedent with only one attribute
+
     /** @var Cedent[] $cedentsArr */
     $cedentsArr=array();
     /** @var RuleAttribute[] $ruleAttributesArr */
     $ruleAttributesArr=array();
     $unprocessedIdsArr=array();
-    #region zpracování rule attributes
+    #region process rule attributes
     $bbaItems=$associationRulesXml->xpath('//BBA');
     if (!empty($bbaItems)){
       foreach ($bbaItems as $bbaItem){
-        $ruleAttribute=new RuleAttribute();//FIXME IMPORTANT změna ukládání ruleAttributes
+        $ruleAttribute=new RuleAttribute();
+        //FIXME IMPORTANT změna ukládání ruleAttributes
         //FIXME IMPORTANT podpora většího množství hodnot v rule attribute
         $idStr=(string)$bbaItem['id'];
         $ruleAttribute->field=(string)$bbaItem->FieldRef;
@@ -394,7 +386,7 @@ class LMDriver implements IMiningDriver{
         $this->rulesFacade->saveRuleAttribute($ruleAttribute);
       }
     }
-    //pročištění pole s alternativními IDčky
+    //cleanup the array with alternative IDs
     if (!empty($alternativeCedentIdsArr)){
       foreach ($alternativeCedentIdsArr as $id=>$alternativeId){
         if (isset($ruleAttributesArr[$alternativeId])){
@@ -402,9 +394,9 @@ class LMDriver implements IMiningDriver{
         }
       }
     }
-    #endregion
+    #endregion process rule attributes
 
-    #region zpracování cedentů s více subcedenty/hodnotami
+    #region process cedents with more subcedents/values
     $dbaItems=$associationRulesXml->xpath('./DBA[count(./BARef)>0]');
     if (!empty($dbaItems)){
       do {
@@ -432,7 +424,7 @@ class LMDriver implements IMiningDriver{
           }
           if ($process) {
             unset($unprocessedIdsArr[$idStr]);
-            //vytvoření konkrétního cedentu...
+            //create concrete cedent
             $cedent = new Cedent();
             if (isset($dbaItem['connective'])) {
               $cedent->connective = Strings::lower((string)$dbaItem['connective']);
@@ -459,20 +451,20 @@ class LMDriver implements IMiningDriver{
         }
       }while(!empty($unprocessedIdsArr));
     }
-    #endregion
+    #endregion process cedents with more subcedents/values
 
     foreach ($associationRulesXml->AssociationRule as $associationRule){
       $rule=new Rule();
       $rule->task=$this->task;
       if (isset($associationRule['antecedent'])){
-        //jde o pravidlo s antecedentem
+        //it is rule with antecedent
         $antecedentId=(string)$associationRule['antecedent'];
         if (isset($alternativeCedentIdsArr[$antecedentId])){
           $antecedentId=$alternativeCedentIdsArr[$antecedentId];
         }
         $rule->antecedent=($cedentsArr[$antecedentId]);
       }else{
-        //jde o pravidlo bez antecedentu
+        //it is rule without antecedent
         $rule->antecedent=null;
       }
 
@@ -494,7 +486,7 @@ class LMDriver implements IMiningDriver{
   }
 
 
-  #region kód z KBI ==================================================================================================
+  #region code from KBI ==================================================================================================
 
   /**
    * @param DbConnection $dbConnection
@@ -563,7 +555,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro smazání vzdáleného mineru
+   * Method for deleting the remote miner instance
    * @return mixed
    */
   private function unregisterRemoteMiner() {
@@ -576,7 +568,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro import DataDictionary do LispMineru
+   * Method for import DataDictionary to LISpMiner
    * @param string|\SimpleXMLElement $dataDictionary
    * @return string
    * @throws \Exception
@@ -705,7 +697,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro zastavení úlohy na LM connectu
+   * Method for stopping of a remote task on LMConnect
    * @param string $taskName
    * @return string
    * @throws \Exception
@@ -740,7 +732,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro otestování existence LM connect mineru
+   * Method for checking of existence of a miner on LMConnect
    * @return bool
    */
   private function testRemoteMinerExists(){
@@ -765,7 +757,7 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce parsující stav odpovědi od LM connectu
+   * Method for parsing the response from LMConnect
    * @param CurlResponse $response
    * @param string $message
    * @return string
@@ -798,7 +790,7 @@ class LMDriver implements IMiningDriver{
 
 
 
-  #endregion kód z KBI ===============================================================================================
+  #endregion code from KBI ===============================================================================================
 
   #region constructor
   /**
@@ -819,9 +811,8 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro nastavení aktivní úlohy
+   * Method for setting the current (active) task
    * @param Task $task
-   * @return mixed
    */
   public function setTask(Task $task) {
     $this->task=$task;
@@ -832,7 +823,7 @@ class LMDriver implements IMiningDriver{
 
 
   /**
-   * Funkce pro kontrolu, jestli je dostupný dolovací server
+   * Method for checking, if the remote mining server is available
    * @param string $serverUrl
    * @throws \Exception
    * @return bool
@@ -848,10 +839,11 @@ class LMDriver implements IMiningDriver{
   }
 
   /**
-   * Funkce pro načtení plných výsledků úlohy z PMML
+   * Method for full import of task results in PMML
    * @return TaskState
    */
   public function importResultsPMML(){
     // TODO: Implement importResultsPMML() method.
+    throw new NotImplementedException();
   }
 }

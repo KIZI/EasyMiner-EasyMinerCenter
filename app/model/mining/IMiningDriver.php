@@ -12,30 +12,32 @@ use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 /**
  * Class IMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji
  * @package EasyMinerCenter\Model\mining
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 interface IMiningDriver {
 
   /**
-   * Funkce pro definování úlohy na základě dat z EasyMineru
+   * Method for starting of mining of the current task
    * @return TaskState
    */
   public function startMining();
 
   /**
-   * Funkce pro zastavení dolování
+   * Method for stopping of the current task
    * @return TaskState
    */
   public function stopMining();
 
   /**
-   * Funkce vracející info o aktuálním stavu dané úlohy
+   * Method for checking the state of the current task
    * @return TaskState
    */
   public function checkTaskState();
 
 
   /**
-   * Funkce pro načtení plných výsledků úlohy z PMML
+   * Method for full import of task results in PMML
    * @return TaskState
    */
   public function importResultsPMML();
@@ -52,7 +54,7 @@ interface IMiningDriver {
   public function __construct(Task $task=null, MinersFacade $minersFacade, RulesFacade $rulesFacade,MetaAttributesFacade $metaAttributesFacade, User $user, XmlSerializersFactory $xmlSerializersFactory, $params = array());
 
   /**
-   * Funkce pro kontrolu, jestli je dostupný dolovací server
+   * Method for checking, if the remote mining server is available
    * @param string $serverUrl
    * @throws \Exception
    * @return bool
@@ -60,19 +62,19 @@ interface IMiningDriver {
   public static function checkMinerServerState($serverUrl);
 
   /**
-   * Funkce pro nastavení aktivní úlohy
+   * Method for setting the current (active) task
    * @param Task $task
    */
   public function setTask(Task $task);
 
   /**
-   * Funkce pro kontrolu konfigurace daného mineru (včetně konfigurace atributů...)
+   * Method for checking the configuration of the miner (including config params etc.)
    * @param User $user
    */
   public function checkMinerState(User $user);
 
   /**
-   * Funkce volaná před smazáním konkrétního mineru
+   * Method for deleting the remote miner instance (on the remote mining server)
    * @return mixed
    */
   public function deleteMiner();

@@ -11,6 +11,9 @@ use Nette\Utils\Strings;
 /**
  * Class User
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $userId
  * @property string $name
  * @property string $email
@@ -40,7 +43,7 @@ class User extends Entity{
   }
 
   /**
-   * Funkce pro nastavení timestampu poslední kontroly přístupu do DB
+   * Method for setting of timestamp of the last access to the database
    * @param string $dbType
    * @param int $timestamp
    */
@@ -57,7 +60,7 @@ class User extends Entity{
   }
 
   /**
-   * Funkce pro zjištění timestampu poslední kontroly přístupu do DB
+   * Method returning the timestamp of the last access to the database
    * @param null|string $dbType
    * @return int|array
    */
@@ -81,7 +84,7 @@ class User extends Entity{
   }
 
   /**
-   * Funkce vracející zakódovaný API KEY pro tohoto uživatele
+   * Method returning encoded API KEY for this user
    * @return null|string
    */
   public function getEncodedApiKey(){
@@ -93,7 +96,7 @@ class User extends Entity{
 
 
   /**
-   * Funkce pro zakódování userId a apiKey do jednoho řetězce
+   * Method for encoding of the userId and apiKey to one string
    * @param string|int $userId
    * @param string $apiKey
    * @return string
@@ -109,7 +112,7 @@ class User extends Entity{
   }
 
   /**
-   * Funkce pro dekódování encodedApiKey na pole s userId a apiKey
+   * Method for decoding of encodedApiKey, returns array with userId and apiKey
    * @param string $encodedApiKey
    * @return array
    */

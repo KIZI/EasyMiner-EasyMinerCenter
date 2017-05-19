@@ -14,20 +14,22 @@ use Nette\Utils\Strings;
 use \PDO;
 
 /**
- * Class MySqlDatabase - třída pro práci s MySQL
- * @package EasyMinerCenter\Model\Data\Databases
- * @property \PDO $db
- * @property string $tableName
+ * Class MySQLDatabase - driver for access to MySQL with user data
+ * @package EasyMinerCenter\Model\Data\Databases\MySQL
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
  */
 class MySQLDatabase implements IDatabase{
 
   const DB_TYPE=DbConnection::TYPE_MYSQL;
   const DB_TYPE_NAME=DbConnection::TYPE_MYSQL_NAME;
-
+  /** @var  \PDO $pdo */
   private $pdo;
+  /** @var  string $tableName */
   private $tableName;
 
-  #region původní funkce //TODO předělat...
+  #region earlier used functions //TODO předělat...
 
   public function selectTable($tableName){
     $this->tableName=$tableName;
@@ -36,7 +38,7 @@ class MySQLDatabase implements IDatabase{
 
   /**
    * @param string $tableName
-   * @param DbColumn[] $columns - pole s definicemi sloupců (
+   * @param DbColumn[] $columns - array with list of columns
    * @throws \Exception
    * @return bool
    */
@@ -237,7 +239,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce pro kontrolu, zda existuje tabulka se zadaným názvem
+   * Method for check, if the given table exists
    * @param string $tableName
    * @return bool
    */
@@ -291,13 +293,13 @@ class MySQLDatabase implements IDatabase{
   public function getColumnValuesStatistic($name,$includeValues=true){
     $result=new DbColumnValuesStatistic($this->getColumn($name));
     if ($result->dataType==DbColumn::TYPE_STRING){
-      //u řetězce vracíme jen info o počtu řádků
+      //about strings we return only infou about its length
       $select=$this->db->prepare('SELECT count('.$name.') as `rowsCount` from `'.$this->tableName.'`);');
       $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
       $result->rowsCount=$selectResult['rowsCount'];
     }else{
-      //u čísel vracíme info o min, max a avg
+      //about numbers return min, max and avg
       $select=$this->db->prepare('SELECT count('.$name.') as `rowsCount`,min('.$name.') as `minValue`,max('.$name.') as `maxValue`, avg('.$name.') as `avgValue` from `'.$this->tableName.'`;');
       $select->execute();
       $selectResult=$select->fetch(PDO::FETCH_ASSOC);
@@ -312,7 +314,7 @@ class MySQLDatabase implements IDatabase{
     $result->valuesCount=$selectValuesCount->fetchColumn(0);
 
     if ($includeValues){
-      //načtení hodnot s četnostmi
+      //load values with frequencies
       $query=$this->db->prepare('SELECT `'.$name.'` as hodnota,count(`'.$name.'`) as pocet FROM `'.$this->tableName.'` WHERE `'.$name.'` IS NOT NULL GROUP BY `'.$name.'` ORDER BY `'.$name.'` LIMIT 10000;');//TODO check this limit...
       $query->execute();
       $valuesArr=array();
@@ -327,7 +329,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce pro vytvoření uživatele a databáze na základě zadaných údajů
+   * Method for creating user database
    * @param DbConnection $dbConnection
    * @return bool
    */
@@ -345,7 +347,7 @@ class MySQLDatabase implements IDatabase{
     return ($result2 && $result3 && $result4);
   }
   /**
-   * Funkce vracející přehled datových sloupců v DB tabulce
+   * Method returning list of columns in a DB table
    * @return DbColumn[]
    */
   public function getColumns() {
@@ -447,8 +449,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce pro import existujícího CSV souboru do databáze
-   *
+   * Method for importing of existing CSV file to database
    * @param string $filename
    * @param string $name
    * @param string $encoding
@@ -461,11 +462,12 @@ class MySQLDatabase implements IDatabase{
    */
   public function importCsvFile($filename, $name, $encoding='utf-8', $delimiter=',', $enclosure='"', $escapeCharacter='\\', $nullValue='', $dataTypes){
     // TODO: Implement importCsvFile() method.
+    throw new NotImplementedException();
   }
 
   /**
    * FIXME opravit...
-   * Funkce pro přímý import dat z CSV souboru
+   * Direct import from CSV file
    * @param string $csvFileName
    * @param string[] $columnsNames
    * @param string $delimiter
@@ -513,9 +515,10 @@ class MySQLDatabase implements IDatabase{
   }
 
 
-  #endregion původní funkce
+  #endregion earlier used functions
 
   /**
+   * MySQLDatabase constructor, also providing connection to remote database/service
    * @param DbConnection $dbConnection
    * @param string|null $apiKey=null - aktuálně nepoužívaný atribut
    */
@@ -524,8 +527,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející seznam datových zdrojů v DB
-   *
+   * Method returning list of remote datasources available
    * @return DbDatasource[]
    */
   public function getDbDatasources() {
@@ -533,8 +535,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející seznam sloupců v datovém zdroji
-   *
+   * Method returning list of fields (columns) in remote datasource
    * @param DbDatasource|string $dbDatasource
    * @return DbField[]
    */
@@ -565,8 +566,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející informace o konkrétním datovém zdroji
-   *
+   * Method returning info about selected remote datasource
    * @param string $dbDatasourceId
    * @return DbDatasource
    */
@@ -575,7 +575,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející počet řádků v tabulce
+   * Method returning count of rows
    * @param string $dbDatasourceId
    * @return int
    */
@@ -586,8 +586,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející uživatelsky srozumitelný název databáze
-   *
+   * Method returning user understandable name of this database
    * @return string
    */
   public static function getDbTypeName() {
@@ -595,8 +594,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející identifikaci daného typu databáze
-   *
+   * Method returning identification of this database type
    * @return string
    */
   public static function getDbType() {
@@ -604,17 +602,18 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce pro přejmenování datového sloupce
+   * Method for renaming of a field
    * @param DbField $dbField
-   * @param string $newName ='' (pokud není název vyplněn, je převzat název z DbField
+   * @param string $newName ='' (if empty, if will be read from DbField)
    * @return bool
    */
   public function renameDbField(DbField $dbField, $newName=''){
     // TODO: Implement renameDbField() method.
+    throw  new NotImplementedException();
   }
 
   /**
-   * Funkce pro rozbalení komprimovaných dat není podporována
+   * Method for unzipping of compressed data
    * @throws NotImplementedException
    */
   public function unzipData($data, $compression){
@@ -622,8 +621,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející hodnoty zvoleného datového sloupce (DbField)
-   *
+   * Method returning values from selected DbField
    * @param DbField $dbField
    * @param int $offset
    * @param int $limit
@@ -635,8 +633,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce vracející jednotlivé řádky z databáze
-   *
+   * Method returning rows from Datasource
    * @param DbDatasource $dbDatasource
    * @param int $offset =0
    * @param int $limit =1000
@@ -649,8 +646,7 @@ class MySQLDatabase implements IDatabase{
   }
 
   /**
-   * Funkce pro odstranění datového zdroje
-   *
+   * Method for deleting selected remote datasource
    * @param DbDatasource $dbDatasource
    */
   public function deleteDbDatasource(DbDatasource $dbDatasource){

@@ -11,9 +11,10 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 use Nette\Utils\Strings;
 
 /**
- * Class GuhaPmmlSerializer - serializer umožňující sestavit GUHA PMML dokument z dat zadané úlohy...
+ * Class GuhaPmmlSerializer - class for building of a GUHA PMML file from a Task
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class GuhaPmmlSerializer {
   use PmmlSerializerTrait;
@@ -40,11 +41,11 @@ class GuhaPmmlSerializer {
   protected $DBAsWorkXml;
   /** @var  \SimpleXMLElement $associationRulesWorkXml */
   protected $associationRulesWorkXml;
-  /** @var int[] $serializedCedents  pole s indexy dílčích cedentů, které už byly serializovány */
+  /** @var int[] $serializedCedents array with indexes of partial cedents, which should be serialized */
   protected $serializedCedentsArr;
-  /** @var int[] $serializedRuleAttributesArr  pole s indexy dílčích ruleAttributes, které už byly serializovány */
+  /** @var int[] $serializedRuleAttributesArr array with indexes of partial ruleAttributes, which should be serialized */
   protected $serializedRuleAttributesArr;
-  /** @var  array $connectivesArr pole s překladem spojek pro serializaci */
+  /** @var  array $connectivesArr array with translations of connectives for serialization */
   protected $connectivesArr;
 
   /**
@@ -90,7 +91,7 @@ class GuhaPmmlSerializer {
   }
 
   /**
-   * Funkce připojující informace o připojení k databázi do PMML souboru
+   * Method for appending of basic info about connection to database to PMML file
    */
   public function appendMetabaseInfo() {
     /** @var \SimpleXMLElement $headerXml */
@@ -104,7 +105,7 @@ class GuhaPmmlSerializer {
   }
 
   /**
-   * Funkce připravující prázdný PMML dokument
+   * Method preparing basic structure of GUHA PMML file
    */
   protected function prepareBlankPmml(){
     $this->pmml = simplexml_load_string('<'.'?xml version="1.0" encoding="UTF-8"?>
@@ -136,7 +137,7 @@ class GuhaPmmlSerializer {
   }
 
   /**
-   * Funkce pro připojení informace o datasetu
+   * Method for appending info about used dataset
    * @param \SimpleXMLElement|null $datasetExtension
    */
   protected function appendDatasetInfo(\SimpleXMLElement $datasetExtension){
@@ -148,13 +149,16 @@ class GuhaPmmlSerializer {
   }
 
   /**
-   * Funkce pro připojení informací o nastavení úlohy
+   * Method for appending info about task settings
    */
   public function appendTaskSettings(){
     $taskSettingsSerializer=new TaskSettingsSerializer($this->pmml,$this->miner->type);
     $this->pmml=$taskSettingsSerializer->settingsFromJson($this->task->taskSettingsJson);
   }
 
+  /**
+   * Method for appending of rules
+   */
   public function appendRules(){
     if (empty($this->task->rules)){return;}
     /** @var \SimpleXMLElement $guhaAssociationModelXml */
@@ -173,7 +177,7 @@ class GuhaPmmlSerializer {
     $this->serializedRuleAttributesArr=[];
 
     foreach($this->task->rules as $rule){
-      //přidání konkrétního pravidla do XML
+      //add concrete rule to XML
       $associationRuleXml=$this->associationRulesWorkXml->addChild('AssociationRule',null,'');
       $associationRuleXml->addAttribute('id',$rule->ruleId);
       if ($rule->inRuleClipboard){
@@ -203,7 +207,7 @@ class GuhaPmmlSerializer {
       $fourFtTableXml->addAttribute('b',$rule->b);
       $fourFtTableXml->addAttribute('c',$rule->c);
       $fourFtTableXml->addAttribute('d',$rule->d);
-      //serializace dílčích cedentů
+      //serialize partial cedents
       if (!empty($rule->antecedent)){
         $this->serializeCedent($rule->antecedent);
       }
@@ -211,8 +215,7 @@ class GuhaPmmlSerializer {
         $this->serializeCedent($rule->consequent);
       }
     }
-    //sloučení XML dokumentů
-    //TODO přesun do samostatné funkce?
+    //merge XML files
     $associationRulesDom=dom_import_simplexml($associationRulesXml);
     if (count($this->BBAsWorkXml->children())>0){
       foreach($this->BBAsWorkXml->children() as $xmlItem){
@@ -232,29 +235,27 @@ class GuhaPmmlSerializer {
         $associationRulesDom->appendChild($insertDom);
       }
     }
-
-
   }
 
   /**
    * @param Cedent $cedent
    */
   private function serializeCedent(Cedent $cedent){
-    //pokud už byl cedent serializován, tak ho ignorujeme
+    //if this cedent was already serialized, skip it
     if(in_array($cedent->cedentId,$this->serializedCedentsArr)){return;}
-    //serializace samotného dílčího cedentu
+    //serialize alone partial cedent
     $DBAXML=$this->DBAsWorkXml->addChild('DBA');
     $DBAXML->addAttribute('id','cdnt_'.$cedent->cedentId);
     $DBAXML->addAttribute('connective',$this->connectivesArr[$cedent->connective]);
     if (!empty($cedent->cedents)){
-      //serializace dílčích cedentů
+      //serialize partial cedents
       foreach($cedent->cedents as $subCedent){
         $DBAXML->addChild('BARef','cdnt_'.$subCedent->cedentId);
         $this->serializeCedent($subCedent);
       }
     }
     if (!empty($cedent->ruleAttributes)){
-      //serializace ruleAttributes
+      //serialize ruleAttributes
       $DBAAttributesXML=$this->DBAsWorkXml->addChild('DBA');
       $DBAAttributesXML->addAttribute('id','cdnt_'.$cedent->cedentId.'_attr');
       $DBAAttributesXML->addAttribute('connective',$this->connectivesArr[Cedent::CONNECTIVE_CONJUNCTION]);
@@ -270,7 +271,7 @@ class GuhaPmmlSerializer {
 
   private function serializeRuleAttribute(RuleAttribute $ruleAttribute){
     if (in_array($ruleAttribute->ruleAttributeId,$this->serializedRuleAttributesArr)){return;}
-    //vytvoření příslušného BBA
+    //create appropriate BBA
     $BBAXML=$this->BBAsWorkXml->addChild('BBA');
     $BBAXML->addAttribute('id','bba_'.$ruleAttribute->ruleAttributeId);
     $BBAXML->addAttribute('literal','false');

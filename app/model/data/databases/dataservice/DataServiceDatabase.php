@@ -15,10 +15,11 @@ use Nette\Utils\Json;
 use Nette\Utils\Strings;
 
 /**
- * Class DataServiceDatabase - třída zajišťující přístup k databázím dostupným prostřednictvím služby EasyMiner-Data
- *
- * @package EasyMinerCenter\Model\Data\Databases
+ * Class DataServiceDatabase - abstract class, driver to access remote databases using EasyMiner-Data service
+ * @package EasyMinerCenter\Model\Data\Databases\DataService
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
  */
 abstract class DataServiceDatabase implements IDatabase {
   /** @var  string $apiKey */
@@ -26,15 +27,14 @@ abstract class DataServiceDatabase implements IDatabase {
   /** @var  DbConnection $dbConnection */
   private $dbConnection;
 
-  const UPLOAD_SLOW_DOWN_INTERVAL=500000;//interval pro zpomalení uploadu (v mi)
+  const UPLOAD_SLOW_DOWN_INTERVAL=500000;//interval for slow down of the upload (in ms)
   const UPLOAD_CHUNK_SIZE=500000;
   const UPLOAD_CODE_SLOW_DOWN=429;
   const UPLOAD_CODE_CONTINUE=202;
   const UPLOAD_CODE_OK=200;
 
   /**
-   * Funkce vracející seznam datových zdrojů v DB
-   *
+   * Method returning list of remote datasources available
    * @return DbDatasource[]
    */
   public function getDbDatasources() {
@@ -51,8 +51,7 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce vracející informace o konkrétním datovém zdroji
-   *
+   * Method returning info about selected remote datasource
    * @param int $datasourceId
    * @return DbDatasource
    * @throws EntityNotFoundException
@@ -73,8 +72,7 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce vracející seznam sloupců v datovém zdroji
-   *
+   * Method returning list of fields (columns) in remote datasource
    * @param DbDatasource $dbDatasource
    * @return DbField[]
    * @throws EntityNotFoundException
@@ -96,9 +94,9 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce pro přejmenování datového sloupce
+   * Method for renaming of a field
    * @param DbField $dbField
-   * @param string $newName='' (pokud není název vyplněn, je převzat název z DbField
+   * @param string $newName='' (if empty, if will be read from DbField)
    * @return bool
    */
   public function renameDbField(DbField $dbField, $newName=''){
@@ -112,7 +110,7 @@ abstract class DataServiceDatabase implements IDatabase {
 
 
   /**
-   * Funkce pro rozbalení komprimovaných dat
+   * Method for unzipping of compressed data
    * @param string $data
    * @param string $compression
    * @return string
@@ -120,7 +118,7 @@ abstract class DataServiceDatabase implements IDatabase {
    * @throws \Nette\Utils\JsonException
    */
   public function unzipData($data, $compression){
-    #region zahájení uploadu
+    #region start the upload
     $uploadStartConfig=[
       'mediaType'=>'csv',
       'maxLines'=>20,
@@ -138,7 +136,7 @@ abstract class DataServiceDatabase implements IDatabase {
     if ($responseCode!=200){
       throw new \Exception('Preview upload failed.');
     }
-    #endregion zahájení uploadu
+    #endregion start the upload
     $response=$this->curlRequestResponse($this->getRequestUrl('/upload/preview/').$uploadId,$data,'POST',['Content-Type'=>'text/plain'],$responseCode);
 
     do{
@@ -159,8 +157,7 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce vracející hodnoty zvoleného datového sloupce (DbField)
-   *
+   * Method returning values from selected DbField
    * @param DbField $dbField
    * @param int $offset
    * @param int $limit
@@ -188,8 +185,7 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce vracející jednotlivé řádky z databáze
-   *
+   * Method returning rows from Datasource
    * @param DbDatasource $dbDatasource
    * @param int $offset =0
    * @param int $limit =1000
@@ -227,8 +223,7 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce pro import existujícího CSV souboru do databáze
-   *
+   * Method for importing of existing CSV file to database
    * @param string $filename
    * @param string $name
    * @param string $encoding
@@ -279,7 +274,7 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce pro zahájení uploadu
+   * Private method for starting of the CSV upload
    * @param string $name
    * @param string $encoding
    * @param string $delimiter
@@ -299,7 +294,7 @@ abstract class DataServiceDatabase implements IDatabase {
       'encoding'=>$encoding,
       'quotesChar'=>$enclosure,
       'escapeChar'=>$escapeCharacter,
-      'locale'=>'en',//TODO tohle by mělo být předáno nějakým parametrem...
+      'locale'=>'en',//TODO this should be configurable using a param
       'nullValues'=>[$nullValue],
       'dataTypes'=>$dataTypes
     ];
@@ -317,8 +312,7 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce pro odstranění datového zdroje
-   *
+   * Method for deleting selected remote datasource
    * @param DbDatasource $dbDatasource
    * @throws DatabaseException
    * @throws DatabaseCommunicationException
@@ -331,21 +325,19 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Konstruktor zajišťující připojení k databázi
-   *
+   * DataServiceDatabase constructor, also providing connection to remote database/service
    * @param DbConnection $dbConnection
    * @param string $apiKey
    */
   public function __construct(DbConnection $dbConnection, $apiKey) {
     $this->dbConnection=$dbConnection;
-    $this->dbConnection->dbServer=rtrim($this->dbConnection->dbServer,'/');//nechceme lomítko na konci
+    $this->dbConnection->dbServer=rtrim($this->dbConnection->dbServer,'/');//remove slash from the end of URL
     $this->apiKey=$apiKey;
   }
 
-  #region funkce pro práci s RESTFUL API
+  #region methods for work with the RESTFUL API
   /**
-   * Funkce vracející URL pro odeslání požadavku na datovou službu
-   *
+   * Method returning URL for sending a request to data service EasyMiner-Data
    * @param string $relativeUrl
    * @return string
    */
@@ -358,8 +350,6 @@ abstract class DataServiceDatabase implements IDatabase {
   }
 
   /**
-   * Funkce pro práci s RESTFUL API
-   *
    * @param string $url
    * @param string $postData = ''
    * @param string|null $method = 'GET'
@@ -411,6 +401,6 @@ abstract class DataServiceDatabase implements IDatabase {
     curl_close($ch);
     return $responseData;
   }
-  #endregion funkce pro práci s RESTFUL API
+  #endregion methods for work with the RESTFUL API
 
 }

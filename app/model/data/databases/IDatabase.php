@@ -8,76 +8,69 @@ use EasyMinerCenter\Model\Data\Entities\DbValue;
 use EasyMinerCenter\Model\Data\Entities\DbValuesRows;
 
 /**
- * Interface IDatabase - rozhraní definující funkce pro práci s různými datovými zdroji (pro zajištění nezávislosti na jedné DB
+ * Interface IDatabase - unified interface for work with different datasources (database drivers)
  * @package EasyMinerCenter\Model\Data\Databases
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 interface IDatabase {
 
   /**
-   * Funkce vracející seznam datových zdrojů v DB
-   *
+   * Method returning list of remote datasources available
    * @return DbDatasource[]
    */
   public function getDbDatasources();
 
   /**
-   * Funkce vracející informace o konkrétním datovém zdroji
-   *
+   * Method returning info about selected remote datasource
    * @param int|string $datasourceId
    * @return DbDatasource
    */
   public function getDbDatasource($datasourceId);
 
   /**
-   * Funkce vracející seznam sloupců v datovém zdroji
-   *
+   * Method returning list of fields (columns) in remote datasource
    * @param DbDatasource $dbDatasource
    * @return DbField[]
    */
   public function getDbFields(DbDatasource $dbDatasource);
 
   /**
-   * Funkce pro odstranění datového zdroje
-   *
+   * Method for deleting selected remote datasource
    * @param DbDatasource $dbDatasource
    */
   public function deleteDbDatasource(DbDatasource $dbDatasource);
 
   /**
-   * Konstruktor zajišťující připojení k databázi
-   *
+   * IDatabase constructor, also providing connection to remote database/service
    * @param DbConnection $dbConnection
-   * @param string $apiKey
+   * @param $apiKey
    * @return IDatabase
    */
   public function __construct(DbConnection $dbConnection, $apiKey);
 
-
   /**
-   * Funkce vracející uživatelsky srozumitelný název databáze
-   *
+   * Method returning user understandable name of this database
    * @return string
    */
   public static function getDbTypeName();
 
   /**
-   * Funkce vracející identifikaci daného typu databáze
-   *
+   * Method returning identification of this database type
    * @return string
    */
   public static function getDbType();
 
   /**
-   * Funkce pro přejmenování datového sloupce
+   * Method for renaming of a field
    * @param DbField $dbField
-   * @param string $newName='' (pokud není název vyplněn, je převzat název z DbField
+   * @param string $newName='' (if empty, if will be read from DbField)
    * @return bool
    */
   public function renameDbField(DbField $dbField, $newName='');
 
   /**
-   * Funkce pro rozbalení komprimovaných dat
+   * Method for unzipping of compressed data
    * @param string $data
    * @param string $compression
    * @return string
@@ -85,8 +78,7 @@ interface IDatabase {
   public function unzipData($data, $compression);
 
   /**
-   * Funkce vracející hodnoty zvoleného datového sloupce (DbField)
-   *
+   * Method returning values from selected DbField
    * @param DbField $dbField
    * @param int $offset
    * @param int $limit
@@ -95,8 +87,7 @@ interface IDatabase {
   public function getDbValues(DbField $dbField, $offset=0, $limit=1000);
 
   /**
-   * Funkce vracející jednotlivé řádky z databáze
-   *
+   * Method returning rows from Datasource
    * @param DbDatasource $dbDatasource
    * @param int $offset=0
    * @param int $limit=1000
@@ -106,8 +97,7 @@ interface IDatabase {
   public function getDbValuesRows(DbDatasource $dbDatasource, $offset=0, $limit=1000, &$preloadedDbFields=null);
 
   /**
-   * Funkce pro import existujícího CSV souboru do databáze
-   *
+   * Method for importing of existing CSV file to database
    * @param string $filename
    * @param string $name
    * @param string $encoding

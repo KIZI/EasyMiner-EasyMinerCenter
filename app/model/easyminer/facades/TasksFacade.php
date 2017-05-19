@@ -7,12 +7,23 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\TaskState;
 use EasyMinerCenter\Model\EasyMiner\Repositories\TasksRepository;
 
+/**
+ * Class TasksFacade
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class TasksFacade {
   /** @var  TasksRepository $tasksRepository */
   private $tasksRepository;
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
 
+  /**
+   * TasksFacade constructor.
+   * @param TasksRepository $tasksRepository
+   * @param RulesFacade $rulesFacade
+   */
   public function __construct(TasksRepository $tasksRepository, RulesFacade $rulesFacade){
     $this->tasksRepository=$tasksRepository;
     $this->rulesFacade=$rulesFacade;
@@ -36,14 +47,12 @@ class TasksFacade {
   }
 
   /**
-   * Funkce pro smazání DM úlohy včetně připojených pravidel
-   *
+   * Method for deleting of data mining Task including also connected Rules
    * @param Task $task
    */
   public function deleteTask(Task $task){
-    //TODO smazání navázaných pravidel
+    //TODO implement deleteTask()
 
-    //TODO
   }
 
   /**
@@ -51,28 +60,28 @@ class TasksFacade {
    * @param TaskState $taskState
    */
   public function updateTaskState(Task &$task,TaskState $taskState){
-    /** @var Task $task - aktualizujeme data o konkrétní úloze*/
+    /** @var Task $task*/
     $task=$this->findTask($task->taskId);
-    //zpracování info o stavu úlohy
+    //process the info about the TaskState
     if (!empty($taskState->rulesCount) && $taskState->rulesCount>$task->rulesCount){
       $task->rulesCount=$taskState->rulesCount;
     }
 
-    //stav řešení úlohy
+    //state of the solving of the Task
     if (($task->state!=Task::STATE_SOLVED)&&($task->state!=$taskState->state)){
       $task->state=$taskState->state;
     }
 
-    //URL s výsledky
+    //URL s results
     $task->resultsUrl=$taskState->resultsUrl;
 
-    //postupný import výsledků
+    //gradual import of results
     if ($task->importState!=Task::IMPORT_STATE_DONE){
       if ($taskState->importState!=null && $taskState->importState!=$task->importState) {
         $task->importState=$taskState->importState;
       }
 
-      #region vyřešení pole importData
+      #region resolving of the array importData
       $importData=array_merge($task->getImportData(),$taskState->importData);
       if (!empty($importData)){
         foreach($importData as $key=>$filename){
@@ -85,7 +94,7 @@ class TasksFacade {
         $task->importState=Task::IMPORT_STATE_DONE;
       }
       $task->setImportData($importData);
-      #endregion vyřešení pole importData
+      #endregion resolving of the array importData
 
     }elseif($taskState->importState==Task::IMPORT_STATE_DONE && $task->importState!=Task::IMPORT_STATE_DONE){
       $task->importState=Task::IMPORT_STATE_DONE;
@@ -99,7 +108,7 @@ class TasksFacade {
   }
 
   /**
-   * Funkce pro kontrolu, jestli je zvolená úloha obsažená v Rule Clipboard
+   * Method for check, if the given Task is included in Rule Clipboard
    * @param Task $task
    */
   public function checkTaskInRuleClipoard(Task &$task){
@@ -111,7 +120,7 @@ class TasksFacade {
   }
 
   /**
-   * Funkce pro připravení úlohy před odesláním mineru
+   * Method for preparation of a Task before send of it to the Miner
    * @param Miner $miner
    * @param int|null $id = null
    * @return Task
@@ -120,7 +129,7 @@ class TasksFacade {
     try{
       $task=$this->findTask($id);
       return $task;
-    }catch (\Exception $e){/*úloha pravděpodobně neexistuje...*/}
+    }catch (\Exception $e){/*the Task probably does not exist*/}
     $task=new Task();
     $task->miner=$miner;
     $task->type=$miner->type;
@@ -131,8 +140,7 @@ class TasksFacade {
   }
 
   /**
-   * Funkce pro připravení úlohy na základě jednoduchého pole s konfigurací (například přes API)
-   *
+   * Method for preparation of a data mining Task based on a simple array with configuration (for example via the API)
    * @param Miner $miner
    * @param array $settingsArr
    * @param Task|null $updateTask=null
@@ -198,7 +206,7 @@ class TasksFacade {
   }
 
   /**
-   * Funkce pro připravení struktury nastavení měr zajímavosti v nastavení úlohy dle pole s jednoduchou konfigurací
+   * Method for preparation of the structure of configuration interest measures in the Task configuration using an array with simple config
    * @param array $IMsSettingsArr
    * @return array
    */
@@ -228,7 +236,7 @@ class TasksFacade {
   }
 
   /**
-   * Funkce pro připravení struktury nastavení měr zajímavosti v nastavení úlohy dle pole s jednoduchou konfigurací
+   * Method for preparation of the structure of configuration special interest measures in the Task configuration using an array with simple config
    * @param array $specialIMsSettingsArr
    * @return array
    */
@@ -258,14 +266,14 @@ class TasksFacade {
   }
 
   /**
-   * Funkce pro připravení struktury cedentu v nastavení úlohy dle pole s jednoduchou konfigurací
+   * Method for preparation of the structure of a Cedent in the Task configuration using an array with simple config
    * @param array $attributesSettingsArr
    * @return array
    */
   private function prepareSimpleTaskAttributesArr($attributesSettingsArr) {
     $result=[];
     if (empty($attributesSettingsArr)){return $result;}
-    //připravíme strukturu pro jednotlivé atributy
+    //prepare the structure for individual attributes
     foreach($attributesSettingsArr as $attributeSetting){
       if (!empty($attributeSetting['fixedValue'])){
         //fixed value => ONE CATEGORY
