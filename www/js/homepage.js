@@ -1,8 +1,13 @@
 /**
- * JavaScript pro animaci na homepage
- * Created by Stanislav on 29. 7. 2015.
+ * JavaScript for the animation on homepage
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 
+/**
+ * Function for change of the slogan text
+ * @param parentBlock
+ */
 var nextSlogan = function(parentBlock){
   var visibleBlock=parentBlock.children('div.visible');
   if (visibleBlock){

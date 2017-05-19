@@ -3,6 +3,7 @@
 /**
  * @class FileUploader - javascriptová komponenta pro upload dat do datové služby
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  * @param {Object} [params={}]
  * @constructor
  */
@@ -12,11 +13,11 @@ var FileUploader=function(params){
   var inputElementId='';
 
   /**
-   * @type {number} maxFileSize=100MB Maximální velikost uploadovaných souborů
+   * @type {number} maxFileSize=100MB - maximal size of files for upload
    */
   var maxFileSize=1024*1024*1000;
   /**
-   * @type {int} chunkSize=500kB - Velikost jednoho uploadovaného bloku
+   * @type {int} chunkSize=500kB - size of one upload chunk
    */
   var chunkSize=1024*500;
   /*interní pracovní proměnné*/
@@ -27,7 +28,7 @@ var FileUploader=function(params){
   var fileReader=null;
   var self=this;
   /**
-   * @type {string} uploadId - ID daného uploadu
+   * @type {string} uploadId - ID of the given upload
    */
   var uploadId="";
   /**
@@ -57,13 +58,13 @@ var FileUploader=function(params){
 
 
 
-  const SLOW_DOWN_INTERVAL=500;//interval pro zpomalení uploadu (v milisekundách)
+  const SLOW_DOWN_INTERVAL=500;//length of time interval for upload slowdown (in miliseconds)
   const CODE_SLOW_DOWN=429;
   const CODE_CONTINUE=202;
   const CODE_OK=200;
 
   /**
-   * Funkce pro začátek uploadu
+   * Function for start of the upload
    * @param {object} uploadFileParams
    * @returns {boolean}
    */
@@ -76,7 +77,7 @@ var FileUploader=function(params){
       data: ajaxData,
       contentType: 'application/json; charset=utf-8',
       success: function(result){
-        //došlo k úspěšné inicializaci -> uložíme si ID uploadu a zahájíme posílání...
+        //upload initialization was successfull => save the ID of upload and start the sending...
         uploadId=result;
         initFileReader();
         uploadInProgress=true;
@@ -84,7 +85,7 @@ var FileUploader=function(params){
         sendChunk();
       },
       error: function(xhr, status, error){
-        //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
+        //initialization failed - display error info and cancel the sending...
         showMessage("Upload failed: "+error);
         self.stopUpload();
       }
@@ -94,7 +95,7 @@ var FileUploader=function(params){
   var initFileReader = function(){
     fileReader=new FileReader();
     fileReader.onload=function(){
-      //data načtena -> odešleme je
+      //data loaded -> send them... (upload them)
       //noinspection JSUnusedGlobalSymbols
       jQuery.ajax(prepareUrl(uploadId),{
         type: 'post',
@@ -103,19 +104,19 @@ var FileUploader=function(params){
         processData:false,
         success: function(result,status,xhr){
           if (xhr.status==CODE_CONTINUE){
-            //pokud máme pokračovat, zobrazíme stavovou zprávu
+            //we should continue, display the state message
             showMessage(result);
           }
-          //došlo k vrácení odpovědi
+          //response received
           self.onProgressUpdate();
           lastUploadedChunkId++;
           sendChunk();
         },
         error: function(xhr, status, error){
-          //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
+          //error occurred - display info about the error and cancel the sendind...
           var errorCode=xhr.status;
           if (errorCode==CODE_SLOW_DOWN){
-            //byl obdržen požadavek na zpomalení uploadu
+            //slowdown request received - slow down the sending (upload)
             setTimeout(function(){
               sendChunk();
             },SLOW_DOWN_INTERVAL);
@@ -127,32 +128,31 @@ var FileUploader=function(params){
       });
     };
     fileReader.onerror=function(){
-      //akce volaná při chybě čtení souboru
+      //action called in case of file read error
       showMessage("File read failed!","error");
       self.stopUpload();
     };
   };
 
   /**
-   * Funkce pro odeslání další části souboru
+   * Function for sending of next part of the file
    */
   var sendChunk=function(){
-    //určení začátku a konce daného uploadu
+    //calculation of the start and end of the chunk for upload
     var dataStart=lastUploadedChunkId*chunkSize;
     var dataEnd=Math.min(dataStart+chunkSize,file.size);
     if (dataStart>=dataEnd){
-      //pokud už byl odeslán celý soubor, pošleme ukončovací zprávu
+      //complete file was send, send the final message
       sendLastChunk();
       return;
     }
     self.onProgressUpdate();
-    //načteme data (událost pro odeslání již je připojena k instanci objektu FileReader)
+    //load data (event for sending is already attached to the instance of object FileReader)
     fileReader.readAsArrayBuffer(file.slice(dataStart,dataEnd));
-    //fileReader.readAsBinaryString(file.slice(dataStart,dataEnd));
   };
 
   /**
-   * Funkce pro odeslání poslední zprávy - pro ukončení uploadu
+   * Function for sending of the last message - finish the upload
    */
   var sendLastChunk=function(){
     //noinspection JSUnusedGlobalSymbols
@@ -161,7 +161,7 @@ var FileUploader=function(params){
       data: "",
       contentType: 'text/plain',
       success: function(result,status,xhr){
-        //došlo k vrácení odpovědi
+        //response received
         if (xhr.status==CODE_OK){
           showMessage("File uploaded successfully, data preparation in progress...");
           self.onFileSent();
@@ -177,9 +177,9 @@ var FileUploader=function(params){
         }
       },
       error: function(xhr, status, error){
-        //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
+        //error occured - display info about the error and cancel the sending
         if (xhr.status==CODE_SLOW_DOWN){
-          //byl obdržen požadavek na zpomalení uploadu
+          //slowdown request received - slow down the sending (upload)
           setTimeout(function(){
             sendLastChunk();
           },SLOW_DOWN_INTERVAL);
@@ -192,13 +192,13 @@ var FileUploader=function(params){
   };
 
   /**
-   * Funkce pro zahájení uploadu souboru
+   * Function for starting of the file upload
    * @param {string} requestUrl
-   * @param {object|[]} uploadFileParams parametry, které je nutné zaslat při požadavku na zahájení uploadu
+   * @param {object|[]} uploadFileParams - params required for the upload start
    * @returns {boolean}
    */
   this.startUpload=function(requestUrl,uploadFileParams){
-    //pokud prohlížeč metody nepodporuje, zkusíme odeslat formulář klasicky...
+    //if the browser does not support HTML5 upload, try to send the form classically
     if (!this.checkBrowserSupport()){
       showMessage("This browser does not support this component.","error");
       return false;
@@ -218,7 +218,7 @@ var FileUploader=function(params){
       return false;
     }
     self.onUploadStart();
-    //začneme nahrávat souboru...
+    //start the upload of the file
     if (requestUrl.substr(0,1)=='/'){
       uploadRequestUrl=requestUrl.substr(1);
     }else{
@@ -228,7 +228,7 @@ var FileUploader=function(params){
   };
 
   /**
-   * Funkce vracející vyjádření aktuálně naimportovaných částí
+   * Function returning the representation of actually uploaded parts
    * @returns {number}
    */
   this.getProgressState=function(){
@@ -239,7 +239,7 @@ var FileUploader=function(params){
   };
 
   /**
-   * Funkce pro zastavení běžícího uploadu
+   * Function for stopping of the running upload
    */
   this.stopUpload=function(){
     uploadInProgress=false;
@@ -249,14 +249,14 @@ var FileUploader=function(params){
   };
 
   /**
-   * Funkce pro kontrolu, jestli browser podporuje potřebné javascriptové objekty
+   * Function for check, if the browser support required HTML5 javascript objects
    */
   this.checkBrowserSupport=function(){
     return window.File && window.FileReader && window.FileList && window.Blob;
   };
 
   /**
-   * Funkce pro připravení URL adresy pro odeslání požadavku
+   * Function for preparation of the URL for requests to the data service
    * @param {string} action
    * @returns {string}
    */
@@ -268,7 +268,7 @@ var FileUploader=function(params){
   };
 
   /**
-   * Funkce pro zobrazení příslušné zprávy
+   * Function for display of the appropriate message
    * @param {string} text
    * @param {string} [type="info"]
    */
@@ -294,7 +294,7 @@ var FileUploader=function(params){
   };
 
   /**
-   * Inicializační funkce pro nastavení potřebných parametrů
+   * Init functions for setting of required params
    * @param {object} [params]
    */
   this.init=function(params){

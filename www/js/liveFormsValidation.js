@@ -1,10 +1,10 @@
 /**
  * Live Form Validation for Nette 2.2
  *
- * @author Radek Ježdík, MartyIX, David Grudl, pavelplzak, Robyer
+ * @author Radek Ježdík, MartyIX, David Grudl, pavelplzak, Robyer, Stanislav Vojíř
  *
  * @changelog
- *   Vojir, 30.6.2015
+ *   Vojíř, 30.6.2015
  *     - update for new version of netteForms
  *     - added support for jquery initialization of error element
  *   Robyer, 8.8.2014:

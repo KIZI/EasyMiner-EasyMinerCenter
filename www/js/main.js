@@ -1,4 +1,10 @@
 /**
+ * Main scripts for UI of EasyMiner
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
+
+/**
  * Object for management of HeaderMenu
  * @param $ {jQuery}
  * @param options
@@ -18,8 +24,7 @@ var HeaderMenu = function($,options){
   };
 
   /**
-   *
-   * Funkce pro nastavení absolutní pozice pro menu v hlavičce (absolutně vzhledem k dokumentu)
+   * Function for setting of absolute position for menus in header (absolutely to the document)
    * @param {object} menuBlock
    * @param {object} menuLink
    * @private
@@ -37,7 +42,7 @@ var HeaderMenu = function($,options){
   };
 
   /**
-   * Funkce pro inicializaci jednotlivých subMenu
+   * Function for initialization of all submenus (headerMenus)
    * @param {string} menuItem
    * @private
    */
@@ -47,12 +52,12 @@ var HeaderMenu = function($,options){
       var headerMenu = this;
       linkElement.click(function(event){
         if ($(this).hasClass('active')){
-          //skryjeme menu
+          //hide menu
           headerMenu.menuVisible=false;
           $('.headerMenu').hide();
           $('.headerLinks a').removeClass('active');
         }else{
-          //zobrazíme menu
+          //display menu
           $('.headerMenu').hide();
           headerMenu.menuVisible=false;
           $('.headerLinks a').removeClass('active');
@@ -71,7 +76,7 @@ var HeaderMenu = function($,options){
   };
 
   /**
-   * Funkce pro inicializaci jednotlivých odkazů bez submenu
+   * Function for initialization of all links without submenus
    * @param {string} menuItem
    * @private
    */
@@ -79,7 +84,7 @@ var HeaderMenu = function($,options){
     var linkElement = $('#header'+menuItem+'Link');
     if (linkElement){
       linkElement.click(function(){
-        //skryjeme menu
+        //hide menu
         this.menuVisible=false;
         $('.headerMenu').hide();
         $('.headerLinks a').removeClass('active');
@@ -93,10 +98,10 @@ var HeaderMenu = function($,options){
    */
   this.init = function(options){
     $.extend(this.options, options);
-    /*region připojení menuLinkArrow k jednotlivým submenu*/
+    /*region append menuLinkArrow to all headerMenus*/
     $('.headerMenu').append('<div class="menuLinkArrow"></div>');
-    /*endregion*/
-    /*region skrytí všech headerMenu při kliknutí na jiný element */
+    /*endregion append menuLinkArrow to all headerMenus*/
+    /*region hidding of all headerMenus after clicking on another menu element*/
     $(document).mousedown(function(event){
       if (!this.menuVisible){return;}
       var targetElement=$(event.target);
@@ -105,13 +110,13 @@ var HeaderMenu = function($,options){
         $('.headerLinks a').removeClass('active');
       }
     }.bind(this));
-    /*endregion*/
-    /*region inicializace jednotlivých submenu*/
+    /*endregion hidding of all headerMenus after clicking on another menu element*/
+    /*region initialize all submenus*/
     $.each(this.options.subMenus,function(index, value){
       this.initSubMenu(value);
     }.bind(this));
     /*endregion*/
-    /*region inicializace nápovědy*/
+    /*region initialize help*/
     $.each(this.options.links,function(index, value){
       this.initLink(value);
     }.bind(this));
@@ -123,9 +128,9 @@ var HeaderMenu = function($,options){
 };
 
 
-/*region headerMenu - menu zobrazovaná v hlavičce*/
+/*region headerMenu - menu displayed in the header*/
 /**
- * Připojení událostí nápovědy po načtení stránky
+ * Append the events for EasyMiner-Help after the page load
  */
 $(document).ready(function($){
   new HeaderMenu($);
@@ -135,12 +140,12 @@ $(document).ready(function($){
 
 /*region long running forms*/
 /**
- * Připojení událostí pro slow formuláře
+ * Attach events for slow forms
  */
 $(document).ready(function($){
-  //připojení prvku, který řeší překrytí obsahu spinnerem
+  //append the element for the spinner overlay
   $("body").append('<div id="loadingOverlay"></div>');
-  //připojení funkce pro odchycení custom eventu afterSubmit
+  //append the function for custom event afterSubmit
   $('form:not(.ajax)').on("afterSubmit",function(){
     if(!$(this).hasClass('ajax')){
       $("body").addClass("slowLoading");

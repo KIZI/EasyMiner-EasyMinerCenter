@@ -1,7 +1,13 @@
+/**
+ * Scripts for definition of nominal enumeration preprocessing
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
+
 //TODO obslužné skripty pro preprocessing nominal enumeration
 
 /**
- * Akce pro odebrání konkrétní hodnoty z intervalu (bez reloadu)
+ * Action for removing of a concrete value from interval (without reload)
  * @param event
  */
 var removeValueAction = function(event){
@@ -10,7 +16,7 @@ var removeValueAction = function(event){
 };
 
 /**
- * Akce pro odebrání values binu (bez reloadu)
+ * Action for removing of a valuesBin (without reload)
  * @param event
  */
 var removeBinAction = function(event){
@@ -32,7 +38,7 @@ var hideSelectSubform = function(event,element){
   prepareShowSelectSubformButton(element.closest('.addValue'));
 };
 /**
- * Funkce pro vygenerování HTML kódu s tlačítkem pro zobrazení subformu se selectem
+ * Function for generating of HTML code with button for displaying of a subform with select
  * @param parentElement
  */
 var prepareShowSelectSubformButton = function(parentElement){
@@ -40,7 +46,7 @@ var prepareShowSelectSubformButton = function(parentElement){
 };
 
 /**
- * Akce pro odeslání subformu se selectem
+ * Action for sending of the subform with select
  * @param event
  */
 var submitSelectSubform = function(event){
@@ -48,7 +54,7 @@ var submitSelectSubform = function(event){
   var value=$(this).closest('.addValue').find('select').val();
 
   var parentElement=$(this).closest('.valuesBin');
-  //vyřešení základní částí jména (dle existujících hodnot)
+  //solve the basic parts of name (using the existing values)
   var newElementNameBase='';
   parentElement.children('input[type="text"]').each(function(){
     var name=$(this).attr('name');
@@ -63,7 +69,7 @@ var submitSelectSubform = function(event){
     maxId=Math.max(maxId,parseInt(nameArr[3]));
   });
   newElementNameBase+='[values]['+(maxId+1)+']';
-  //vytvoření příslušné části html kódu
+  //create the appropriate part of HTML code
   var newElementHtml=$('<span class="value"></span>');
   newElementHtml.append($('<input type="text" readonly="readonly" name="'+newElementNameBase+'[value]" />').attr('value',value));
   newElementHtml.append($('<strong></strong>').text(value));
@@ -76,7 +82,7 @@ var submitSelectSubform = function(event){
 };
 
 var prepareSelectSubform = function(parentElement){
-  //kontrola, jaké hodnoty je možné přidat
+  //check, which valus can be added
   var usedValues = [];
   var selectItemsValues = [];
   $('.valuesBin .value input[type="text"]').each(function(){
@@ -96,7 +102,7 @@ var prepareSelectSubform = function(parentElement){
   parentElement.find('input.submit').val(localization['add_value']).click(submitSelectSubform);
   parentElement.find('input.storno').val(localization['storno']).click(hideSelectSubform);
 
-  //přidání položek do selectu...
+  //add items to select
   var selectTd = parentElement.find('td.selectTd');
   if (selectItemsValues.length>0){
     var select = $('<select></select>');
@@ -115,19 +121,19 @@ var prepareSelectSubform = function(parentElement){
 };
 
 $(document).ready(function (){
-  //připojení eventů k odesílacím tlačítkům (aby se zbytečně nepřenačítala stránka)
+  //append events to the send buttons (to prevent the page reload)
   $('.valuesBin input.removeValue').click(removeValueAction);
   $('.valuesBin input.removeBin').click(removeBinAction);
 
 
   if (typeof(usableValues)!="undefined" && usableValues.length>0){
-    //máme k dispozici výčet hodnot
+    //we have there an enumeration of values
     $('.valuesBin .addValue').each(function(){
       prepareShowSelectSubformButton($(this));
     });
     ////$('.valuesBin .addValue').css('border','1px solid red');
   }else{
-    //TODO doplnění dalších variant...
+    //TODO more variants...
 
   }
 

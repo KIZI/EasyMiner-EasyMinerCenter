@@ -1,8 +1,17 @@
 /**
- * Skripty pro upload dat
+ * Scripts for data upload in the UI
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
+
 'use strict';
 
+/**
+ * @class DataUpload
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * @constructor
+ */
 var DataUpload=function(){
   this.fileInputElement=null;
   this.jqElements={
@@ -45,12 +54,12 @@ var DataUpload=function(){
    */
   var fileUploader;
   /**
-   * Velikost nahrávaných dat při potřebě získání ukázky
+   * Size of uploaded data for data preview
    * @type {number}
    */
   const UPLOAD_PREVIEW_BYTES=100000;
   /**
-   * Identifikace nahraného souboru pro generování ukázky...
+   * Identification of uploaded file for data preview
    * @type {string}
    */
   var previewFileName='';
@@ -60,7 +69,7 @@ var DataUpload=function(){
   var self=this;
 
   /**
-   * Funkce vracející vyplněnou URL pro načtení náhledu
+   * Function returning the URL for data preview
    * @returns {string}
    */
   var getPreviewUrl=function(reloadParams){
@@ -75,7 +84,7 @@ var DataUpload=function(){
       .replace('__NULL_VALUE__',encodeURIComponent(inputParams.nullValues[0]))
       .replace('__LOCALE__',encodeURIComponent(inputParams.locale))
       .replace('__REQUIRE_SAFE_NAMES__',requireSafeNames);
-    //pokud by mělo dojít k přenačtení parametrů, tak nebudeme uvádět následující parametry
+    //if we need to reload params, we will not send the following params
     if (reloadParams==true){
       result=result.replace('__DELIMITER__','');
     }else{
@@ -85,7 +94,7 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro zobrazení bloku s nahrávacím formulářem
+   * Function for display of the block with upload form
    */
   this.showUploadFormBlock=function(){
     this.jqElements.uploadConfigBlock.hide();
@@ -94,14 +103,14 @@ var DataUpload=function(){
     this.jqElements.uploadFormBlock.show();
   };
   /**
-   * Funkce pro inicializaci konfigurace uploadu
+   * Function for initialization of the upload configuration
    */
   this.showUploadConfigBlock=function(){
-    //skrytí případných flash zpráv
+    //hide possible flash messages
     this.jqElements.flashMessages.hide();
-    //vygenerování výchozího jména uploadovaného datasource
+    //generate the default name of the uploaded datasource
     this.processFileName(this.fileInputElement.files[0].name);
-    //zobrazení potřebných bloků
+    //display necessary blocks
     this.jqElements.uploadFormBlock.hide();
     this.jqElements.uploadColumnsBlock.hide();
     this.jqElements.uploadProgressBlock.hide();
@@ -109,18 +118,18 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro zpracování jména nahrávaného souboru - určení komprese a určení jména nahrávané tabulky
+   * Function for processing the name of the file for upload - configuration of compression and the name of data table
    * @param filename : string
    */
   this.processFileName=function(filename){
     var lastDotPosition=filename.lastIndexOf('.');
     var name=filename.substring(0,lastDotPosition);
     var ext =filename.substring(lastDotPosition+1);
-    //zpracování jména souboru na název tabulky v DB
+    //process the file name for the name of a table in database
     var seoName=seoUrl(name);
-    seoName=seoName.replace(/-/g,'_');//nahrazení pomlček za podtržítka
+    seoName=seoName.replace(/-/g,'_');//replace - with _
     ext=ext.toLowerCase();
-    //přiřazení získaných hodnot do inputu a do proměnné s info o kompresi
+    //set the gained values to inputs and to a variable with info about compression
     if (this.jqElements.allowLongNamesInput.val()=='1'){
       this.jqElements.nameInput.val(name);
     }else{
@@ -146,23 +155,23 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro vygenerování formuláře pro konfiguraci datových sloupců a jeho zobrazení
+   * Function for generation of a form for configuration of data fields (data columns) and display of the generated form
    */
   this.showColumnsConfigBlock=function(){
     var columnNamesValidationAttributes='required';
     if (this.jqElements.allowLongNamesInput.val()=='1'){
-      //kontrola s podporou dlouhých jmen sloupců
+      //check for the long names of data fields (with long names support)
       columnNamesValidationAttributes+='maxlength="'+LONG_NAMES_MAX_LENGTH+'" data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":maxLength","msg":"Max length of the column name is '+LONG_NAMES_MAX_LENGTH+' characters!","arg":'+LONG_NAMES_MAX_LENGTH+'},{"op":":UniqueNamesValidator","msg":"This name is already used."}]\' title="Attribute name is required."';
     }else{
-      //kontrola pro krátká jména sloupců
+      //check for the short names of data fields (without long names support)
       columnNamesValidationAttributes+='maxlength="'+SHORT_NAMES_MAX_LENGTH+'" data-nette-rules=\'[{"op":":filled","msg":"This field is required."},{"op":":UniqueNamesValidator","msg":"This name is already used."},{"op":":maxLength","msg":"Max length of the column name is '+SHORT_NAMES_MAX_LENGTH+' characters!","arg":'+SHORT_NAMES_MAX_LENGTH+'},{"op":":pattern","msg":"Column name can contain only letters, numbers and _ and has start with a letter.","arg":"[a-zA-Z]{1}\\\\w*"}]\' pattern="[a-zA-Z]{1}\\w*" title="Column name can contain only letters, numbers and _ and has start with a letter."';
     }
 
-    //připravení položek příslušného formuláře...
+    //prepare items of the appropriate form
     var listBlock=this.jqElements.uploadColumnsListBlock;
     var listBlockTable=$('<table><tr><th>'+'Column name'+'</th><th>'+'Data type'+'</th><th>'+'Values from first rows...'+'</th></tr></table>');
     for (var i in columnNames){
-      //položka konkrétního sloupce
+      //single data column details
       var columnDetailsTr=$('<tr></tr>');
       var nameInput=$('<input type="text" id="column_'+i+'_name" '+columnNamesValidationAttributes+' />').val(columnNames[i]).addClass('columnName');
       columnDetailsTr.append($('<td></td>').html(nameInput));
@@ -170,9 +179,8 @@ var DataUpload=function(){
       dataTypeSelect.val(columnDataTypes[i]);
       columnDetailsTr.append($('<td></td>').html(dataTypeSelect));
       var valuesTd=$('<td class="values"></td>');
-      //náhled hodnot
+      //preview of values
       var previewedRows=0;
-      var previewData=[];
       var valuesTdDiv=$('<div></div>');
       valuesTd.append(valuesTdDiv);
       for (var row in previewRows){
@@ -185,8 +193,8 @@ var DataUpload=function(){
       columnDetailsTr.append(valuesTd);
       listBlockTable.append(columnDetailsTr);
     }
-    listBlock.html(listBlockTable);//přiřazení tabulky do příslušného obsahu
-    //zobrazení potřebných bloků
+    listBlock.html(listBlockTable);//set the table to the appropriate content block
+    //display required blocks
     this.jqElements.uploadFormBlock.hide();
     this.jqElements.uploadProgressBlock.hide();
     this.jqElements.uploadConfigBlock.hide();
@@ -196,7 +204,7 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro upload ukázky dat
+   * Function for upload of a part of data file for data preview
    */
   this.reloadPreview=function(reloadParams){
     this.jqElements.allowLongNamesInput.val(this.dataServicesConfigByDbTypes[this.jqElements.databaseTypeInput.val()]['allowLongNames']?'1':'0');
@@ -206,11 +214,11 @@ var DataUpload=function(){
     }
 
     $.getJSON(getPreviewUrl(reloadParams),function(data){
-      //nastavení příslušných proměnných
+      //set variables
       columnNames=data['columnNames'];
       columnDataTypes=data['dataTypes'];
       previewRows=data['data'];
-      //nastavení hodnot ve formuláři dle vyhodnocení na serveru
+      //set values of form elements using the data evaluation on the server
       self.jqElements.delimiterInput.prop('data-old-value',data.config.delimiter);
       self.jqElements.delimiterInput.val(data.config.delimiter);
       self.jqElements.enclosureInput.prop('data-old-value',data.config.enclosure);
@@ -227,10 +235,10 @@ var DataUpload=function(){
       if (reloadParams){
         self.showUploadConfigBlock();
       }
-      //vypsání hodnot sloupců
+      //prepare a preview table
       var previewTable=$('<table></table>');
       var columnsCount=0;
-      //názvy sloupců
+      //column names
       var tr=$('<tr></tr>');
       for (var columnI in columnNames){
         var th=$('<th></th>');
@@ -239,7 +247,7 @@ var DataUpload=function(){
         columnsCount++;
       }
       previewTable.append(tr);
-      //hodnoty jednotlivých řádků
+      //values of individual rows
       for (var rowI in previewRows){
         var tr=$('<tr></tr>');
         for (var columnI=0;columnI<columnsCount;columnI++){
@@ -254,13 +262,13 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro nahrání celého souboru
+   * Function for upload of the full file
    */
   this.submitAllData=function(){
-    //inicializace file uploaderu
+    //initialize file uploaderu
     fileUploader.setDataServiceUrl(this.dataServicesConfigByDbTypes[self.jqElements.databaseTypeInput.val()].url);//nastavení URL dle zvoleného typu databáze
     fileUploader.onUploadStart=function(){
-      //zobrazení upload bloku a spuštění uploadu
+      //display the upload block and start the upload
       self.jqElements.uploadFormBlock.hide();
       self.jqElements.uploadColumnsBlock.hide();
       self.jqElements.uploadConfigBlock.hide();
@@ -272,10 +280,10 @@ var DataUpload=function(){
     };
     fileUploader.onUploadStop=function(){
       showMessage('Upload stopped.','warn');
-      //zrušíme propojení funkcí z uploaderu
+      //remove the event functions from uploader
       fileUploader.onShowMessage=function(){};
       fileUploader.onProgressUpdate=function(){};
-      //skryjeme progress bar
+      //hide progress bar
       self.jqElements.uploadProgress.hide();
     };
     fileUploader.onUploadFinished=function(result){
@@ -291,10 +299,10 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro aktualizaci přehledu požadovaných názvů sloupců a datových typů
+   * Function for reload of the list of required column names and its data types
    */
   var updateColumnNamesAndTypesFromConfigForm=function(){
-    //načteme data z formuláře
+    //load data from form
     var columnsData=[];
     self.jqElements.uploadColumnsListBlock.find('input[type="text"]').each(function(){
       var thisItem=$(this);
@@ -304,7 +312,7 @@ var DataUpload=function(){
       }
     });
 
-    //připravíme pole s názvy a datovými typy pro upload
+    //prepare array with column names and data types for upload
     columnNames=[];
     columnDataTypes=[];
     jQuery.each(columnsData,function(){
@@ -319,11 +327,11 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro odeslání finálního requestu
+   * Function for sending of the "final" request
    * @param dataServiceResponse : object
    */
   this.sendFinalRequest=function(dataServiceResponse){
-    //odeslání requestu pro finalizaci nahrávání dat (vytvoření datasetu)
+    //send request for finishing of the data upload (create datasource)
     jQuery.ajax(self.uploadFinishUrl,{
       type: 'post',
       data: {
@@ -339,14 +347,14 @@ var DataUpload=function(){
         }
       },
       error: function(xhr, status, error){
-        //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
+        //error occurred - display info about the error and cancel the sending (uploading) of file
         showMessage("Upload failed: "+error, 'error');
       }
     });
   };
 
   /**
-   * Funkce pro zobrazení info zprávy
+   * Function for displaying of a info message
    * @param message : string
    * @param type : string
    */
@@ -356,7 +364,7 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro sestavení parametrů pro upload dat...
+   * Function for building of params for data upload
    * @returns {{name: string, mediaType: string, dbType: string, separator: string, encoding: string, quotesChar: string, escapeChar: string, locale: string, nullValues: string[], dataTypes: string[]}}
    */
   this.getInputParams=function(){
@@ -381,11 +389,11 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro upload ukázkových dat
+   * Function for upload of data for data preview
    */
   this.uploadPreviewData=function(){
-    //TODO vyřešení komprese v případě, kdy není zipSupport na serveru
-    //region upload ukázkových dat
+    //TODO vyřešení komprese v případě, kdy není zipSupport na serveru (solve the support for zip without support on the server side)
+    //region upload data for preview
     var fileReader=new FileReader();
     fileReader.onload=function(){
       var url='';
@@ -401,48 +409,46 @@ var DataUpload=function(){
         dataType: 'json',
         processData:false,
         success: function(result){
-          //soubor byl nahrán, chceme zobrazit ukázku dat...
+          //file uploaded - display data preview...
           previewFileName=result.file;
           self.reloadPreview(true);
         },
         error: function(xhr, status, error){
-          //došlo k chybě - zobrazíme info o chybě a následně stornujeme posílání
-          //FIXME zpráva o chybě...
+          //FIXME error message
         }
       });
     };
     fileReader.onerror=function(){
-      //FIXME zpráva o chybě při přístupu k souboru...
       alert('Requested file is not readable!');
     };
     var file=this.fileInputElement.files[0];
     this.processFileName(file.name);
     fileReader.readAsArrayBuffer(file.slice(0,Math.min(UPLOAD_PREVIEW_BYTES,file.size)));
-    //endregion
+    //endregion upload data for preview
   };
 
 
   //region init
   /**
-   * Kompletní spuštění inicializačních funkcí této JS komponenty
+   * Run all initialization functions of this JavaScript components
    */
   this.init=function(){
     initUploadFormActions();
     initUploadConfigFormActions();
     initColumnsConfigFormActions();
     initFileUploader();
-    //zobrazíme první část uploadu
+    //display first part of upload
     self.showUploadFormBlock();
   };
 
   /**
-   * Funkce pro inicializaci nahrávacího formuláře
+   * Function for initialization of the upload form
    */
   var initUploadFormActions=function(){
     var form=self.jqElements.uploadFormBlock.find('form');
     form.addClass('ajax');
     self.jqElements.importTypeInput.change(function(){
-      //při změně typu dat spustíme validaci na poli pro výběr databáze
+      //in case of data type change, run the validation on the form field for selection of the database type
       Nette.validateControl(self.jqElements.databaseTypeInput);
     });
     form.find('input[name="cancel"]').click(function(){
@@ -454,19 +460,19 @@ var DataUpload=function(){
       e.stopPropagation();
       if (Nette.validateForm(this)){
         //TODO tady bude potřeba úprava pro podporu uploadu RDF dat
-        //načteme preview, posléze dojde k zobrazení konfigurace importu
+        //reload preview, later the import config will be displayed
         self.reloadPreview(true);
       }
     });
   };
 
   /**
-   * Funkce inicializující formulář pro konfiguraci parametrů uploadu
+   * Function for initialization of form for configuration of upload params
    */
   var initUploadConfigFormActions=function(){
     var form=self.jqElements.uploadConfigBlock.find('form');
     var changeFunction=function(){
-      //změna hodnoty inputu (jeho opuštění)
+      //input value change (blur of the input)
       if (!$(this).hasClass(LiveForm.options.controlErrorClass)){
         if ($(this).prop('data-old-value')!=$(this).val()){
           $(this).prop('data-old-value',$(this).val());
@@ -480,7 +486,7 @@ var DataUpload=function(){
       e.preventDefault();
       e.stopPropagation();
       if(Nette.validateForm(this)){
-        //zobrazíme konfiguraci jednotlivých sloupců...
+        //display config of individual columns
         self.showColumnsConfigBlock();
       }
     });
@@ -488,13 +494,13 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro inicializaci formuláře pro konfiguraci sloupců
+   * Function for initialization of form for configuration of columns
    */
   var initColumnsConfigFormActions=function(){
     var form=self.jqElements.uploadColumnsBlock.find('form');
     form.addClass('ajax');
     /**
-     * Funkce pro validaci unikátnosti zadaných jmen sloupců
+     * Function for validation of uniqueness of column names
      * @return {boolean}
      */
     Nette.validators.UniqueNamesValidator=function(elem, arg, value){
@@ -504,11 +510,10 @@ var DataUpload=function(){
         var name=$(this).val();
         namesArr[name]=name;
       });
-      //console.log(namesArr);
       return !namesArr.hasOwnProperty(value);
     };
 
-    //submit akce
+    //submit action
     form.submit(function(e){
       e.preventDefault();
       e.stopPropagation();
@@ -519,7 +524,7 @@ var DataUpload=function(){
   };
 
   /**
-   * Funkce pro inicializaci file uploaderu
+   * Function for initialization of file uploader
    */
   var initFileUploader=function(){
     fileUploader=new FileUploader({
@@ -540,7 +545,7 @@ var DataUpload=function(){
 
 
 $(document).ready(function(){
-  //inicializace celé aplikace
+  //initialization of the full application
   var dataUpload=new DataUpload();
   var uploadFormBlock=$('#uploadFormBlock');
   var uploadConfigBlock=$('#uploadConfigBlock');
@@ -585,7 +590,7 @@ $(document).ready(function(){
   dataUpload.uploadFinishUrl=uploadFinishUrl;
   dataUpload.init();
 
-  //inicializace nápovědy pro jednotlivé typy DB
+  //initialize the help for individual types of databases
   var dbTypeSelect=$('#frm-uploadForm-dbType');
   dbTypeSelect.change(function(){
     $('#frm-uploadForm-dbType-hint').text(getDatabaseHint(dbTypeSelect.val()));
@@ -597,7 +602,7 @@ $(document).ready(function(){
 
 
 /**
- * Funkce pro vytvoření SEO URL ze zadaného řetězce
+ * Function for generating of SEO URL from the given string
  * @param str
  * @returns string
  */
@@ -610,7 +615,7 @@ function seoUrl(str) {
 }
 
 /**
- * Funkce strtr odpovida teto funkci z PHP
+ * Alternative for the function STRTR from PHP
  */
 function strtr(s, from, to) {
   var out = "";
@@ -629,10 +634,10 @@ function strtr(s, from, to) {
 }
 
 /**
- * Funkce pro rozbalení části ZIP archívu
+ * Function for decompression of a part of ZIP archive file
  * @param file - soubor z input[type='file']
  * @param contentSize : int
- * @param resultFunction - funkce, která se má spustit po dokončení
+ * @param resultFunction - function to run after decompression will be completed
  */
 function getPartOfZipFile(file, contentSize, resultFunction){
   var fileReader=new FileReader();
@@ -654,6 +659,11 @@ function getPartOfZipFile(file, contentSize, resultFunction){
   }
 }
 
+/**
+ * Function returning hints (help texts) for individual types of databases
+ * @param dbType : string
+ * @returns string
+ */
 function getDatabaseHint(dbType){
   switch (dbType){
     case 'mysql':return 'MySQL database, suitable for usage with LISp-Miner or R backend';
