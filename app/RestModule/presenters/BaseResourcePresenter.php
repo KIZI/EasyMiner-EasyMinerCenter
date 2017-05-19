@@ -31,7 +31,7 @@ use Nette\Utils\Strings;
  *     version="%VERSION%",
  *     description="API for access to EasyMinerCenter functionalities - authentication of users, management of data sources. All resources are secured with the API key. Please append ?apiKey={yourKey} to all your requests. Alternatively, you can send the header 'Authorization: ApiKey {yourKey}'",
  *     @SWG\Contact(name="Stanislav Vojíř",email="stanislav.vojir@vse.cz"),
- *     @SWG\License(name="BSD3",url="http://opensource.org/licenses/BSD-3-Clause")
+ *     @SWG\License(name="Apache License, Version 2.0",url="http://www.apache.org/licenses/LICENSE-2.0")
  *   )
  * )
  *
