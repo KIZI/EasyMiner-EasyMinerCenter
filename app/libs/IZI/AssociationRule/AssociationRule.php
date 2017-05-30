@@ -7,6 +7,11 @@ use IZI\Exception\InvalidRuleException;
 use IZI\Parser\BBAParser;
 use IZI\Parser\DBAParser;
 
+/**
+ * Class AssociationRule
+ * @package IZI\AssociationRule
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class AssociationRule
 {
     private $ARNode;

@@ -8,6 +8,11 @@ use IZI\Parser\BBAParser;
 use IZI\Parser\DBAParser;
 use IZI\Parser\ConnectiveParser;
 
+/**
+ * Class AssociationRulesParser
+ * @package IZI\Parser
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class AssociationRulesParser
 {
     private $ER;

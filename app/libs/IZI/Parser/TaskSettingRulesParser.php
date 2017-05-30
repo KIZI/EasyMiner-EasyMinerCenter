@@ -8,6 +8,11 @@ use IZI\Parser\BBAParser;
 use IZI\Parser\ConnectiveParser;
 use IZI\Parser\DBAParser;
 
+/**
+ * Class TaskSettingRulesParser
+ * @package IZI\Parser
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class TaskSettingRulesParser
 {
     private $ER;

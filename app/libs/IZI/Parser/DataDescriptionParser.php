@@ -5,6 +5,11 @@ namespace IZI\Parser;
 use IZI\DataDescription\Attribute;
 use IZI\DataDescription\Field;
 
+/**
+ * Class DataDescriptionParser
+ * @package IZI\Parser
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class DataDescriptionParser
 {
     private $DD;

@@ -2,6 +2,11 @@
 
 namespace IZI\FileLoader;
 
+/**
+ * Class XMLStringLoader
+ * @package IZI\FileLoader
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class XMLStringLoader
 {
     protected $version = '1.0';

@@ -5,6 +5,11 @@ namespace IZI\Serializer;
 use IZI\Algorithm\BasicETreeSettings;
 use IZI\FileLoader\XMLLoader;
 
+/**
+ * Class ETreeSerializer
+ * @package IZI\Serializer
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class ETreeSerializer
 {
     protected $DD;
