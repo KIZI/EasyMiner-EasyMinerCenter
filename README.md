@@ -20,7 +20,7 @@ For usage of the EasyMiner Project, it is necessary to install at least one data
 ##License and disclaimer
 :grey_exclamation: EasyMiner is an experimental academic project. The public demo interface is provided only for demonstration purposes.
 
-Copyright (c) 2014-2016, Department of Information and Knowledge Engineering, University of Economics, Prague
+Copyright (c) 2014-2017, Department of Information and Knowledge Engineering, University of Economics, Prague
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use files in this repository except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
