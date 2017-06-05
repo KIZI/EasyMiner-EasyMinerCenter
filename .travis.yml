@@ -1,0 +1,22 @@
+language: generic
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - cd submodules/EasyMiner-WebUITests
+
+install:
+  - ./start-easyminer-dev.sh 
+
+script:
+  - ./run-tests.sh
+
+after_script:
+  - cd ../..
+  - openssl aes-256-cbc -K $encrypted_321c4c28b3f1_key -iv $encrypted_321c4c28b3f1_iv -in uitests/testresults_deploy_key.enc -out  /tmp/testresults_deploy_key -d
+  - eval "$(ssh-agent -s)"
+  - chmod 600 /tmp/testresults_deploy_key
+  - ssh-add /tmp/testresults_deploy_key
+  - ./uitests/export-results-to-gh-pages.sh
