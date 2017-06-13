@@ -271,10 +271,10 @@ class RuleSetsPresenter extends BasePresenter{
 
   #endregion actions for manipulation of relations between Rules and RuleSets
 
-    #region akce pro porovnávání pravidel
+    #region actions for rule comparing
 
     /**
-     * Akce vracející jeden konkrétní ruleset se jmény pravidel a vztahy z datasource daného mineru
+     * Action returning Rule set with rule names and relations from Datasource of Miner
      * @param Int $id RuleSet id
      * @param Int $miner Miner id
      */
@@ -303,15 +303,15 @@ class RuleSetsPresenter extends BasePresenter{
     }
 
     /**
-     * Akce vracející nejpodobnější pravidlo z rulesetu s pravidlem obdrženým
+     * Method for finding Rule from Rule set with the best similarity to compared Rule
      * @param Int $id RuleSet id
      * @param Int $rule Rule id
      */
     public function actionCompareRuleWithRuleset($id, $rule){
-        //najití RuleSetu a kontroly
+        //finding Rule set and checking
         $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
         $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-        //připravení výstupu
+        //prepearing output
         $result=[];
         $compareResults=[];
         try{
@@ -349,7 +349,7 @@ class RuleSetsPresenter extends BasePresenter{
                 }
             }
 
-            foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRule){ //TO-DO save in cache/session etc.
+            foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRule){
                 if(isset($ruleCompareResults[$ruleSetRule->ruleId])){ // has been already compared and is impossible to have higher rate due to DB ordering
                     continue;
                 }
@@ -380,10 +380,10 @@ class RuleSetsPresenter extends BasePresenter{
     }
 
     /**
-     * Porovnání dvou pravidel
-     * @param Array $ruleParts části pravidla k porovnání
-     * @param Array $ruleSetRule pravidlo Rulesetu
-     * @return Array míra podobnosti, id a vztah, ve kterém je pravidlo uloženo v KB
+     * Method for comparing two rules
+     * @param Array $ruleParts parts of Rule for comparing
+     * @param Array $ruleSetRule Rule from Rule set
+     * @return Array [ID, relation, comparing rate]
      */
     private function compareRules($ruleParts, $ruleSetRule){
         $antecedentAttributesCount = $consequentAttributesCount = 0;
@@ -437,8 +437,9 @@ class RuleSetsPresenter extends BasePresenter{
     }
 
     /**
-     * @param Cedent $cedent cedent na dekomponování
-     * @return Array atribut => hodnota
+     * Method for decomposing Cedent (mostly used recursively!)
+     * @param Cedent $cedent for decomposing
+     * @return Array Attribute => Value
      */
     private function decomposeCedent($cedent){
         $ruleAttributes = [];
@@ -460,7 +461,7 @@ class RuleSetsPresenter extends BasePresenter{
         return $ruleAttributes;
     }
 
-    #endregion akce pro porovnávání pravidel
+    #endregion actions for rule comparing
 
   #region injections
   /**
