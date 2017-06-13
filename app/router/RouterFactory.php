@@ -4,10 +4,11 @@ namespace EasyMinerCenter;
 
 use Nette, Nette\Application\Routers\RouteList, Nette\Application\Routers\Route;
 
-
 /**
- * Router factory
+ * Class RouterFactory
+ * @package EasyMinerCenter
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RouterFactory {
   const EASYMINER_MODULE_BASE_URL = 'em/';
@@ -15,7 +16,7 @@ class RouterFactory {
   const INSTALL_MODULE_BASE_URL = 'install/';
 
   /**
-   * Funkce pro vygenerování kompletního routeru pro aplikaci
+   * Static method returning list of routers for the full application
    * @param bool $secured
    * @param Nette\Http\Request $httpRequest
    * @return Nette\Application\IRouter

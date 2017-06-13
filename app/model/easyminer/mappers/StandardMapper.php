@@ -3,16 +3,19 @@
 namespace EasyMinerCenter\Model\EasyMiner\Mappers;
 use Nette\Utils\Strings;
 
-
 /**
-   * Standard mapper for conventions:
-   * - underdash separated names of tables and cols
-   * - PK and FK is in [table]_id format
-   * - entity repository is named [Entity]Repository
-   * - M:N relations are stored in [table1]_[table2] tables
-   *
-   * @author Jan Nedbal, Stanislav Vojíř
-   */
+ * Class StandardMapper
+ * @package EasyMinerCenter\Model\EasyMiner\Mappers
+ * @author Jan Nedbal
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
+ * Standard mapper for conventions:
+ * - underdash separated names of tables and cols
+ * - PK and FK is in [table]_id format
+ * - entity repository is named [Entity]Repository
+ * - M:N relations are stored in [table1]_[table2] tables
+ */
 class StandardMapper extends \LeanMapper\DefaultMapper {
 
   /** @var string */

@@ -4,13 +4,15 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMiner\BRE\Integration as BREIntegration;
 
 /**
- * Class BrePresenter - presenter obsahující funkcionalitu pro integraci submodulu EasyMiner-BRE
- * @author Stanislav Vojíř
+ * Class BrePresenter - presenter with the functionality for integration of the submodule EasyMiner-BRE
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class BrePresenter extends BasePresenter{
+
   /**
-   * Akce pro zobrazení EasyMiner-BRE
+   * Action for display of EasyMiner-BRE
    */
   public function renderDefault(){
     $this->template->javascriptFiles=BREIntegration::$javascriptFiles;

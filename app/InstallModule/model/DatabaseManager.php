@@ -5,13 +5,15 @@ namespace EasyMinerCenter\InstallModule\Model;
 /**
  * Class DatabaseModel - model pro vytvoření struktury databáze
  * @package EasyMinerCenter\InstallModule\Model
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DatabaseManager {
   /** @var  \DibiConnection $connection */
   private $connection;
 
   /**
-   * Konstruktur, který se zároveň připojuje k databázi
+   * DatabaseManager constructor, also connects us to the database
    * @param array $config
    * @throws \DibiException
    */
@@ -20,7 +22,7 @@ class DatabaseManager {
   }
 
   /**
-   * Funkce pro vygenerování náhodného hesla
+   * Method for preparation of a random password
    * @param int $length=6
    * @return string
    */
@@ -35,7 +37,7 @@ class DatabaseManager {
   }
 
   /**
-   * Funkce pro kontrolu, jestli jsme připojeni k databázi
+   * Method for check, if we are connected to database
    * @return bool
    */
   public function isConnected(){
@@ -43,7 +45,7 @@ class DatabaseManager {
   }
 
   /**
-   * Funkce pro vytvoření struktury databáze z mysql.sql
+   * Method for creating of the database structure from mysql.sql
    * @throws \DibiException
    * @throws \RuntimeException
    */
@@ -57,11 +59,9 @@ class DatabaseManager {
    * @param string $databaseName
    */
   public function createDatabase($username, $password, $databaseName){
-    //exit(var_dump('GRANT ALL PRIVILEGES ON '.$databaseName.'.* TO "'.$username.'"@"%" IDENTIFIED BY "'.$password.'" WITH GRANT OPTION'));
     $this->connection->nativeQuery('GRANT ALL PRIVILEGES ON *.* TO "'.$username.'"@"%" IDENTIFIED BY "'.$password.'" WITH GRANT OPTION');
     $this->connection->nativeQuery('CREATE DATABASE '.$databaseName);
     $this->connection->nativeQuery("GRANT ALL PRIVILEGES ON ".$databaseName.".* TO '".$username."'@'%' IDENTIFIED BY '".$password."' WITH GRANT OPTION");
-    //TODO use $this->connection->driver->escape()
   }
 
 }

@@ -4,6 +4,11 @@ namespace IZI\AssociationRule;
 
 use IZI\Exception\InvalidConnectiveException;
 
+/**
+ * Class Connective
+ * @package IZI\AssociationRule
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class Connective
 {
     private $connective;

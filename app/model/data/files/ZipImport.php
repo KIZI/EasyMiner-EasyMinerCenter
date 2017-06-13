@@ -3,13 +3,15 @@
 namespace EasyMinerCenter\Model\Data\Files;
 
 /**
- * Class ZipImport - třída pro práci se ZIP archívy
+ * Class ZipImport - class for work with ZIP archives
  * @package EasyMinerCenter\Model\Data\Files
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ZipImport {
 
   /**
-   * Funkce vracející seznam souborů v archívu
+   * Static method returning list of files in ZIP archive
    * @param $zipFileName
    * @return array
    */
@@ -25,7 +27,7 @@ class ZipImport {
   }
 
   /**
-   * Funkce pro dekódování vybraného souboru ze ZIP archívu
+   * Static method for unzipping a file from ZIP archive - identified by file index
    * @param string $zipFileName
    * @param int $fileIndex
    * @param string $finalFileName
@@ -40,7 +42,7 @@ class ZipImport {
   }
 
   /**
-   * Funkce pro dekódování vybraného souboru ze ZIP archívu
+   * Static method for unzipping of a file from ZIP archive - identified by filename
    * @param string $zipFileName
    * @param string $compressedFileName
    * @param string $finalFileName
@@ -53,7 +55,6 @@ class ZipImport {
       }
     }
   }
-
 
   /**
    * @param string $zipFileName

@@ -13,9 +13,10 @@ use Nette\Utils\Json;
 use Tracy\Debugger;
 
 /**
- * Class EasyMinerScorer - driver pro práci se scorerem vytvořeným Jardou Kuchařem
- * @package EasyMinerCenter\Model\Scoring\ModelTester
+ * Class EasyMinerScorer - driver for work with the scorer service EasyMinerScorer created by Jaroslav Kuchař
+ * @package EasyMinerCenter\Model\Scoring\EasyMinerScorer
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class EasyMinerScorer implements IScorerDriver{
   /** @var  string $serverUrl */
@@ -24,13 +25,13 @@ class EasyMinerScorer implements IScorerDriver{
   private $databaseFactory;
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
-  /** @var array|null $params - pole připravené pro pracovní parametry tohoto driveru */
+  /** @var array|null $params - array prepared for the work params of this driver*/
   public $params=[];
 
   const ROWS_PER_TEST=1000;
 
   /**
-   * @param string $serverUrl - adresa koncového uzlu API, které je možné použít
+   * @param string $serverUrl - API endpoint URL
    * @param DatabaseFactory $databaseFactory
    * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array|null $params = null
@@ -43,13 +44,14 @@ class EasyMinerScorer implements IScorerDriver{
   }
 
   /**
+   * Method for evaluation of a given Task with association rules, testing using the given Datasource
    * @param Task $task
    * @param Datasource $testingDatasource
    * @return ScoringResult
    * @throws \Exception
    */
   public function evaluateTask(Task $task, Datasource $testingDatasource) {
-    #region sestavení PMML a následné vytvoření scoreru
+    #region prepare the Task PMML and create a instance of scorer using the scorer web service
     $pmml=$this->prepareTaskPmml($task);
     $url=$this->serverUrl.'/scorer';
     try{
@@ -64,9 +66,9 @@ class EasyMinerScorer implements IScorerDriver{
     }catch (\Exception $e){
       throw new \Exception('Scorer creation failed!',500,$e);
     }
-    #endregion sestavení PMML a následné vytvoření scoreru
+    #region prepare the Task PMML and create a instance of scorer using the scorer web service
 
-    #region postupné posílání řádků z testovací DB tabulky
+    #region continuous sending of rows from the testing data table (Datasource)
     $database=$this->databaseFactory->getDatabaseInstance($testingDatasource->getDbConnection(),$task->miner->user);
     $dbDatasource=$database->getDbDatasource($testingDatasource->dbDatasourceId>0?$testingDatasource->dbDatasourceId:$testingDatasource->dbTable);
 
@@ -75,9 +77,9 @@ class EasyMinerScorer implements IScorerDriver{
     /** @var ScoringResult[] $partialResults */
     $partialResults=[];
     $url.='/'.$scorerId;
-    //připravení JSONu a jeho odeslání
+    //prepare JSON and send it
     $preloadedDbFields=null;
-    //export jednotlivých řádků z DB a jejich otestování
+    //export individual data rows from the testing Datasource and test them...
     while($testedRowsCount<$dbRowsCount){
       $dbValuesRows=$database->getDbValuesRows($dbDatasource,$testedRowsCount,self::ROWS_PER_TEST,$preloadedDbFields);
       $dbValuesRowsData=$dbValuesRows->getRowsAsArray();
@@ -93,25 +95,25 @@ class EasyMinerScorer implements IScorerDriver{
         throw new \Exception('Invalid scorer response!');
       }
 
-      //vytvoření objektu s výsledky
+      //create new object with results
       $scoringResult=new EasyMinerScoringResult($response);
       $partialResult=$scoringResult->getScoringConfusionMatrix()->getScoringResult(true);
       $partialResults[]=$partialResult;
-      //TODO tady bude v budoucnu možné doplnit zpracování celé kontingenční tabulky
+      //TODO there could be the processing of the complete confision matrix
 
-      //připočtení řádků a uvolnění paměti
+      //add the count of tested rows and free the memory
       unset($scoringResult);
       $testedRowsCount+=self::ROWS_PER_TEST;
     }
-    #endregion postupné posílání řádků z testovací DB tabulky
-    #region sestavení celkového výsledku a jeho vrácení
+    #region continuous sending of rows from the testing data table (Datasource)
+    #region merging of the complete results
     return ScoringResult::merge($partialResults);
-    #endregion sestavení celkového výsledku a jeho vrácení
+    #endregion merging of the complete results
   }
 
 
   /**
-   * Funkce pro vytvoření PMML z konkrétní úlohy
+   * Method for preparation of PMML serialization of the given Task
    * @param Task $task
    * @return string
    */
@@ -126,6 +128,7 @@ class EasyMinerScorer implements IScorerDriver{
 
 
   /**
+   * Method for evaluation of a given RuleSet with association rules, testing using the given Datasource
    * @param RuleSet $ruleSet
    * @param Datasource $testingDatasource
    * @return ScoringResult
@@ -136,6 +139,7 @@ class EasyMinerScorer implements IScorerDriver{
   }
 
   /**
+   * Static method for CURL request
    * @param string $url
    * @param string $postData = ''
    * @param string $apiKey = ''

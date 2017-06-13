@@ -1,7 +1,6 @@
 <?php
 
 namespace EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService;
-use EasyMinerCenter\app\model\preprocessing\databases\preprocessingservice\PreprocessingPmmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\Preprocessing\Databases\IPreprocessing;
@@ -20,10 +19,10 @@ use Tracy\Debugger;
 use Tracy\ILogger;
 
 /**
- * Class PreprocessingServiceDatabase - třída zajišťující přístup k databázím dostupným prostřednictvím služby EasyMiner-Preprocessing
- *
- * @package EasyMinerCenter\Model\Data\Databases\DataService
+ * Class PreprocessingServiceDatabase - driver for access to databases using EasyMiner-Preprocessing
+ * @package EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingService
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 abstract class PreprocessingServiceDatabase implements IPreprocessing {
   /** @var  string $apiKey */
@@ -32,8 +31,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   private $ppConnection;
 
   /**
-   * Funkce vracející seznam datových zdrojů v DB
-   *
+   * Method returning list of available datasets
    * @return PpDataset[]
    */
   public function getPpDatasets() {
@@ -43,7 +41,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     $result=[];
     if (!empty($responseData) && $responseCode==200){
       foreach($responseData as $item){
-        if (!$item['active']){continue;}//jde o pracovní příznak preprocessing služby, že daný dataset ještě není připraven
+        if (!$item['active']){continue;}//it is working mark of preprocessing service, that the given dataset is not prepared yet
         $result[]=new PpDataset($item['id'],$item['name'],$item['dataSource'],$item['type'],$item['size']);
       }
     }
@@ -51,8 +49,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce vracející informace o konkrétním datovém zdroji
-   *
+   * Method returning info about one selected dataset
    * @param int|string $ppDatasetId
    * @return PpDataset
    * @throws PreprocessingException
@@ -73,8 +70,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce vracející seznam sloupců v datovém zdroji
-   *
+   * Method returning list of attributes (data columns) in selected dataset
    * @param PpDataset $ppDataset
    * @return PpAttribute[]
    * @throws PreprocessingException
@@ -100,8 +96,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce vracející jeden atribut
-   *
+   * Method returning details of one attribute
    * @param PpDataset $ppDataset
    * @param string $ppAttributeId
    * @return PpAttribute
@@ -124,21 +119,19 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
 
 
   /**
-   * Konstruktor zajišťující připojení k preprocessing DB/službě
-   *
+   * PreprocessingServiceDatabase constructor, providing connection to remote database
    * @param PpConnection $ppConnection
    * @param string $apiKey
    */
   public function __construct(PpConnection $ppConnection, $apiKey) {
     $this->ppConnection=$ppConnection;
-    $this->ppConnection->dbServer=rtrim($this->ppConnection->dbServer,'/');//nechceme lomítko na konci
+    $this->ppConnection->dbServer=rtrim($this->ppConnection->dbServer,'/');//we do not want the slash on end
     $this->apiKey=$apiKey;
   }
 
-  #region funkce pro práci s RESTFUL API
+  #region methods for work with RESTFUL API
   /**
-   * Funkce vracející URL pro odeslání požadavku na datovou službu
-   *
+   * Method returning URL for sending a request to EasyMiner-Preprocessing service
    * @param string $relativeUrl
    * @return string
    */
@@ -151,13 +144,11 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce pro práci s RESTFUL API
-   *
    * @param string $url
    * @param string $postData = ''
    * @param string|null $method = 'GET'
    * @param array $headersArr =[]
-   * @param int|null &$responseCode - proměnná pro vrácení stavového kódu odpovědi
+   * @param int|null &$responseCode - variable returning the response code
    * @return string - response data
    * @throws PreprocessingCommunicationException
    */
@@ -205,19 +196,18 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     curl_close($ch);
     return $responseData;
   }
-  #endregion funkce pro práci s RESTFUL API
+  #endregion methods for work with RESTFUL API
 
   /**
-   * Funkce pro inicializaci preprocessind datasetu
-   *
+   * Method for creating (initializating) a dataset
    * @param PpDataset|null $ppDataset = null
    * @param PpTask|null $ppTask = null
-   * @return PpDataset|PpTask - při dokončení vytvoření úlohy vrací PpDataset, jinak PpTask
+   * @return PpDataset|PpTask - when the operation is finished, it returns PpDataset, others it returns PpTask
    * @throws PreprocessingCommunicationException
    */
   public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null) {
     if ($ppTask){
-      //jde o již běžící úlohu
+      //the task is running
       $response=$this->curlRequestResponse(
         $ppTask->getNextLocation(),
         null,
@@ -226,7 +216,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
         $responseCode
       );
     }elseif($ppDataset){
-      //jde o novou inicializaci datasetu
+      //it is initialization of a new dataset
       $response=$this->curlRequestResponse(
         $this->getRequestUrl('/dataset'),
         http_build_query(['dataSource'=>$ppDataset->dataSource,'name'=>$ppDataset->name]),
@@ -247,14 +237,14 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
       /** @noinspection PhpMissingBreakStatementInspection */
       case 200:
         if (!empty($response['id'])){
-          //úloha byla úspěšně dokončena
+          //task finished successfully
           return new PpDataset($response['id'],$response['name'],$response['dataSource'],$response['type'],$response['size']);
         }
       case 201:
-        //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
+        //it is still running task - return PpTask with info gained from preprocessing service
         return new PpTask($response);
       case 202:
-        //jde o vytvoření nové dlouhotrvající úlohy
+        //it is new long running task
         return new PpTask($response);
       case 400:
       case 500:
@@ -265,8 +255,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce pro odstranění preprocessing datasetu
-   *
+   * Method for deleting a dataset
    * @param PpDataset $ppDataset
    * @throws DatasetNotFoundException
    * @throws PreprocessingCommunicationException
@@ -279,8 +268,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce vracející přehled podporovaných typů preprocessingu
-   *
+   * Method returning list of available preprocessing types
    * @return string[]
    */
   public static function getSupportedPreprocessingTypes() {
@@ -288,8 +276,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce pro inicializaci preprocessingu atributů
-   *
+   * Method for initialization of preprocessing of an attribute
    * @param Attribute[] $attributes
    * @param PpTask $ppTask = null
    * @return PpAttribute[]|PpTask
@@ -297,7 +284,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
    */
   public function createAttributes(array $attributes=null, PpTask $ppTask=null) {
     if ($ppTask){
-      //jde o již běžící úlohu
+      //it is running task
       $response=$this->curlRequestResponse(
         $ppTask->getNextLocation(),
         null,
@@ -306,11 +293,11 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
         $responseCode
       );
     }elseif(!empty($attributes)){
-      //jde o novou inicializaci datasetu - nejprve sestavíme PMML a zjistíme referenci na metasource
+      //it is new initialization of dataset - for the first we have to prepare config PMML and get reference to metasource
       $metasource=$attributes[0]->metasource;
       $preprocessingPmml=PreprocessingPmmlSerializer::preparePreprocessingPmml($attributes);
 
-      //odeslání požadavku na preprocessing
+      //send preprocessing request
       $response=$this->curlRequestResponse(
         $this->getRequestUrl('/dataset/'.$metasource->ppDatasetId.'/attribute'),
         $preprocessingPmml,
@@ -331,7 +318,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
       /** @noinspection PhpMissingBreakStatementInspection */
       case 200:
         if (empty($response['statusLocation']) && empty($response['resultLocation'])){
-          //úloha byla úspěšně dokončena
+          //task finished successfully
           /** @var PpAttribute[] $result */
           $result=[];
           if (!empty($response) && is_array($response)){
@@ -342,10 +329,10 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
           return $result;
         }
       case 201:
-        //jde o pokračující úlohu - vracíme PpTask s informacemi získanými z preprocessing služby
+        //it is still running task - return PpTask with info gained from preprocessing service
         return new PpTask($response);
       case 202:
-        //jde o vytvoření nové dlouhotrvající úlohy
+        //it is new long running task
         return new PpTask($response);
       case 400:
       case 500:
@@ -357,8 +344,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   }
 
   /**
-   * Funkce vracející hodnoty zvoleného atributu
-   *
+   * Method returning values of one selected attribute
    * @param PpDataset $ppDataset
    * @param int $ppAttributeId
    * @param int $offset

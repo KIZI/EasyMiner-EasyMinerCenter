@@ -12,9 +12,10 @@ use Nette\InvalidArgumentException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
- * Class RuleClipboardPresenter - presenter pro práci s Rule clipboard v rámci EasyMineru
- * @author Stanislav Vojíř
+ * Class RuleClipboardPresenter - presenter for work with rule clipboard
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RuleClipboardPresenter  extends BasePresenter{
   use MinersFacadeTrait;
@@ -28,11 +29,11 @@ class RuleClipboardPresenter  extends BasePresenter{
   private $ruleSetsFacade;
 
   /**
-   * Funkce vracející přehled úloh, které mají pravidla v RuleClipboard
+   * Action returning list of tasks (from one selected miner) with rules in rule clipboard
    * @param int $miner
    */
   public function actionGetTasks($miner){
-    //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
+    //find miner and check user privileges
     $miner=$this->findMinerWithCheckAccess($miner);
 
     $tasks=$miner->tasks;
@@ -57,7 +58,7 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce vracející pravidla pro vykreslení v easymineru
+   * Action returning rules for Easyminer-MiningUI
    * @param int $id
    * @param int $miner
    * @param int $offset=0
@@ -67,7 +68,7 @@ class RuleClipboardPresenter  extends BasePresenter{
    * @throws ForbiddenRequestException
    */
   public function actionGetRules($id=null,$miner,$offset=0,$limit=25,$order=''){
-    //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
+    //fing miner and check user privileges
     $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
@@ -93,10 +94,10 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro přidání pravidla do rule clipboard
+   * Action for adding a rule into rule clipboard
    * @param int $id
    * @param int $miner
-   * @param string $rules - IDčka oddělená čárkami, případně jedno ID
+   * @param string $rules - IDs of rules, separated with commas (or a single ID)
    * @throws ForbiddenRequestException
    */
   public function actionAddRule($id,$miner,$rules){
@@ -111,10 +112,10 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro přidání celých výsledků úlohy do rule clipboard
+   * Action for adding the full list of task results (all rules) to rule clipboard
    * @param int $id
    * @param int $miner
-   * @param string $returnRules='' - IDčka oddělená čárkami, případně jedno ID
+   * @param string $returnRules='' - IDs of rules, separated with commas (or a single ID)
    * @throws ForbiddenRequestException
    */
   public function actionAddAllRules($id=null,$miner,$returnRules=''){
@@ -122,7 +123,7 @@ class RuleClipboardPresenter  extends BasePresenter{
     $this->checkMinerAccess($task->miner);
 
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
-    //označení všech pravidel patřících do dané úlohy
+    //add to rule clipboard all rules from the given task
     $this->rulesFacade->changeAllTaskRulesClipboardState($task,true);
     $this->tasksFacade->checkTaskInRuleClipoard($task);
 
@@ -131,7 +132,7 @@ class RuleClipboardPresenter  extends BasePresenter{
       foreach ($ruleIdsArr as $ruleId){
         try{
           $rule=$this->rulesFacade->findRule($ruleId);
-          //TODO optimalizovat kontroly...
+          //TODO optimize the checks
           $ruleTask=$rule->task;
           if ($ruleTask->taskId!=$task->taskId){
             throw new InvalidArgumentException;
@@ -148,9 +149,10 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
   /**
-   * @param int $id
+   * Action for removing of all rules from the rule clipboard (from one task)
+   * @param int $id - task ID
    * @param int $miner
-   * @param string $returnRules='' - IDčka oddělená čárkami, případně jedno ID
+   * @param string $returnRules='' - IDs of rules, separated with commas (or a single ID)
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
@@ -166,9 +168,9 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro odebrání pravidla z rule clipboard
+   * Action for removing of some rules from rule clipboard
    * @param int $miner
-   * @param string $rules - IDčka oddělená čárkami, případně jedno ID
+   * @param string $rules - IDs of rules, separated with commas (or a single ID)
    */
   public function actionRemoveRule($id,$miner,$rules){
     $resultRules=$this->changeRulesClipboardState($id,$miner,$rules,false);
@@ -200,7 +202,7 @@ class RuleClipboardPresenter  extends BasePresenter{
       foreach ($ruleIdsArr as $ruleId){
         try{
           $rule=$this->rulesFacade->findRule($ruleId);
-          //TODO optimalizovat kontroly...
+          //TODO optimize the checks
           $ruleTask=$rule->task;
           if ($ruleTask->taskId!=$task->taskId){
             throw new InvalidArgumentException;
@@ -222,25 +224,25 @@ class RuleClipboardPresenter  extends BasePresenter{
 
 
   /**
-   * Akce pro přidání celého obsahu rule clipboard do zvoleného rulesetu
+   * Action for adding of all rules from a task to a rule set
    * @param int $id
    * @param int $miner
    * @param int $ruleset
    * @param string $relation
-   * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
+   * @param string $returnRules ='' - IDs of rules, separated with commas (or a single ID)
    * @throws ForbiddenRequestException
    * @throws BadRequestException
    */
   public function actionAddRulesToRuleSet($id=null,$miner,$ruleset,$relation=RuleSetRuleRelation::RELATION_POSITIVE,$returnRules=''){
-    //načtení dané úlohy a zkontrolování přístupu k mineru
+    //load task and check user privileges
     $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
 
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
-    //najití RuleSetu a kontroly
+    //find RuleSetu and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleset);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    //přidání pravidel
+    //add rules
     $this->ruleSetsFacade->addAllRuleClipboardRulesToRuleSet($task,$ruleSet,$relation);
 
     $result=array();
@@ -248,7 +250,7 @@ class RuleClipboardPresenter  extends BasePresenter{
       foreach ($ruleIdsArr as $ruleId){
         try{
           $rule=$this->rulesFacade->findRule($ruleId);
-          //TODO optimalizovat kontroly...
+          //TODO optimize checks...
           $ruleTask=$rule->task;
           if ($ruleTask->taskId!=$task->taskId){
             throw new InvalidArgumentException;
@@ -265,24 +267,24 @@ class RuleClipboardPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro odebrání celého obsahu rule clipboard z konkrétního rulesetu
+   * Action for removing rules from a rule set
    * @param int $id
    * @param int $miner
    * @param int $ruleset
-   * @param string $returnRules ='' - IDčka oddělená čárkami, případně jedno ID
+   * @param string $returnRules ='' - IDs of rules, separated with commas (or a single ID)
    * @throws ForbiddenRequestException
    * @throws BadRequestException
    */
   public function actionRemoveRulesFromRuleSet($id=null,$miner,$ruleset,$returnRules=''){
-    //načtení dané úlohy a zkontrolování přístupu k mineru
+    //load the task and check user privileges
     $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
 
     $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
-    //najití RuleSetu a kontroly
+    //fing rule set and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleset);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    //přidání pravidel
+    //remove rules
     $this->ruleSetsFacade->removeAllRuleClipboardRulesFromRuleSet($task,$ruleSet);
 
     $result=array();
@@ -290,7 +292,7 @@ class RuleClipboardPresenter  extends BasePresenter{
       foreach ($ruleIdsArr as $ruleId){
         try{
           $rule=$this->rulesFacade->findRule($ruleId);
-          //TODO optimalizovat kontroly...
+          //TODO optimize checks
           $ruleTask=$rule->task;
           if ($ruleTask->taskId!=$task->taskId){
             throw new InvalidArgumentException;

@@ -8,9 +8,11 @@ use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 
 /**
- * Class DatabaseFactory - Factory třída pro vytváření připojení k DB
- *
-*@package EasyMinerCenter\Model\Data\Databases
+ * Class DatabaseFactory
+ * @package EasyMinerCenter\Model\Data\Databases
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
  */
 class DatabaseFactory {
   const DB_AVAILABILITY_CHECK_INTERVAL=600;//interval mezi kontrolami přístupu k DB (v sekundách)

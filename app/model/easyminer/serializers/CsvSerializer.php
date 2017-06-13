@@ -6,14 +6,15 @@ use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 
 /**
- * Class CsvSerializer - třída pro serializaci dat do CSV
+ * Class CsvSerializer - class for serialization of data rows to CSV
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class CsvSerializer{
 
   /**
-   * Funkce pro in-memory sestavení CSV souboru z vybraných řádků v databázi
+   * Method for in-memory building of CSV file from selected rows from database
    * @param IDatabase $database
    * @param DbDatasource $dbDatasource
    * @param int $offset=0
@@ -36,7 +37,7 @@ class CsvSerializer{
     }
     $firstRequest=true;
     if (!($offset<$maxRows)){
-      //nechceme žádné řádky, ale pro validní výstup se zeptáme alespoň na jeden řádek kvůli info o názvech sloupcích
+      //we do not want any rows, but for valid output, we have to ask at least for one row because of the info about data columns
       $dbRows=$database->getDbValuesRows($dbDatasource,0,1);
       fputcsv($fd, $dbRows->getFieldNames(), $delimiter, $enclosure);
       $firstRequest=false;

@@ -7,15 +7,16 @@ use Nette\Utils\Json;
 
 /**
  * Trait ResponsesTrait
- * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @method IResponse getHttpResponse()
  * @method sendResponse(\Nette\Application\IResponse $response)
  */
 trait ResponsesTrait {
   /**
-   * Funkce pro odeslání odpovědi informující o nulovém obsahu
+   * Method for sending of no content response
    * @param string $text=''
    */
   protected function sendNoContentResponse($text=''){
@@ -25,9 +26,9 @@ trait ResponsesTrait {
   }
 
   /**
-   * Funkce pro odeslání odpovědi informující o nulovém obsahu
+   * Method for sending of plain text response (with configurable response code, default 200)
    * @param string $text=''
-   * @param int $code=200
+   * @param int $code=200 - response code
    */
   protected function sendTextResponse($text='',$code=IResponse::S200_OK){
     $response=new Response();
@@ -38,8 +39,9 @@ trait ResponsesTrait {
   }
 
   /**
-   * Funkce pro odeslání XML odpovědi
+   * Method for sending of XML response (with configurable response code, default 200)
    * @param \SimpleXMLElement|string $simpleXml
+   * @param int $code=200 - response code
    */
   protected function sendXmlResponse($simpleXml,$code=IResponse::S200_OK){
     $httpResponse=$this->getHttpResponse();
@@ -49,8 +51,9 @@ trait ResponsesTrait {
   }
 
   /**
-   * Funkce pro odeslání JSON odpovědi
+   * Method for sending of JSON response (with configurable response code, default 200)
    * @param array|object|string $data
+   * @param int $code=200 - response code
    */
   protected function sendJsonResponse($data,$code=IResponse::S200_OK){
     $httpResponse=$this->getHttpResponse();

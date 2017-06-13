@@ -8,14 +8,15 @@ use Nette\Utils\Finder;
 use Nette\Utils\Strings;
 
 /**
- * Class SwaggerPresenter - presenter pro zobrazení Swagger UI
+ * Class SwaggerPresenter - presenter for displaying of Swagger UI
  * @package EasyMinerCenter\RestModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class SwaggerPresenter extends Presenter{
 
   /**
-   * Akce pro vykreslení Swagger UI
+   * Action for rendering of Swagger UI
    */
   public function renderUi(){
     /** @noinspection PhpUndefinedFieldInspection */
@@ -23,7 +24,7 @@ class SwaggerPresenter extends Presenter{
   }
 
   /**
-   * Akce pro vypsání příkladů preprocessingu
+   * Action for rendering of examples of preprocessing
    */
   public function renderExamples(){
     $subfiles=['.'=>[]];
@@ -54,12 +55,12 @@ class SwaggerPresenter extends Presenter{
   }
 
   /**
-   * Akce pro vygenerování dokumentace
+   * Action returning JSON configuration for Swagger UI
    */
   public function actionJson() {
-    //připravení JSON specifikace
+    //prepare swagger JSON
     $swaggerJson=\Swagger\scan(__DIR__);
-    //nahrazení použitých konstant
+    //replace used constants
     $swaggerJson=$this->replaceJsonVariables($swaggerJson);
 
     $httpResponse = $this->presenter->getHttpResponse();
@@ -72,7 +73,7 @@ class SwaggerPresenter extends Presenter{
 
 
   /**
-   * Funkce pro doplnění základních parametrů do API
+   * Private method for filling in of basic params into config JSON
    * @param string $jsonString
    * @return string
    */
@@ -103,7 +104,7 @@ class SwaggerPresenter extends Presenter{
   }
 
   /**
-   * Funkce vracející informaci o verzi aplikace
+   * Private method returning info about the version of EasyMiner
    * @return string
    */
   private function getInstallVersion() {
@@ -112,11 +113,10 @@ class SwaggerPresenter extends Presenter{
   }
 
   /**
-   * Startup funkce, použijeme ji pro zakázání kanonizace odkazů (kvůli adresování RESTFUL API)
+   * Startup method, we use it to prevent canonicalization of request URLs (due to addressing of RESTful API)
    */
   public function startup(){
     parent::startup();
-    //Debugger::enable(Debugger::PRODUCTION);
     $this->autoCanonicalize = true;
   }
 }

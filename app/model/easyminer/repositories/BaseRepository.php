@@ -4,6 +4,12 @@ namespace EasyMinerCenter\Model\EasyMiner\Repositories;
 
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 
+/**
+ * Class BaseRepository - abstract class representing a generic repository
+ * @package EasyMinerCenter\Model\EasyMiner\Repositories
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 abstract class BaseRepository extends \LeanMapper\Repository {
   /**
    * @param int $id
@@ -11,6 +17,7 @@ abstract class BaseRepository extends \LeanMapper\Repository {
    * @throws \Exception
    */
   public function find($id) {
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $row = $this->connection->select('*')
       ->from($this->getTable())
       ->where($this->mapper->getPrimaryKey($this->getTable()) . '= %i', $id)
@@ -74,8 +81,6 @@ abstract class BaseRepository extends \LeanMapper\Repository {
       $query = $query->where($whereArr);
     }
     return $query->fetchSingle();
-    //exit(var_dump($item));
-    //return $item->pocet;
   }
 
 }

@@ -13,10 +13,10 @@ use Nette\Utils\JsonException;
 use Drahak\Restful\InvalidArgumentException;
 
 /**
- * TODO implement!
  * Class XmlMapper
- *
  * @package EasyMinerCenter\RestModule\Model\Mappers
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
@@ -30,12 +30,10 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
 
   /**
-   * Funkce pro nastavení výchozích elementů
-   *
+   * Method for setting of default root elements
    * @param string $rootElement
    * @param string $rootNamespace=""
    * @return XmlMapper
-   *
    * @throws InvalidArgumentException
    */
   public function setRootElement($rootElement, $rootNamespace="") {
@@ -54,10 +52,8 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
   /**
    * Set XML item element
-   *
    * @param string|null $itemElement
    * @return XmlMapper
-   *
    * @throws InvalidArgumentException
    */
   public function setItemElement($itemElement) {
@@ -70,7 +66,6 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
   /**
    * Get XML item element
-   *
    * @return null|string
    */
   public function getItemElement() {
@@ -79,11 +74,9 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
   /**
    * Parse traversable or array resource data to XML
-   *
    * @param array|Traversable $data
    * @param bool $prettyPrint
    * @return mixed|string
-   *
    * @throws InvalidArgumentException
    */
   public function stringify($data, $prettyPrint=true) {
@@ -109,10 +102,8 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
   /**
    * Parse XML to array
-   *
    * @param string $data
    * @return array
-   *
    * @throws  MappingException If XML data is not valid
    */
   public function parse($data) {
@@ -120,9 +111,9 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
   }
 
   /**
+   * Method for parsing of XML, returns encoded entities
    * @param string $data
    * @return array
-   *
    * @throws  MappingException If XML data is not valid
    */
   private function fromXml($data) {
@@ -145,7 +136,6 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
 
   /**
    * Normalize data structure to accepted form
-   *
    * @param  array|* $value
    * @return array
    */
@@ -164,6 +154,7 @@ class XmlMapper extends \Drahak\Restful\Mapping\XmlMapper implements IMapper {
   }
 
   /**
+   * Method for serialization of entities to XML
    * @param array|mixed $data
    * @param \DOMNode $xml
    * @param string|NULL $previousKey

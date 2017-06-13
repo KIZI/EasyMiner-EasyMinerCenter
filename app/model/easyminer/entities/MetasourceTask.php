@@ -9,6 +9,9 @@ use Nette\Utils\JsonException;
 /**
  * Class MetasourceTask
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $metasourceTaskId = null
  * @property Metasource $metasource m:hasOne
  * @property Attribute[] $attributes m:hasMany
@@ -17,8 +20,8 @@ use Nette\Utils\JsonException;
  * @property string $params = ''
  * @property-read PpTask $ppTask
  * 
- * @method addToAttributes($attribute)
- * @method removeFromAttributes($attribute)
+ * @method addToAttributes(Attribute $attribute)
+ * @method removeFromAttributes(Attribute $attribute)
  */
 class MetasourceTask extends Entity{
 

@@ -3,13 +3,14 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 /**
  * Class AuthPresenter
- *
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class AuthPresenter extends BaseResourcePresenter {
 
   /**
-   * Akce pro ověření přihlášeného uživatele
+   * Action for validation of user credentials (using API KEY)
    * @SWG\Get(
    *   tags={"Auth"},
    *   path="/auth",

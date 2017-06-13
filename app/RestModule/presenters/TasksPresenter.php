@@ -17,15 +17,17 @@ use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Application\BadRequestException;
 
 /**
- * Class TasksPresenter - presenter pro práci s jednotlivými úlohami
+ * Class TasksPresenter - presenter for work with rule mining tasks
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  */
 class TasksPresenter extends BaseResourcePresenter {
   use TasksFacadeTrait;
-  /** @const MINING_STATE_CHECK_INTERVAL - doba čekání mezi kontrolami stavu úlohy (v sekundách) */
+  /** @const MINING_STATE_CHECK_INTERVAL - length of sleep interval between checks of the task state (in seconds) */
   const MINING_STATE_CHECK_INTERVAL=1;
-  /** @const MINING_TIMEOUT_INTERVAL - časový interval pro dokončení dolování od timestampu spuštění úlohy (v sekundách) */
+  /** @const MINING_TIMEOUT_INTERVAL - length of max task solving duration (in seconds) */
   const MINING_TIMEOUT_INTERVAL=600;
 
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
@@ -35,7 +37,7 @@ class TasksPresenter extends BaseResourcePresenter {
 
   #region actionReadPmml,actionReadHtml
   /**
-   * Akce vracející PMML data konkrétní úlohy
+   * Action returning PMML export of a concrete task
    * @param int $id
    * @throws BadRequestException
    * @SWG\Get(
@@ -92,15 +94,15 @@ class TasksPresenter extends BaseResourcePresenter {
     }
     $includeFrequencies=(!empty($inputData['frequencies'])&&(strtolower($inputData['frequencies'])=='yes'));
 
-    //region výběr konkrétního výstupu
+    //region output selection
     switch($outputType){
       case 'associationmodel':
-        //serializace standartního PMML
+        //serializace AssociationRules XML
         $pmml=$this->prepareTaskARPmml($task,$includeFrequencies,false);
         break;
       case 'associationmodel-4.2':
       case 'associationmodel42':
-        //serializace standartního PMML ve verzi 4.2
+        //serializace standard PMML 4.2
         $pmml=$this->prepareTaskARPmml($task,$includeFrequencies,true);
         break;
       case 'guha':
@@ -108,13 +110,13 @@ class TasksPresenter extends BaseResourcePresenter {
         //serializace GUHA PMML
         $pmml=$this->prepareTaskGuhaPmml($task,$includeFrequencies);
     }
-    //endregion
+    //endregion output selection
 
     $this->sendXmlResponse($pmml);
   }
 
   /**
-   * Akce vracející HTML podobu dat konkrétní úlohy
+   * Action returning HTML representation of a task details
    * @param int $id
    * @throws BadRequestException
    * @SWG\Get(
@@ -146,7 +148,7 @@ class TasksPresenter extends BaseResourcePresenter {
       throw new InvalidStateException("Task has not been solved!");
     }
 
-    //serializace GUHA PMML
+    //serialize GUHA PMML and transform it
     $pmml=$this->prepareTaskGuhaPmml($task);
     $this->sendHtmlResponse($this->template->content=$this->xmlTransformator->transformToHtml($pmml));
   }
@@ -188,7 +190,7 @@ class TasksPresenter extends BaseResourcePresenter {
 
   #region actionRead
   /**
-   * Akce vracející detaily konkrétní úlohy
+   * Action returning task details
    * @param int $id
    * @throws BadRequestException
    * @SWG\Get(
@@ -221,8 +223,7 @@ class TasksPresenter extends BaseResourcePresenter {
 
   #region actionSimple
   /**
-   * Akce pro zadání nové úlohy...
-   *
+   * Action for creating of a new task
    * @param string $id=null|'simple' - parametr používaný pouze v případě, kdy má dojít ke zjednodušenému vytváření úlohy
    * @throws NotImplementedException
    */
@@ -235,7 +236,7 @@ class TasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Funkce pro validaci zadání nové úlohy
+   * Method for validation of input params for actionCreate()
    * @param null|string $id=null (pokud $id=="simple", dojde k přesměrování na funkci validateSimple)
    * @throws NotImplementedException
    */
@@ -246,7 +247,7 @@ class TasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Akce pro zadání nové úlohy s jednoduchou konfigurací
+   * Action for creating a new rule mining task with simple configuration
    * @SWG\Post(
    *   tags={"Tasks"},
    *   path="/tasks/simple",
@@ -279,7 +280,7 @@ class TasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Funkce pro validaci jednoduchého zadání úlohy
+   * Method for validation of the input for actionSimple()
    */
   public function validateSimple() {
     /** @noinspection PhpMethodParametersCountMismatchInspection */
@@ -312,7 +313,7 @@ class TasksPresenter extends BaseResourcePresenter {
 
   #region actionStart/actionStop/actionState
   /**
-   * Akce pro spuštění dolování konkrétní úlohy
+   * Action for start of solving of a data mining task
    * @param int $id
    * @SWG\Get(
    *   tags={"Tasks"},
@@ -345,7 +346,7 @@ class TasksPresenter extends BaseResourcePresenter {
       $taskState=$miningDriver->startMining();
       $this->tasksFacade->updateTaskState($task,$taskState);
 
-      //spustíme background požadavek na kontrolu stavu úlohy (jestli je dokončená atp.
+      //run background request for the task state check
       $backgroundImportUrl=$this->getAbsoluteLink('readMiningCheckState',['id'=>$id,'relation'=>'miningCheckState','timeout'=>time()+self::MINING_TIMEOUT_INTERVAL],Link::SELF,true);
       RequestHelper::sendBackgroundGetRequest($backgroundImportUrl);
 
@@ -358,7 +359,7 @@ class TasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Akce pro spuštění dolování konkrétní úlohy
+   * Action for checking of a task state
    * @param int $id
    * @SWG\Get(
    *   tags={"Tasks"},
@@ -391,7 +392,7 @@ class TasksPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Akce pro zastavení dolování konkrétní úlohy
+   * Action for stopping of a running task
    * @param int $id
    * @SWG\Get(
    *   tags={"Tasks"},
@@ -428,77 +429,77 @@ class TasksPresenter extends BaseResourcePresenter {
   }
   #endregion actionStart/actionStop/actionState
 
-  #region akce pro periodickou kontrolu dolování a import na pozadí
+  #region actions for periodical check of mining state and background import of results
   /**
-   * Akce pro periodickou kontrolu stavu úlohy na serveru
+   * Action for periodical check of a task state on the remote server (using mining driver)
    * @param int $id - ID úlohy, kterou chceme zkontrolovat
    * @param int $timeout = 0 - timestamp, kdy dojde k neúspěšnému ukončení úlohy
    */
   public function actionReadMiningCheckState($id,$timeout=0) {
-    //zakážeme ukončení skriptu při zavření přenosového kanálu
+    //ignore the user disconnection (it it action for background requests)
     RequestHelper::ignoreUserAbort();
-    //nejprve pozastavíme běh skriptu (abychom měli nějakou pauzu mezi jednotlivými kontrolami stavu úlohy)
+    //sleep (to get a pause between the state checks)
     sleep(self::MINING_STATE_CHECK_INTERVAL);
-    //najdeme úlohu a mining driver
+    //find the task and the appropriate mining driver
     $task=$this->findTaskWithCheckAccess($id);
     $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->currentUser);
-    //zkontrolujeme stav vzdálené úlohy a zaktualizujeme ho
+    //check the state of the task on remote server and update the info about the state
     $taskState=$miningDriver->checkTaskState();
     $this->tasksFacade->updateTaskState($task,$taskState);
 
-    #region akce v závislosti na aktuálním běhu úlohy
+    #region actions selected by the task state
     if ($taskState->importState==Task::IMPORT_STATE_WAITING){
-      //pokud máme na serveru čekající import, zkusíme poslat požadavek na jeho provedení
+      //we have a waiting import there on the server, try to send request to import these data
       $backgroundImportUrl=$this->getAbsoluteLink('readMiningImportResults',['id'=>$id,'relation'=>'miningImportResults'],Link::SELF,true);
       RequestHelper::sendBackgroundGetRequest($backgroundImportUrl);
     }
     if ($taskState->state==Task::STATE_IN_PROGRESS){
       if ($timeout>0 && $timeout<time()){
-        //byl nastaven timeout a zároveň tento timeout vypršel => úlohu zrušíme
+        //task run timeouted => cancel the task
         $this->forward('readStop',$id);
       }else{
-        //odešleme samostatný požadavek na opakované načtení této akce (se všemi stávajícími parametry)
+        //send a standalone request for repeated load of this action (with the same params)
         RequestHelper::sendBackgroundGetRequest($this->getAbsoluteLink('self',[],Link::SELF,true));
       }
     }
-    #endregion
+    #endregion actions selected by the task state
     $this->sendTextResponse(time().' DONE '.$this->action);
   }
 
   /**
-   * Akce pro import výsledků
+   * Action for import of results
    * @param int
    */
   public function actionReadMiningImportResults($id) {
-    //zakážeme ukončení skriptu při zavření přenosového kanálu
+    //ignore the user disconnection (it it action for background requests)
     RequestHelper::ignoreUserAbort();
-    //najdeme úlohu a mining driver
+    //find the task and the appropriate mining driver
     $task=$this->findTaskWithCheckAccess($id);
     $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->currentUser);
 
-    //import budeme provádět pouze v případě, že zatím neběží jiný import (abychom předešli konfliktům a zahlcení serveru)
+    //the import should be done if there is no other import running (for the same task)
     if ($task->importState==Task::IMPORT_STATE_WAITING){
-      //označíme částečný probíhající import
+      //mark running partial import
       $taskState=$task->getTaskState();
       $taskState->importState=Task::IMPORT_STATE_PARTIAL;
       $this->tasksFacade->updateTaskState($task,$taskState);
-      //provedeme import plného PMML (klidně jen částečných výsledků) a zaktualizujeme stav úlohy
+      //import full PMML and update the task state
       $taskState=$miningDriver->importResultsPMML();
       $this->tasksFacade->updateTaskState($task,$taskState);
 
-      //spustíme další dílší import
+      //execute next partial request
       sleep(self::MINING_STATE_CHECK_INTERVAL);//TODO testovací
       RequestHelper::sendBackgroundGetRequest($this->getAbsoluteLink('self',[],Link::SELF,true));
     }
 
     $this->sendTextResponse(time().' DONE '.$this->action);
   }
-  #endregion
+  #endregion actions for periodical check of mining state and background import of results
 
 
   #region actionReadRules
   /**
-   * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
+   * Action for reading of rules from a selected task
    * @param int $id
    * @SWG\Get(
    *   tags={"Tasks"},
@@ -554,7 +555,7 @@ class TasksPresenter extends BaseResourcePresenter {
 
   #region actionUpdate
   /**
-   * Akce pro zadání nové úlohy s jednoduchou konfigurací
+   * Action for update of task config/details
    * @disabled:SWG\Put(
    *   tags={"Tasks"},
    *   path="/tasks/{id}",
@@ -577,56 +578,23 @@ class TasksPresenter extends BaseResourcePresenter {
    * )
    */
   public function actionUpdate() {
-    //TODO implementovat
+    //TODO implement
     throw new \Nette\NotImplementedException();
-    /* XXX
-    $inputData=$this->input->getData();
-    $miner=$this->findMinerWithCheckAccess($inputData['miner']);
-    $task=$this->tasksFacade->prepareSimpleTask($miner, $inputData);
-    $this->tasksFacade->saveTask($task);
-    //send task details
-    $this->resource=$task->getDataArr(true);
-    $this->sendResource();*/
   }
 
   /**
-   * Funkce pro validaci jednoduchého zadání úlohy
+   * Method for validation of input params for actionUpdate()
    */
   public function validateUpdate() {
-    //TODO implementovat
+    //TODO implement
     throw new \Nette\NotImplementedException();
     //XXX
-    /*
-    $this->input->field('miner')->addRule(IValidator::CALLBACK,'You cannot use the given miner, or the miner has not been found!',function($value) {
-      try {
-        $miner=$this->findMinerWithCheckAccess($value);
-        return true;
-      } catch(\Exception $e) {
-        return false;
-      }
-    });
-    $this->input->field('name')->addRule(IValidator::REQUIRED,'You have to input the task name!');
-    $this->input->field('limitHits')
-      ->addRule(IValidator::INTEGER,'Max rules count (limitHits) has to be positive integer!')
-      ->addRule(IValidator::RANGE,'Max rules count (limitHits) has to be positive integer!',[1,null]);
-    //kontrola strukturovaných vstupů
-    $inputData=$this->input->getData();
-    $this->input->field('IMs')
-      ->addRule(IValidator::REQUIRED,'You have to input interest measure thresholds!')
-      ->addRule(IValidator::CALLBACK,'Invalid structure of interest measure thresholds!',function()use($inputData){
-        $fieldInputData=$inputData['IMs'];
-        if (empty($fieldInputData)){return false;}
-        return true;
-      });
-    $this->input->field('consequent')
-      ->addRule(IValidator::REQUIRED,'You have to input interest the structure of consequent!');
-    */
   }
   #endregion actionUpdate
 
   #region actionDelete
   /**
-   * Akce pro smazání konkrétní úlohy
+   * Action for deleting of a task
    * @param int $id
    * @SWG\Delete(
    *   tags={"Tasks"},

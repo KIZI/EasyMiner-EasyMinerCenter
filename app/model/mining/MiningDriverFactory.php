@@ -1,7 +1,6 @@
 <?php
 namespace EasyMinerCenter\Model\Mining;
 
-
 use EasyMinerCenter\Model\EasyMiner\Entities\OutliersTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -14,8 +13,10 @@ use Nette\Object;
 use Nette\Utils\Strings;
 
 /**
- * Class MiningDriverFactory - třída zajišťující vytvoření odpovídajícího driveru pro dolování
+ * Class MiningDriverFactory - class with factory methods for mining drivers
  * @package EasyMinerCenter\Model\Mining
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MiningDriverFactory extends Object{
   private $params;
@@ -28,7 +29,7 @@ class MiningDriverFactory extends Object{
   }
 
   /**
-   * Funkce vracející URL pro přístup ke zvolenému mineru
+   * Method returning URL of the selected remote mining server
    * @param string $minerType
    * @return string
    */
@@ -43,7 +44,7 @@ class MiningDriverFactory extends Object{
   }
 
   /**
-   * Funkce pro kontrolu, jestli je funkční vzdálený server zajištující dolování
+   * Method for check, if the remote mining server is available
    * @param string $minerType
    * @param string $minerServerUrl=""
    * @throws ArgumentOutOfRangeException
@@ -61,13 +62,13 @@ class MiningDriverFactory extends Object{
   }
 
   /**
-   * Funkce pro vytvoření nové instance mineru pro dolování pravidel
+   * Factory method returning new instance of mining driver for the given task (for association rules)
    * @param Task $task
    * @param MinersFacade $minersFacade
    * @param RulesFacade $rulesFacade
    * @param MetaAttributesFacade $metaAttributesFacade
    * @param User $user
-   * @param string $backgroundImportLink="" - relativní URL pro spuštění plného importu (na pozadí)
+   * @param string $backgroundImportLink="" - relative URL for background import request (for full import of PMML)
    * @return IMiningDriver
    */
   public function getDriverInstance(Task $task ,MinersFacade $minersFacade, RulesFacade $rulesFacade, MetaAttributesFacade $metaAttributesFacade, User $user,$backgroundImportLink=""){
@@ -79,7 +80,7 @@ class MiningDriverFactory extends Object{
   }
 
   /**
-   * Funkce pro vytvoření nové instance mineru pro práci s outliery
+   * Factory method returning new instance of mining driver for outlier detection
    * @param OutliersTask $outliersTask
    * @param MinersFacade $minersFacade
    * @param MetaAttributesFacade $metaAttributesFacade

@@ -11,6 +11,8 @@ use Nette\Utils\Json;
 /**
  * Class Miner
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int|null $minerId = null
  * @property User|null $user = null m:hasOne
@@ -41,7 +43,7 @@ class Miner extends Entity implements IOwnerResource{
   ];
 
   /**
-   * Funkce vracející název typu konkrétního mineru
+   * Method returning the name of a type of miner
    * @return string
    */
   public function getTypeName(){
@@ -54,7 +56,7 @@ class Miner extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce vracející přehled jednotlivých podporovaných typů minerů
+   * Method returning a list of supported types of miners
    * @param string $dbType
    * @return array
    */
@@ -76,27 +78,12 @@ class Miner extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce vracející název tabulky s atributy
+   * Method returning the name of table with attributes
    * @return string
+   * XXX remove from LM driver
    */
   public function getAttributesTableName() {
     return 'ATR' . $this->minerId . '_' . $this->datasource->name;
-  }
-
-  /**
-   * Funkce vracející název tabulky s atributy
-   * @return string
-   */
-  public function getRulesTableName(){
-    return 'RULES'.$this->minerId.'_'.$this->datasource->name;
-  }
-
-  /**
-   * Funkce vracející název tabulky s atributy
-   * @return string
-   */
-  public function getBBATableName(){
-    return 'BBA'.$this->minerId.'_'.$this->datasource->name;
   }
 
   /**
@@ -122,7 +109,7 @@ class Miner extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce vracející externí konfiguraci
+   * Method returning the external configuration
    * @return array
    */
   public function getExternalConfig(){
@@ -135,7 +122,7 @@ class Miner extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce pro nastavení externí konfigurace
+   * Method for setting of external configuration
    * @param array $externalConfig
    */
   public function setExternalConfig($externalConfig){
@@ -145,6 +132,7 @@ class Miner extends Entity implements IOwnerResource{
   }
 
   /**
+   * Method returning an array with basic data properties
    * Funkce vracející data mineru v podobě pole
    * @return array
    */
@@ -164,7 +152,7 @@ class Miner extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce vracející ID vlastníka (uživatele)
+   * Method returning the ID of owner (User)
    * @return int
    */
   function getUserId() {
@@ -176,7 +164,7 @@ class Miner extends Entity implements IOwnerResource{
   }
 
   /**
-   * Returns a string identifier of the Resource.
+   * Method returning a string identifier of the Resource.
    * @return string
    */
   function getResourceId() {

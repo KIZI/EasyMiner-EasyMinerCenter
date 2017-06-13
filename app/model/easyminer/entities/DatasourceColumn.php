@@ -4,8 +4,11 @@ use LeanMapper\Entity;
 
 
 /**
- * Class DatasourceColumn - entita zachycující mapování konkrétního datového sloupce...
+ * Class DatasourceColumn - entity representing the mapping of the concrete data column
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $datasourceColumnId=null
  * @property Datasource $datasource m:hasOne
  * @property int|null $dbDatasourceFieldId = null
@@ -24,7 +27,7 @@ class DatasourceColumn extends Entity{
   const TYPE_NUMERIC='numeric';
 
   /**
-   * Funkce vracející základní přehled dat
+   * Method returning an array with basic data properties
    * @return array
    */
   public function getDataArr() {

@@ -7,9 +7,10 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
 
 /**
- * Class DatabaseFactory - Factory třída pro vytváření připojení k DB
- *
-*@package EasyMinerCenter\Model\Data\Databases
+ * Class PreprocessingFactory - class with factory methods returning instances of preprocessing drivers
+ * @package EasyMinerCenter\Model\Preprocessing\Databases
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class PreprocessingFactory {
   private static $ppTypeClasses=[
@@ -22,7 +23,7 @@ class PreprocessingFactory {
     DbConnection::TYPE_LIMITED=>PpConnection::TYPE_LIMITED,
     DbConnection::TYPE_UNLIMITED=>PpConnection::TYPE_UNLIMITED,
   ];
-  /** @var  array $preprocessingDatabasesConfig - pole s konfigurací přístupů k jednotlivým typům databází*/
+  /** @var  array $preprocessingDatabasesConfig - array with configuration of preprocessing database types */
   private $preprocessingDatabasesConfig;
 
   /**
@@ -33,7 +34,7 @@ class PreprocessingFactory {
   }
 
   /**
-   * Funkce vracející informace o nakonfigurovaných databázích
+   * Method returning list of configured preprocessing databases
    * @return string[]
    */
   public function getPpTypes() {
@@ -48,7 +49,7 @@ class PreprocessingFactory {
   }
 
   /**
-   * Funkce vracející název dabáze zvoleného typu
+   * Method returning name of selected preprocessing database type
    * @param string $ppType
    * @return string
    * @throws \Exception
@@ -60,7 +61,7 @@ class PreprocessingFactory {
   }
 
   /**
-   * Funkce vracející výchozí připojení k databázi
+   * Method returning default connection to preprocessing database
    * @param string $ppType
    * @param User $user
    * @return PpConnection
@@ -72,10 +73,10 @@ class PreprocessingFactory {
     $ppConnection->dbApi=!empty($config['preprocessingApi'])?$config['preprocessingApi']:null;
     $ppConnection->dbServer=!empty($config['server'])?$config['server']:null;
     $ppConnection->dbPort=!empty($config['port'])?$config['port']:null;
-    //konfigurace připojení k DB
+    //DB connection config
     $ppConnection->dbName=str_replace('*',$user->userId,$config['_database']);
     $ppConnection->dbUsername=str_replace('*',$user->userId,$config['_username']);
-    //heslo nastavujeme, pokud pro daný typ databáze není nastaveno na FALSE
+    //we set the password only if it is not set to FALSE (for the given database type)
     if (isset($config['_password'])){
       if (!$config['_password']){
         $ppConnection->dbPassword='';
@@ -89,8 +90,7 @@ class PreprocessingFactory {
   }
 
   /**
-   * Funkce vracející připojení k databázi
-   *
+   * Factory method returning instance of preprocessing database driver
    * @param PpConnection $ppConnection
    * @param User $user
    * @return IPreprocessing
@@ -102,8 +102,7 @@ class PreprocessingFactory {
   }
 
   /**
-   * Funkce vracející název třídy obsahující příslušný ovladač databáze
-   *
+   * Method returning name of the class which is appropriate driver to selected preprocessing database
    * @param string $ppType
    * @return string
    * @throws \Exception
@@ -115,11 +114,8 @@ class PreprocessingFactory {
     return self::$ppTypeClasses[$ppType];
   }
 
-
-  //TODO doplnit další funkce...
-
-
   /**
+   * Method returning config of selected preprocessing database
    * @param string $ppType
    * @return array
    * @throws \Exception
@@ -132,7 +128,7 @@ class PreprocessingFactory {
   }
 
   /**
-   * Funkce vracející typ vhodného ovladače preprocessingu podle typu databáze, ve které jsou uložena data
+   * Method returning appropriate type of driver to access preprocessing database dependently to database, where are the data
    * @param string $dbType
    * @return string
    */

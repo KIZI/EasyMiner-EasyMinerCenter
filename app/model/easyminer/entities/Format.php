@@ -8,6 +8,8 @@ use LeanMapper\Fluent;
 /**
  * Class Format
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int $formatId
  * @property string $name
@@ -31,6 +33,7 @@ class Format  extends Entity{
    */
   public function findValueByValue($value){
     $valuesItem = $this->getValueByPropertyWithRelationship('values', new Filtering(function (Fluent $statement) use ($value) {
+      /** @noinspection PhpMethodParametersCountMismatchInspection */
       $statement->where("value = %s COLLATE utf8_bin", $value);
       $statement->limit(1);
     }));
@@ -48,6 +51,7 @@ class Format  extends Entity{
    */
   public function findValuesBinByName($valueBinName){
     $valuesBin = $this->getValueByPropertyWithRelationship('valuesBins', new Filtering(function (Fluent $statement) use ($valueBinName) {
+      /** @noinspection PhpMethodParametersCountMismatchInspection */
       $statement->where("name = %s COLLATE utf8_bin", $valueBinName);
     }));
     if (is_array($valuesBin)){

@@ -5,6 +5,11 @@ namespace IZI\FileLoader;
 use IZI\FileLoader\XMLFileLoader;
 use IZI\FileLoader\XMLStringLoader;
 
+/**
+ * Class XMLLoader
+ * @package IZI\FileLoader
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class XMLLoader
 {
 

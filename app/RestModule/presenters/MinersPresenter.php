@@ -2,7 +2,6 @@
 
 namespace EasyMinerCenter\RestModule\Presenters;
 use Drahak\Restful\Validation\IValidator;
-use EasyMinerCenter\Model\Data\Facades\DatabasesFacade;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\MetasourceTask;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
@@ -14,8 +13,10 @@ use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use Nette\Application\BadRequestException;
 
 /**
- * Class MinersPresenter - presenter pro práci s jednotlivými minery
+ * Class MinersPresenter - presenter for work with Miners
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MinersPresenter extends BaseResourcePresenter{
   use MinersFacadeTrait;
@@ -26,8 +27,6 @@ class MinersPresenter extends BaseResourcePresenter{
   private $ruleSetsFacade;
   /** @var  MetaAttributesFacade $metaAttributesFacade */
   private $metaAttributesFacade;
-  /** @var  DatabasesFacade $databasesFacade */
-  private $databasesFacade;
   /** @var  MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
 
@@ -37,7 +36,7 @@ class MinersPresenter extends BaseResourcePresenter{
   private $ruleSet=null;
 
   /**
-   * Funkce vracející detaily konkrétního mineru či seznam minerů
+   * Action for reading details about one miner (with the given $id) or reading a list of all miners associated with the current user
    * @param int|null $id = null
    * @throws BadRequestException
    * @SWG\Get(
@@ -70,7 +69,7 @@ class MinersPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Akce vracející seznam minerů aktuálně přihlášeného uživatele
+   * Action returning list of all miners associated with the current user
    * @SWG\Get(
    *   tags={"Miners"},
    *   path="/miners",
@@ -108,7 +107,7 @@ class MinersPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Akce vracející seznam úloh asociovaných s vybraným minerem
+   * Action for reading a list of all task associated with one selected miner
    * @param $id
    * @throws BadRequestException
    *
@@ -169,7 +168,7 @@ class MinersPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Akce vracející seznam úloh asociovaných s vybraným minerem
+   * Action for reading a list of all outlier detection task associated with one selected miner
    * @param $id
    * @throws BadRequestException
    *
@@ -205,7 +204,7 @@ class MinersPresenter extends BaseResourcePresenter{
     $this->setXmlMapperElements('miner');
     if (empty($id)){$this->forward('list');return;}
     $miner=$this->findMinerWithCheckAccess($id);
-//TODO kontrola, jestli jsou dané úlohy pořád ještě dostupné
+    //TODO kontrola, jestli jsou dané úlohy pořád ještě dostupné
     $result=[
       'miner'=>[
         'id'=>$miner->minerId,
@@ -230,7 +229,7 @@ class MinersPresenter extends BaseResourcePresenter{
 
   #region actionCreate
   /**
-   * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
+   * Action for creating a new miner
    * @SWG\Post(
    *   tags={"Miners"},
    *   path="/miners",
@@ -286,7 +285,7 @@ class MinersPresenter extends BaseResourcePresenter{
   }
 
   /**
-   * Funkce pro kontrolu vstupů pro vytvoření nového mineru
+   * Method for checking of input params for actionCreate()
    */
   public function validateCreate() {
     $currentUser=$this->getCurrentUser();
@@ -302,7 +301,7 @@ class MinersPresenter extends BaseResourcePresenter{
           try{
             $this->datasource=$this->datasourcesFacade->findDatasource($value);
             if ($this->datasourcesFacade->checkDatasourceAccess($this->datasource,$currentUser)){
-              //kontrola dostupnosti kompatibilního mineru s vybraným datasource
+              //check the availability of the selected compatible miner with the given datasource
               $availableMinerTypes = $this->minersFacade->getAvailableMinerTypes($this->datasource->type);
               return (!empty($availableMinerTypes[$this->getInput()->getData()['type']]));
             }else{
@@ -329,7 +328,7 @@ class MinersPresenter extends BaseResourcePresenter{
 
   #region actionDelete
   /**
-   * Funkce pro smazání konkrétního mineru
+   * Action for deleting of the selected miner
    * @param int $id
    * @throws BadRequestException
    * @SWG\Delete(
@@ -381,12 +380,6 @@ class MinersPresenter extends BaseResourcePresenter{
    */
   public function injectMetaAttributesFacade(MetaAttributesFacade $metaAttributesFacade) {
     $this->metaAttributesFacade=$metaAttributesFacade;
-  }
-  /**
-   * @param DatabasesFacade $databasesFacade
-   */
-  public function injectDatabasesFacade(DatabasesFacade $databasesFacade) {
-    $this->databasesFacade=$databasesFacade;
   }
   /**
    * @param MetasourcesFacade $metasourcesFacade

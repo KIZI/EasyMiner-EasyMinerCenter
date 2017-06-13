@@ -3,9 +3,10 @@
 namespace EasyMinerCenter\Model\Scoring;
 
 /**
- * Class ScoringResult - třída pro záznam výsledků testování rulesetu či úlohy
+ * Class ScoringResult - class for representation of test results of a ruleset or a task
  * @package EasyMinerCenter\Model\Scoring
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ScoringResult {
 
@@ -16,6 +17,7 @@ class ScoringResult {
   public $falseNegative=null;
 
   /**
+   * ScoringResult constructor.
    * @param int $truePositive = 0
    * @param int $falsePositive = 0
    * @param int $rowsCount = 0
@@ -31,7 +33,7 @@ class ScoringResult {
   }
 
   /**
-   * Funkce vracející data výsledků v podobě pole
+   * Method returning result data in form of array
    * @return array
    */
   public function getDataArr() {
@@ -44,7 +46,7 @@ class ScoringResult {
   }
 
   /**
-   * Funkce vracející data výsledků v podobě pole
+   * Method returning result data in form of array
    * @return array
    */
   public function getCorrectIncorrectDataArr() {
@@ -53,7 +55,7 @@ class ScoringResult {
   }
 
   /**
-   * Funkce pro sloučení dvou částečných výsledků do jednoho
+   * Method for merging of two ScoringResults to one...
    * @param ScoringResult[] $scoringResults
    * @return ScoringResult
    */

@@ -8,6 +8,9 @@ use Nette\Application\UI\Presenter;
 /**
  * Class BasePresenter
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property \Nette\Bridges\ApplicationLatte\Template|\stdClass $template
  */
 abstract class BasePresenter extends Presenter{//BaseRestPresenter
@@ -28,7 +31,7 @@ abstract class BasePresenter extends Presenter{//BaseRestPresenter
   }
 
   /**
-   * Funkce pro překlad pomocí výchozího translatoru
+   * Method for translation using the default translator
    * @param string $message
    * @param null|int $count
    * @return string
@@ -45,7 +48,7 @@ abstract class BasePresenter extends Presenter{//BaseRestPresenter
 
   #region ACL
   /**
-   * Metoda volaná při spuštění presenteru, v rámci které je řešeno oprávnění přístupu ke zvolenému zdroji
+   * Method called on the startup of the presenter, solves the access permissions to the given source (ACL)
    */
   protected function startup() {
     $user=$this->getUser();

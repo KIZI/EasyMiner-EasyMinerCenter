@@ -6,6 +6,11 @@ use IZI\AssociationRule\Connective;
 use IZI\Exception\InvalidAttributeException;
 use IZI\Exception\InvalidCoefficientException;
 
+/**
+ * Class FieldGroup
+ * @package IZI\FieldGroupConfig
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class FieldGroup
 {
     private $FGNode;

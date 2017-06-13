@@ -9,6 +9,11 @@ use IZI\Parser\FeatureListParser;
 use IZI\Parser\FieldGroupConfigParser;
 use IZI\Parser\RulesParser;
 
+/**
+ * Class DataParser
+ * @package IZI\Parser
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class DataParser
 {
     private $DDPath;

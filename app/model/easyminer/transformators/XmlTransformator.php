@@ -3,8 +3,10 @@ namespace EasyMinerCenter\Model\EasyMiner\Transformators;
 use EasyMinerCenter\Model\Translation\EasyMinerTranslator;
 
 /**
- * Class XmlTransformator - třída pro transformace používaných XML dokumentů
+ * Class XmlTransformator - class for transformation of the used XML documents
  * @package EasyMinerCenter\Model\EasyMiner\Transformators
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class XmlTransformator {
 

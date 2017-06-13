@@ -11,14 +11,16 @@ use Nette\NotImplementedException;
 use Nette\Security\Passwords;
 
 /**
- * Class UsersPresenter - RESTFUL presenter for management of users
+ * Class UsersPresenter - presenter for management of users
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  */
 class UsersPresenter extends BaseResourcePresenter {
 
   /**
-   * Akce vracející ApiKey konkrétního uživatelského účtu
+   * Action returning API KEY for a concrete user account
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @SWG\Get(
@@ -50,7 +52,7 @@ class UsersPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Akce vracející detaily konkrétního uživatelského účtu
+   * Action for reading details about an User
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @SWG\Get(
@@ -88,7 +90,7 @@ class UsersPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Akce pro smazání uživatelského účtu
+   * Action for deleting an User
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @FIXME-SWG-Delete(
@@ -123,7 +125,7 @@ class UsersPresenter extends BaseResourcePresenter {
 
   #region actionCreate
   /**
-   * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
+   * Action for creating of a new User using the posted values
    * @SWG\Post(
    *   tags={"Users"},
    *   path="/users",
@@ -177,12 +179,14 @@ class UsersPresenter extends BaseResourcePresenter {
   }
 
   /**
-   * Funkce pro kontrolu vstupů pro vytvoření nového uživatelského účtu
+   * Method for validation of input params for actionCreate()
    */
   public function validateCreate() {
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('name')
       ->addRule(IValidator::MIN_LENGTH,'Minimal length of name is  %d characters!',5)
       ->addRule(IValidator::REQUIRED,'Name is required!');
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('email')
       ->addRule(IValidator::EMAIL,'You have to input valid e-mail address!')
       ->addRule(IValidator::REQUIRED,'E-mail is required!')
@@ -193,6 +197,7 @@ class UsersPresenter extends BaseResourcePresenter {
         }catch (\Exception $e){}
         return true;
       });
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
     $this->input->field('password')
       ->addRule(IValidator::REQUIRED,'Password is required!')
       ->addRule(IValidator::MIN_LENGTH,'Minimal length of password is %s characters!',6);
@@ -201,7 +206,7 @@ class UsersPresenter extends BaseResourcePresenter {
 
   #region actionUpdate
   /**
-   * Akce pro update existujícího uživatele
+   * Action for updating of an User
    * @param int $id
    * @throws \Nette\Application\BadRequestException
    * @SWG\Put(
@@ -241,7 +246,7 @@ class UsersPresenter extends BaseResourcePresenter {
       return;
     }
     //TODO zkontrolovat přístup k danému uživatelskému účtu
-    //aktualizace zaslaných údajů
+    //update send properties of the User
     if (!empty($this->input->name)){
       $user->name=$this->input->name;
     }
@@ -251,12 +256,12 @@ class UsersPresenter extends BaseResourcePresenter {
     if (!empty($this->input->password)){
       $user->password=$this->input->password;
     }
-    //uložení a odeslání výsledku
+    //save the results and send User details
     $this->actionRead($id);
   }
 
   /**
-   * Funkce pro kontrolu vstupů pro aktualizaci uživatelského účtu
+   * Method for validation of input params for actionUpdate()
    * @param int $id
    */
   public function validateUpdate($id){
@@ -278,7 +283,7 @@ class UsersPresenter extends BaseResourcePresenter {
   #endregion
 
   /**
-   * Funkce po spuštění - pro kontrolu autentizace/autorizace
+   * Startup method for check of authentization using API KEY
    * @param bool $allowAnonymous=false
    * @throws AuthenticationException
    * @throws \Drahak\Restful\Application\BadRequestException

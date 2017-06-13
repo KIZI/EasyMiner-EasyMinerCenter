@@ -7,10 +7,11 @@ use Nette\Application\Routers\RouteList;
 use Nette\Application\Routers\Route;
 use Nette\Http\Request;
 
-
 /**
- * Router factory for InstallModule
+ * Class RouterFactory - Router factory for InstallModule
+ * @package EasyMinerCenter\InstallModule\Router
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RouterFactory {
 

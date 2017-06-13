@@ -9,8 +9,9 @@ use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 
 /**
  * Trait TasksFacadeTrait
- * @author Stanislav Vojíř
  * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @method User getCurrentUser()
  * @method error($message = null, $code = 404)
@@ -21,11 +22,8 @@ trait TasksFacadeTrait {
   /** @var  TasksFacade $tasksFacade */
   protected $tasksFacade;
 
-
-
   /**
-   * Funkce pro nalezení úlohy dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným pravidlem
-   *
+   * Method for finding a Task by $taskId, also checks the user privileges to work with the found task
    * @param int $taskId
    * @return Task
    * @throws \Nette\Application\BadRequestException

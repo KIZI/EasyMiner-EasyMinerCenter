@@ -6,14 +6,15 @@ use Nette\Utils\FileSystem;
 use Nette\Utils\Finder;
 
 /**
- * Class CachePresenter - DEV presenter pro práci s cache
+ * Class CachePresenter - DEV presenter for work with cache
  * @package EasyMinerCenter\InstallModule\DevModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class CachePresenter extends BasePresenter{
 
   /**
-   * Akce pro smazání obsahu adresáře, do kterého se ukládá aplikační cache
+   * Action for deletion of CACHE directory
    * @throws \Nette\Application\AbortException
    */
   public function actionClean() {

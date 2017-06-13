@@ -3,10 +3,12 @@ namespace EasyMinerCenter\Model\EasyMiner\Entities;
 use LeanMapper\Entity;
 use Nette\Utils\Json;
 
-
 /**
  * Class Task - entita zachycující jednu konkrétní dataminingovou úlohu
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int|null $taskId=null
  * @property string $type m:Enum(Miner::TYPE_*)
  * @property int $rulesInRuleClipboardCount = 0
@@ -36,8 +38,8 @@ class Task extends Entity{
 
 
   /**
-   * Funkce vracející základní data v podobě pole
-   * @param bool $includeSettings = false - pokud true, je do pole vloženo kompletní zadání úlohy
+   * Method returning an array with basic data properties
+   * @param bool $includeSettings = false - it $includeSettings is true, the returned array includes also complete task settings
    * @return array
    */
   public function getDataArr($includeSettings=false){
@@ -58,7 +60,7 @@ class Task extends Entity{
   }
 
   /**
-   * Funkce vracející pole s nastaveními této úlohy
+   * Method returning an array with settings of this task
    * @return array
    * @throws \Nette\Utils\JsonException
    */
@@ -67,7 +69,7 @@ class Task extends Entity{
   }
 
   /**
-   * Funkce pro přiřazení nastavení úlohy
+   * Method for setting of this task
    * @param array|string|object $settings
    * @throws \Nette\Utils\JsonException
    */
@@ -79,8 +81,8 @@ class Task extends Entity{
   }
 
   /**
-   * Funkce vracející konfiguraci importu
-   * @return mixed
+   * Method returning data of import configuration/state
+   * @return array
    * @throws \Nette\Utils\JsonException
    */
   public function getImportData() {
@@ -91,7 +93,7 @@ class Task extends Entity{
   }
 
   /**
-   * Funkce pro nastavení konfigurace importu
+   * Method for setting of data of import configuration/state
    * @param array $importData
    * @throws \Nette\Utils\JsonException
    */
@@ -112,7 +114,7 @@ class Task extends Entity{
   }
 
   /**
-   * Funkce vracející info o tom, jestli již bylo dokončeno/přerušeno dolování na straně serveru
+   * Method returning the info about task state on the mining service - true, if the task was finished or stopped/interrupted
    * @return bool
    */
   public function isMiningFinished() {
@@ -120,7 +122,7 @@ class Task extends Entity{
   }
 
   /**
-   * Funkce vracející info o tom, jestli už bylo dokončeno/přerušeno dolování na straně serveru a zároveň byl dokončen import výsledků do DB
+   * Method returning the info about task state - true, if the task was finished or stopped/interrupted on the mining service and if the import of results was also finished
    * @return bool
    */
   public function isMiningAndImportFinished(){
@@ -129,7 +131,7 @@ class Task extends Entity{
   }
 
   /**
-   * Funkce vracející seznam měr zajímavosti, které jsou použity u dané úlohy
+   * Method returning a list of interest measures used in this Task
    * @return string[]
    */
   public function getInterestMeasures(){

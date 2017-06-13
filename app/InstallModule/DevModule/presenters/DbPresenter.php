@@ -9,16 +9,16 @@ use Nette\Application\Responses\TextResponse;
 
 /**
  * Class DbDumpPresenter - presenter pro možnost exportu struktury databáze z vývojového serveru na GITHUB
- *
  * @package EasyMinerCenter\DevModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DbPresenter extends BasePresenter{
   /** @var  ConfigManager $configManager */
   private $configManager;
 
   /**
-   * Akce vracející strukturu databáze
+   * Action returning the DUMP of database structure
    */
   public function actionReadStructure() {
     $mainDatabaseConfig=$this->configManager->data['parameters']['mainDatabase'];
@@ -33,10 +33,10 @@ class DbPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro aktualizaci souboru s výpisem databáze
+   * Action for update of the file with database dump
    */
   public function actionUpdateDumpFile() {
-    #region export struktury databáze
+    #region export DB structure
     $mainDatabaseConfig=$this->configManager->data['parameters']['mainDatabase'];
     $dumpContent=MysqlDump::dumpStructureToFile($mainDatabaseConfig['host'],!empty($mainDatabaseConfig['port'])?$mainDatabaseConfig['port']:null,$mainDatabaseConfig['username'],$mainDatabaseConfig['password'],$mainDatabaseConfig['database']);
     $dump='';
@@ -45,14 +45,14 @@ class DbPresenter extends BasePresenter{
         $dump.=$row."\r\n";
       }
     }
-    //uložení obsahu
+    //save content
     MysqlDump::saveSqlFileContent($dump);
-    #endregion export struktury databáze
+    #endregion export DB structure
     $this->sendJson(['state'=>'OK']);
   }
 
   /**
-   * Akce pro export struktury databáze a jeho kontrola oproti uloženému souboru
+   * Action for export of DB structure and comparation of it to the saved file
    * @throws \Nette\Application\AbortException
    */
   public function actionUpdateOnGit() {
@@ -68,9 +68,9 @@ class DbPresenter extends BasePresenter{
     $git->reset();
     $git->clean();
     $git->pull();
-    #endregion
+    #endregion reset git repository
 
-    #region export struktury databáze
+    #region export database structure
     $mainDatabaseConfig=$this->configManager->data['parameters']['mainDatabase'];
     $dumpContent=MysqlDump::dumpStructureToFile($mainDatabaseConfig['host'],!empty($mainDatabaseConfig['port'])?$mainDatabaseConfig['port']:null,$mainDatabaseConfig['username'],$mainDatabaseConfig['password'],$mainDatabaseConfig['database']);
     $dump='';
@@ -83,9 +83,9 @@ class DbPresenter extends BasePresenter{
       $this->sendJson(['state'=>'OK','message'=>'Files are identical.']);
       return;
     }
-    //uložení obsahu
+    //save content
     MysqlDump::saveSqlFileContent($dump);
-    #endregion export struktury databáze
+    #endregion export database structure
     #region commit
     $git->addFileToCommit(realpath(__DIR__.'/../../data/mysql.sql'));
     $git->commitAndPush('DB structure updated');
@@ -94,9 +94,8 @@ class DbPresenter extends BasePresenter{
     $this->sendJson(['state'=>'OK','message'=>'Updated.']);
   }
 
-
   /**
-   * Konstruktor, který zároveň získává přístup k lokální konfiguraci
+   * DbPresenter constructor, gets also the access to local config file
    */
   public function __construct() {
     parent::__construct();

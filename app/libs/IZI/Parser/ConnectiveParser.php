@@ -4,6 +4,11 @@ namespace IZI\Parser;
 
 use IZI\AssociationRule\Connective;
 
+/**
+ * Class ConnectiveParser
+ * @package IZI\Parser
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class ConnectiveParser
 {
     private $ER;

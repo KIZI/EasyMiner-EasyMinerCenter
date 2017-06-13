@@ -4,16 +4,14 @@ namespace EasyMinerCenter\RestModule\Presenters;
 
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
-use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
-use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializer;
-use Drahak\Restful\Validation\IValidator;
-use Nette\NotImplementedException;
 
-/**FIXME swagger 2.0
- * Class RuleSetsPresenter - presenter pro práci s rulesety
- * @package EasyMinerCenter\KnowledgeBaseModule\Presenters
+/**
+ * Class RulesPresenter - presenter for work with individual rules
+ * @package EasyMinerCenter\RestModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RulesPresenter extends BaseResourcePresenter{
   /** @var  RulesFacade $rulesFacade */
@@ -44,7 +42,7 @@ class RulesPresenter extends BaseResourcePresenter{
      *   @SWG\Response(
      *     response=200,
      *     description="Rule details",
-     *     @SWG\Schema(ref="#/definitions/RuleResponse")
+     *     @SWG\Schema(ref="#/definitions/RuleSimpleResponse")
      *   ),
      *   @SWG\Response(response=404, description="Requested rule was not found.")
      * )
@@ -52,158 +50,16 @@ class RulesPresenter extends BaseResourcePresenter{
     public function actionRead($id){
       /** @var Rule $rule */
       $rule=$this->findRuleWithCheckAccess($id);
-      $xmlSerializer=new XmlSerializer();
-      $xml=$xmlSerializer->ruleAsXml($rule);
-      $this->sendXmlResponse($xml);
+      $this->resource=$rule->getBasicDataArr();
+      $this->setXmlMapperElements('rule');
+      $this->sendResource();
     }
     #endregion actionRead
 
-    #region actionCreate
-    /**
-     * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
-     * @SWG\Post(
-     *   tags={"Rules"},
-     *   path="/rules",
-     *   summary="Create new rule set",
-     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
-     *   produces={"application/json","application/xml"},
-     *   consumes={"application/json","application/xml"},
-     *   @SWG\Parameter(
-     *     description="Rule",
-     *     name="rule",
-     *     required=true,
-     *     @SWG\Schema(ref="#/definitions/RuleInput"),
-     *     in="body"
-     *   ),
-     *   @SWG\Response(
-     *     response=201,
-     *     description="Rule created successfully, returns details of the Rule.",
-     *     @SWG\Schema(ref="#/definitions/RuleResponse")
-     *   ),
-     *   @SWG\Response(response=404,description="Requested RuleSet was not found.")
-     * )
-     */
-    public function actionCreate(){
-      //prepare RuleSet from input values
-      $ruleSet=new RuleSet();
-      /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->name=$this->input->name;
-      /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->description=$this->input->description;
-      $ruleSet->rulesCount=0;
-      if ($user=$this->getCurrentUser()){
-        $ruleSet->user=$user;
-      }
-      $this->ruleSetsFacade->saveRuleSet($ruleSet);
-      //send response
-      $this->actionRead($ruleSet->ruleSetId);
-    }
-
-    /**
-     * Funkce pro kontrolu vstupů pro vytvoření nového uživatelského účtu
-     */
-    public function validateCreate() {
-      $fieldName=$this->input->field('name');
-      $fieldName
-        ->addRule(IValidator::MIN_LENGTH,'Minimal length of name is  %d characters!',3)
-        ->addRule(IValidator::MAX_LENGTH,'Maximal length of name is  %d characters!',100)
-        ->addRule(IValidator::REQUIRED,'Name is required!');
-      if ($user=$this->getCurrentUser()){
-        $fieldName->addRule(IValidator::CALLBACK,'RuleSet with this name already exists!',function($value)use($user){
-          try{
-            $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,null);
-            return true;
-          }catch (\Exception $e){}
-          return false;
-        });
-      }
-      $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
-    }
-    #endregion actionCreate
-
-    #region actionUpdate
-
-    /**
-     * @param int $id
-     * @throws \Nette\Application\BadRequestException
-     * @SWG\Put(
-     *   tags={"Rules"},
-     *   path="/rules/{id}",
-     *   summary="Update existing rule set",
-     *   security={{"apiKey":{}},{"apiKeyHeader":{}}},
-     *   produces={"application/json","application/xml"},
-     *   consumes={"application/json","application/xml"},
-     *   @SWG\Parameter(
-     *     name="id",
-     *     description="RuleSet ID",
-     *     required=true,
-     *     type="integer",
-     *     in="path"
-     *   ),
-     *   @SWG\Parameter(
-     *     description="Rule",
-     *     name="rule",
-     *     required=true,
-     *     @SWG\Schema(ref="#/definitions/RuleInput"),
-     *     in="body"
-     *   ),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="Rule updated successfully. Returns details of the rule.",
-     *     @SWG\Schema(ref="#/definitions/RuleResponse")
-     *   ),
-     *   @SWG\Response(response=404, description="Requested rule set was not found.")
-     * )
-     */
-    public function actionUpdate($id){
-      //prepare RuleSet from input values
-      //FIXME not implemented!
-      throw new NotImplementedException();
-      /** @var RuleSet $ruleSet */
-      $ruleSet=$this->findRuleWithCheckAccess($id);
-
-      /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->name=$this->input->name;
-      /** @noinspection PhpUndefinedFieldInspection */
-      $ruleSet->description=$this->input->description;
-      $ruleSet->rulesCount=0;
-      if ($user=$this->getCurrentUser()){
-        $ruleSet->user=$user;
-      }
-      $this->ruleSetsFacade->saveRuleSet($ruleSet);
-      //send response
-      $this->actionRead($ruleSet->ruleSetId);
-    }
-
-    /**
-     * Funkce pro kontrolu vstupů pro aktualizaci rule setu
-     * @param int $id
-     */
-    public function validateUpdate($id){
-      $fieldName=$this->input->field('name');
-      $fieldName
-        ->addRule(IValidator::MIN_LENGTH,'Minimal length of name is  %d characters!',3)
-        ->addRule(IValidator::MAX_LENGTH,'Maximal length of name is  %d characters!',100)
-        ->addRule(IValidator::REQUIRED,'Name is required!');
-      if ($user=$this->getCurrentUser()){
-        $fieldName->addRule(IValidator::CALLBACK,'RuleSet with this name already exists!',function($value)use($user,$id){
-          try{
-            /** @noinspection PhpUndefinedFieldInspection */
-            $this->ruleSetsFacade->checkUniqueRuleSetNameByUser($value,$user,$id);
-            return true;
-          }catch (\Exception $e){}
-          return false;
-        });
-      }
-      $this->input->field('description')->addRule(IValidator::MAX_LENGTH,'Maximal length of description is %d characters!',200);
-    }
-    #endregion actionUpdate
-
-
   /**
-   * Funkce pro nalezení pravidla dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným pravidlem
+   * Private method returning Rule with given $ruleId, also checks user privileges
    * @param int $ruleId
-   * @return RuleSet
+   * @return Rule
    * @throws \Nette\Application\BadRequestException
    */
   private function findRuleWithCheckAccess($ruleId){
@@ -229,23 +85,18 @@ class RulesPresenter extends BaseResourcePresenter{
   #endregion injections
 }
 
-/** TODO zkontrolovat
+/**
  * @SWG\Definition(
- *   definition="RuleResponse",
+ *   definition="RuleSimpleResponse",
  *   title="Rule",
- *   required={"id","name"},
- *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule set"),
- *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
- *   @SWG\Property(property="description",type="string",description="Description of the rule set"),
- *   @SWG\Property(property="rulesCount",type="boolean",description="Count of rules in the rule set")
+ *   required={"id","text"},
+ *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule"),
+ *   @SWG\Property(property="task",type="string",description="Task ID"),
+ *   @SWG\Property(property="text",type="string",description="Human-readable form of the rule"),
+ *   @SWG\Property(property="a",type="string",description="A value from the four field table"),
+ *   @SWG\Property(property="b",type="string",description="B value from the four field table"),
+ *   @SWG\Property(property="c",type="string",description="C value from the four field table"),
+ *   @SWG\Property(property="d",type="string",description="D value from the four field table"),
+ *   @SWG\Property(property="selected",type="string",enum={"0","1"},description="1, if the rule is in Rule Clipboard")
  * )
- * @SWG\Definition(
- *   definition="RuleInput",
- *   title="Rule",
- *   required={"id","name"},
- *   @SWG\Property(property="id",type="integer",description="Unique ID of the rule set"),
- *   @SWG\Property(property="name",type="string",description="Human-readable name of the rule set"),
- *   @SWG\Property(property="description",type="string",description="Description of the rule set")
- * )
- *
  */

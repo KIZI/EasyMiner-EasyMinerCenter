@@ -6,6 +6,7 @@ namespace EasyMinerCenter\InstallModule\DevModule\Model;
  * Class DevConfigManager
  * @package EasyMinerCenter\InstallModule\DevModule\model
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DevConfigManager {
 
@@ -19,7 +20,7 @@ class DevConfigManager {
   }
 
   /**
-   * Funkce pro kontrolu přístupu uživatele
+   * Method for check of user credentials
    * @param string $username
    * @param string $password
    * @return bool
@@ -36,7 +37,7 @@ class DevConfigManager {
   }
 
   /**
-   * Funkce vracející konfiguraci pro sudo
+   * Method returning config for SUDO
    * @return array
    */
   public function getSudoCredentials() {

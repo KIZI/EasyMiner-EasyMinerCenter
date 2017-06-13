@@ -7,8 +7,9 @@ use	Tracy\Debugger;
 
 /**
  * Class ErrorPresenter - presenter pro ošetření chyb
- * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ErrorPresenter extends BasePresenter
 {

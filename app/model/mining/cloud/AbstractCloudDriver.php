@@ -14,6 +14,7 @@ use Nette\InvalidArgumentException;
  * Class AbstractCloudDriver
  * @package EasyMinerCenter\Model\Mining\Cloud
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class AbstractCloudDriver{
   /** @var  Miner $miner */
@@ -26,11 +27,11 @@ class AbstractCloudDriver{
   protected $metaAttributesFacade;
   /** @var XmlSerializersFactory $xmlSerializersFactory */
   protected $xmlSerializersFactory;
-  /** @var array $params - parametry výchozí konfigurace */
+  /** @var array $params - default config params */
   protected $params;
   /** @var  User $user */
   protected $user;
-  /** @var  string $apiKey - API KEY pro konktrétního uživatele */
+  /** @var  string $apiKey - API KEY for the current user */
   protected $apiKey;
 
   /**
@@ -51,7 +52,7 @@ class AbstractCloudDriver{
   }
 
   /**
-   * Funkce vracející adresu R connectu
+   * Method returning the URL of a concrete miner on remote mining server (from config)
    * @return string
    */
   protected function getRemoteMinerUrl(){
@@ -60,7 +61,7 @@ class AbstractCloudDriver{
   }
 
   /**
-   * Funkce vracející adresu serveru, kde běží R connect
+   * Method returning the URL of remote mining server (from config)
    * @return string
    */
   protected function getRemoteServerUrl(){
@@ -68,7 +69,7 @@ class AbstractCloudDriver{
   }
 
   /**
-   * Funkce vracející konfiguraci aktuálně otevřeného mineru
+   * Method returning the configuration of current miner
    * @return array
    */
   protected function getMinerConfig(){
@@ -79,7 +80,7 @@ class AbstractCloudDriver{
   }
 
   /**
-   * Funkce nastavující konfiguraci aktuálně otevřeného mineru
+   * Method for setting configuration of the current miner
    * @param array $minerConfig
    * @param bool $save = true
    */
@@ -94,7 +95,7 @@ class AbstractCloudDriver{
   #region apiKey
 
   /**
-   * Funkce nastavující API klíč
+   * Method for setting the current API KEY
    * @param string $apiKey
    */
   public function setApiKey($apiKey){
@@ -102,7 +103,7 @@ class AbstractCloudDriver{
   }
 
   /**
-   * Funkce vracející nastavený API klíč
+   * Method returning the current API KEY
    * @return string
    * @throws InvalidArgumentException
    */
@@ -166,8 +167,7 @@ class AbstractCloudDriver{
   }
 
   /**
-   * Funkce pro kontrolu, jestli je dostupný dolovací server
-   *
+   * Method for checking, if the remote mining server is available
    * @param string $serverUrl
    * @throws \Exception
    * @return bool
@@ -175,7 +175,7 @@ class AbstractCloudDriver{
   public static function checkMinerServerState($serverUrl) {
     $response=self::curlRequestResponse($serverUrl);
     return !empty($response);
-    //TODO implementace kontroly dostupnosti serveru
+    //TODO check the real availability
   }
 
 }

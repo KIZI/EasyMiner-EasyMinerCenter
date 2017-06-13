@@ -1,12 +1,14 @@
 <?php
 
 namespace EasyMinerCenter\Model\Data\Databases\DataService;
+
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 
 /**
- * Class LimitedDatabase - přístup k LIMITED DB pomocí EasyMiner-Data
+ * Class LimitedDatabase - driver for access to LIMITED DB using EasyMiner-Data
  * @package EasyMinerCenter\Model\Data\Databases
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class LimitedDatabase extends DataServiceDatabase{
 
@@ -14,8 +16,7 @@ class LimitedDatabase extends DataServiceDatabase{
   const DB_TYPE_NAME=DbConnection::TYPE_LIMITED_NAME;
 
   /**
-   * Funkce vracející uživatelsky srozumitelný název databáze
-   *
+   * Method returning user understandable name of this database
    * @return string
    */
   public static function getDbTypeName() {
@@ -23,8 +24,7 @@ class LimitedDatabase extends DataServiceDatabase{
   }
 
   /**
-   * Funkce vracející identifikaci daného typu databáze
-   *
+   * Method returning identification of this database type
    * @return string
    */
   public static function getDbType() {

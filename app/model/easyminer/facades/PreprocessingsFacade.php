@@ -5,6 +5,12 @@ namespace EasyMinerCenter\Model\EasyMiner\Facades;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Repositories\PreprocessingsRepository;
 
+/**
+ * Class PreprocessingsFacade - facade for work with preprocessings (preprocessing definitions saved in DB)
+ * @package EasyMinerCenter\Model\EasyMiner\Facades
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class PreprocessingsFacade {
   /** @var PreprocessingsRepository $preprocessingsRepository */
   private $preprocessingsRepository;
@@ -32,7 +38,6 @@ class PreprocessingsFacade {
     $result = $this->preprocessingsRepository->persist($preprocessing);
     return $result;
   }
-
 
   /**
    * @param Preprocessing|int $preprocessing

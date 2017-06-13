@@ -17,6 +17,12 @@ use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Security\Passwords;
 
+/**
+ * Class UserPresenter
+ * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class UserPresenter  extends BasePresenter{
   use ResponsesTrait;
 
@@ -33,7 +39,7 @@ class UserPresenter  extends BasePresenter{
   public $backlink;
 
   /**
-   * Akce vracející json detaily o aktuálním uživateli
+   * Action sending details about current user as JSON
    */
   public function actionInfo(){
     if ($identity=$this->getUser()->identity){
@@ -49,7 +55,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro zobrazení detailů uživatelského účtu
+   * Action for displaying of the user account details
    * @param int|null $user
    * @throws Nette\Application\BadRequestException
    */
@@ -66,7 +72,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro změnu lokálního hesla
+   * Action for change of the local password
    * @param int|null $user
    * @throws Nette\Application\BadRequestException
    */
@@ -93,7 +99,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro vyrenderování stránky pro obnovu zapomenutého hesla
+   * Action for displaying forgotten password renewal view
    * @param int|null $id
    * @param string|null $user=null
    * @param string|null $code=null
@@ -130,7 +136,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro odhlášení uživatele
+   * Action for User logout
    */
   public function actionLogout(){
     $this->getUser()->logout(true);
@@ -139,20 +145,20 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro přihlášení uživatele
+   * Action for User login (before renderLogin)
    */
   public function actionLogin(){
     if ($this->user->isLoggedIn()){
-      //pokud je uživatel už přihlášen, přesměrujeme ho na otevření/vytvoření mineru
+      //if the user is already logged in, execute the redirect
       $this->finalRedirect();
     }
   }
 
   /**
-   * View pro přihlášení uživatele
+   * Action for displaying login view
    */
   public function renderLogin() {
-    //kontrola podpory sociálních sítí
+    //check support of social network logins
     /** @var FacebookLoginDialog $facebookLogin */
     $facebookLogin=$this->getComponent('facebookLogin');
     $this->template->allowFacebook=(!empty($facebookLogin->facebook->config->appId));
@@ -163,7 +169,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro kontrolu nepřihlášeného uživatele před registrací
+   * Action for check if the user is not logged in (before renderRegister)
    */
   public function actionRegister(){
     if ($this->user->isLoggedIn()){
@@ -174,7 +180,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * View pro registraci uživatele
+   * Action for displaying new user registration view
    */
   public function renderRegister() {
     //kontrola podpory sociálních sítí
@@ -188,7 +194,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Registrační formulář
+   * Registration form factory
    * @return Form
    */
   protected function createComponentRegistrationForm(){
@@ -334,14 +340,14 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Funkce pro finální přesměrování po přihlášení
+   * Method for final redirect after login
    */
   protected function finalRedirect(){
     if (!empty($this->backlink)){
-      //obnovení původního požadavku
+      //restore previous request
       $this->restoreRequest($this->backlink);
     }
-    //pokud nebyl nalezen původní požadavek, provedeme přesměrování
+    //previous request was not found - run default redirect
     if ($this->user->isAllowed('EasyMiner:Data','newMiner')){
       $this->redirect('Data:NewMiner');
     }else{
@@ -350,7 +356,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Zobrazení flash zprávy po úspěšném přihlášení
+   * Display flash message after succesfull login
    * @param string $service=''
    */
   protected function flashMessageLoginSuccess($service=''){
@@ -358,7 +364,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Zobrazení flash zprávy při neúspěšném přihlášení
+   * Display flash message if login failed
    * @param string $service
    */
   protected function flashMessageLoginFailed($service){
@@ -366,7 +372,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Formulář pro změnu hesla
+   * Form for password change
    * @return Form
    */
   protected function createComponentChangePasswordForm() {
@@ -386,14 +392,14 @@ class UserPresenter  extends BasePresenter{
       ->setRequired('Input new password!')
       ->addRule(Form::EQUAL,'New passwords do not match!',$newPassword);
     $form->addSubmit('save','Save new password')->onClick[]=function(SubmitButton $button){
-      //změna hesla
+      //password change
       $values=$button->getForm(true)->getValues();
       $user=$this->usersFacade->findUser($values->user);
       $user->password=Passwords::hash($values->newPassword);
       if ($this->usersFacade->saveUser($user)){
         $this->flashMessage('New password saved...');
       }
-      //finální přesměrování
+      //final redirect
       $values=$button->getForm(true)->getValues();
       $redirectParams=[];
       if ($this->user->id!=$values->user){
@@ -412,7 +418,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Formulář pro změnu zapomenutého hesla
+   * Form for forgotten password change
    * @return Form
    */
   protected function createComponentChangeForgottenPasswordForm() {
@@ -430,7 +436,7 @@ class UserPresenter  extends BasePresenter{
       ->setRequired('Input new password!')
       ->addRule(Form::EQUAL,'New passwords do not match!',$newPassword);
     $form->addSubmit('save','Change password')->onClick[]=function(SubmitButton $button){
-      //změna hesla
+      //password change
       $values=$button->getForm(true)->getValues();
 
       try{
@@ -449,7 +455,7 @@ class UserPresenter  extends BasePresenter{
       if ($this->usersFacade->saveUser($user)){
         $this->flashMessage('New password saved...');
       }
-      //finální přesměrování
+      //final redirect
       $this->redirect('login');
     };
     $form->addSubmit('storno','storno')
@@ -466,7 +472,7 @@ class UserPresenter  extends BasePresenter{
   }
 
   /**
-   * Formulář pro obnovu zapomenutého hesla
+   * Form for forgotten password renewal
    * @return Form
    */
   protected function createComponentForgottenPasswordForm(){
@@ -492,7 +498,7 @@ class UserPresenter  extends BasePresenter{
           $this->flashMessage('It was not possible to sent you information for password reset. Please try it later, or contact the administrator.');
         }
       }catch (\Exception $e){
-        //nebyl nalezen příslušný přihlašovací účet...
+        //requested User account was not found
         $this->flashMessage('Selected user account does not exist. Please register a new one...');
         $this->redirect('register');
         return;

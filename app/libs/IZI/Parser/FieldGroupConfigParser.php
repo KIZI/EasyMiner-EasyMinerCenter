@@ -6,6 +6,11 @@ use IZI\Exception\InvalidConnectiveException;
 use IZI\Exception\InvalidFieldGroupConfigException;
 use IZI\FieldGroupConfig\FieldGroup;
 
+/**
+ * Class FieldGroupConfigParser
+ * @package IZI\Parser
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class FieldGroupConfigParser
 {
     private $FGC;

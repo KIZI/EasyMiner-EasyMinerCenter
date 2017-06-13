@@ -5,10 +5,13 @@ use Nette\Object;
 use Nette\Utils\Strings;
 
 /**
- * Class OutliersTaskState - pracovní třída pro zachycení stavu úlohy
+ * Class OutliersTaskState - working class representing a OutlierTask state
  * @package EasyMinerCenter\Model\EasyMiner\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property string|null $state
+ * @property int|null $minerOutliersTaskId
  * @property string|null $resultsUrl
  */
 class OutliersTaskState extends Object{
@@ -18,6 +21,8 @@ class OutliersTaskState extends Object{
   private $state;
   /** @var string|null $resultsUrl */
   private $resultsUrl;
+  /** @var int $minerTaskId */
+  private $minerOutliersTaskId;
 
   /**
    * TaskState constructor.
@@ -76,7 +81,21 @@ class OutliersTaskState extends Object{
   }
 
   /**
-   * Funkce vracející info o stavu úlohy v podobě pole
+   * @return int
+   */
+  public function getMinerOutliersTaskId(){
+    return $this->minerOutliersTaskId;
+  }
+
+  /**
+   * @param int $minerOutliersTaskId
+   */
+  public function setMinerOutliersTaskId($minerOutliersTaskId){
+    $this->minerOutliersTaskId=$minerOutliersTaskId;
+  }
+
+  /**
+   * Method returning info about the task state in form of an array
    * @return array
    */
   public function asArray(){
@@ -86,6 +105,7 @@ class OutliersTaskState extends Object{
     ];
 
     $result['resultsUrl']=$this->resultsUrl;
+    $result['minerOutliersTaskId']=$this->minerOutliersTaskId;
 
     return $result;
   }

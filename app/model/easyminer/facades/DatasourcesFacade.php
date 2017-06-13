@@ -17,10 +17,10 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository;
 use Nette\NotImplementedException;
 
 /**
- * Class DatasourcesFacade - fasáda pro práci s datovými zdroji
- *
+ * Class DatasourcesFacade - method for work with datasources
  * @package EasyMinerCenter\Model\EasyMiner\Facades
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DatasourcesFacade {
   /** @var  DatabaseFactory $databaseFactory */
@@ -29,12 +29,11 @@ class DatasourcesFacade {
   private $datasourcesRepository;
   /** @var  DatasourceColumnsRepository $datasourceColumnsRepository */
   private $datasourceColumnsRepository;
-  /** @var string[] $dbTypesWithRemoteDatasources - seznam typů databází, ve kterých se nacházejí vzdálené datové zdroje */
+  /** @var string[] $dbTypesWithRemoteDatasources - list of types of databases with remote datasources */
   private static $dbTypesWithRemoteDatasources=[DbConnection::TYPE_LIMITED,DbConnection::TYPE_UNLIMITED];
 
   /**
-   * Funkce vracející seznam aktivních (nakonfigurovaných) typů databází
-   *
+   * Method returning list of active (configured) types of databases
    * @param bool $withNames = false
    * @return array
    */
@@ -50,7 +49,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce vracející preferovaný typ databáze
+   * Method returning preferred type of database
    * @return string
    */
   public function getPreferredDbType(){
@@ -59,7 +58,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce vracející přístup k databázi s daty konkrétního Datasource
+   * Method returning instance of database connection for concrete Datasource
    * @param Datasource $datasource
    * @return IDatabase
    */
@@ -68,24 +67,80 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce vracející URL pro přímý přístup ke službám pro práci s databázemi (využíváno v JS pro upload dat)
+   * Method returning configuration for direct access to services for work with databases (used in javascript upload in UI)
    * @return array
-   * @throws \Exception
    */
-  public function getDataServiceUrlsByDbTypes(){
+  public function getDataServicesConfigByDbTypes(){
+    $result = [];
     $dbTypes=$this->getDbTypes();
     if (!empty($dbTypes)){
       foreach($dbTypes as $dbType=>&$value){
-        //zjistíme URL pro každou z datových služeb
+        //get URL for each database type
         $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
-        $value=!empty($databaseConfig['api'])?$databaseConfig['api']:'local';
+        $result[$dbType]=[
+          'url'=>!empty($databaseConfig['apiExternalUrl'])?$databaseConfig['apiExternalUrl']:(!empty($databaseConfig['api'])?$databaseConfig['api']:'local'),
+          'allowLongNames'=>isset($databaseConfig['allowLongNames'])?(bool)$databaseConfig['allowLongNames']:false,
+          'supportedImportTypes'=>$databaseConfig['supportedImportTypes']
+        ];
       }
     }
-    return $dbTypes;
+    return $result;
   }
 
   /**
-   * Funkce vracející typ databáze, která umožňuje unzip (pokud je nějaká taková dostupná)
+   * Method returning true, if the selected database type supports long names of columns
+   * @param string $dbType
+   * @return bool
+   */
+  public function dbTypeSupportsLongNames($dbType){
+    $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
+    return isset($databaseConfig['allowLongNames'])?$databaseConfig['allowLongNames']:false;
+  }
+
+  /**
+   * Method returning true, if the selected Datasource type supports long names of columns
+   * @param Datasource $datasource
+   * @return bool
+   */
+  public function datasourceSupportsLongNames(Datasource $datasource){
+    return $this->dbTypeSupportsLongNames($datasource->type);
+  }
+
+  /**
+   * Method returning array with list of databases by concrete types of importable data
+   * @return array
+   */
+  public function getDbTypesByImportTypes(){
+    $result=[];
+    $dataServicesConfigByDbTypes=$this->getDataServicesConfigByDbTypes();
+    if (!empty($dataServicesConfigByDbTypes)){
+      foreach($dataServicesConfigByDbTypes as $dbType=>$dbTypeConfig){
+        if (!empty($dbTypeConfig['supportedImportTypes'])){
+          foreach($dbTypeConfig['supportedImportTypes'] as $importType){
+            if (!isset($result[$importType])){
+              $result[$importType]=[];
+            }
+            $result[$importType][]=$dbType;
+          }
+        }
+      }
+    }
+    return $result;
+  }
+
+
+  /**
+   * Method returning supported data types for the selected type of database
+   * @param string $dbType
+   * @return string[]
+   */
+  public function getSupportedImportTypesByDbType($dbType){
+    $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
+    return $databaseConfig['supportedImportTypes'];
+  }
+
+  /**
+   * Method returning type of database, which supports unzip (if there is at least one database with this support)
    * @return null|string
    */
   public function getDatabaseUnzipServiceType(){
@@ -100,7 +155,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro rozbalení dat
+   * Method for unzipping of preview data
    * @param string $data
    * @param string $compression
    * @param User $user
@@ -118,19 +173,18 @@ class DatasourcesFacade {
 
 
   /**
-   * Funkce pro aktualizaci informací o vzdálených datových zdrojích
-   *
+   * Method for update of informations about remote datasources
    * @param User $user
    */
   public function updateRemoteDatasourcesByUser(User $user){
     $supportedDbTypes = $this->databaseFactory->getDbTypes();
-    #region připravení seznamu externích
+    #region prepare list of remote datasources
     /** @var DbDatasource[] $dbDatasources */
     $dbDatasources=[];
     $updatableDbTypes=[];
     foreach(self::$dbTypesWithRemoteDatasources as $dbType){
       if (in_array($dbType,$supportedDbTypes)){
-        //načteme datové zdroje ze vzdálené databáze
+        //read datasources from remote database (using database driver)
         $database = $this->databaseFactory->getDatabaseInstanceWithDefaultDbConnection($dbType, $user);
         $remoteDbDatasources = $database->getDbDatasources();
         if (!empty($remoteDbDatasources)){
@@ -141,25 +195,25 @@ class DatasourcesFacade {
         $updatableDbTypes[]=$dbType;
       }
     }
-    #endregion připravení seznamu externích zdrojů
-    #region zpracovani seznamu datovych zdroju
-    //načteme seznam lokálních datových zdrojů
+    #endregion datasources from remote database (using database driver)
+    #region process the list of datasources
+    //read list of local datasources
     $datasources=$this->findDatasourcesByUser($user);
 
-    //porovnáme oba seznamy
+    //compare both lists of datasources
     $updatedDatasourcesIds=[];
     $updatedDbDatasourcesIds=[];
     if (!empty($datasources)&&!empty($dbDatasources)){
-      //zkusíme najít příslušné překrývající se datové zdroje
+      //try to find appropriate, overlapping datasources
       foreach($datasources as $key=>$datasource){
         if (!in_array($datasource->type,$updatableDbTypes)){
           unset($datasources[$key]);
-          continue;//ignorujeme datové zdroje, které nelze tímto způsobem aktualizovat
+          continue;//ignore datasources, which cannot be updated through this way
         }
         foreach($dbDatasources as $dbDatasource){
           if ($datasource->dbDatasourceId==$dbDatasource->id){
             if ($datasource->name!=$dbDatasource->name){
-              //aktualizace názvu datového zdroje (došlo k jeho přejmenování) a uložení
+              //update name of datasource (it was renamed) and save it
               $datasource->name=$dbDatasource->name;
             }
             if (!$datasource->available){
@@ -180,7 +234,7 @@ class DatasourcesFacade {
     if (!empty($datasources)){
       foreach($datasources as $datasource){
         if($datasource->available && !in_array($datasource->dbDatasourceId,$updatedDatasourcesIds)){
-          //označení datového zdroje, který již není dostupný
+          //mark datasource, which is not available any more
           $datasource->available=false;
           $this->saveDatasource($datasource);
         }
@@ -191,11 +245,11 @@ class DatasourcesFacade {
       $defaultDbConnections=[];
       foreach($dbDatasources as $dbDatasource){
         if (!in_array($dbDatasource->id,$updatedDbDatasourcesIds)){
-          //vyřešení výchozího připojení k DB
+          //solve the default database connection
           if (!isset($defaultDbConnections[$dbDatasource->type])){
             $defaultDbConnections[$dbDatasource->type]=$this->databaseFactory->getDefaultDbConnection($dbDatasource->type,$user);
           }
-          //přidání nového datového zdroje...
+          //add new datasource
           $datasource=Datasource::newFromDbConnection($defaultDbConnections[$dbDatasource->type]);
           $datasource->user=$user;
           $datasource->name=$dbDatasource->name;
@@ -206,12 +260,11 @@ class DatasourcesFacade {
         }
       }
     }
-    #endregion zpracovani seznamu datovych zdroju
+    #endregion process the list of datasources
   }
 
   /**
-   * Funkce pro získání seznamu dostupných datových zdrojů
-   *
+   * Method returning list of datasources for the given user
    * @param User $user
    * @param bool $onlyAvailable=false
    * @return Datasource[]|null
@@ -226,7 +279,7 @@ class DatasourcesFacade {
 
 
   /**
-   * Funkce pro vytvoření datového zdroje na základě DbDatasource, za využití výchozích informací pro připojení k dané DB
+   * Method for creating new datasource based on DbDatasource, using the default config of database connection
    * @param DbDatasource $dbDatasource
    * @param User $user
    * @return Datasource
@@ -242,7 +295,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro kontrolu názvů sloupců v datovém zdroji a jejich případné přejmenování
+   * Method for checking of column names in the datasource (and renaming of them, if it is required)
    * @param Datasource $datasource
    * @param array $columnNames
    * @param User $user
@@ -280,7 +333,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro nalezení datového zdroje dle zadaného ID
+   * Method for finding a datasource by the datasourceId
    * @param int $id
    * @return Datasource
    */
@@ -289,7 +342,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro nalezení datového zdroje dle zadaného ID z datové služby
+   * Method for finding a datasource by the ID from remote database/data service
    * @param int $dbDatasourceFieldId
    * @return Datasource
    * @throws EntityNotFoundException
@@ -299,7 +352,7 @@ class DatasourcesFacade {
   }
   
   /**
-   * Funkce pro nalezení datového zdroje s kontrolou oprávnění přístupu
+   * Method for finding a datasource by datasourceId, with check of user privileges
    * @param int $id
    * @param User $user
    * @return Datasource
@@ -315,7 +368,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro aktualizaci info o datových sloupcích v DB
+   * Method for updating the list of datasource columns
    * @param Datasource &$datasource
    * @param User $user
    */
@@ -333,7 +386,7 @@ class DatasourcesFacade {
     }
     $dbFields=$database->getDbFields($dbDatasource);
 
-    #region připravení seznamu aktuálně existujících datasourceColumns
+    #region prepare list of actually existing datasourceColumns
     /** @var DatasourceColumn[] $existingDatasourceColumnsByDbDatasourceFieldId */
     $existingDatasourceColumnsByDbDatasourceFieldId=[];
     /** @var DatasourceColumn[] $existingDatasourceColumnsByName */
@@ -350,13 +403,13 @@ class DatasourcesFacade {
 
       }
     }
-    #endregion
+    #endregion prepare list of actually existing datasourceColumns
 
-    #region aktualizace seznamu sloupců získaných z DB
+    #region update list of columns gained from DB
     if (!empty($dbFields)){
       foreach($dbFields as $dbField){
         if (!empty($dbField->id) && is_int($dbField->id) && isset($existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id])){
-          //sloupec s daným ID již je v databázi
+          //column with the given ID already exists in DB
           $datasourceColumn=$existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id];
           $modified=false;
           if ($datasourceColumn->name!=$dbField->name){
@@ -376,7 +429,7 @@ class DatasourcesFacade {
           }
           unset($existingDatasourceColumnsByDbDatasourceFieldId[$dbField->id]);
         }elseif(!empty($dbField->name) && isset($existingDatasourceColumnsByName[$dbField->name])){
-          //sloupec najdeme podle jména
+          //find column by name
           $datasourceColumn=$existingDatasourceColumnsByName[$dbField->name];
           $modified=false;
           if ($datasourceColumn->type!=$dbField->type){
@@ -392,7 +445,7 @@ class DatasourcesFacade {
           }
           unset($existingDatasourceColumnsByName[$dbField->name]);
         }else{
-          //máme tu nový datový sloupec
+          //we have there new column
           $datasourceColumn=new DatasourceColumn();
           $datasourceColumn->datasource=$datasource;
           $datasourceColumn->name=$dbField->name;
@@ -405,8 +458,9 @@ class DatasourcesFacade {
         }
       }
     }
-    #endregion
-    #region deaktivace již neexistujících sloupců
+    #endregion update list of columns gained from DB
+
+    #region deactivating of no more existing columns
     if (!empty($existingDatasourceColumnsByDbDatasourceFieldId)){
       foreach($existingDatasourceColumnsByDbDatasourceFieldId as &$datasourceColumn){
         if ($datasourceColumn->active){
@@ -423,13 +477,14 @@ class DatasourcesFacade {
         }
       }
     }
-    #endregion
-    //aktualizace datového zdroje z DB
+    #endregion deactivating of no more existing columns
+
+    //update datasource instace from DB
     $datasource=$this->findDatasource($datasource->datasourceId);
   }
 
   /**
-   * Funkce pro nalezení DatasourceColumn dle jeho ID
+   * Find DatasourceColumn by DatasourceId and DatasourceColumnId
    * @param Datasource|int $datasource
    * @param int $columnId
    * @return DatasourceColumn
@@ -443,6 +498,7 @@ class DatasourcesFacade {
 
   /**
    * Funkce pro nalezení DatasourceColumn podle jména
+   * Method for finding a DatasourceColumn by DatasourceId and name of the column
    * @param Datasource|int $datasource
    * @param string $columnName
    * @return DatasourceColumn
@@ -455,7 +511,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro uložení entity DatasourceColumn
+   * Method for saving of a DatasourceColumn
    * @param DatasourceColumn $datasourceColumn
    * @return int|bool
    */
@@ -465,7 +521,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro nalezení DatasourceColumn podle ID sloupce v datové službě
+   * Method for finding DatasourceColumn by ID of the column/field in remote database/data service
    * @param Datasource $datasource
    * @param int $dbDatasourceFieldId
    * @return DatasourceColumn
@@ -476,7 +532,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro připravení parametrů nového datového zdroje pro daného uživatele...
+   * Method for preparing of params for new datasource for the given user
    * @param string $dbType
    * @param User $user
    * @param bool $ignoreCheck
@@ -498,10 +554,10 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro export pole s informacemi z DataDictionary
+   * Method for export of array with info from DataDictionary
    * @param Datasource $datasource
    * @param User $user
-   * @param int &rowsCount = null - počet řádků v datasource
+   * @param int &rowsCount = null - variable returning count of rows in DataSource
    * @return array
    */
   public function exportDataDictionaryArr(Datasource $datasource, User $user, &$rowsCount = null) {
@@ -519,7 +575,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro kontrolu, jestli je daný uživatel oprávněn přistupovat ke zvolenému mineru
+   * Method for checking, if the given user is allowed to access the selected datasource
    * @param Datasource|int $datasource
    * @param User|int $user
    * @return bool
@@ -535,7 +591,7 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro uložení Datasource
+   * Method for saving of Datasource
    * @param Datasource $datasource
    * @return int
    */
@@ -544,28 +600,27 @@ class DatasourcesFacade {
   }
 
   /**
-   * Funkce pro smazání konkrétního datového zdroje
+   * Method for deleting of concrete datasource
    * @param Datasource $datasource
    * @param MinersFacade $minersFacade
    * @return bool
    */
   public function deleteDatasource(Datasource $datasource, MinersFacade $minersFacade){
-    //smazání navázaných dat
+    //delete related data
     $this->deleteDatasourceData($datasource);
-    //nalezení všech navázaných minerů a jejich odstranění
+    //delete all attached miners
     $miners=$minersFacade->findMinersByDatasource($datasource);
     if (!empty($miners)){
       foreach($miners as $miner){
         $minersFacade->deleteMiner($miner);
       }
     }
-    //smazání samotného datového zdroje
+    //delete the datasource
     return $this->datasourcesRepository->delete($datasource);
   }
 
   /**
-   * Funkce pro smazání navázaného datového zdroje (se zachováním záznamu o něm, zachování metasource a minerů)
-   *
+   * Method for selecting remote datasource (with keeping info about it, keeping metasource and miners)
    * @param Datasource $datasource
    */
   public function deleteDatasourceData(Datasource $datasource){
@@ -577,77 +632,4 @@ class DatasourcesFacade {
     $this->saveDatasource($datasource);
   }
 
-
-#  /**
-#   * Funkce vracející admin přístupy k DB daného typu
-#   * @param string $dbType
-#   * @return DbConnection
-#   */
-#  public function getAdminDbConnection($dbType){
-#  $dbConnection=new DbConnection();
-#  $databaseConfig=$this->databasesConfig[$dbType];
-#  $dbConnection->type=$dbType;
-#  $dbConnection->dbUsername=(!empty($databaseConfig['data_username'])?$databaseConfig['data_username']:@$databaseConfig['username']);
-#  $dbConnection->dbPassword=(!empty($databaseConfig['data_password'])?$databaseConfig['data_password']:@$databaseConfig['password']);
-#  $dbConnection->dbServer=(!empty($databaseConfig['data_server'])?$databaseConfig['data_server']:@$databaseConfig['server']);
-#  if (!empty($databaseConfig['data_port'])){
-#  $dbConnection->dbPort=$databaseConfig['data_port'];
-#  }
-#  return $dbConnection;
-#  }
-#
-#
-#  /**
-#   * Funkce pro kontrolu, jestli jsou všechny sloupce z daného datového zdroje namapované na formáty z knowledge base
-#   * @param Datasource|int $datasource
-#   * @param bool $reloadColumns = false
-#   * @return bool
-#   */
-#  public function checkDatasourceColumnsFormatsMappings($datasource, $reloadColumns = false){
-#  if ($datasource->isDetached()){
-#  exit('xxx');//FIXME
-#  }
-#  if (!($datasource instanceof Datasource)){
-#  $datasource=$this->findDatasource($datasource);
-#  }
-#
-#  if ($reloadColumns){
-#  $this->reloadDatasourceColumns($datasource);
-#  }
-#
-#  $datasourceColumns=$datasource->datasourceColumns;
-#  foreach ($datasourceColumns as &$datasourceColumn){
-#  if (empty($datasourceColumn->format)){
-#  return false;
-#  }
-#  }
-#  return true;
-#  }
-#
-#  /**
-#   * @param Datasource $datasource
-#   * @param bool $reloadColumns = true - true, pokud má být zaktualizován seznam
-#   * @return bool
-#   */
-#  public function saveDatasource(Datasource &$datasource, $reloadColumns = true) {
-#  $result = $this->datasourcesRepository->persist($datasource);
-#  if ($reloadColumns) {
-#  ///XXX $this->reloadDatasourceColumns($datasource);
-#  }
-#  return $result;
-#  }
-#
-#
-#
-#
-#  /**
-#   * @param Datasource|int $datasource
-#   * @return int
-#   */
-#  public function deleteDatasource($datasource){
-#  if (!($datasource instanceof Datasource)){
-#  $datasource=$this->datasourcesRepository->find($datasource);
-#  }
-#  return $this->datasourcesRepository->delete($datasource);
-#  }
 }

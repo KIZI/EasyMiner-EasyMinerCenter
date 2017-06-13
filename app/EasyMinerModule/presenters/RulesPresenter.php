@@ -6,8 +6,10 @@ use Nette\Application\BadRequestException;
 use Nette\Application\ForbiddenRequestException;
 
 /**
- * Class RulesPresenter - presenter pro práci s jednotlivými pravidly
+ * Class RulesPresenter - presenter for work with individual rules
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RulesPresenter  extends BasePresenter{
   use MinersFacadeTrait;
@@ -23,17 +25,16 @@ class RulesPresenter  extends BasePresenter{
 
 
   /**
-   * Akce vracející pravidla pro vykreslení v easymineru
-   * @param int $id
+   * Action for rendering detauls about a rule
+   * @param int $id - task ID
    * @param int $miner
-   * @param string $task
    * @param string $rule
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
   public function renderRuleDetails($id=null,$miner,$rule){
     $rule=$this->rulesFacade->findRule($rule);
-    //kontrola přístupů
+    //check user privileges
     $task=$rule->task;
     $minerId=$miner;
     $miner=$task->miner;
@@ -45,7 +46,7 @@ class RulesPresenter  extends BasePresenter{
     $this->template->rule=$rule;
   }
 
-  #region funkce pro práci s Knowledge Base
+  #region functions for work with knowledge base
   public function actionGetRules($id){
     //TODO
   }

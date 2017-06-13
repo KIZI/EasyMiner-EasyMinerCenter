@@ -3,9 +3,10 @@
 namespace EasyMinerCenter\Model\Data\Entities;
 
 /**
- * Class DbValuesRows - třída představující jednotlivé řádky získané z databáze
+ * Class DbValuesRows - class representing individual rows gained from the database
  * @package EasyMinerCenter\Model\Data\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class DbValuesRows{
   /** @var  DbField[] $dbFields */
@@ -24,7 +25,7 @@ class DbValuesRows{
   }
 
   /**
-   * Funkce vracející jednotlivé sloupce
+   * Function returning individual columns (DbFields)
    * @return DbField[]
    */
   public function getFields(){
@@ -32,7 +33,7 @@ class DbValuesRows{
   }
 
   /**
-   * Funkce vracející názvy jednotlivých sloupců
+   * Function returning names of individual columns (DbFields)
    * @return string[]
    */
   public function getFieldNames(){
@@ -46,7 +47,7 @@ class DbValuesRows{
   }
 
   /**
-   * Funkce vracející data z jednotlivých řádků
+   * Function returning data from individual DB rows
    * @return array
    */
   public function getValuesRows(){
@@ -54,7 +55,7 @@ class DbValuesRows{
   }
 
   /**
-   * Funkce pro sestavení dat z řádků do podoby pole objektů ve formátu JSON
+   * Function for composition of the data from DB row to the form of objects in JSON
    * @return array
    */
   public function getRowsAsArray(){

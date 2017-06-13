@@ -11,9 +11,11 @@ use EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory;
 use Nette\Utils\Strings;
 
 /**
- * Trait PmmlSerializerTrait obsahuje metody sdílené všemi serializacemi do PMML modelů
+ * Trait PmmlSerializerTrait containing methods shared by all serializers to PMML
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
  */
 trait PmmlSerializerTrait{
 
@@ -26,8 +28,7 @@ trait PmmlSerializerTrait{
   ];
 
   /**
-   * Funkce pro přidání tagu <Extension name="..." value="..." />
-   *
+   * Method for adding element <Extension name="..." value="..." />
    * @param \SimpleXMLElement &$parentSimpleXmlElement
    * @param string $extensionName
    * @param string $extensionValue
@@ -58,6 +59,7 @@ trait PmmlSerializerTrait{
   }
 
   /**
+   * Method for setting the value of Extension element
    * @param \SimpleXMLElement $parentSimpleXmlElement
    * @param string $extensionName
    * @param string $extensionValue
@@ -66,7 +68,7 @@ trait PmmlSerializerTrait{
    */
   protected function setExtensionElement(\SimpleXMLElement &$parentSimpleXmlElement,$extensionName,$extensionValue,$extensionExtender=null, $groupExtensions=true){
     if ($extensionElement=$this->getExtensionElement($parentSimpleXmlElement,$extensionName)){
-      //existuje příslušný element Extension
+      //there exists Extension element with the given name
       $extensionElement['name']=$extensionName;
       $extensionElement['value']=$extensionValue;
       if ($extensionExtender!=''){
@@ -80,7 +82,7 @@ trait PmmlSerializerTrait{
   }
 
   /**
-   * Funkce vracející konkrétní extension
+   * Method returning concrete Extension element
    * @param \SimpleXMLElement $parentSimpleXmlElement
    * @param string $extensionName
    * @return \SimpleXMLElement|null
@@ -99,7 +101,7 @@ trait PmmlSerializerTrait{
   }
 
   /**
-   * Funkce pro nastavení základních informací o úloze, ke které je vytvářena serializace
+   * Method for appengind basic info about the task
    */
   private function appendTaskInfo() {
     /** @var \SimpleXMLElement $headerXml */
@@ -117,7 +119,7 @@ trait PmmlSerializerTrait{
       $this->setExtensionElement($headerXml,'subsystem',$this->task->type);
       $this->setExtensionElement($headerXml,'module',$this->task->type);
     }
-    //základní informace o autorovi a timestamp
+    //basic info about author and timestamp
     $this->setExtensionElement($headerXml,'author',(!empty($this->miner->user)?$this->miner->user->name:''));
     $headerXml->Timestamp=date('Y-m-d H:i:s').' GMT '.str_replace(['+','-'],['+ ','- '],date('P'));
     $applicationXml=$headerXml->Application;
@@ -125,6 +127,10 @@ trait PmmlSerializerTrait{
     $applicationXml['version']=$this->appVersion;
   }
 
+  /**
+   * Method for appending DataDictionary to PMML
+   * @param bool $includeFrequencies = true
+   */
   public function appendDataDictionary($includeFrequencies=true){
     $datasource=$this->miner->datasource;
     if (empty($datasource->datasourceColumns)){
@@ -137,7 +143,7 @@ trait PmmlSerializerTrait{
     }else{
       $dataDictionaryXml->addAttribute('numberOfFields',count($datasource->datasourceColumns));
     }
-    //připojení jednotlivých data fields
+    //append all data fields (datasource columns)
     foreach($datasource->datasourceColumns as $datasourceColumn){
       $dataFieldXml=$dataDictionaryXml->addChild('DataField');
       $dataFieldXml->addAttribute('name',$datasourceColumn->name);
@@ -175,7 +181,7 @@ trait PmmlSerializerTrait{
   }
 
   /**
-   * Funkce pro serializaci TransformationDictionary
+   * Method for appending of TransformationDictionary
    * @param bool $includeFrequencies = true
    * @throws \Exception
    */
@@ -201,17 +207,17 @@ trait PmmlSerializerTrait{
       }
       $datasourceColumn=$attribute->datasourceColumn;
 
-      //serializace preprocessingu
+      //serialize preprocessing
       $preprocessing=$attribute->preprocessing;
       if ($preprocessing->specialType==Preprocessing::SPECIALTYPE_EACHONE){
-        //serializace eachOne
+        //serialize eachOne
         $mapValuesXml=$derivedFieldXml->addChild('MapValues');
         $mapValuesXml->addAttribute('outputColumn','field');
         $fieldColumnPairXml=$mapValuesXml->addChild('FieldColumnPair');
         $fieldColumnPairXml->addAttribute('column','column');
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
-        //frekvence
+        //frequencies
         $ppDataset=$preprocessingDriver->getPpDataset($metasource->ppDatasetId);
         $ppValues=$preprocessingDriver->getPpValues($ppDataset,$attribute->ppDatasetAttributeId?$attribute->ppDatasetAttributeId:$attribute->name,0,100);//TODO optimalizovat počet hodnot
         if (!empty($ppValues)){
@@ -222,10 +228,10 @@ trait PmmlSerializerTrait{
           }
           foreach($ppValues as $ppValue){
             if ($ppValue->value==''){
-              continue;//ignorujeme prázdné hodnoty
+              continue;//ignore empty values
             }
             $rowXml=$inlineTableXml->addChild('row');
-            $columnNode=$rowXml->addChild('column');//v původních i finálních datech je stejná hodnota
+            $columnNode=$rowXml->addChild('column');//original and also final data have contain the same value
             $columnNode[0]=$ppValue->value;
             $fieldNode=$rowXml->addChild('field');
             $fieldNode[0]=$ppValue->value;
@@ -236,10 +242,10 @@ trait PmmlSerializerTrait{
       if (empty($preprocessing->valuesBins)){continue;}
       $valuesBins=$preprocessing->valuesBins;
       if (!empty($valuesBins[0]->intervals)){
-        //serializace discretizace pomocí intervalů
+        //discretization using intervals
         $discretizeXml=$derivedFieldXml->addChild('Discretize');
         $discretizeXml->addAttribute('field',$datasourceColumn->name);
-        //frekvence
+        //frequencies
         //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
@@ -250,7 +256,7 @@ trait PmmlSerializerTrait{
         foreach($valuesBins as $valuesBin){
           if (!empty($valuesBin->intervals)) {
             foreach ($valuesBin->intervals as $interval){
-              if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//vynecháme neobsazené hodnoty
+              if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
               $discretizeBinXml = $discretizeXml->addChild('DiscretizeBin');
               $discretizeBinXml->addAttribute('binValue', $valuesBin->name);
               $intervalXml=$discretizeBinXml->addChild('Interval');
@@ -262,14 +268,14 @@ trait PmmlSerializerTrait{
           }
         }
       }elseif(!empty($valuesBins[0]->values)){
-        //serializace discretizace pomocí výčtů hodnot
+        //discretization using enumerations of values
         $mapValuesXml=$derivedFieldXml->addChild('MapValues');
         $mapValuesXml->addAttribute('outputColumn','field');
         $fieldColumnPairXml=$mapValuesXml->addChild('FieldColumnPair');
         $fieldColumnPairXml->addAttribute('column','column');
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
-        //frekvence
+        //frequencies
         //TODO replace databasesFacade
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
@@ -279,7 +285,7 @@ trait PmmlSerializerTrait{
         }
         foreach($valuesBins as $valuesBin){
           if (!empty($valuesBin->values)){
-            if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//vynecháme neobsazené hodnoty
+            if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
             foreach ($valuesBin->values as $value){
               $rowXml=$inlineTableXml->addChild('row');
               $columnNode=$rowXml->addChild('column');
@@ -294,7 +300,7 @@ trait PmmlSerializerTrait{
   }
 
   /**
-   *  @param bool $includeMiningFields = false - pokud je true, budou doplněny také elementy MiningField
+   *  @param bool $includeMiningFields = false - it true, there will be added also elements MiningField
    */
   protected function appendAssociationModelTaskSettings(){
     $taskSettingsSerializer=new AssociationModelTaskSettingsSerializer($this->pmml);

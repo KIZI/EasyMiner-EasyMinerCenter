@@ -8,8 +8,10 @@ use LeanMapper\Fluent;
 
 /**
  * Class RuleSet
- *
  * @package EasyMinerCenter\Model\EasyMiner\Entities
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int $ruleSetId
  * @property string $name = ''
  * @property string $description = ''
@@ -21,7 +23,7 @@ use LeanMapper\Fluent;
 class RuleSet extends Entity implements IOwnerResource{
 
   /**
-   * Funkce vracející základní data v podobě pole
+   * Method returning an array with basic data properties
    * @return array
    */
   public function getDataArr(){
@@ -35,7 +37,7 @@ class RuleSet extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce vracející pravidla zařazená do tohoto rulesetu
+   * Method returning Rules with the relation to this RuleSet (optionally depending on the given relationType)
    * @param null|string $relationType=null
    * @return Rule[]
    */
@@ -56,7 +58,7 @@ class RuleSet extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce vracející relace aktuálního rulesetu k pravidlům (v závislosti na zvoleném typu relace)
+   * Method returning the relations of this RuleSet to Rules (depending on the given relation type)
    * @param string $relationType
    * @return RuleSetRuleRelation[]
    * @throws \LeanMapper\Exception\Exception
@@ -70,7 +72,7 @@ class RuleSet extends Entity implements IOwnerResource{
   }
 
   /**
-   * Funkce vracející ID vlastníka (uživatele)
+   * Method returning ID of the owner (User)
    * @return int
    */
   function getUserId() {
@@ -82,7 +84,7 @@ class RuleSet extends Entity implements IOwnerResource{
   }
 
   /**
-   * Returns a string identifier of the Resource.
+   * Method returning a string identifier of the Resource.
    * @return string
    */
   function getResourceId() {

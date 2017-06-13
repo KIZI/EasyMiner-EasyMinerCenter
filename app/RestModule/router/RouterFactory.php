@@ -8,10 +8,11 @@ use Nette\Application\IRouter;
 use Nette\Application\Routers\RouteList;
 use Nette\Application\Routers\Route;
 
-
 /**
- * Router factory for RestModule
+ * Class RouterFactory - Router factory for RestModule
+ * @package EasyMinerCenter\RestModule\Router
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RouterFactory {
 

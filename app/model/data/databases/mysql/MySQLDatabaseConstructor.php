@@ -7,13 +7,14 @@ use EasyMinerCenter\Model\Data\Entities\DbConnection;
  * Class MySQLDatabaseConstructor
  * @package EasyMinerCenter\Model\Data\Databases\MySQL
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class MySQLDatabaseConstructor{
   /** @var \PDO $db */
   private $db;
 
   /**
-   * Funkce pro kontrolu, jestli se dá k dané DB připojit pomocí PDO
+   * Method for check, if it is possible to connect to the DB using PDO
    * @param DbConnection $dbConnection
    * @return bool
    */
@@ -49,7 +50,7 @@ class MySQLDatabaseConstructor{
   }
 
   /**
-   * Funkce pro vytvoření uživatele a databáze na základě zadaných údajů
+   * Method for creating user and his database
    * @param DbConnection $dbConnection
    * @return bool
    */

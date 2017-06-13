@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "649c3a58c3c1f4ee712c193dff4c6e00",
+    "content-hash": "168a6c6028d40ad3ac45bbcc55596cbd",
     "packages": [
         {
             "name": "dg/dibi",
@@ -67,39 +67,40 @@
                 "postgresql",
                 "sqlite"
             ],
-            "time": "2015-04-18 14:26:53"
+            "abandoned": "dibi/dibi",
+            "time": "2015-04-18T14:26:53+00:00"
         },
         {
             "name": "doctrine/annotations",
-            "version": "v1.2.7",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "f25c8aab83e0c3e976fd7d19875f198ccf2f7535"
+                "reference": "54cacc9b81758b14e3ce750f205a393d52339e97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/f25c8aab83e0c3e976fd7d19875f198ccf2f7535",
-                "reference": "f25c8aab83e0c3e976fd7d19875f198ccf2f7535",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/54cacc9b81758b14e3ce750f205a393d52339e97",
+                "reference": "54cacc9b81758b14e3ce750f205a393d52339e97",
                 "shasum": ""
             },
             "require": {
                 "doctrine/lexer": "1.*",
-                "php": ">=5.3.2"
+                "php": "^5.6 || ^7.0"
             },
             "require-dev": {
                 "doctrine/cache": "1.*",
-                "phpunit/phpunit": "4.*"
+                "phpunit/phpunit": "^5.7"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.3.x-dev"
+                    "dev-master": "1.4.x-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Doctrine\\Common\\Annotations\\": "lib/"
+                "psr-4": {
+                    "Doctrine\\Common\\Annotations\\": "lib/Doctrine/Common/Annotations"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -135,7 +136,7 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2015-08-31 12:32:49"
+            "time": "2017-02-24T16:22:25+00:00"
         },
         {
             "name": "doctrine/lexer",
@@ -189,7 +190,7 @@
                 "lexer",
                 "parser"
             ],
-            "time": "2014-09-09 13:34:57"
+            "time": "2014-09-09T13:34:57+00:00"
         },
         {
             "name": "drahak/restful",
@@ -290,7 +291,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2015-05-21 19:35:32"
+            "time": "2015-05-21T19:35:32+00:00"
         },
         {
             "name": "joseki/error-presenter-extension",
@@ -326,7 +327,7 @@
                 }
             ],
             "description": "Dynamic error presenter loader extension",
-            "time": "2014-09-13 06:41:26"
+            "time": "2014-09-13T06:41:26+00:00"
         },
         {
             "name": "kdyby/curl",
@@ -404,7 +405,8 @@
                 "http",
                 "nette"
             ],
-            "time": "2014-07-26 16:52:43"
+            "abandoned": "guzzlehttp/guzzle",
+            "time": "2014-07-26T16:52:43+00:00"
         },
         {
             "name": "kdyby/curl-ca-bundle",
@@ -455,57 +457,60 @@
                 "https",
                 "ssl"
             ],
-            "time": "2015-08-04 23:00:12"
+            "abandoned": "composer/ca-bundle",
+            "time": "2015-08-04T23:00:12+00:00"
         },
         {
             "name": "kdyby/facebook",
-            "version": "v1.2.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Kdyby/Facebook.git",
-                "reference": "4b0da00e723fc662e72dfc182cedaa0ca4f8f19b"
+                "reference": "7530f665a8f036acc7a19b8ec0a92bf4cb497f49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Kdyby/Facebook/zipball/4b0da00e723fc662e72dfc182cedaa0ca4f8f19b",
-                "reference": "4b0da00e723fc662e72dfc182cedaa0ca4f8f19b",
+                "url": "https://api.github.com/repos/Kdyby/Facebook/zipball/7530f665a8f036acc7a19b8ec0a92bf4cb497f49",
+                "reference": "7530f665a8f036acc7a19b8ec0a92bf4cb497f49",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*",
                 "kdyby/curl-ca-bundle": "~1.0",
-                "nette/application": "~2.2@dev",
-                "nette/di": "~2.2@dev",
-                "nette/http": "~2.2@dev"
+                "nette/application": "~2.3@dev",
+                "nette/di": "~2.3@dev",
+                "nette/http": "~2.3@dev"
             },
             "require-dev": {
-                "jakub-onderka/php-parallel-lint": "~0.7",
-                "latte/latte": "~2.2@dev",
-                "nette/bootstrap": "~2.2@dev",
-                "nette/caching": "~2.2@dev",
+                "kdyby/fake-session": "@dev",
+                "latte/latte": "~2.3@dev",
+                "nette/application": "~2.3@dev",
+                "nette/bootstrap": "~2.3@dev",
+                "nette/caching": "~2.3@dev",
                 "nette/component-model": "~2.2@dev",
-                "nette/database": "~2.2@dev",
+                "nette/database": "~2.3@dev",
                 "nette/deprecated": "~2.2@dev",
-                "nette/finder": "~2.2@dev",
-                "nette/forms": "~2.2@dev",
-                "nette/mail": "~2.2@dev",
-                "nette/neon": "~2.2@dev",
-                "nette/nette": "~2.2@dev",
-                "nette/php-generator": "~2.2@dev",
-                "nette/reflection": "~2.2@dev",
-                "nette/robot-loader": "~2.2@dev",
-                "nette/safe-stream": "~2.2@dev",
-                "nette/security": "~2.2@dev",
-                "nette/tester": "@dev",
+                "nette/di": "~2.3@dev",
+                "nette/finder": "~2.3@dev",
+                "nette/forms": "~2.3@dev",
+                "nette/http": "~2.3@dev",
+                "nette/mail": "~2.3@dev",
+                "nette/neon": "~2.3@dev",
+                "nette/php-generator": "~2.3@dev",
+                "nette/reflection": "~2.3@dev",
+                "nette/robot-loader": "~2.3@dev",
+                "nette/safe-stream": "~2.3@dev",
+                "nette/security": "~2.3@dev",
+                "nette/tester": "~1.3@rc",
                 "nette/tokenizer": "~2.2@dev",
-                "nette/utils": "~2.2@dev",
-                "tracy/tracy": "~2.2@dev"
+                "nette/utils": "~2.3@dev",
+                "tracy/tracy": "~2.3@dev"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2-dev"
+                    "dev-master": "2.0-dev"
                 }
             },
             "autoload": {
@@ -540,19 +545,19 @@
                 "nette",
                 "sdk"
             ],
-            "time": "2014-08-27 04:35:57"
+            "time": "2016-01-17T14:00:25+00:00"
         },
         {
             "name": "kdyby/forms-replicator",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Kdyby/Replicator.git",
+                "url": "https://github.com/Kdyby/FormsReplicator.git",
                 "reference": "a8e37efe715d913800cdc530e126874ff166681a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Kdyby/Replicator/zipball/a8e37efe715d913800cdc530e126874ff166681a",
+                "url": "https://api.github.com/repos/Kdyby/FormsReplicator/zipball/a8e37efe715d913800cdc530e126874ff166681a",
                 "reference": "a8e37efe715d913800cdc530e126874ff166681a",
                 "shasum": ""
             },
@@ -742,7 +747,7 @@
                 "templating",
                 "twig"
             ],
-            "time": "2015-08-23 12:36:55"
+            "time": "2015-08-23T12:36:55+00:00"
         },
         {
             "name": "nette/application",
@@ -804,7 +809,7 @@
             ],
             "description": "Nette Application MVC Component",
             "homepage": "http://nette.org",
-            "time": "2015-08-23 11:31:23"
+            "time": "2015-08-23T11:31:23+00:00"
         },
         {
             "name": "nette/bootstrap",
@@ -870,7 +875,7 @@
             ],
             "description": "Nette Bootstrap",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:07:11"
+            "time": "2015-07-11T21:07:11+00:00"
         },
         {
             "name": "nette/caching",
@@ -928,7 +933,7 @@
             ],
             "description": "Nette Caching Component",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:09:42"
+            "time": "2015-07-11T21:09:42+00:00"
         },
         {
             "name": "nette/component-model",
@@ -978,7 +983,7 @@
             ],
             "description": "Nette Component Model",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:11:20"
+            "time": "2015-07-11T21:11:20+00:00"
         },
         {
             "name": "nette/database",
@@ -1032,7 +1037,7 @@
             ],
             "description": "Nette Database Component",
             "homepage": "http://nette.org",
-            "time": "2015-08-23 15:25:49"
+            "time": "2015-08-23T15:25:49+00:00"
         },
         {
             "name": "nette/deprecated",
@@ -1088,7 +1093,7 @@
             ],
             "description": "APIs and features removed from Nette Framework",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 20:57:29"
+            "time": "2015-07-11T20:57:29+00:00"
         },
         {
             "name": "nette/di",
@@ -1140,7 +1145,7 @@
             ],
             "description": "Nette Dependency Injection Component",
             "homepage": "http://nette.org",
-            "time": "2015-07-13 22:28:49"
+            "time": "2015-07-13T22:28:49+00:00"
         },
         {
             "name": "nette/finder",
@@ -1190,7 +1195,7 @@
             ],
             "description": "Nette Finder: Files Searching",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:13:50"
+            "time": "2015-07-11T21:13:50+00:00"
         },
         {
             "name": "nette/forms",
@@ -1245,7 +1250,7 @@
             ],
             "description": "Nette Forms: greatly facilitates web forms",
             "homepage": "http://nette.org",
-            "time": "2015-07-20 01:25:35"
+            "time": "2015-07-20T01:25:35+00:00"
         },
         {
             "name": "nette/http",
@@ -1299,7 +1304,7 @@
             ],
             "description": "Nette HTTP Component",
             "homepage": "http://nette.org",
-            "time": "2015-07-19 16:17:50"
+            "time": "2015-07-19T16:17:50+00:00"
         },
         {
             "name": "nette/mail",
@@ -1354,7 +1359,7 @@
             ],
             "description": "Nette Mail: Sending E-mails",
             "homepage": "http://nette.org",
-            "time": "2015-07-03 13:31:38"
+            "time": "2015-07-03T13:31:38+00:00"
         },
         {
             "name": "nette/neon",
@@ -1401,7 +1406,7 @@
             ],
             "description": "Nette NEON: parser & generator for Nette Object Notation",
             "homepage": "http://ne-on.org",
-            "time": "2015-08-22 15:23:30"
+            "time": "2015-08-22T15:23:30+00:00"
         },
         {
             "name": "nette/nette",
@@ -1473,7 +1478,7 @@
                 "mvc",
                 "templating"
             ],
-            "time": "2015-08-23 14:54:23"
+            "time": "2015-08-23T14:54:23+00:00"
         },
         {
             "name": "nette/php-generator",
@@ -1523,7 +1528,7 @@
             ],
             "description": "Nette PHP Generator",
             "homepage": "http://nette.org",
-            "time": "2015-08-22 15:26:12"
+            "time": "2015-08-22T15:26:12+00:00"
         },
         {
             "name": "nette/reflection",
@@ -1576,7 +1581,7 @@
             ],
             "description": "Nette PHP Reflection Component",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:34:53"
+            "time": "2015-07-11T21:34:53+00:00"
         },
         {
             "name": "nette/robot-loader",
@@ -1628,7 +1633,7 @@
             ],
             "description": "Nette RobotLoader: comfortable autoloading",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:20:57"
+            "time": "2015-07-11T21:20:57+00:00"
         },
         {
             "name": "nette/safe-stream",
@@ -1682,7 +1687,7 @@
             ],
             "description": "Nette SafeStream: Atomic Operations",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 20:59:15"
+            "time": "2015-07-11T20:59:15+00:00"
         },
         {
             "name": "nette/security",
@@ -1734,7 +1739,7 @@
             ],
             "description": "Nette Security: Access Control Component",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:22:53"
+            "time": "2015-07-11T21:22:53+00:00"
         },
         {
             "name": "nette/tokenizer",
@@ -1783,7 +1788,7 @@
             ],
             "description": "Nette Tokenizer",
             "homepage": "http://nette.org",
-            "time": "2015-07-11 21:24:02"
+            "time": "2015-07-11T21:24:02+00:00"
         },
         {
             "name": "nette/utils",
@@ -1838,7 +1843,7 @@
             ],
             "description": "Nette Utility Classes",
             "homepage": "http://nette.org",
-            "time": "2015-08-23 12:31:04"
+            "time": "2015-08-23T12:31:04+00:00"
         },
         {
             "name": "srigi/nette-confirmationdialog",
@@ -1885,7 +1890,7 @@
                 }
             ],
             "description": "Addon to display confirmation dialog in Nette  webapplications",
-            "time": "2013-02-21 17:07:49"
+            "time": "2013-02-21T17:07:49+00:00"
         },
         {
             "name": "symfony/finder",
@@ -1934,7 +1939,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2015-08-26 17:56:37"
+            "time": "2015-08-26T17:56:37+00:00"
         },
         {
             "name": "tharos/leanmapper",
@@ -2021,7 +2026,7 @@
                 "debugger",
                 "nette"
             ],
-            "time": "2015-08-23 12:34:11"
+            "time": "2015-08-23T12:34:11+00:00"
         },
         {
             "name": "zircote/swagger-php",
@@ -2081,7 +2086,7 @@
                 "rest",
                 "service discovery"
             ],
-            "time": "2015-08-04 08:07:52"
+            "time": "2015-08-04T08:07:52+00:00"
         }
     ],
     "packages-dev": [
@@ -2139,7 +2144,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2015-07-16 02:05:19"
+            "time": "2015-07-16T02:05:19+00:00"
         }
     ],
     "aliases": [],

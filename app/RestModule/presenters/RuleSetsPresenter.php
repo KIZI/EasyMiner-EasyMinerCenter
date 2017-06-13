@@ -13,8 +13,10 @@ use Nette\Application\BadRequestException;
 use Nette\Utils\Strings;
 
 /**
- * Class RuleSetsPresenter - presenter pro práci s rulesety
+ * Class RuleSetsPresenter - presenter for work with rule sets
  * @package EasyMinerCenter\KnowledgeBaseModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RuleSetsPresenter extends BaseResourcePresenter{
   /** @var  RulesFacade $rulesFacade */
@@ -22,10 +24,10 @@ class RuleSetsPresenter extends BaseResourcePresenter{
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
 
-  #region akce pro manipulaci s rulesetem
+  #region actions for manipulation with a ruleset
     #region actionRead
     /**
-     * Akce vracející detaily konkrétního rule setu
+     * Action returning details about one rule set or list of rule sets
      * @param int|null $id=null
      * @throws \Nette\Application\BadRequestException
      * @SWG\Get(
@@ -64,7 +66,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
     #region actionDelete
     /**
-     * Akce pro smazání zvoleného rule setu
+     * Action for deleting a rule set
      * @param int $id
      * @throws \Nette\Application\BadRequestException
      * @SWG\Delete(
@@ -91,7 +93,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     public function actionDelete($id){
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
-      //smazání
+      //delete
       if ($this->ruleSetsFacade->deleteRuleSet($ruleSet)){
         $this->resource=['code'=>200,'status'=>'OK'];
       }else{
@@ -103,7 +105,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
     #region actionCreate
     /**
-     * Akce pro vytvoření nového uživatelského účtu na základě zaslaných hodnot
+     * Action for creating of a new ruleset
      * @SWG\Post(
      *   tags={"RuleSets"},
      *   path="/rule-sets",
@@ -147,7 +149,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     }
 
     /**
-     * Funkce pro kontrolu vstupů pro vytvoření nového uživatelského účtu
+     * Method for validation of input params for actionCreate()
      */
     public function validateCreate() {
       /** @var IField $fieldName */
@@ -175,7 +177,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
     #region actionUpdate
     /**
-     * Akce pro update existujícího rule setu
+     * Action for updating of detaild of a ruleset
      * @param int $id
      * @throws \Nette\Application\BadRequestException
      * @SWG\Put(
@@ -229,7 +231,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     }
 
     /**
-     * Funkce pro kontrolu vstupů pro aktualizaci rule setu
+     * Method for validation of input params for actionUpdate()
      * @param int $id
      */
     public function validateUpdate($id){
@@ -257,7 +259,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
     #region actionList
     /**
-     * Akce pro vypsání existujících rulesetů
+     * Action for reading a list of all rulesets for the current user
      * @SWG\Get(
      *   tags={"RuleSets"},
      *   path="/rule-sets",
@@ -279,7 +281,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       $result=[];
       $ruleSets=$this->ruleSetsFacade->findRuleSetsByUser($this->getCurrentUser());
       if (empty($ruleSets)) {
-        //pokud není nalezen ani jeden RuleSet, jeden založíme...
+        //if there is no existing ruleset, create a new one
         $ruleSet=new RuleSet();
         $user=$this->usersFacade->findUser($this->user->id);
         $ruleSet->user=$user;
@@ -296,16 +298,16 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       $this->sendResource();
     }
     #endregion actionList
-  #endregion akce pro manipulaci s rulesetem
+  #endregion actions for manipulation with a ruleset
 
 
-  #region akce pro manipulaci s pravidly v rulesetech
+  #region actions for manipulation with rules in rulesets
 
     #region actionReadRules
     /**
-     * Akce vracející jeden konkrétní ruleset se základním přehledem pravidel
+     * Action returning list of rules in a selected ruleset
      * @param int $id
-     * @param string $rel = "" - typ vztahu pravidel k tomuto rulesetu
+     * @param string $rel = "" - type of relation between ruleset and rules
      * @SWG\Get(
      *   tags={"RuleSets"},
      *   path="/rule-sets/{id}/rules",
@@ -346,7 +348,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       if ($rel=="all"){$rel="";}else{$rel=Strings::lower($rel);}
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
-      //připravení výstupu
+      //prepare the output
       $result=[
         'ruleset'=>$ruleSet->getDataArr()
       ];
@@ -373,9 +375,9 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
     #region actionCreateRules
     /**
-     * Akce pro přidání pravidel do rulesetu
-     * @param int $id - ID rule setu
-     * @param int|string $rules - ID pravidel oddělená čárkami či středníky
+     * Action for adding rules to ruleset
+     * @param int $id - ruleset ID
+     * @param int|string $rules - IDs of rules for adding, separated with commas or semicolons
      * @param string $relation = 'positive'
      * @throws \Nette\Application\BadRequestException
      * @SWG\Post(
@@ -440,7 +442,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
 
     #region actionDeleteRules
     /**
-     * Akce pro odebrání pravidel z rulesetu
+     * Action for removing rules from the selected ruleset
      * @param int $id
      * @param int|string $rules
      * @throws \Nette\Application\BadRequestException
@@ -497,12 +499,12 @@ class RuleSetsPresenter extends BaseResourcePresenter{
     }
     #endregion actionDeleteRules
 
-  #endregion akce pro manipulaci s pravidly v rulesetech
+  #endregion actions for manipulation with rules in rulesets
 
 
 
   /**
-   * Funkce pro nalezení rule setu dle zadaného ID a kontrolu oprávnění aktuálního uživatele pracovat s daným rule setem
+   * Private method for finding a ruleset by the $ruleSetId and checking the user permissions to work with it
    * @param int $ruleSetId
    * @return RuleSet
    * @throws \Nette\Application\BadRequestException
@@ -515,7 +517,7 @@ class RuleSetsPresenter extends BaseResourcePresenter{
       $this->error('Requested rule set was not found.');
       return null;
     }
-    //kontrola možnosti pracovat s daným rule setem
+    //check of user permissions
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->getCurrentUser()->userId);
     return $ruleSet;
   }

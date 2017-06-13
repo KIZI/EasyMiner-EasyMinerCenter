@@ -7,14 +7,15 @@ use EasyMinerCenter\Model\EasyMiner\Entities\Task;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 
 /**
- * Interface IScoringDriver - rozhraní driveru pro evaluační službu
+ * Interface IScoringDriver - interface of drivers for evaluation services
  * @package EasyMinerCenter\Model\Scoring
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 interface IScorerDriver {
 
   /**
-   * @param $serverUrl
+   * @param string $serverUrl
    * @param DatabaseFactory $databaseFactory
    * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array|null $params=null
@@ -22,7 +23,7 @@ interface IScorerDriver {
   public function __construct($serverUrl, DatabaseFactory $databaseFactory, XmlSerializersFactory $xmlSerializersFactory, $params=null);
 
   /**
-   * Funkce pro evaluaci pravidel nalezených v rámci konkrétní úlohy
+   * Method for evaluation of a given Task with association rules, testing using the given Datasource
    * @param Task $task
    * @param Datasource $testingDatasource
    * @return ScoringResult
@@ -30,7 +31,7 @@ interface IScorerDriver {
   public function evaluateTask(Task $task, Datasource $testingDatasource);
 
   /**
-   * Funkce pro evaluaci pravidel v rámci konkrétního rule setu
+   * Method for evaluation of a given RuleSet with association rules, testing using the given Datasource
    * @param RuleSet $ruleSet
    * @param Datasource $testingDatasource
    * @return ScoringResult

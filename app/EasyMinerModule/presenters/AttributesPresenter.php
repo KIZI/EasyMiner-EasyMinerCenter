@@ -28,8 +28,9 @@ use Nette\Utils\Strings;
 
 /**
  * Class AttributesPresenter
- * @author Stanislav Vojíř
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class AttributesPresenter extends BasePresenter{
   use MinersFacadeTrait;
@@ -75,7 +76,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro přesměrování na správnou akci pro definici nového preprocessingu
+   * Action for redirection to the right action for definition of a new preprocessing
    * @param int $miner
    * @param int $column
    * @param string $type
@@ -85,7 +86,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro pouřití preprocessingu each value - one bin
+   * Action for usage of the preprocessing "each value - one bin"
    * @param int $miner
    * @param int $column
    * @throws BadRequestException
@@ -96,7 +97,7 @@ class AttributesPresenter extends BasePresenter{
     $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
     $this->template->datasourceColumn=$datasourceColumn;
     $format=$datasourceColumn->format;
-    //kontrola, jestli už existuje preprocessing tohoto typu
+    //check, if the each value - one bin preprocessing already exists
     $preprocessing=$this->metaAttributesFacade->findPreprocessingEachOne($format);
     $this->template->preprocessing=$preprocessing;
     /** @var Form $form */
@@ -105,12 +106,13 @@ class AttributesPresenter extends BasePresenter{
       'miner'=>$miner->minerId,
       'column'=>$column,
       'preprocessing'=>$preprocessing->preprocessingId,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ]);
   }
 
   /**
-   * Akce pro použití preprocessingu interval enumeration
+   * Action for usage of the preprocessing "interval enumeration"
    * @param int $miner
    * @param int $column
    * @throws BadRequestException
@@ -127,12 +129,13 @@ class AttributesPresenter extends BasePresenter{
     $form->setDefaults(array(
       'miner'=>$miner->minerId,
       'column'=>$column,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ));
   }
 
   /**
-   * Akce pro použití preprocessingu
+   * Action for usage of the preprocessing "equidistant intervals"
    * @param int $miner
    * @param int $column
    * @throws BadRequestException
@@ -153,13 +156,13 @@ class AttributesPresenter extends BasePresenter{
     if (!empty($intervals)){
       foreach($intervals as $interval){
         if ($minLeftMargin==null){
-          //jde o první interval
+          //it is the first interval
           $minLeftMargin=$interval->leftMargin;
           $minLeftClosure=$interval->leftClosure;
           $maxRightMargin=$interval->rightMargin;
           $maxRightClosure=$interval->rightClosure;
         }else{
-          //budeme kontrolovat hranice a případně je zvětšovat
+          //we will check the boundaries of intervals and enlarge them if necessary
           if ($minLeftMargin>$interval->leftMargin || ($minLeftMargin==$interval->leftMargin && $minLeftClosure==Interval::CLOSURE_OPEN && $interval->leftClosure==Interval::CLOSURE_CLOSED)){
             $minLeftClosure=$interval->leftClosure;
             $minLeftMargin=$interval->leftMargin;
@@ -178,6 +181,7 @@ class AttributesPresenter extends BasePresenter{
       'miner'=>$miner->minerId,
       'column'=>$column,
       'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0',
       'minLeftMargin'=>$minLeftMargin,
       'minLeftClosure'=>$minLeftClosure,
       'maxRightMargin'=>$maxRightMargin,
@@ -189,7 +193,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro pouřití preprocessingu each value - one bin
+   * Action for usage of the preprocessing "nominal enumeration"
    * @param int $miner
    * @param int $column
    * @throws BadRequestException
@@ -201,7 +205,7 @@ class AttributesPresenter extends BasePresenter{
     $this->template->datasourceColumn=$datasourceColumn;
     $format=$datasourceColumn->format;
     $this->template->format=$format;
-    //připravení kompletní sady hodnot
+    //prepare the complete list of values
     $valuesArr=[];
     if (!empty($format->values)){
       foreach ($format->values as $value){
@@ -217,12 +221,13 @@ class AttributesPresenter extends BasePresenter{
       'column'=>$column,
       'formatType'=>$format->dataType,
       'formatId'=>$format->formatId,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ));
   }
 
   /**
-   * Akce pro vytvoření atributu na základě existujícího preprocesingu
+   * Action for creation of a new attribute based on an existing preprocessing
    * @param int $miner
    * @param int $column
    * @param string $preprocessing
@@ -244,11 +249,13 @@ class AttributesPresenter extends BasePresenter{
       'miner'=>$miner->minerId,
       'column'=>$column,
       'preprocessing'=>$preprocessing->preprocessingId,
-      'attributeName'=>$datasourceColumn->name
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0'
     ));
   }
 
   /**
+   * Action for creation of one attribute (display list of possible preprocessing types)
    * @param int $miner
    * @param int|null $column=null
    * @param string|null $columnName=null
@@ -278,7 +285,7 @@ class AttributesPresenter extends BasePresenter{
     $currentUser=$this->getCurrentUser();
 
     if (!$format){
-      //inicializace formátu (přiřazení metaatributu)
+      //format initialization (meta-attribute association)
       //TODO implementovat podporu automatického mapování
       $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $currentUser);
       $datasourceColumn->format=$format;
@@ -292,7 +299,7 @@ class AttributesPresenter extends BasePresenter{
 
 
   /**
-   * Akce pro hromadné předzpracování většího množství atributů
+   * Action for creation of more attributes (in one step, displays table of datasource columns and list of possible preprocessing types)
    * @param int $miner
    * @param int[]|null $columns=null
    * @param string[]|null $columnNames=null
@@ -312,7 +319,7 @@ class AttributesPresenter extends BasePresenter{
     $datasourceColumns=[];
 
     if (trim(@$columns,' ,;')!=''){
-      //zpracováváme sloupce dle jejich ID
+      //process the datasource columns by their IDs
       $columns=explode(',',str_replace(';',',',$columns));
       if (!empty($columns)){
         foreach($columns as $column){
@@ -320,7 +327,7 @@ class AttributesPresenter extends BasePresenter{
         }
       }
     }elseif(trim(@$columnNames,' ,;')!=''){
-      //zpracováváme sloupce dle jejich jména
+      //process the datasource columns by their names
       $columnNames=explode(',',str_replace(';',',',$columnNames));
       if (!empty($columnNames)){
         foreach($columnNames as $columnName){
@@ -336,10 +343,10 @@ class AttributesPresenter extends BasePresenter{
     foreach($datasourceColumns as $datasourceColumn){
       $datasourceColumnsIds[]=$datasourceColumn->datasourceColumnId;
 
-      //kontrola, jestli je pro každý sloupec definován formát
+      //check, if each datasource column if association with a format
       if (empty($datasourceColumn->format)){
-        //inicializace formátu (přiřazení metaatributu)
-        //TODO podpora automatického mapování
+        //format initialization (meta-attribute association)
+        //TODO support for automatic mapping
         $format=$this->metaAttributesFacade->simpleCreateMetaAttributeWithFormatFromDatasourceColumn($datasourceColumn, $currentUser);
         $datasourceColumn->format=$format;
         $this->datasourcesFacade->saveDatasourceColumn($datasourceColumn);
@@ -393,7 +400,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro vykreslení "čekací" šablony
+   * Action for display "wait" template
    * @param $id
    */
   public function renderPreprocessingTask($id) {
@@ -401,8 +408,8 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Akce pro inicializaci mineru (vytvoření metasource)
-   * @param int $id - ID úlohy
+   * Action for miner initialization (metasource creation)
+   * @param int $id - PrepocessingTask ID
    * @throws BadRequestException
    */
   public function actionPreprocessingTaskRun($id) {
@@ -410,7 +417,7 @@ class AttributesPresenter extends BasePresenter{
     $metasourceTask=$this->metasourcesFacade->preprocessAttributes($metasourceTask);
     switch($metasourceTask->state){
       case MetasourceTask::STATE_DONE:
-        //úloha byla dončena => smažeme ji a necháme přenačíst UI
+        //task finished => delete it and reload the UI
         $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
         $this->sendJsonResponse(['redirect'=>$this->link('reloadUI')]);
         return;
@@ -424,7 +431,7 @@ class AttributesPresenter extends BasePresenter{
 
 
   /**
-   * Funkce pro načtení příslušného DatasourceColumn, případně vrácení chyby
+   * Function for retrievind the relevant DatasourceColumn or return an error
    * @param Datasource|int $datasource
    * @param int $column
    * @throws BadRequestException
@@ -440,12 +447,13 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Formulář pro zadání preprocessingu pomocí interval enumeration
+   * Form for definition of a new preprocessing using interval enumeration
    * @return Form
    */
   protected function createComponentNewIntervalEnumerationForm(){
     $form=new Form();
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addText('preprocessingName','Preprocessing name:')
       ->setRequired(false)
       ->setAttribute('placeholder',$this->translate('Interval bins'))
@@ -454,7 +462,7 @@ class AttributesPresenter extends BasePresenter{
         $form=$textInput->getForm(true);
         $formValues=$form->getValues(true);
         $textInputValue=$textInput->value;
-        //nalezení aktuálního formátu
+        //find the relevant format
         $miner=$this->findMinerWithCheckAccess($formValues['miner']);
         $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$formValues['column']);
         $format=$datasourceColumn->format;
@@ -476,23 +484,31 @@ class AttributesPresenter extends BasePresenter{
         $values=$input->getForm(true)->getValues(true);
         return (count($values['valuesBins'])>0);
       },'You have to input at least one bin!');
-    $form->addText('attributeName','Create attribute with name:')
+    $attributeNameInput=$form->addText('attributeName','Create attribute with name:');
+    $attributeNameInput
       ->setRequired('Input attribute name!')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
-        //kontrola, jestli již existuje atribtu se zadaným názvem
+        //check, if there is an existing attribute with the given name
         $values=$input->getForm(true)->getValues();
         $miner=$this->findMinerWithCheckAccess($values->miner);
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
+
     $form->addHidden('column');
     $form->addHidden('miner');
     /** @var Container $valuesBins */
@@ -507,7 +523,8 @@ class AttributesPresenter extends BasePresenter{
           return (count($values['intervals'])>0);
         },'Add at least one interval!')
         ->addRule(function(TextInput $input){
-          //kontrola, jestli má každý BIN jiný název
+          //check, if each BIN has an unique name
+          /** @noinspection PhpUndefinedMethodInspection */
           $values=$input->getParent()->getParent()->getValues(true);
           $inputValue=$input->getValue();
           $usesCount=0;
@@ -521,6 +538,7 @@ class AttributesPresenter extends BasePresenter{
           return $usesCount<=1;
         },'This name is used for other bin!');
       /** @var Container $intervals */
+      /** @noinspection PhpUndefinedMethodInspection */
       $intervals=$valuesBin->addDynamic('intervals',function(Container $interval){
         $interval->addHidden('leftValue');
         $interval->addHidden('leftBound');
@@ -531,6 +549,7 @@ class AttributesPresenter extends BasePresenter{
           ->setValidationScope([])
           ->onClick[]=function(SubmitButton $submitButton){
           $intervals = $submitButton->getParent()->getParent();
+          /** @noinspection PhpUndefinedMethodInspection */
           $intervals->remove($submitButton->parent, TRUE);
         };
       });
@@ -547,6 +566,7 @@ class AttributesPresenter extends BasePresenter{
           ->setRequired('Input end value!')
           ->addRule(Form::FLOAT,'You have to input number!')
           ->addRule(function(TextInput $input)use($addIntervalSubmit){
+            /** @noinspection PhpUndefinedMethodInspection */
             $values=$input->getParent()->getValues(true);
             if ($values['leftValue']>$values['rightValue']){
               return false;
@@ -557,9 +577,11 @@ class AttributesPresenter extends BasePresenter{
             return true;
           },'Interval end cannot be lower than start value!')
           ->addRule(function(TextInput $input){
-            //kontrola překryvu intervalu
+            //check overlap of the intervals
+            /** @noinspection PhpUndefinedMethodInspection */
             $parentValues=$input->getParent()->getValues(true);
             $interval=Interval::create($parentValues['leftBound'],$parentValues['leftValue'],$parentValues['rightValue'],$parentValues['rightBound']);
+            /** @noinspection PhpUndefinedMethodInspection */
             $valuesBinsValues=$input->getParent()->getParent()->getValues(true);
             if (!empty($valuesBinsValues)){
               foreach($valuesBinsValues as $valuesBin){
@@ -581,7 +603,9 @@ class AttributesPresenter extends BasePresenter{
         /** @var Container $intervalsForm */
         $intervalsForm=$submitButton->parent;
         $values=$intervalsForm->getValues(true);
+        /** @noinspection PhpUndefinedMethodInspection */
         $interval=$intervals->createOne();
+        /** @noinspection PhpUndefinedMethodInspection */
         $interval->setValues([
           'leftBound'=>$values['leftBound'],
           'rightBound'=>$values['rightBound'],
@@ -591,10 +615,12 @@ class AttributesPresenter extends BasePresenter{
         ]);
         $intervalsForm->setValues(['leftValue'=>'','rightValue'=>'']);
       };
+      /** @noinspection PhpUndefinedMethodInspection */
       $valuesBin->addSubmit('remove','Remove bin')
         ->setAttribute('class','removeBin')
         ->setValidationScope([])
         ->onClick[]=function(SubmitButton $submitButton){
+        /** @noinspection PhpUndefinedMethodInspection */
         $submitButton->getParent()->getParent()->remove($submitButton->getParent(),true);
       };
     }, 0);
@@ -602,16 +628,17 @@ class AttributesPresenter extends BasePresenter{
     $valuesBins->addSubmit('addBin','Add bin')
       ->setValidationScope([])
       ->onClick[]=function(SubmitButton $submitButton){
+      /** @noinspection PhpUndefinedMethodInspection */
       $submitButton->getParent()->createOne();
     };
     $form->addSubmit('submitAll','Save preprocessing & create attribute')
       ->onClick[]=function(SubmitButton $submitButton){
-      #region vytvoření preprocessingu
+      #region preprocessing creation
       $values=$submitButton->getForm(true)->getValues(true);
       $miner=$this->findMinerWithCheckAccess($values['miner']);
       $this->minersFacade->checkMinerMetasource($miner);
 
-      //vytvoření preprocessingu
+      //create preprocessing
       $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$values['column']);
       $format=$datasourceColumn->format;
 
@@ -636,19 +663,20 @@ class AttributesPresenter extends BasePresenter{
       }
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
 
-      //vytvoření atributu
+      //create attribute
       $attribute=new Attribute();
       $attribute->metasource=$miner->metasource;
       $attribute->datasourceColumn=$datasourceColumn;
       $attribute->name=$values['attributeName'];
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessing=$preprocessing;
+      /** @noinspection PhpUndefinedMethodInspection */
       $this->minersFacade->prepareAttribute($miner,$attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
       $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
       $this->redirect('reloadUI');
-      #endregion vytvoření preprocessingu
+      #endregion preprocessing creation
     };
     $presenter=$this;
     $form->addSubmit('storno','storno')
@@ -661,12 +689,13 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Formulář pro zadání preprocessingu pomocí interval enumeration
+   * Form for definition of a preprocessing using interval enumeration
    * @return Form
    */
   protected function createComponentNewEquidistantIntervalsForm(){
     $form=new Form();
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addHidden('column');
     $form->addHidden('miner');
     $form->addHidden('minLeftMargin');
@@ -682,7 +711,7 @@ class AttributesPresenter extends BasePresenter{
         $form=$textInput->getForm(true);
         $formValues=$form->getValues(true);
         $textInputValue=$textInput->value;
-        //nalezení aktuálního formátu
+        //find the relevant format
         $miner=$this->findMinerWithCheckAccess($formValues['miner']);
         $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$formValues['column']);
         $format=$datasourceColumn->format;
@@ -701,24 +730,31 @@ class AttributesPresenter extends BasePresenter{
         return true;
       },'This preprocessing name already exists. Please select a new one...')
       ->setAttribute('class','normalWidth');
-    $form->addText('attributeName','Create attribute with name:')
+    $attributeNameInput=$form->addText('attributeName','Create attribute with name:');
+    $attributeNameInput
       ->setAttribute('class','normalWidth')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->setRequired('Input attribute name!')
       ->addRule(function(TextInput $input){
-        //kontrola, jestli již existuje atribtu se zadaným názvem
+        //check, if there is an existing attribute with the given name
         $values=$input->getForm(true)->getValues();
         $miner=$this->findMinerWithCheckAccess($values->miner);
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
 
     $form->addText('equidistantLeftMargin','Equidistant intervals from:')
       ->setRequired('You have to input number!')
@@ -756,22 +792,22 @@ class AttributesPresenter extends BasePresenter{
 
     $form->addSubmit('submit','Save preprocessing & create attribute')
       ->onClick[]=function(SubmitButton $submitButton){
-      #region vytvoření preprocessingu
+      #region preprocessing creation
       $values=$submitButton->getForm(true)->getValues(true);
-      //nalezení příslušného formátu
+      //find the relevant format
       $miner=$this->findMinerWithCheckAccess($values['miner']);
       $this->minersFacade->checkMinerMetasource($miner);
       $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$values['column']);
       $format=$datasourceColumn->format;
 
-      //vytvoření preprocessingu
+      //create preprocessing
       $preprocessing=new Preprocessing();
       $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareEquidistantPreprocessingName($format,$values));
       $preprocessing->format=$format;
       $preprocessing->user=$this->getCurrentUser();
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
 
-      //vytvoření jednotlivých intervalů v podobě samostatných binů
+      //create all intervals in the form of standalone bins
       $intervalsCount=$values['equidistantIntervalsCount'];
       $step=$values['equidistantRightMargin']-$values['equidistantLeftMargin'];
       $step=($step/$intervalsCount);
@@ -792,7 +828,7 @@ class AttributesPresenter extends BasePresenter{
         }
         $lastEnd=min($endMax,$lastEnd+$step);
         if ($remainingIntervals==1){
-          //dogenerování intervalu až do konce
+          //generate the interval to the end
           $lastEnd=$endMax;
         }
         $interval->rightMargin=$lastEnd;
@@ -815,19 +851,20 @@ class AttributesPresenter extends BasePresenter{
 
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
 
-      //vytvoření atributu
+      //create attribute
       $attribute=new Attribute();
       $attribute->metasource=$miner->metasource;
       $attribute->datasourceColumn=$datasourceColumn;
       $attribute->name=$values['attributeName'];
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessing=$preprocessing;
+      /** @noinspection PhpUndefinedMethodInspection */
       $this->minersFacade->prepareAttribute($miner,$attribute);
       $this->metasourcesFacade->saveAttribute($attribute);
       $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
       $this->redirect('reloadUI');
-      #endregion vytvoření preprocessingu
+      #endregion preprocessing creation
     };
     $presenter=$this;
     $form->addSubmit('storno','storno')
@@ -840,12 +877,13 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Formulář pro zadání preprocessingu pomocí nominal enumeration
+   * Form for definition of a new preprocessing using nominal enumeration
    * @return Form
    */
   protected function createComponentNewNominalEnumerationForm(){
     $form=new Form();
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addText('preprocessingName','Preprocessing name:')
       ->setRequired(false)
       ->setAttribute('placeholder',$this->translate('Nominal bins'))
@@ -854,7 +892,7 @@ class AttributesPresenter extends BasePresenter{
         $form=$textInput->getForm(true);
         $formValues=$form->getValues(true);
         $textInputValue=$textInput->value;
-        //nalezení aktuálního formátu
+        //find the relevant format
         $miner=$this->findMinerWithCheckAccess($formValues['miner']);
         $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$formValues['column']);
         $format=$datasourceColumn->format;
@@ -876,38 +914,47 @@ class AttributesPresenter extends BasePresenter{
         $values=$input->getForm(true)->getValues(true);
         return (count($values['valuesBins'])>0);
       },'You have to input at least one bin!');
-    $form->addText('attributeName','Create attribute with name:')
+    $attributeNameInput=$form->addText('attributeName','Create attribute with name:');
+    $attributeNameInput
       ->setRequired('Input attribute name!')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
-        //kontrola, jestli již existuje atribtu se zadaným názvem
+        //check, if there is an attribute with the given name
         $values=$input->getForm(true)->getValues();
         $miner=$this->findMinerWithCheckAccess($values->miner);
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
     $form->addHidden('column');
     $form->addHidden('miner');
     $form->addHidden('formatType');
     $form->addHidden('formatId');
     /** @var Container $valuesBins */
+    /** @noinspection PhpUndefinedMethodInspection */
     $valuesBins=$form->addDynamic('valuesBins', function (Container $valuesBin){
       $valuesBin->addText('name','Bin name:')->setRequired(true)
         ->setRequired('Input bin name!')
-        //->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
         ->addRule(function(TextInput $input){
+          /** @noinspection PhpUndefinedMethodInspection */
           $values=$input->parent->getValues(true);
           return (count($values['values'])>0);
         },'Add at least one value!')
         ->addRule(function(TextInput $input){
-          //kontrola, jestli má každý BIN jiný název
+          //check, if each bin has a unique name
+          /** @noinspection PhpUndefinedMethodInspection */
           $values=$input->getParent()->getParent()->getValues(true);
           $inputValue=$input->getValue();
           $usesCount=0;
@@ -921,13 +968,17 @@ class AttributesPresenter extends BasePresenter{
           return $usesCount<=1;
         },'This name is used for other bin!');
       /** @var Container $intervals */
+      /** @noinspection PhpUndefinedMethodInspection */
       $intervals=$valuesBin->addDynamic('values',function(Container $interval){
         $interval->addText('value')->setAttribute('readonly');
+        /** @noinspection PhpUndefinedMethodInspection */
         $interval->addSubmit('remove','x')
           ->setAttribute('class','removeValue')
           ->setValidationScope([])
           ->onClick[]=function(SubmitButton $submitButton){
+          /** @noinspection PhpUndefinedFieldInspection */
           $intervals = $submitButton->parent->parent;
+          /** @noinspection PhpUndefinedMethodInspection */
           $intervals->remove($submitButton->parent, TRUE);
         };
       });
@@ -972,17 +1023,23 @@ class AttributesPresenter extends BasePresenter{
       $addValueSubmit
         ->setValidationScope([$value])
         ->onClick[]=function(SubmitButton $submitButton)use($intervals){
+        /** @noinspection PhpUndefinedMethodInspection */
         $values=$submitButton->getParent()->getValues(true);
+        /** @noinspection PhpUndefinedMethodInspection */
         $valueItem=$submitButton->getParent()['values']->createOne();
+        /** @noinspection PhpUndefinedMethodInspection */
         $valueItem->setValues([
           'value'=>$values['value']
         ]);
+        /** @noinspection PhpUndefinedMethodInspection */
         $submitButton->getParent()->setValues(['value'=>'']);
       };
+      /** @noinspection PhpUndefinedMethodInspection */
       $valuesBin->addSubmit('remove','Remove bin')
         ->setAttribute('class','removeBin')
         ->setValidationScope([])
         ->onClick[]=function(SubmitButton $submitButton){
+        /** @noinspection PhpUndefinedMethodInspection */
         $submitButton->getParent()->getParent()->remove($submitButton->getParent(),true);
       };
     }, 0);
@@ -990,16 +1047,17 @@ class AttributesPresenter extends BasePresenter{
     $valuesBins->addSubmit('addBin','Add bin')
       ->setValidationScope([])
       ->onClick[]=function(SubmitButton $submitButton){
+      /** @noinspection PhpUndefinedMethodInspection */
       $submitButton->getParent()->createOne();
     };
     $form->addSubmit('submitAll','Save preprocessing & create attribute')
       ->onClick[]=function(SubmitButton $submitButton){
-      #region vytvoření preprocessingu
+      #region preprocessing creation
       $values=$submitButton->getForm(true)->getValues(true);
       $miner=$this->findMinerWithCheckAccess($values['miner']);
       $this->minersFacade->checkMinerMetasource($miner);
 
-      //vytvoření preprocessingu
+      //create preprocessing
       $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$values['column']);
       $format=$datasourceColumn->format;
 
@@ -1040,7 +1098,7 @@ class AttributesPresenter extends BasePresenter{
       $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
       $this->redirect('reloadUI');
-      #endregion vytvoření preprocessingu
+      #endregion preprocessing creation
     };
     $presenter=$this;
     $form->addSubmit('storno','storno')
@@ -1054,33 +1112,41 @@ class AttributesPresenter extends BasePresenter{
 
 
   /**
-   * Funkce vracející formulář pro vytvoření atributu na základě vybraného sloupce a preprocessingu
+   * Function returning a form for creation of a new attribute based on selected DatasourceColumn and Preprocessing
    * @return Form
    */
   protected function createComponentNewAttributeForm(){
     $form = new Form();
     $presenter=$this;
     $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
     $form->addHidden('miner');
     $form->addHidden('column');
     $form->addHidden('preprocessing');
-    $form->addText('attributeName','Attribute name:')
+    $attributeNameInput=$form->addText('attributeName','Attribute name:');
+    $attributeNameInput
       ->setRequired('Input attribute name!')
-      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
       ->addRule(function(TextInput $input){
-        //kontrola, jestli již existuje atribtu se zadaným názvem
+        //check, if there is an attribute with the given name
         $values=$input->getForm(true)->getValues();
         $miner=$this->findMinerWithCheckAccess($values->miner);
         $attributes=$miner->metasource->attributes;
         if (!empty($attributes)){
           foreach ($attributes as $attribute){
-            if ($attribute->name==$input->value){
+            if ($attribute->active && $attribute->name==$input->value){
               return false;
             }
           }
         }
         return true;
       },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+        ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+        ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
     $form->addSubmit('submit','Create attribute')->onClick[]=function(SubmitButton $button){
       $values=$button->form->values;
       $miner=$this->findMinerWithCheckAccess($values->miner);
@@ -1100,7 +1166,7 @@ class AttributesPresenter extends BasePresenter{
     $storno=$form->addSubmit('storno','storno');
     $storno->setValidationScope(array());
     $storno->onClick[]=function(SubmitButton $button)use($presenter){
-      //přesměrování na výběr preprocessingu
+      //redirect to the preprocessing selection
       $values=$button->form->getValues();
       $presenter->redirect('addAttribute',array('column'=>$values->column,'miner'=>$values->miner));
     };
@@ -1108,7 +1174,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro přiřazení výchozího layoutu podle parametru v adrese (normální nebo iframe view)
+   * Function for selection of the appropriate layout based on the "mode" attribute in the URL (normal or iframe view)
    */
   protected function beforeRender(){
     if ($this->mode=='component' || $this->mode=='iframe'){
@@ -1119,7 +1185,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Funkce pro vygenerování výchozího názvu preprocessingu
+   * Function for generation of a default preprocessing name - for equidistant intervals
    * @param Format $format
    * @param array $formValues
    * @return string
@@ -1128,7 +1194,7 @@ class AttributesPresenter extends BasePresenter{
     $preprocessingNameBase=$this->translate('Equidistant intervals ({:count}) from {:from} to {:to}');
     $preprocessingNameBase=str_replace(['{:count}','{:from}','{:to}'],[$formValues['equidistantIntervalsCount'],$formValues['equidistantLeftMargin'],$formValues['equidistantRightMargin']],$preprocessingNameBase);
 
-    #region vyřešení unikátnosti jména
+    #region solving of the uniqueness of the name
     $existingPreprocessingsNames=[];
     $existingPreprocessings=$format->preprocessings;
     if (!empty($existingPreprocessings)){
@@ -1145,12 +1211,12 @@ class AttributesPresenter extends BasePresenter{
       }
       $counter++;
     }while(in_array($preprocessingName,$existingPreprocessingsNames));
-    #endregion
+    #endregion solving of the uniqueness of the name
     return $preprocessingName;
   }
 
   /**
-   * Funkce pro vygenerování výchozího názvu preprocessingu
+   * Function for generation of a default preprocessing name - for nominale enumeration
    * @param Format $format
    * @param array $formValues
    * @return string
@@ -1167,7 +1233,7 @@ class AttributesPresenter extends BasePresenter{
     }
     unset($namesArr);
 
-    #region vyřešení unikátnosti jména
+    #region solving of the uniqueness of the name
     $existingPreprocessingsNames=[];
     $existingPreprocessings=$format->preprocessings;
     if (!empty($existingPreprocessings)){
@@ -1184,12 +1250,12 @@ class AttributesPresenter extends BasePresenter{
       }
       $counter++;
     }while(in_array($preprocessingName,$existingPreprocessingsNames));
-    #endregion
+    #endregion solving of the uniqueness of the name
     return $preprocessingName;
   }
 
   /**
-   * Funkce pro vygenerování výchozího názvu preprocessingu
+   * Function for generation of a default preprocessing name - for interval enumeration
    * @param Format $format
    * @param array $formValues
    * @return string
@@ -1206,7 +1272,7 @@ class AttributesPresenter extends BasePresenter{
     }
     unset($namesArr);
 
-    #region vyřešení unikátnosti jména
+    #region solving of the uniqueness of the name
     $existingPreprocessingsNames=[];
     $existingPreprocessings=$format->preprocessings;
     if (!empty($existingPreprocessings)){
@@ -1223,7 +1289,7 @@ class AttributesPresenter extends BasePresenter{
       }
       $counter++;
     }while(in_array($preprocessingName,$existingPreprocessingsNames));
-    #endregion
+    #endregion solving of the uniqueness of the name
     return $preprocessingName;
   }
 

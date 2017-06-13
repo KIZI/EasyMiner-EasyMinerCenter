@@ -3,7 +3,7 @@
 	"description": "EasyMinerCenter is a data mining project developed on University of Economics, Prague",
 	"homepage": "http://easyminer.eu",
 	"type": "project",
-	"license": ["BSD-3-Clause"],
+	"license": ["Apache-2.0"],
 	"authors": [
 		{
 			"name": "EasyMiner Project Group",
@@ -24,7 +24,7 @@
 		"php": ">= 5.3.7",
 		"nette/nette": "~2.3.0",
 		"tharos/leanmapper": "dev-patch-1",
-		"kdyby/facebook": "v1.2.0@stable",
+		"kdyby/facebook": "v2.0.1@stable",
 		"kdyby/google": "dev-master",
 		"srigi/nette-confirmationdialog": "1.0.1",
 		"kdyby/curl": "v2.2.0",

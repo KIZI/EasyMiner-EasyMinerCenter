@@ -12,6 +12,9 @@ use EasyMinerCenter\Model\EasyMiner\Entities\ValuesBin;
 /**
  * Class AssociationRulesXmlSerializer - serializer umožňující sestavit AssociationRules XML
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * xxx
  */
 class AssociationRulesXmlSerializer {
 

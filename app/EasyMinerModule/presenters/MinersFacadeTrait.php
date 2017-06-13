@@ -2,7 +2,6 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
-
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Facades\MinersFacade;
 use EasyMinerCenter\Model\Translation\EasyMinerTranslator;
@@ -13,6 +12,8 @@ use Nette\Security\User;
 /**
  * Trait MinersFacadeTrait - kód pro přístup k minerům v rámci presenterů
  * @package EasyMinerCenter\EasyMinerModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property EasyMinerTranslator $translator
  * @property User $user
@@ -52,7 +53,7 @@ trait MinersFacadeTrait {
   }
 
   /**
-   * Funkce vracející instanci zvoleného mineru po kontrole, jestli má uživatel právo k němu přistupovat
+   * Method returning an instance of the given miner after the check of the user permissions to use the miner
    * @param int|Miner $miner
    * @return Miner
    * @throws BadRequestException

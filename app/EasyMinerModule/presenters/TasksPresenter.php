@@ -15,9 +15,10 @@ use Nette\Utils\Json;
 use Nette\Utils\Strings;
 
 /**
- * Class TasksPresenter - presenter pro práci s úlohami...
+ * Class TasksPresenter - presenter for work with rule mining tasks
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class TasksPresenter  extends BasePresenter{
   use MinersFacadeTrait;
@@ -34,7 +35,7 @@ class TasksPresenter  extends BasePresenter{
   private $xmlSerializersFactory;
 
   /**
-   * Akce pro spuštění dolování či zjištění stavu úlohy (vrací JSON)
+   * Action for start of data mining or reading the task state (sends JSON response)
    * @param int|null $id
    * @param string $miner
    * @param string $data
@@ -42,17 +43,16 @@ class TasksPresenter  extends BasePresenter{
    * @throws ForbiddenRequestException
    */
   public function actionStartMining($id=null,$miner,$data){
-    /****************************************************************************************************************/
-    //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
+    //find the minr and check user privileges
     $miner=$this->findMinerWithCheckAccess($miner);
-    //nalezení úlohy či založení nové prázdné úlohy (pokud $id==null)
+    //find the task or create a new one (if $id=null)
     $task=$this->tasksFacade->prepareTask($miner, $id);
 
     if ($task->state=='new'){
-      #region nově importovaná úloha
-      //zjištění názvu úlohy z jsonu s nastaveními
+      #region newly imported task
+      //get task name from its config JSON
       $dataArr=Json::decode($data,Json::FORCE_ARRAY);
-      //konfigurace úlohy
+      //task config
       if (!empty($dataArr['taskName'])){
         $task->name=$dataArr['taskName'];
       }else{
@@ -62,17 +62,17 @@ class TasksPresenter  extends BasePresenter{
       $this->tasksFacade->saveTask($task);
       $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
       $taskState=$miningDriver->startMining();
-      #endregion
+      #endregion newly imported task
     }else{
-      #region zjištění stavu již existující úlohy
+      #region check state of an existing task
       $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$this->getCurrentUser());
       $taskState=$miningDriver->checkTaskState();
-      #endregion
+      #endregion check state of an existing task
     }
 
     $this->tasksFacade->updateTaskState($task,$taskState);
     if ($taskState->importState==Task::IMPORT_STATE_WAITING){
-      //pokud máme na serveru čekající import, zkusíme poslat požadavek na jeho provedení
+      //if we have a waiting import on server, we try to send request to process it
       RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
     }
     $taskState=$task->getTaskState();
@@ -81,26 +81,26 @@ class TasksPresenter  extends BasePresenter{
 
 
   /**
-   * Akce pro spuštění importu dat, která jsou již uložena v TEMP složce na tomto serveru
+   * Action for starting of import of results (saved in TEMP folder on the server)
    * @param int $task
    */
   public function actionImportMiningResults($task){
-    //načtení příslušné úlohy
+    //load the task
     try {
       $task=$this->tasksFacade->findTask($task);
       $miningDriver=$this->minersFacade->getTaskMiningDriver($task,$task->miner->user);
     }catch (\Exception $e){
-      //pokud nebyla nalezena příslušná úloha, není co importovat
+      //the task was not found, so there is nothing to import...
       $this->terminate();
       return;
     }
 
-    //zakážeme ukončení načítání
+    //ignore the end of the user request (continue with run in background)
     RequestHelper::ignoreUserAbort();
 
-    //import budeme provádět pouze v případě, že zatím neběží jiný import (abychom předešli konfliktům a zahlcení serveru)
+    //run import only if there is not another import running
     if ($task->importState==Task::IMPORT_STATE_WAITING){
-      //označíme částečný probíhající import
+      //mark run of partial import
       $taskState=$task->getTaskState();
       $importData=$taskState->getImportData();
       if (empty($importData)){
@@ -108,24 +108,24 @@ class TasksPresenter  extends BasePresenter{
       }
       $taskState->importState=Task::IMPORT_STATE_PARTIAL;
       $this->tasksFacade->updateTaskState($task,$taskState);
-      //provedeme import plného PMML (klidně jen částečných výsledků) a zaktualizujeme stav úlohy
+      //run the import of full PMML and update the task state
       $taskState=$miningDriver->importResultsPMML();
       $this->tasksFacade->updateTaskState($task,$taskState);
 
-      //spustíme další dílší import
+      //run next import request (next partial results)
       RequestHelper::sendBackgroundGetRequest($this->getBackgroundImportLink($task));
     }
     $this->terminate();
   }
 
   /**
-   * Akce pro zastavení dolování
+   * Action for stopping of rule mining
    * @param int $id
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
   public function actionStopMining($id){
-    //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
+    //find the miner and check user privileges
     $task=$this->tasksFacade->findTask($id);
 
     $miner=$task->miner;
@@ -139,7 +139,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce vracející pravidla pro vykreslení v easymineru
+   * Action returning rules for EasyMiner-MiningUI
    * @param int $id
    * @param $offset
    * @param $limit
@@ -152,7 +152,7 @@ class TasksPresenter  extends BasePresenter{
       $order='rule_id';
     }
 
-    //nalezení daného mineru a kontrola oprávnění uživatele pro přístup k němu
+    //find task and miner and check user privileges
     $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
@@ -169,7 +169,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro přejmenování úlohy v DB
+   * Action for renaming of the task
    * @param int $id
    * @param string $name
    * @throws \Exception
@@ -189,7 +189,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro přejmenování úlohy v DB
+   * Action for changing of rule order (in DB)
    * @param int $id = null
    * @param string $rulesOrder
    * @throws BadRequestException
@@ -202,7 +202,7 @@ class TasksPresenter  extends BasePresenter{
     $this->checkMinerAccess($miner);
 
     if ($rulesOrder!=''){
-      //je zadané nové pořadí pravidel...
+      //there is new rule order...
       try{
         $task->setRulesOrder($rulesOrder);
       }catch (\Exception $e){
@@ -213,7 +213,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro vygenerování detailů úlohy ve formátu PMML
+   * Action for rendering of task details in PMML
    * @param int $id
    * @throws \Exception
    * @throws BadRequestException
@@ -224,13 +224,13 @@ class TasksPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-    //vygenerování a odeslání PMML
+    //prepare and send the PMML content
     $pmml=$this->prepareTaskPmml($task);
     $this->sendXmlResponse($pmml);
   }
 
   /**
-   * Akce pro vygenerování zadání úlohy ve formátu PMML
+   * Action for rendering of task config in PMML
    * @param int $id
    * @throws BadRequestException
    * @throws ForbiddenRequestException
@@ -245,7 +245,8 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * Akce pro vykreslení detailů úlohy ve formátu AssociationRulesXML
+   * Action for rendering of task details in
    * @param int $id
    * @throws \Exception
    * @throws BadRequestException
@@ -256,13 +257,13 @@ class TasksPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-    //vygenerování a odeslání PMML
+    //prepare and send XML response
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
     $this->sendXmlResponse($associationRulesXmlSerializer->getXml());
   }
 
   /**
-   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * Action for rendering of task rules in DRL
    * @param int $id
    * @throws \Exception
    * @throws BadRequestException
@@ -273,14 +274,13 @@ class TasksPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-    //vygenerování a odeslání PMML
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
     $xml=$associationRulesXmlSerializer->getXml();
-    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml/*,$this->template->basePath*/));
+    $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml));
   }
 
   /**
-   * Akce pro vykreslení detailů úlohy ve formátu PMML
+   * Action for rendering task details as HTML
    * @param int $id
    * @throws \Exception
    * @throws BadRequestException
@@ -290,14 +290,14 @@ class TasksPresenter  extends BasePresenter{
     $task=$this->tasksFacade->findTask($id);
     $this->checkMinerAccess($task->miner);
 
-    //vygenerování PMML
+    //generate PMML and transform it to HTML
     $pmml=$this->prepareTaskPmml($task);
     $this->template->task=$task;
     $this->template->content=$this->xmlTransformator->transformToHtml($pmml);
   }
 
   /**
-   * Funkce inicializující PmmlSerializer za využití konfigurace úlohy
+   * Private method for initilization of PmmlSerializer based on task config
    * @param Task $task
    * @param bool $includeFrequencies=true
    * @return GuhaPmmlSerializer
@@ -311,7 +311,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Funkce vracející PMML konfiguraci úlohy
+   * Private method returning initialized PmmlSerializer
    * @param Task $task
    * @return \SimpleXMLElement
    */
@@ -321,7 +321,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Funkce vracející kompletní PMML export úlohy
+   * Private method returning complete PMML export of a task
    * @param Task $task
    * @return \SimpleXMLElement
    */
@@ -332,7 +332,7 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
-   * Funkce vracející relativní URL pro import výsledků dolování (pro spuštění na pozadí)
+   * Private method returning relative URL for import of data mining results (for run in background)
    * @param Task $task
    * @return string
    */

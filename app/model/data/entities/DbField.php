@@ -6,6 +6,8 @@ namespace EasyMinerCenter\Model\Data\Entities;
  * Class DbField
  * @package EasyMinerCenter\Model\Data\Databases\DataService
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *
  * @property int $id
  * @property int $dataSource
  * @property string $name

@@ -4,6 +4,11 @@ namespace IZI\FileLoader;
 
 use IZI\Exception\FileNotFoundException;
 
+/**
+ * Class XMLFileLoader
+ * @package IZI\FileLoader
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class XMLFileLoader
 {
     protected $version = '1.0';

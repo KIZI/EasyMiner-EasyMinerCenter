@@ -11,25 +11,27 @@ use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\Mining\Entities\Outlier;
 
 /**
- * Interface IOutliersMiningDriver - rozhraní pro unifikaci práce s dataminingovými nástroji pro detekci outlierů
+ * Interface IOutliersMiningDriver - unified interface of drivers for data mining of outliers
  * @package EasyMinerCenter\Model\Mining
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 interface IOutliersMiningDriver{
 
   /**
-   * Funkce pro definování úlohy na základě dat z EasyMineru
+   * Method for start of the current data mining task
    * @return OutliersTaskState
    */
   public function startMining();
 
   /**
-   * Funkce vracející info o aktuálním stavu dané úlohy
+   * Method for checking the current task state
    * @return OutliersTaskState
    */
   public function checkOutliersTaskState();
 
   /**
+   * IOutliersMiningDriver constructor
    * @param OutliersTask $outliersTask
    * @param MinersFacade $minersFacade
    * @param MetaAttributesFacade $metaAttributesFacade
@@ -40,7 +42,7 @@ interface IOutliersMiningDriver{
   public function __construct(OutliersTask $outliersTask=null, MinersFacade $minersFacade, MetaAttributesFacade $metaAttributesFacade, User $user, XmlSerializersFactory $xmlSerializersFactory, $params = array());
 
   /**
-   * Funkce pro kontrolu, jestli je dostupný dolovací server
+   * Method for checking, if the remote mining server is available
    * @param string $serverUrl
    * @throws \Exception
    * @return bool
@@ -48,25 +50,25 @@ interface IOutliersMiningDriver{
   public static function checkMinerServerState($serverUrl);
 
   /**
-   * Funkce pro nastavení aktivní úlohy
+   * Method for setting the active (current) task
    * @param OutliersTask $outliersTask
    */
   public function setOutliersTask(OutliersTask $outliersTask);
 
   /**
-   * Funkce pro odstranění aktivní úlohy
+   * Method for removing the current task
    * @return bool
    */
   public function deleteOutliersTask();
 
   /**
-   * Funkce volaná před smazáním konkrétního mineru
+   * Method for deleting the current miner
    * @return mixed
    */
   public function deleteMiner();
 
   /**
-   * Funkce vracející výsledky úlohy dolování outlierů
+   * Method returning results of the current task
    * @param int $limit
    * @param int $offset=0
    * @return Outlier[]

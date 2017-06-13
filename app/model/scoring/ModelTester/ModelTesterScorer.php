@@ -14,9 +14,10 @@ use Nette\Application\LinkGenerator;
 use Nette\NotImplementedException;
 
 /**
- * Class ModelTesterScorer - driver pro práci s ModelTesterem (postaveným na Drools
+ * Class ModelTesterScorer - driver for work with ModelTester (based on Drools)
  * @package EasyMinerCenter\Model\Scoring\ModelTester
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ModelTesterScorer implements IScorerDriver{
   /** @var  string $serverUrl */
@@ -31,7 +32,7 @@ class ModelTesterScorer implements IScorerDriver{
   const ROWS_PER_TEST=1000;
 
   /**
-   * @param string $serverUrl - adresa koncového uzlu API, které je možné použít
+   * @param string $serverUrl - ModelTester server URL
    * @param DatabaseFactory $databaseFactory
    * @param XmlSerializersFactory $xmlSerializersFactory
    * @param array|null $params = null
@@ -43,6 +44,7 @@ class ModelTesterScorer implements IScorerDriver{
   }
 
   /**
+   * Method for evaluation of a given Task with association rules, testing using the given Datasource
    * @param Task $task
    * @param Datasource $testingDatasource
    * @return ScoringResult
@@ -63,12 +65,12 @@ class ModelTesterScorer implements IScorerDriver{
     $testedRowsCount=0;
     /** @var ScoringResult[] $partialResults */
     $partialResults=[];
-    //export jednotlivých řádků z DB a jejich otestování
+    //export individual rows from DB and test them
     while($testedRowsCount<$dbRowsCount){
       $csv=CsvSerializer::prepareCsvFromDatabase($database,$dbDatasource,$testedRowsCount,self::ROWS_PER_TEST,';','"');
 
       $csvFileName=$testingDatasource->datasourceId.'-'.$testedRowsCount.'-'.self::ROWS_PER_TEST.'.csv';
-      /** @var string $csvFilePath - cesta k CSV souboru s částí dat */
+      /** @var string $csvFilePath - path to CSV file with one part of data */
       $csvFilePath=@$this->params['tempDirectory'].'/'.$csvFileName;
 
       file_put_contents($csvFilePath,$csv);
@@ -89,13 +91,12 @@ class ModelTesterScorer implements IScorerDriver{
       unlink($csvFilePath);
       $testedRowsCount+=self::ROWS_PER_TEST;
     }
-    //XXX unlink($rulesXmlFilePath);
-    //sestavení celkového výsledku
+    //merge the complex result
     return ScoringResult::merge($partialResults);
   }
 
   /**
-   * Pracovní funkce vracející URL aplikace pro sestavení odkazů na stahování dat...
+   * Private method returning URL of application for building of links to download test data
    * @return string
    */
   private function getTempFileUrl($filename) {
@@ -107,6 +108,7 @@ class ModelTesterScorer implements IScorerDriver{
 
 
   /**
+   * Method for evaluation of a given RuleSet with association rules, testing using the given Datasource
    * @param RuleSet $ruleSet
    * @param Datasource $testingDatasource
    * @return ScoringResult

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Boostrap script of the application EasyMinerCenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * @link http://easyminer.eu
+ */
+
 define('APP_ROOT',__DIR__);
 
 require APP_ROOT . '/../vendor/autoload.php';

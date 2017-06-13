@@ -4,9 +4,9 @@ namespace EasyMinerCenter\Model\Preprocessing\Entities;
 
 /**
  * Class PpTask
- *
  * @package EasyMinerCenter\Model\Preprocessing\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property string $taskId
  * @property string $taskName
@@ -41,7 +41,7 @@ class PpTask {
   }
 
   /**
-   * Funkce inicializující PpTask na základě pole s parametry
+   * Private method for initialization of a PpTask using the given params
    * @param array $paramsArr
    */
   private function prepareInstance($paramsArr) {
@@ -53,7 +53,7 @@ class PpTask {
   }
 
   /**
-   * Funkce vracející location pro další požadavek
+   * Method returning the URL for next request
    * @return null|string
    */
   public function getNextLocation() {

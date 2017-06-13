@@ -3,9 +3,10 @@
 namespace EasyMinerCenter\Model\Data\Entities;
 
 /**
- * Class DbValue - třída představující jednu hodnotu datového sloupce
+ * Class DbValue - class representing one value of a database column (DbField)
  * @package EasyMinerCenter\Model\Data\Entities
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int $id
  * @property int $frequency

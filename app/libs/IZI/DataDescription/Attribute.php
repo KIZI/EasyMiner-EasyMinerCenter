@@ -2,6 +2,11 @@
 
 namespace IZI\DataDescription;
 
+/**
+ * Class Attribute
+ * @package IZI\DataDescription
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ */
 class Attribute
 {
     private $name;

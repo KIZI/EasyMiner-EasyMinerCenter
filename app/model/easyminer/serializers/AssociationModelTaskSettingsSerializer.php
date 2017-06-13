@@ -6,6 +6,8 @@ use Nette\Utils\Json;
 /**
  * Class AssociationModelTaskSettingsSerializer - třída pro serializaci zadání úlohy v jednoduchém formátu pro PMML AssociationModel
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class AssociationModelTaskSettingsSerializer{
   /** @var  \SimpleXMLElement $pmml */
@@ -34,14 +36,18 @@ class AssociationModelTaskSettingsSerializer{
   }
 
   /**
-   * Funkce vracející SimpleXML s PMML...
+   * Method returning SimpleXMLElement with PMML...
    * @return \SimpleXMLElement
    */
   public function getPmml(){
     return $this->pmml;
   }
-  #endregion
+  #endregion construct, (get|set)Pmml
 
+  /**
+   * Method for serialization of task settings from JSON to XML
+   * @param string|array $json
+   */
   public function settingsFromJson($json){
     if (is_string($json)){
       $json=Json::decode($json,Json::FORCE_ARRAY);
@@ -103,6 +109,7 @@ class AssociationModelTaskSettingsSerializer{
   }
 
   /**
+   * Method for serialization of one cedent config from JSON to XML
    * @param array $cedentSettingsJson
    * @param \SimpleXMLElement $configXml
    */

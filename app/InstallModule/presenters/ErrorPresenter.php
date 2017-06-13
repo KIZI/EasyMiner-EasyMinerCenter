@@ -8,6 +8,8 @@ use Tracy\Debugger;
 /**
  * Class ErrorPresenter
  * @package EasyMinerCenter\InstallModule\Presenters
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class ErrorPresenter extends Nette\Application\UI\Presenter {
   /**

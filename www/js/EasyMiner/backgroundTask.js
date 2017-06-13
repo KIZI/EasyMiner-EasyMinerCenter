@@ -1,6 +1,7 @@
 /**
- * @class BackgroundTask - javascriptová komponenta pro spouštění background requestů pro dlouhotrvající úlohy
+ * @class BackgroundTask - javascript component for running of background requests for long running tasks
  * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  * @param {Object} [params={}]
  * @constructor
  */
@@ -30,9 +31,6 @@ var BackgroundTask = function(params){
       });
   };
 
-  /**
-   * Funkce pro spuštění načítání...
-   */
   this.run = function(){
     sendTaskRequest(url);
   };
