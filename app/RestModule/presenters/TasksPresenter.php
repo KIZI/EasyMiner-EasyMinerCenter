@@ -73,8 +73,7 @@ class TasksPresenter extends BaseResourcePresenter {
    *   ),
    *   @SWG\Response(
    *     response=200,
-   *     description="Task PMML",
-   *     @SWG\Schema(type="xml")
+   *     description="Task PMML"
    *   ),
    *   @SWG\Response(response=404, description="Requested task was not found."),
    *   @SWG\Response(response=500, description="Task has not been solved.")
@@ -134,8 +133,7 @@ class TasksPresenter extends BaseResourcePresenter {
    *   ),
    *   @SWG\Response(
    *     response=200,
-   *     description="Task HTML details",
-   *     @SWG\Schema(type="xml")
+   *     description="Task HTML details"
    *   ),
    *   @SWG\Response(response=404, description="Requested task was not found."),
    *   @SWG\Response(response=500, description="Task has not been solved.")

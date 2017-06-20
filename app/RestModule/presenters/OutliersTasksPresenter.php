@@ -415,14 +415,14 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    *   title="OutliersTaskConfig",
    *   required={"miner","minSupport"},
    *   @SWG\Property(property="miner",type="integer",description="ID of the miner for this task"),
-   *   @SWG\Property(property="minSupport",type="float",default=0,description="Requested minimal support")
+   *   @SWG\Property(property="minSupport",type="number",default=0,description="Requested minimal support")
    * )
    * @SWG\Definition(
    *   definition="OutliersTaskResponseWithOffsetAndLimit",
    *   title="OutliersTaskInfoWithOffsetAndLimit",
    *   required={"id","minSupport","state","offset","limit"},
    *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
-   *   @SWG\Property(property="minSupport",type="float",default=0,description="Minimal support used for detection of outliers"),
+   *   @SWG\Property(property="minSupport",type="number",default=0,description="Minimal support used for detection of outliers"),
    *   @SWG\Property(property="state",type="string",description="State of the task"),
    *   @SWG\Property(property="offset",type="integer",default=0,description="Offset"),
    *   @SWG\Property(property="limit",type="integer",default=0,description="Limit")
@@ -432,7 +432,7 @@ class OutliersTasksPresenter extends BaseResourcePresenter {
    *   title="OutlierDetails",
    *   required={"id","score","attributeValues"},
    *   @SWG\Property(property="id",type="integer",default=0),
-   *   @SWG\Property(property="score",type="float",default=0),
+   *   @SWG\Property(property="score",type="number",default=0),
    *   @SWG\Property(property="attributeValues",type="object")
    * )
    */
