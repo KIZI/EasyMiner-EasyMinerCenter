@@ -27,7 +27,7 @@ abstract class DataServiceDatabase implements IDatabase {
   /** @var  DbConnection $dbConnection */
   private $dbConnection;
 
-  const UPLOAD_SLOW_DOWN_INTERVAL=500000;//interval for slow down of the upload (in ms)
+  const UPLOAD_SLOW_DOWN_INTERVAL=500000;//interval for slow down of the upload (in microseconds)
   const UPLOAD_CHUNK_SIZE=500000;
   const UPLOAD_CODE_SLOW_DOWN=429;
   const UPLOAD_CODE_CONTINUE=202;
@@ -243,7 +243,7 @@ abstract class DataServiceDatabase implements IDatabase {
 
     $uploadId=$this->startCsvUpload($name, $encoding, $delimiter, $enclosure, $escapeCharacter, $nullValue, $dataTypes);
     $filePart=fread($file, self::UPLOAD_CHUNK_SIZE);
-    $callsCount=10000;
+    $callsCount=1000000;
     while($callsCount>0){
       $callsCount--;
       try{

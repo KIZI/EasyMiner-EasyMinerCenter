@@ -59,10 +59,10 @@ parameters:
             supportedImportTypes: ['csv']
         limited:
             allowLongNames: true
-            supportedImportTypes: ['csv','rdf']
+            supportedImportTypes: ['csv']
         unlimited:
             allowLongNames: true
-            supportedImportTypes: ['csv','rdf']
+            supportedImportTypes: ['csv']
 
 restful:
     convention: 'camelCase'

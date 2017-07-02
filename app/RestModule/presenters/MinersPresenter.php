@@ -401,8 +401,8 @@ class MinersPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="datasourceId",type="integer",description="ID of used datasource"),
  *   @SWG\Property(property="metasourceId",type="integer",description="ID of used metasource"),
  *   @SWG\Property(property="ruleSetId",type="integer",description="ID of rule set associated with the miner"),
- *   @SWG\Property(property="created",type="dateTime",description="DateTime of miner creation"),
- *   @SWG\Property(property="lastOpened",type="dateTime",description="DateTime of miner last open action")
+ *   @SWG\Property(property="created",type="string",description="DateTime of miner creation"),
+ *   @SWG\Property(property="lastOpened",type="string",description="DateTime of miner last open action")
  * )
  * @SWG\Definition(
  *   definition="MinerBasicResponse",
@@ -435,7 +435,7 @@ class MinersPresenter extends BaseResourcePresenter{
  *   title="OutliersTaskInfo",
  *   required={"id","minSupport","state"},
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
- *   @SWG\Property(property="minSupport",type="float",default=0,description="Minimal support used for detection of outliers"),
+ *   @SWG\Property(property="minSupport",type="number",default=0,description="Minimal support used for detection of outliers"),
  *   @SWG\Property(property="state",type="string",description="State of the task")
  * )
  */

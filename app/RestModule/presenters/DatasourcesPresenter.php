@@ -159,6 +159,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
 
     //upload data and prepare datasource
     $currentUser = $this->getCurrentUser();
+    set_time_limit(600);//XXX updated time limit...
     $dbDatasource=$this->fileImportsFacade->importCsvFile($filename,$inputData['type'],$currentUser,$inputData['name'],$inputData['encoding'],$inputData['separator'],$inputData['enclosure'],$inputData['escape'],$inputData['nullValue']);
     $datasource=$this->datasourcesFacade->prepareNewDatasourceFromDbDatasource($dbDatasource,$currentUser);
     $this->datasourcesFacade->saveDatasource($datasource);
