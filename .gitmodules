@@ -11,3 +11,6 @@
 [submodule "submodules/EasyMiner-XML"]
 	path = submodules/EasyMiner-XML
 	url = https://github.com/KIZI/EasyMiner-XML.git
+[submodule "submodules/EasyMiner-WebUITests"]
+	path = submodules/EasyMiner-WebUITests
+	url = https://github.com/soulekamil/EasyMiner-WebUITests

@@ -151,6 +151,16 @@ $(document).ready(function($){
       $("body").addClass("slowLoading");
     }
   });
+  //javascript validation for ajax forms
+  $('form.ajax input[type="submit"]').click(function(e){
+  	var form = $(this).parents('form:first');
+	  var isInvalid = form.find('input.has-error').length > 0
+    if(isInvalid){
+      //if form contains some inputs with error, prevent it from being submitted and set focus on first element with error
+	    form.find('input.has-error').first().focus();
+      e.preventDefault();
+    }
+  });
   $('a.slowLoading').click(function(){
     $("body").addClass("slowLoading");
   });
