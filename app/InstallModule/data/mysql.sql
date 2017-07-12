@@ -465,7 +465,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `facebook_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `google_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `api_key` varchar(45) COLLATE utf8_czech_ci NOT NULL,
-  `last_login` datetime NOT NULL,
+  `last_login` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `active` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users' ;
