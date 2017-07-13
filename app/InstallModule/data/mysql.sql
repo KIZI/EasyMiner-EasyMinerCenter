@@ -433,7 +433,6 @@ CREATE TABLE IF NOT EXISTS `rule_set_rule_relations` (
 
 CREATE TABLE IF NOT EXISTS `tasks` (
   `task_id` int(11) NOT NULL AUTO_INCREMENT,
-  `task_uuid` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `miner_id` int(11) NOT NULL,
   `type` enum('lm','r','cloud') COLLATE utf8_czech_ci NOT NULL,
   `name` varchar(400) COLLATE utf8_czech_ci NOT NULL,
@@ -465,7 +464,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `facebook_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `google_id` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `api_key` varchar(45) COLLATE utf8_czech_ci NOT NULL,
-  `last_login` datetime NOT NULL,
+  `last_login` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `active` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci COMMENT='Table with data of users' ;
