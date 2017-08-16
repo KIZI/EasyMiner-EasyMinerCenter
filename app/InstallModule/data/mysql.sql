@@ -341,7 +341,7 @@ CREATE TABLE IF NOT EXISTS `preprocessings_values_bins` (
 CREATE TABLE IF NOT EXISTS `rules` (
   `rule_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `task_id` int(11) NOT NULL,
-  `text` varchar(200) COLLATE utf8_czech_ci NOT NULL,
+  `text` varchar(5000) COLLATE utf8_czech_ci NOT NULL,
   `pmml_rule_id` varchar(100) COLLATE utf8_czech_ci NOT NULL COMMENT 'ID pravidla v importním PMML',
   `antecedent` bigint(20) DEFAULT NULL,
   `consequent` bigint(20) DEFAULT NULL,
