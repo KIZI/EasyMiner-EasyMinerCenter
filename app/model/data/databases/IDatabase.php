@@ -6,6 +6,7 @@ use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Entities\DbValue;
 use EasyMinerCenter\Model\Data\Entities\DbValuesRows;
+use EasyMinerCenter\Model\Data\Entities\DbValuesStats;
 
 /**
  * Interface IDatabase - unified interface for work with different datasources (database drivers)
@@ -34,6 +35,14 @@ interface IDatabase {
    * @return DbField[]
    */
   public function getDbFields(DbDatasource $dbDatasource);
+
+  /**
+   * Method returning one field (columns) in remote datasource
+   * @param DbDatasource $dbDatasource
+   * @param int $dbFieldId
+   * @return DbField
+   */
+  public function getDbField(DbDatasource $dbDatasource, $dbFieldId);
 
   /**
    * Method for deleting selected remote datasource
@@ -85,6 +94,13 @@ interface IDatabase {
    * @return DbValue[]
    */
   public function getDbValues(DbField $dbField, $offset=0, $limit=1000);
+
+  /**
+   * Method returning statistics of numerical values from selected DbField
+   * @param DbField $dbField
+   * @return DbValuesStats
+   */
+  public function getDbValuesStats(DbField $dbField);
 
   /**
    * Method returning rows from Datasource

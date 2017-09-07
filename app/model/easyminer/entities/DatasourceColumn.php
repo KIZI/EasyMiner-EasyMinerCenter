@@ -27,6 +27,14 @@ class DatasourceColumn extends Entity{
   const TYPE_NUMERIC='numeric';
 
   /**
+   * Method for checking if the given DatasourceColumn is numeric
+   * @return bool
+   */
+  public function isNumericType(){
+    return ($this->type==self::TYPE_FLOAT || $this->type==self::TYPE_INTEGER || $this->type==self::TYPE_NUMERIC);
+  }
+
+  /**
    * Method returning an array with basic data properties
    * @return array
    */

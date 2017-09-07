@@ -8,6 +8,8 @@ use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
 use EasyMinerCenter\Model\Data\Entities\DbValue;
 use EasyMinerCenter\Model\Data\Entities\DbValuesRows;
+use EasyMinerCenter\Model\Data\Entities\DbValuesStats;
+use EasyMinerCenter\Model\Data\Exceptions\DatabaseException;
 use Nette\NotImplementedException;
 use Nette\NotSupportedException;
 use Nette\Utils\Strings;
@@ -651,5 +653,17 @@ class MySQLDatabase implements IDatabase{
    */
   public function deleteDbDatasource(DbDatasource $dbDatasource){
     // TODO: Implement deleteDbDatasource() method.
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Method returning statistics of values from selected DbField
+   * @param DbField $dbField
+   * @return DbValuesStats
+   * @throws DatabaseException
+   */
+  public function getDbValuesStats(DbField $dbField){
+    // TODO: Implement deleteDbDatasource() method.
+    throw new NotImplementedException();
   }
 }

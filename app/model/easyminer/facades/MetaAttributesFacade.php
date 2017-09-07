@@ -2,6 +2,7 @@
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
 
+use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\Format;
 use EasyMinerCenter\Model\EasyMiner\Entities\Interval;
@@ -16,14 +17,12 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\FormatsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\PreprocessingsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\ValuesBinsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\ValuesRepository;
-use Nette\Utils\Strings;
 
 /**
  * Class MetaAttributesFacade - facade for work with metaattributes
  * @package EasyMinerCenter\Model\EasyMiner\Facades
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
- * xxx
  */
 class MetaAttributesFacade {
   /** @var MetaAttributesRepository $metaAttributesRepository */
@@ -40,6 +39,10 @@ class MetaAttributesFacade {
   private $intervalsRepository;
   /** @var UsersFacade $usersFacade */
   private $usersFacade;
+  /** @var DatasourcesFacade $datasourcesFacade */
+  private $datasourcesFacade;
+
+  const FORMAT_CREATION_MAX_VALUES_COUNT=100;
 
 
   /**
@@ -50,6 +53,7 @@ class MetaAttributesFacade {
    * @param ValuesRepository $valuesRepository
    * @param IntervalsRepository $intervalsRepository
    * @param UsersFacade $usersFacade
+   * @param DatasourcesFacade $datasourcesFacade
    */
   public function __construct(MetaAttributesRepository $metaAttributesRepository,
                               FormatsRepository $formatsRepository,
@@ -57,7 +61,8 @@ class MetaAttributesFacade {
                               ValuesBinsRepository $valuesBinsRepository,
                               ValuesRepository $valuesRepository,
                               IntervalsRepository $intervalsRepository,
-                              UsersFacade $usersFacade){
+                              UsersFacade $usersFacade,
+                              DatasourcesFacade $datasourcesFacade){
     $this->metaAttributesRepository=$metaAttributesRepository;
     $this->formatsRepository=$formatsRepository;
     $this->preprocessingsRepository=$preprocessingsRepository;
@@ -65,6 +70,7 @@ class MetaAttributesFacade {
     $this->valuesRepository=$valuesRepository;
     $this->intervalsRepository=$intervalsRepository;
     $this->usersFacade=$usersFacade;
+    $this->datasourcesFacade=$datasourcesFacade;
   }
 
   /**
@@ -74,10 +80,9 @@ class MetaAttributesFacade {
    * @return Format
    */
   public function simpleCreateMetaAttributeWithFormatFromDatasourceColumn(DatasourceColumn $datasourceColumn, User $user) {
-    //XXX jen pracovní implementace, bude nutno upravit v závislosti na
     $metaAttribute=$this->findOrCreateMetaAttributeWithName($datasourceColumn->name);
     $datasource=$datasourceColumn->datasource;
-    return $this->createFormatFromDatasourceColumn($metaAttribute,$datasource->name,$datasourceColumn,/*TODO statistics*/null,'values',false,$user);
+    return $this->createFormatFromDatasourceColumn($metaAttribute, $datasource->name, $datasourceColumn, false, $user);
   }
 
   /**
@@ -130,15 +135,14 @@ class MetaAttributesFacade {
    * @param MetaAttribute $metaAttribute
    * @param string $formatName
    * @param DatasourceColumn $datasourceColumn
-   * @param DbColumnValuesStatistic $columnValuesStatistic
-   * @param string $formatType=values - 'interval'|'values'
    * @param bool $formatShared=false
    * @param User $user
    * @return Format
    */
-  public function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute,$formatName,DatasourceColumn $datasourceColumn,/*TODO*/ $columnValuesStatistic=null,$formatType='values', $formatShared=false, User $user){
+  public function createFormatFromDatasourceColumn(MetaAttribute $metaAttribute, $formatName, DatasourceColumn $datasourceColumn, $formatShared=false, User $user){
+    //prepare new format and save it...
     $format=new Format();
-    $format->dataType=(Strings::lower($formatType)=='interval'?Format::DATATYPE_INTERVAL:Format::DATATYPE_VALUES);
+    $format->dataType=($datasourceColumn->isNumericType()?Format::DATATYPE_INTERVAL:Format::DATATYPE_VALUES);
     $format->name=$formatName;
     $format->metaAttribute=$metaAttribute;
     $format->user=$user;
@@ -148,10 +152,8 @@ class MetaAttributesFacade {
       $format->shared=false;
     }
     $this->saveFormat($format);
-    if ($columnValuesStatistic!=null){
-      //FIXME opravit - jen dočasné vyřazení statistik z celého procesu
-      $this->updateFormatFromDatasourceColumn($format,$datasourceColumn,$columnValuesStatistic);
-    }
+    //update format definition range
+    $this->updateFormatFromDatasourceColumn($format,$datasourceColumn);
     return $format;
   }
 
@@ -159,11 +161,21 @@ class MetaAttributesFacade {
    * TODO implementovat...
    * @param Format $format
    * @param DatasourceColumn $datasourceColumn
-   * @param DbColumnValuesStatistic $columnValuesStatistic
    */
-  public function updateFormatFromDatasourceColumn(Format $format, DatasourceColumn $datasourceColumn, DbColumnValuesStatistic $columnValuesStatistic){
-    if ($format->dataType==Format::DATATYPE_INTERVAL){
-      $newInterval=Interval::create(Interval::CLOSURE_CLOSED,$columnValuesStatistic->minValue,$columnValuesStatistic->maxValue,Interval::CLOSURE_CLOSED);
+  public function updateFormatFromDatasourceColumn(Format $format, DatasourceColumn $datasourceColumn){
+    #region load dbField data
+    /** @var IDatabase $datasourceDatabase */
+    $datasourceDatabase=$this->datasourcesFacade->getDatasourceDatabase($datasourceColumn->datasource);
+    $dbDatasource=$datasourceDatabase->getDbDatasource($datasourceColumn->datasource->dbDatasourceId);
+    $dbField=$datasourceDatabase->getDbField($dbDatasource,$datasourceColumn->dbDatasourceFieldId);
+    #endregion load dbField data
+
+    if ($datasourceColumn->isNumericType()){
+      #region define range using interval
+      //load stats from datasource
+      $datasourceColumnValuesStats=$datasourceDatabase->getDbValuesStats($dbField);
+      //create interval from loaded stats and update format range
+      $newInterval=Interval::create(Interval::CLOSURE_CLOSED,$datasourceColumnValuesStats->min,$datasourceColumnValuesStats->max,Interval::CLOSURE_CLOSED);
       $newInterval->format=$format;
       $intervals=$format->intervals;
       if (!empty($intervals)){
@@ -184,7 +196,10 @@ class MetaAttributesFacade {
       }else{
         $this->saveInterval($newInterval);
       }
+      #endregion define range using interval
     }else{
+      $datasourceColumnValues=$datasourceDatabase->getDbValues($dbField,0,self::FORMAT_CREATION_MAX_VALUES_COUNT);
+      //TODO vyřešit situaci, kdy bude datasource column obsahovat příliš mnoho hodnot
       $existingValues=[];
       $values=$format->values;
       if (!empty($values)){
@@ -192,12 +207,12 @@ class MetaAttributesFacade {
           $existingValues[]=$value->value;
         }
       }
-      if (!empty($columnValuesStatistic->valuesArr)){
-        foreach($columnValuesStatistic->valuesArr as $value=>$count){
-          if (!in_array($value,$existingValues)){
+      if (!empty($datasourceColumnValues)){
+        foreach($datasourceColumnValues as $datasourceColumnValue){
+          if (!in_array($datasourceColumnValue->value,$existingValues)){
             $valueObject=new Value();
             $valueObject->format=$format;
-            $valueObject->value=$value;
+            $valueObject->value=$datasourceColumnValue->value;
             $this->saveValue($valueObject);
           }
         }

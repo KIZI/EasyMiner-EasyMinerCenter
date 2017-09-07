@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbValue;
 use EasyMinerCenter\Model\Data\Entities\DbValuesRows;
+use EasyMinerCenter\Model\Data\Entities\DbValuesStats;
 use EasyMinerCenter\Model\Data\Exceptions\DatabaseCommunicationException;
 use EasyMinerCenter\Model\Data\Exceptions\DatabaseException;
 use Nette\Utils\Json;
@@ -89,6 +90,24 @@ abstract class DataServiceDatabase implements IDatabase {
         }
       }
       return $result;
+    }
+    throw new EntityNotFoundException('Requested DbDatasource was not found.');
+  }
+
+  /**
+   * Method returning one field (columns) in remote datasource
+   * @param DbDatasource $dbDatasource
+   * @param int $dbFieldId
+   * @return DbField
+   * @throws EntityNotFoundException
+   */
+  public function getDbField(DbDatasource $dbDatasource, $dbFieldId){
+    $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.$dbDatasource->id.'/field/'.$dbFieldId),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+    if ($responseCode==200){
+      $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+      if (!empty($responseData)){
+        return new DbField($responseData['id'], $responseData['dataSource'], $responseData['name'], $responseData['type'], $responseData['uniqueValuesSize']);
+      }
     }
     throw new EntityNotFoundException('Requested DbDatasource was not found.');
   }
@@ -176,6 +195,29 @@ abstract class DataServiceDatabase implements IDatabase {
           }
         }
         return $result;
+      }else{
+        throw new DatabaseCommunicationException('responseCode: '.$responseCode);
+      }
+    }catch (\Exception $e){
+      throw new DatabaseException();
+    }
+  }
+
+  /**
+   * Method returning statistics of values from selected DbField
+   * @param DbField $dbField
+   * @return DbValuesStats
+   * @throws DatabaseException
+   */
+  public function getDbValuesStats(DbField $dbField){
+    try{
+      $responseData=$this->curlRequestResponse($this->getRequestUrl('/datasource/'.urlencode($dbField->dataSource).'/field/'.urlencode($dbField->id).'/stats'),null,'GET',['Accept'=>'application/json; charset=utf8'], $responseCode);
+      if ($responseCode==200){
+        $responseData=Json::decode($responseData, Json::FORCE_ARRAY);
+        $result=[];
+        if (!empty($responseData)){
+          return new DbValuesStats(@$responseData['min'],@$responseData['max'],@$responseData['avg']);
+        }
       }else{
         throw new DatabaseCommunicationException('responseCode: '.$responseCode);
       }
