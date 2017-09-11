@@ -157,6 +157,8 @@ class AttributesPresenter extends BasePresenter{
       'column'=>$column,
       'attributeName'=>$datasourceColumn->name,
       'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0',
+      'minLeftClosure'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftClosure:Interval::CLOSURE_CLOSED),
+      'maxRightClosure'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightClosure:Interval::CLOSURE_CLOSED),
       'minLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
       'maxRightMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightMargin:''),
       'equidistantLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
@@ -855,6 +857,7 @@ class AttributesPresenter extends BasePresenter{
       $lastEnd=$values['equidistantLeftMargin'];
       while($remainingIntervals>0 && $lastEnd<$endMax){
         $interval=new Interval();
+        $interval->format=$format;
         $interval->leftMargin=$lastEnd;
         if ($lastEnd==$firstStart){
           $interval->leftClosure=$values['minLeftClosure'];
