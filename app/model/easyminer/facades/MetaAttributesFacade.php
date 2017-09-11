@@ -532,9 +532,6 @@ class MetaAttributesFacade {
       }else{
         $preprocessing->name='Equisized int.';
       }
-      if ($specialParams['count']<=1){
-        throw new \InvalidArgumentException('Count param of equisized intervals has to be greater than 1.');
-      }
       $preprocessing->specialType=$preprocessingType;
       $preprocessing->setSpecialTypeParams($specialParams);
       #endregion equisized intervals

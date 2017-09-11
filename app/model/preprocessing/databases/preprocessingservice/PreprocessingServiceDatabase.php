@@ -272,7 +272,14 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
    * @return string[]
    */
   public static function getSupportedPreprocessingTypes() {
-    return [Preprocessing::TYPE_EACHONE, Preprocessing::TYPE_INTERVAL_ENUMERATION, Preprocessing::TYPE_NOMINAL_ENUMERATION, Preprocessing::TYPE_EQUIFREQUENT_INTERVALS, Preprocessing::TYPE_EQUIDISTANT_INTERVALS];
+    return [
+      Preprocessing::TYPE_EACHONE,
+      Preprocessing::TYPE_INTERVAL_ENUMERATION,
+      Preprocessing::TYPE_NOMINAL_ENUMERATION,
+      Preprocessing::TYPE_EQUIDISTANT_INTERVALS,
+      Preprocessing::TYPE_EQUIFREQUENT_INTERVALS,
+      Preprocessing::TYPE_EQUISIZED_INTERVALS
+    ];
   }
 
   /**

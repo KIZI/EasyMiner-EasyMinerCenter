@@ -64,7 +64,7 @@ class Preprocessing extends Entity{
    * @return string[]
    */
   public static function getPreprocessingTypes(){
-    return [self::TYPE_EACHONE,self::TYPE_NOMINAL_ENUMERATION,self::TYPE_INTERVAL_ENUMERATION,self::TYPE_EQUIDISTANT_INTERVALS,self::TYPE_EQUIFREQUENT_INTERVALS];
+    return [self::TYPE_EACHONE,self::TYPE_NOMINAL_ENUMERATION,self::TYPE_INTERVAL_ENUMERATION,self::TYPE_EQUIDISTANT_INTERVALS,self::TYPE_EQUIFREQUENT_INTERVALS,self::TYPE_EQUISIZED_INTERVALS];
   }
 
   /**

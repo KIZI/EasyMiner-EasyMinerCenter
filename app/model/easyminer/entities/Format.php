@@ -71,7 +71,7 @@ class Format  extends Entity{
     if (count($this->intervals)){
       $result=null;
       foreach($this->intervals as $interval){
-        if (!$result instanceof Interval){
+        if (!($result instanceof Interval)){
           $result=$interval;
           continue;
         }
@@ -81,7 +81,7 @@ class Format  extends Entity{
         }elseif($interval->leftMargin==$result->leftMargin && $interval->leftClosure==Interval::CLOSURE_CLOSED){
           $result->leftClosure=Interval::CLOSURE_CLOSED;
         }
-        if ($interval->rightMargin<$result->rightMargin){
+        if ($interval->rightMargin>$result->rightMargin){
           $result->rightMargin=$interval->rightMargin;
           $result->rightClosure=$interval->rightClosure;
         }elseif($interval->rightMargin==$result->rightMargin && $interval->rightClosure==Interval::CLOSURE_CLOSED){

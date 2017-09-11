@@ -49,10 +49,10 @@
             <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equidistant intervals'}</a>
           {/if}
           {if in_array(\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::TYPE_EQUIFREQUENT_INTERVALS,$supportedPreprocessingTypes)}
-            <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equifrequent intervals'}</a>
+            <a href="{link newPreprocessingEquifrequentIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equifrequent intervals'}</a>
           {/if}
           {if in_array(\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::TYPE_EQUISIZED_INTERVALS,$supportedPreprocessingTypes)}
-            <a href="{link newPreprocessingEquidistantIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equisized intervals'}</a>
+            <a href="{link newPreprocessingEquisizedIntervals miner=>$miner->minerId,column=>$datasourceColumn->datasourceColumnId}">{_'Equisized intervals'}</a>
           {/if}
         {/if}
         {if in_array(\EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing::TYPE_NOMINAL_ENUMERATION,$supportedPreprocessingTypes)}
