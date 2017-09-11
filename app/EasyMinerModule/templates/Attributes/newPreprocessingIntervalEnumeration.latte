@@ -13,9 +13,16 @@
 
     <div class="formatValues">
       <strong>{_'Format values:'}</strong>
-      {foreach $format->intervals as $interval}
-        <span>{$interval}</span>
-      {/foreach}
+      {if count($format->intervals)}
+        {foreach $format->intervals as $interval}
+          <span>{$interval}</span>
+        {/foreach}
+      {/if}
+      {if count($format->values)}
+        {foreach $format->values as $value}
+          <span>{$value}</span>
+        {/foreach}
+      {/if}
     </div>
 
     {form newIntervalEnumerationForm}

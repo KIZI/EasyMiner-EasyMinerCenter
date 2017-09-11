@@ -670,12 +670,12 @@ class AttributesPresenter extends BasePresenter{
       $attribute->name=$values['attributeName'];
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessing=$preprocessing;
-      /** @noinspection PhpUndefinedMethodInspection */
-      $this->minersFacade->prepareAttribute($miner,$attribute);
+      $attribute->active=false;
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
-      $this->redirect('reloadUI');
+      //start preprocessing task
+      $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
+      $this->redirect('preprocessingTask',['id'=>$metasourceTask->metasourceTaskId]);
       #endregion preprocessing creation
     };
     $presenter=$this;
@@ -858,12 +858,12 @@ class AttributesPresenter extends BasePresenter{
       $attribute->name=$values['attributeName'];
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessing=$preprocessing;
-      /** @noinspection PhpUndefinedMethodInspection */
-      $this->minersFacade->prepareAttribute($miner,$attribute);
+      $attribute->active=false;
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
-      $this->redirect('reloadUI');
+      //start preprocessing task
+      $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
+      $this->redirect('preprocessingTask',['id'=>$metasourceTask->metasourceTaskId]);
       #endregion preprocessing creation
     };
     $presenter=$this;
@@ -1086,18 +1086,19 @@ class AttributesPresenter extends BasePresenter{
       }
       $this->preprocessingsFacade->savePreprocessing($preprocessing);
 
-      //vytvoření atributu
+      //create attribute
       $attribute=new Attribute();
       $attribute->metasource=$miner->metasource;
       $attribute->datasourceColumn=$datasourceColumn;
       $attribute->name=$values['attributeName'];
       $attribute->type=$attribute->datasourceColumn->type;
       $attribute->preprocessing=$preprocessing;
-      $this->minersFacade->prepareAttribute($miner,$attribute);
+      $attribute->active=false;
       $this->metasourcesFacade->saveAttribute($attribute);
-      $this->minersFacade->checkMinerState($miner, $this->getCurrentUser());
 
-      $this->redirect('reloadUI');
+      //start preprocessing task
+      $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
+      $this->redirect('preprocessingTask',['id'=>$metasourceTask->metasourceTaskId]);
       #endregion preprocessing creation
     };
     $presenter=$this;
