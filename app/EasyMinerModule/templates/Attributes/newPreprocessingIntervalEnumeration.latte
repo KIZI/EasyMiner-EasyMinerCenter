@@ -13,10 +13,8 @@
 
     <div class="formatValues">
       <strong>{_'Format values:'}</strong>
-      {if count($format->intervals)}
-        {foreach $format->intervals as $interval}
-          <span>{$interval}</span>
-        {/foreach}
+      {if !empty($format->intervals)}
+        <span>{$format->getAllIntervalsRange()}</span>
       {/if}
       {if count($format->values)}
         {foreach $format->values as $value}

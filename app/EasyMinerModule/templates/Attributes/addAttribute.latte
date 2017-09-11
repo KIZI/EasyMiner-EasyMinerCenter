@@ -20,11 +20,11 @@
     {if (!empty($format->values) || !empty($format->intervals))}
     <div class="formatValues">
       <strong>{_'Format values:'}</strong>
+      {if !empty($format->intervals)}
+        <span>{$format->getAllIntervalsRange()}</span>
+      {/if}
       {foreach $format->values as $value}
         <span>{$value}</span>
-      {/foreach}
-      {foreach $format->intervals as $interval}
-        <span>{$interval}</span>
       {/foreach}
     </div>
     {/if}
