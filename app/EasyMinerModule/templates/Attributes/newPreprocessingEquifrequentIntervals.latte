@@ -1,0 +1,34 @@
+{**
+ * Template for AttributesPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block content}
+
+  <div id="preprocessingPage">
+
+    <h1>{_'New attribute from: '}{$datasourceColumn->name}</h1>
+    <h2>{_'New preprocessing - Equidistant intervals'}</h2>
+    <p class="preprocessingInfo">{_'This preprocessing splits numerical values into equifrequent intervals.'}</p>
+
+    <div class="formatValues">
+      <strong>{_'Format values:'}</strong>
+      {if count($format->intervals)}
+        {foreach $format->intervals as $interval}
+          <span>{$interval}</span>
+        {/foreach}
+      {/if}
+      {if count($format->values)}
+        {foreach $format->values as $value}
+          <span>{$value}</span>
+        {/foreach}
+      {/if}
+    </div>
+
+    {control newEquifrequentIntervalsForm}
+
+  </div>
+
+{/block}
+
+

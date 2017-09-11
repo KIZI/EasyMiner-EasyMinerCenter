@@ -148,32 +148,7 @@ class AttributesPresenter extends BasePresenter{
     $format=$datasourceColumn->format;
     $this->template->format=$format;
 
-    $minLeftMargin=null;
-    $minLeftClosure=null;
-    $maxRightMargin=null;
-    $maxRightClosure=null;
-    $intervals=$format->intervals;
-    if (!empty($intervals)){
-      foreach($intervals as $interval){
-        if ($minLeftMargin==null){
-          //it is the first interval
-          $minLeftMargin=$interval->leftMargin;
-          $minLeftClosure=$interval->leftClosure;
-          $maxRightMargin=$interval->rightMargin;
-          $maxRightClosure=$interval->rightClosure;
-        }else{
-          //we will check the boundaries of intervals and enlarge them if necessary
-          if ($minLeftMargin>$interval->leftMargin || ($minLeftMargin==$interval->leftMargin && $minLeftClosure==Interval::CLOSURE_OPEN && $interval->leftClosure==Interval::CLOSURE_CLOSED)){
-            $minLeftClosure=$interval->leftClosure;
-            $minLeftMargin=$interval->leftMargin;
-          }
-          if ($maxRightMargin<$interval->rightMargin || ($maxRightMargin==$interval->rightMargin && $maxRightClosure==Interval::CLOSURE_OPEN && $interval->rightClosure==Interval::CLOSURE_CLOSED)){
-            $maxRightClosure=$interval->rightClosure;
-            $maxRightMargin=$interval->rightMargin;
-          }
-        }
-      }
-    }
+    $definitionRangeInterval=$format->getAllIntervalsRange();
 
     /** @var Form $form */
     $form=$this->getComponent('newEquidistantIntervalsForm');
@@ -182,13 +157,73 @@ class AttributesPresenter extends BasePresenter{
       'column'=>$column,
       'attributeName'=>$datasourceColumn->name,
       'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0',
-      'minLeftMargin'=>$minLeftMargin,
-      'minLeftClosure'=>$minLeftClosure,
-      'maxRightMargin'=>$maxRightMargin,
-      'maxRightClosure'=>$maxRightClosure,
-      'equidistantLeftMargin'=>$minLeftMargin,
-      'equidistantRightMargin'=>$maxRightMargin,
+      'minLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
+      'maxRightMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightMargin:''),
+      'equidistantLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
+      'equidistantRightMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightMargin:''),
       'equidistantIntervalsCount'=>5
+    ));
+  }
+
+  /**
+   * Action for usage of the preprocessing "equidistant intervals"
+   * @param int $miner
+   * @param int $column
+   * @throws BadRequestException
+   */
+  public function renderNewPreprocessingEquifrequentIntervals($miner, $column){
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+    $this->template->datasourceColumn=$datasourceColumn;
+    $format=$datasourceColumn->format;
+    $this->template->format=$format;
+
+    $definitionRangeInterval=$format->getAllIntervalsRange();
+
+    /** @var Form $form */
+    $form=$this->getComponent('newEquifrequentIntervalsForm');
+    $form->setDefaults(array(
+      'miner'=>$miner->minerId,
+      'column'=>$column,
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0',
+      'minLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
+      'maxRightMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightMargin:''),
+      'equifrequentLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
+      'equifrequentRightMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightMargin:''),
+      'equifrequentIntervalsCount'=>5
+    ));
+  }
+
+  /**
+   * Action for usage of the preprocessing "equidistant intervals"
+   * @param int $miner
+   * @param int $column
+   * @throws BadRequestException
+   */
+  public function renderNewPreprocessingEquisizedIntervals($miner, $column){
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$column);
+    $this->template->datasourceColumn=$datasourceColumn;
+    $format=$datasourceColumn->format;
+    $this->template->format=$format;
+
+    $definitionRangeInterval=$format->getAllIntervalsRange();
+
+    /** @var Form $form */
+    $form=$this->getComponent('newEquisizedIntervalsForm');
+    $form->setDefaults(array(
+      'miner'=>$miner->minerId,
+      'column'=>$column,
+      'attributeName'=>$datasourceColumn->name,
+      'supportLongNames'=>$this->metasourcesFacade->metasourceSupportsLongNames($miner->metasource)?'1':'0',
+      'minLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
+      'maxRightMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightMargin:''),
+      'equisizedLeftMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->leftMargin:''),
+      'equisizedRightMargin'=>($definitionRangeInterval instanceof Interval?$definitionRangeInterval->rightMargin:''),
+      'equisizedIntervalsCount'=>5
     ));
   }
 

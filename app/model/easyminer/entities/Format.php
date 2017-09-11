@@ -29,9 +29,10 @@ class Format  extends Entity{
 
   /**
    * @param string $value
-   * @return Value
+   * @return Value|null
    */
   public function findValueByValue($value){
+    /** @var Value|Value[]|null $valuesItem */
     $valuesItem = $this->getValueByPropertyWithRelationship('values', new Filtering(function (Fluent $statement) use ($value) {
       /** @noinspection PhpMethodParametersCountMismatchInspection */
       $statement->where("value = %s COLLATE utf8_bin", $value);
@@ -50,6 +51,7 @@ class Format  extends Entity{
    * @return ValuesBin|null
    */
   public function findValuesBinByName($valueBinName){
+    /** @var ValuesBin|ValuesBin[]|null $valuesBin */
     $valuesBin = $this->getValueByPropertyWithRelationship('valuesBins', new Filtering(function (Fluent $statement) use ($valueBinName) {
       /** @noinspection PhpMethodParametersCountMismatchInspection */
       $statement->where("name = %s COLLATE utf8_bin", $valueBinName);
@@ -58,6 +60,33 @@ class Format  extends Entity{
       return array_shift($valuesBin);
     }else{
       return $valuesBin;
+    }
+  }
+
+  /**
+   * Method returning complete definition range of this format
+   * @return Interval|null
+   */
+  public function getAllIntervalsRange(){
+    if (count($this->intervals)){
+      $result=new Interval();
+      foreach($this->intervals as $interval){
+        if ($interval->leftMargin<$result->leftMargin){
+          $result->leftMargin=$interval->leftMargin;
+          $result->leftClosure=$interval->leftClosure;
+        }elseif($interval->leftMargin==$result->leftMargin && $interval->leftClosure==Interval::CLOSURE_CLOSED){
+          $result->leftClosure=Interval::CLOSURE_CLOSED;
+        }
+        if ($interval->rightMargin<$result->rightMargin){
+          $result->rightMargin=$interval->rightMargin;
+          $result->rightClosure=$interval->rightClosure;
+        }elseif($interval->rightMargin==$result->rightMargin && $interval->rightClosure==Interval::CLOSURE_CLOSED){
+          $result->rightClosure=Interval::CLOSURE_CLOSED;
+        }
+      }
+      return $result;
+    }else{
+      return null;
     }
   }
 
