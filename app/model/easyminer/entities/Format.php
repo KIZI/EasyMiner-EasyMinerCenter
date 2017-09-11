@@ -69,8 +69,12 @@ class Format  extends Entity{
    */
   public function getAllIntervalsRange(){
     if (count($this->intervals)){
-      $result=new Interval();
+      $result=null;
       foreach($this->intervals as $interval){
+        if (!$result instanceof Interval){
+          $result=$interval;
+          continue;
+        }
         if ($interval->leftMargin<$result->leftMargin){
           $result->leftMargin=$interval->leftMargin;
           $result->leftClosure=$interval->leftClosure;

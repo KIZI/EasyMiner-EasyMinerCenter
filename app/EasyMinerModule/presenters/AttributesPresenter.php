@@ -724,7 +724,7 @@ class AttributesPresenter extends BasePresenter{
   }
 
   /**
-   * Form for definition of a preprocessing using interval enumeration
+   * Form for definition of a preprocessing using equidistant intervals
    * @return Form
    */
   protected function createComponentNewEquidistantIntervalsForm(){
@@ -821,9 +821,9 @@ class AttributesPresenter extends BasePresenter{
       },'Start value has to be lower than end value!');
 
     $form->addText('equidistantIntervalsCount','Intervals count:')
-      ->setRequired('You have to input an integer value bigger than 2!')
-      ->addRule(Form::INTEGER,'You have to input an integer value bigger than 2!')
-      ->addRule(Form::MIN,'You have to input an integer value bigger than 2!',2);
+      ->setRequired('You have to input an integer value bigger than 1!')
+      ->addRule(Form::INTEGER,'You have to input an integer value bigger than 1!')
+      ->addRule(Form::MIN,'You have to input an integer value bigger than 1!',2);
 
     $form->addSubmit('submit','Save preprocessing & create attribute')
       ->onClick[]=function(SubmitButton $submitButton){
@@ -909,6 +909,161 @@ class AttributesPresenter extends BasePresenter{
       $presenter->redirect('addAttribute',array('column'=>$values->column,'miner'=>$values->miner));
     };
     return $form;
+  }
+
+  /**
+   * Form for definition of a preprocessing using equifrequent intervals
+   * @return Form
+   */
+  protected function createComponentNewEquifrequentIntervalsForm(){
+    $form=new Form();
+    $form->setTranslator($this->translator);
+    $supportLongNamesInput=$form->addHidden('supportLongNames','0');
+    $form->addHidden('column');
+    $form->addHidden('miner');
+    $form->addHidden('minLeftMargin');
+    $form->addHidden('maxRightMargin');
+
+    $form->addText('preprocessingName','Preprocessing name:')
+      ->setRequired(false)
+      ->setAttribute('placeholder',$this->translate('Equifrequent intervals'))
+      ->setAttribute('title',$this->translate('You can left this field blank, it will be filled in automatically.'))
+      ->addRule(function(TextInput $textInput){
+        $form=$textInput->getForm(true);
+        $formValues=$form->getValues(true);
+        $textInputValue=$textInput->value;
+        //find the relevant format
+        $miner=$this->findMinerWithCheckAccess($formValues['miner']);
+        $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$formValues['column']);
+        $format=$datasourceColumn->format;
+        $textInput->setAttribute('placeholder',$this->prepareEquifrequentPreprocessingName($format,$formValues));
+        if ($textInputValue!=''){
+          //check preprocessings
+          $existingPreprocessings=$format->preprocessings;
+          if (!empty($existingPreprocessings)){
+            foreach ($existingPreprocessings as $existingPreprocessing){
+              if ($existingPreprocessing->name==$textInput){
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      },'This preprocessing name already exists. Please select a new one...')
+      ->setAttribute('class','normalWidth');
+    $attributeNameInput=$form->addText('attributeName','Create attribute with name:');
+    $attributeNameInput
+      ->setAttribute('class','normalWidth')
+      ->setRequired('Input attribute name!')
+      ->addRule(function(TextInput $input){
+        //check, if there is an existing attribute with the given name
+        $values=$input->getForm(true)->getValues();
+        $miner=$this->findMinerWithCheckAccess($values->miner);
+        $attributes=$miner->metasource->attributes;
+        if (!empty($attributes)){
+          foreach ($attributes as $attribute){
+            if ($attribute->active && $attribute->name==$input->value){
+              return false;
+            }
+          }
+        }
+        return true;
+      },'Attribute with this name already exists!');
+    $attributeNameInput
+      ->addConditionOn($supportLongNamesInput,Form::NOT_EQUAL,'1')
+      ->addRule(Form::PATTERN,'Attribute name can contain only letters, numbers and _ and has start with a letter.','[a-zA-Z]{1}\w*')
+      ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::SHORT_NAMES_MAX_LENGTH)
+      ->elseCondition()
+      ->addRule(Form::MAX_LENGTH,'Max length of the column name is %s characters.',MetasourcesFacade::LONG_NAMES_MAX_LENGTH)
+      ->endCondition();
+
+    $form->addText('equifrequentLeftMargin','Equifrequent intervals from:')
+      ->setRequired('You have to input number!')
+      ->addRule(Form::FLOAT,'You have to input number!')
+      ->addRule(function(TextInput $textInput){
+        $values=$textInput->getForm(true)->getValues(true);
+        if ($values['equifrequentLeftMargin']<$values['minLeftMargin'] || $values['equifrequentLeftMargin']>=$values['maxRightMargin']){
+          return false;
+        }
+        return true;
+      },'Start value cannot be out of the data range!');
+
+    $form->addText('equifrequentRightMargin','Equifrequent intervals to:')
+      ->setRequired('You have to input number!')
+      ->addRule(Form::FLOAT,'You have to input number!')
+      ->addRule(function(TextInput $textInput){
+        $values=$textInput->getForm(true)->getValues(true);
+        if ($values['equifrequentRightMargin']>$values['maxRightMargin'] || $values['equifrequentRightMargin']<=$values['minLeftMargin']){
+          return false;
+        }
+        return true;
+      },'End value cannot be out of the data range!')
+      ->addRule(function(TextInput $textInput){
+        $values=$textInput->getForm(true)->getValues(true);
+        if ($values['equifrequentLeftMargin']>=$values['equifrequentRightMargin']){
+          return false;
+        }
+        return true;
+      },'Start value has to be lower than end value!');
+
+    $form->addText('equifrequentIntervalsCount','Intervals count:')
+      ->setRequired('You have to input an integer value bigger than 1!')
+      ->addRule(Form::INTEGER,'You have to input an integer value bigger than 2!')
+      ->addRule(Form::MIN,'You have to input an integer value bigger than 2!',2);
+
+    $form->addSubmit('submit','Save preprocessing & create attribute')
+      ->onClick[]=function(SubmitButton $submitButton){
+      #region preprocessing creation
+      $values=$submitButton->getForm(true)->getValues(true);
+      //find the relevant format
+      $miner=$this->findMinerWithCheckAccess($values['miner']);
+      $this->minersFacade->checkMinerMetasource($miner);
+      $datasourceColumn=$this->findDatasourceColumn($miner->datasource,$values['column']);
+      $format=$datasourceColumn->format;
+
+      //create preprocessing
+      $preprocessing=$this->metaAttributesFacade->generateNewPreprocessingFromDefinitionArray($format,[
+        'type'=>Preprocessing::TYPE_EQUIFREQUENT_INTERVALS,
+        'from'=>$values['equifrequentLeftMargin'],
+        'to'=>$values['equifrequentRightMargin'],
+        'count'=>$values['equifrequentIntervalsCount']
+      ]);
+      $preprocessing->name=($values['preprocessingName']!=''?$values['preprocessingName']:$this->prepareEquidistantPreprocessingName($format,$values));
+      $preprocessing->format=$format;
+      $preprocessing->user=$this->getCurrentUser();
+      $this->preprocessingsFacade->savePreprocessing($preprocessing);
+
+      //create attribute
+      $attribute=new Attribute();
+      $attribute->metasource=$miner->metasource;
+      $attribute->datasourceColumn=$datasourceColumn;
+      $attribute->name=$values['attributeName'];
+      $attribute->type=$attribute->datasourceColumn->type;
+      $attribute->preprocessing=$preprocessing;
+      $attribute->active=false;
+      $this->metasourcesFacade->saveAttribute($attribute);
+
+      //start preprocessing task
+      $metasourceTask=$this->metasourcesFacade->startAttributesPreprocessing($miner->metasource,[$attribute]);
+      $this->redirect('preprocessingTask',['id'=>$metasourceTask->metasourceTaskId]);
+      #endregion preprocessing creation
+    };
+    $presenter=$this;
+    $form->addSubmit('storno','storno')
+      ->setValidationScope([])
+      ->onClick[]=function(SubmitButton $submitButton)use($presenter){
+      $values=$submitButton->getForm()->getValues();
+      $presenter->redirect('addAttribute',array('column'=>$values->column,'miner'=>$values->miner));
+    };
+    return $form;
+  }
+
+  /**
+   * Form for definition of a preprocessing using equisized intervals
+   * @return Form
+   */
+  protected function createComponentNewEquisizedIntervalsForm(){
+    //FIXME implementovat
   }
 
   /**
@@ -1228,6 +1383,68 @@ class AttributesPresenter extends BasePresenter{
    */
   private function prepareEquidistantPreprocessingName(Format $format,$formValues) {
     $preprocessingNameBase=$this->translate('Equidistant intervals ({:count}) from {:from} to {:to}');
+    $preprocessingNameBase=str_replace(['{:count}','{:from}','{:to}'],[$formValues['equidistantIntervalsCount'],$formValues['equidistantLeftMargin'],$formValues['equidistantRightMargin']],$preprocessingNameBase);
+
+    #region solving of the uniqueness of the name
+    $existingPreprocessingsNames=[];
+    $existingPreprocessings=$format->preprocessings;
+    if (!empty($existingPreprocessings)){
+      foreach($existingPreprocessings as $existingPreprocessing){
+        $existingPreprocessingsNames[]=$existingPreprocessing->name;
+      }
+    }
+    $counter=1;
+    do{
+      /** @var string $preprocessingName */
+      $preprocessingName=$preprocessingNameBase;
+      if ($counter>1){
+        $preprocessingName.=' ('.$counter.')';
+      }
+      $counter++;
+    }while(in_array($preprocessingName,$existingPreprocessingsNames));
+    #endregion solving of the uniqueness of the name
+    return $preprocessingName;
+  }
+
+  /**
+   * Function for generation of a default preprocessing name - for equidistant intervals
+   * @param Format $format
+   * @param array $formValues
+   * @return string
+   */
+  private function prepareEquifrequentPreprocessingName(Format $format,$formValues) {
+    $preprocessingNameBase=$this->translate('Equifrequent intervals ({:count}) from {:from} to {:to}');
+    $preprocessingNameBase=str_replace(['{:count}','{:from}','{:to}'],[$formValues['equidistantIntervalsCount'],$formValues['equidistantLeftMargin'],$formValues['equidistantRightMargin']],$preprocessingNameBase);
+
+    #region solving of the uniqueness of the name
+    $existingPreprocessingsNames=[];
+    $existingPreprocessings=$format->preprocessings;
+    if (!empty($existingPreprocessings)){
+      foreach($existingPreprocessings as $existingPreprocessing){
+        $existingPreprocessingsNames[]=$existingPreprocessing->name;
+      }
+    }
+    $counter=1;
+    do{
+      /** @var string $preprocessingName */
+      $preprocessingName=$preprocessingNameBase;
+      if ($counter>1){
+        $preprocessingName.=' ('.$counter.')';
+      }
+      $counter++;
+    }while(in_array($preprocessingName,$existingPreprocessingsNames));
+    #endregion solving of the uniqueness of the name
+    return $preprocessingName;
+  }
+
+  /**
+   * Function for generation of a default preprocessing name - for equidistant intervals
+   * @param Format $format
+   * @param array $formValues
+   * @return string
+   */
+  private function prepareEquisizedPreprocessingName(Format $format,$formValues) {
+    $preprocessingNameBase=$this->translate('Equisized intervals ({:count}) from {:from} to {:to}');
     $preprocessingNameBase=str_replace(['{:count}','{:from}','{:to}'],[$formValues['equidistantIntervalsCount'],$formValues['equidistantLeftMargin'],$formValues['equidistantRightMargin']],$preprocessingNameBase);
 
     #region solving of the uniqueness of the name
