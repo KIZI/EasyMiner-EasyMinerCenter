@@ -257,7 +257,7 @@ class UserPresenter  extends BasePresenter{
       }
 
       try {
-        $facebookMe = $fb->api('/me');
+        $facebookMe = $fb->api('/me?fields=id,first_name,last_name,picture,email');
         $facebookUserId = $fb->getUser();
         $presenter->getUser()->login($presenter->usersFacade->authenticateUserFromFacebook($facebookUserId,$facebookMe));
 
