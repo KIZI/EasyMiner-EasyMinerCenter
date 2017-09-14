@@ -247,16 +247,17 @@ trait PmmlSerializerTrait{
         $discretizeXml->addAttribute('field',$datasourceColumn->name);
         //frequencies
         //TODO replace databasesFacade
+        /*FIXME načtení values statistics
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
           foreach($valuesStatistics->valuesArr as $value=>$count){
             $this->addExtensionElement($discretizeXml,'Frequency',$count,$value);
           }
-        }
+        }*/
         foreach($valuesBins as $valuesBin){
           if (!empty($valuesBin->intervals)) {
             foreach ($valuesBin->intervals as $interval){
-              if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
+              if (empty($valuesStatistics) || !isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
               $discretizeBinXml = $discretizeXml->addChild('DiscretizeBin');
               $discretizeBinXml->addAttribute('binValue', $valuesBin->name);
               $intervalXml=$discretizeBinXml->addChild('Interval');
@@ -277,15 +278,17 @@ trait PmmlSerializerTrait{
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frequencies
         //TODO replace databasesFacade
+        /*FIXME načtení hodnot z preprocessingu
         $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
         if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
           foreach($valuesStatistics->valuesArr as $value=>$count){
             $this->addExtensionElement($inlineTableXml,'Frequency',$count,$value);
           }
         }
+        */
         foreach($valuesBins as $valuesBin){
           if (!empty($valuesBin->values)){
-            if (!isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
+            if (empty($valuesStatistics) || !isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
             foreach ($valuesBin->values as $value){
               $rowXml=$inlineTableXml->addChild('row');
               $columnNode=$rowXml->addChild('column');
