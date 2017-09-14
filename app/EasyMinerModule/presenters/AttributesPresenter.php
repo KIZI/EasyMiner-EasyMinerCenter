@@ -37,6 +37,8 @@ class AttributesPresenter extends BasePresenter{
   use UsersTrait;
   use ResponsesTrait;
 
+  const HISTOGRAM_MAX_COLUMNS_COUNT=1000;
+
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
   /** @var  MetasourcesFacade $metasourcesFacade */
@@ -485,6 +487,50 @@ class AttributesPresenter extends BasePresenter{
       $result[]=$ppValue->value;
     }
     $this->sendJsonResponse($result);
+  }
+
+  /**
+   * Action for rendering of a histogram from values of a selected attribute
+   * @param int $miner - Miner ID
+   * @param int $id - Attribute ID
+   * @param int $offset=0
+   */
+  public function renderAttributeHistogram($miner, $id, $offset=0) {
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $attribute=$this->metasourcesFacade->findAttribute($id);
+    $offset=intval($offset);
+
+    $this->template->attribute=$attribute;
+    $ppValues=$this->metasourcesFacade->getAttributePpValues($attribute,$offset,self::HISTOGRAM_MAX_COLUMNS_COUNT);
+    $ppValueValues=[];
+    $ppValueFrequencies=[];
+    if (!empty($ppValues)){
+      foreach($ppValues as $ppValue){
+        $ppValueValues[]=$ppValue->value;
+        $ppValueFrequencies[]=$ppValue->frequency;
+      }
+    }
+
+    $this->template->miner=$miner;
+    $this->template->ppValueValues=$ppValueValues;
+    $this->template->ppValueFrequencies=$ppValueFrequencies;
+  }
+
+  /**
+   * Action for rendering of a histogram from values of a selected attribute
+   * @param int $miner - Miner ID
+   * @param int $id - Attribute ID
+   * @param int $offset=0
+   */
+  public function renderAttributeValuesTable($miner, $id, $offset=0) {
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+    $attribute=$this->metasourcesFacade->findAttribute($id);
+    $offset=intval($offset);
+
+    $this->template->attribute=$attribute;
+    $this->template->ppValues=$this->metasourcesFacade->getAttributePpValues($attribute,$offset,self::HISTOGRAM_MAX_COLUMNS_COUNT);
   }
 
   /**

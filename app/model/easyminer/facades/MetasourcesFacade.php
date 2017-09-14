@@ -182,6 +182,10 @@ class MetasourcesFacade {
             $attribute->name=$ppAttribute->name;
             $modified=true;
           }
+          if ($attribute->uniqueValuesCount!=$ppAttribute->uniqueValuesSize){
+            $attribute->uniqueValuesCount=$ppAttribute->uniqueValuesSize;
+            $modified=true;
+          }
           if (!$attribute->active){
             $modified=true;
             $attribute->active=true;
@@ -195,9 +199,11 @@ class MetasourcesFacade {
           $attribute=$existingAttributesByName[$ppAttribute->name];
           if (!empty($ppAttribute->id) && $attribute->ppDatasetAttributeId!=$ppAttribute->id){
             $attribute->ppDatasetAttributeId=$ppAttribute->id;
+            $attribute->uniqueValuesCount=$ppAttribute->uniqueValuesSize;
             $attribute->active=true;
             $this->saveAttribute($attribute);
           }elseif (!$attribute->active){
+            $attribute->uniqueValuesCount=$ppAttribute->uniqueValuesSize;
             $attribute->active=true;
             $this->saveAttribute($attribute);
           }
@@ -213,6 +219,7 @@ class MetasourcesFacade {
           }
           $attribute->datasourceColumn=$datasourceColumn;
           $attribute->name=$ppAttribute->name;
+          $attribute->uniqueValuesCount=$ppAttribute->uniqueValuesSize;
           if (is_int($ppAttribute->id)){
             $attribute->ppDatasetAttributeId=$ppAttribute->id;
           }
@@ -527,13 +534,14 @@ class MetasourcesFacade {
       //prepare working array for assignment od fieldIds to individual names of created attributes
       $resultAttributes=[];
       foreach($result as $resultItem){
-        $resultAttributes[$resultItem->name]=$resultItem->id;
+        $resultAttributes[$resultItem->name]=['id'=>$resultItem->id,'uniqueValuesSize'=>@$resultItem->uniqueValuesSize];//TODO
       }
       $attributes=$metasourceTask->attributes;
       $ppDataset=$preprocessing->getPpDataset($metasource->ppDatasetId);
       foreach($attributes as $attribute){
         if (isset($resultAttributes[$attribute->name])){
-          $attribute->ppDatasetAttributeId=$resultAttributes[$attribute->name];
+          $attribute->ppDatasetAttributeId=$resultAttributes[$attribute->name]['id'];
+          $attribute->uniqueValuesCount=$resultAttributes[$attribute->name]['uniqueValuesSize'];
           $attribute->active=true;
           $this->saveAttribute($attribute);
 

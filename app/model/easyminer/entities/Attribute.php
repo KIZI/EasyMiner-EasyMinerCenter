@@ -14,6 +14,7 @@ use LeanMapper\Entity;
  * @property int|null $ppDatasetAttributeId = null
  * @property string $name
  * @property string|null $type m:Enum(self::TYPE_*)
+ * @property int $uniqueValuesCount = 0
  * @property DatasourceColumn $datasourceColumn m:hasOne
  * @property Preprocessing $preprocessing m:hasOne
  * @property bool $active

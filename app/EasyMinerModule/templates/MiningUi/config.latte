@@ -26,7 +26,7 @@ var Config = new Class({
 
 
   getDataUrl: {plink MiningUi:getData miner=>'__MINERID__'},
-  showAttributeHistogramUrl: {plink Data:attributeHistogram miner=>'__MINERID__',attribute=>'__ATTRIBUTEID__',mode=>'iframe'},
+  showAttributeHistogramUrl: {plink Attributes:attributeHistogram miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
   showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
   getAttributeValuesUrl: {plink Attributes:attributeValues miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
   addAttributeUrl: {plink Attributes:addAttribute miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},

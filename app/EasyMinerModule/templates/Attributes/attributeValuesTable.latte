@@ -1,0 +1,41 @@
+{**
+ * Template for AttributesPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block content}
+
+  <div id="histogramPage">
+
+    <h1>{$attribute->name}</h1>
+    <p>{_'Unique values count:'} <strong>{$attribute->uniqueValuesCount}</strong></p>
+
+    {if $attribute->uniqueValuesCount>0}
+      <table class="valuesListTable">
+        <thead>
+          <tr>
+            <th>{_'Value'}</th>
+            <th>{_'Frequency'}</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        {foreach $ppValues as $ppValue}
+          <tr>
+            <td class="value">{$ppValue->value}</td>
+            <td>{$ppValue->frequency}</td>
+          </tr>
+        {/foreach}
+
+        </tbody>
+      </table>
+
+      {*TODO paginator*}
+
+    {/if}
+
+  </div>
+
+{/block}
+
+

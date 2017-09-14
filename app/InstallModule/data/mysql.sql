@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `attributes` (
   `pp_dataset_attribute_id` int(11) DEFAULT NULL,
   `name` varchar(100) COLLATE utf8_czech_ci NOT NULL,
   `type` enum('string','float','int','nominal','numeric') COLLATE utf8_czech_ci NOT NULL,
+  `unique_values_count` int(11) DEFAULT '0',
   `preprocessing_id` int(11) DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`attribute_id`),
