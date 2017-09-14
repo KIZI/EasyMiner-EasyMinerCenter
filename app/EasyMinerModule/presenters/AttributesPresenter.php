@@ -468,7 +468,27 @@ class AttributesPresenter extends BasePresenter{
 
 
   /**
-   * Function for retrievind the relevant DatasourceColumn or return an error
+   * Action returning array of preprocessed attribute values as JSON
+   * @param int $miner
+   * @param int $id
+   * @param int $limit
+   * @throws BadRequestException
+   */
+  public function actionAttributeValues($miner, $id, $limit=1000){
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+
+    $attribute=$this->metasourcesFacade->findAttribute($id);
+    $ppValues=$this->metasourcesFacade->getAttributePpValues($attribute,0,intval($limit));
+    $result=[];
+    foreach($ppValues as $ppValue){
+      $result[]=$ppValue->value;
+    }
+    $this->sendJsonResponse($result);
+  }
+
+  /**
+   * Function for retrieving the relevant DatasourceColumn or return an error
    * @param Datasource|int $datasource
    * @param int $column
    * @throws BadRequestException

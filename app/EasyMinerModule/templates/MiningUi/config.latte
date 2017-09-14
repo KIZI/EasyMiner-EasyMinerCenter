@@ -28,6 +28,7 @@ var Config = new Class({
   getDataUrl: {plink MiningUi:getData miner=>'__MINERID__'},
   showAttributeHistogramUrl: {plink Data:attributeHistogram miner=>'__MINERID__',attribute=>'__ATTRIBUTEID__',mode=>'iframe'},
   showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
+  getAttributeValuesUrl: {plink Attributes:attributeValues miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
   addAttributeUrl: {plink Attributes:addAttribute miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
   addAttributesUrl: {plink Attributes:addAttributes miner=>'__MINERID__',columnNames=>'__COLUMNNAME__',mode=>'iframe'},
   getRulesUrl: {plink Tasks:getRules miner=>'__MINERID__',id=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
@@ -125,6 +126,10 @@ var Config = new Class({
     } else {
       return  this.showColumnHistogramUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNID__',encodeURIComponent(id));
     }
+  },
+
+  getAttributeValuesURL: function(attributeId){
+    return this.getAttributeValuesUrl.replace('__MINERID__',this.getMinerId()).replace('__ATTRIBUTEID__',attributeId)
   },
 
   //region easyMinerCenterUrls

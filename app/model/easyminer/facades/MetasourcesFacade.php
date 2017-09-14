@@ -19,6 +19,7 @@ use EasyMinerCenter\Model\Preprocessing\Entities\PpAttribute;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpConnection;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpDataset;
 use EasyMinerCenter\Model\Preprocessing\Entities\PpTask;
+use EasyMinerCenter\Model\Preprocessing\Entities\PpValue;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingCommunicationException;
 use EasyMinerCenter\Model\Preprocessing\Exceptions\PreprocessingException;
 
@@ -268,6 +269,28 @@ class MetasourcesFacade {
       }
     }
     #endregion cleanup preprocessing tasks
+  }
+
+  /**
+   * @param int $attributeId
+   * @return Attribute
+   */
+  public function findAttribute($attributeId){
+    return $this->attributesRepository->find($attributeId);
+  }
+
+  /**
+   * @param Attribute|int $attribute
+   * @return PpValue[]
+   */
+  public function getAttributePpValues($attribute,$offset=0,$limit=1000){
+    if (!($attribute instanceof Attribute)){
+      $attribute=$this->findAttribute($attribute);
+    }
+    $metasource=$attribute->metasource;
+    $preprocessing=$this->preprocessingFactory->getPreprocessingInstance($metasource->getPpConnection(),$metasource->user);
+    $ppDataset = $preprocessing->getPpDataset($metasource->ppDatasetId?$metasource->ppDatasetId:$metasource->getDbTable());
+    return $preprocessing->getPpValues($ppDataset,$attribute->ppDatasetAttributeId,$offset,$limit);
   }
 
   /**
