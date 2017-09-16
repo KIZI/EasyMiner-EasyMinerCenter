@@ -1,0 +1,25 @@
+language: generic
+sudo: false
+git:
+  submodules: false
+
+before_install:
+  - git clone -b master --single-branch https://github.com/KIZI/EasyMiner-Tests.git master
+  - docker build -t kizi/easyminer-frontend:dev https://github.com/KIZI/EasyMiner-EasyMinerCenter.git#master:/
+  - cd master
+
+services:
+  - docker
+
+install:
+  - ./start-easyminer.sh 
+
+script:
+  - ./run-tests.sh
+
+after_script:
+  - openssl aes-256-cbc -K $encrypted_321c4c28b3f1_key -iv  $encrypted_321c4c28b3f1_iv -in ./DeploymentKeys/deploy_key_center.enc -out /tmp/deploy_key -d
+  - eval "$(ssh-agent -s)"
+  - chmod 600 /tmp/deploy_key
+  - ssh-add /tmp/deploy_key
+  - ./export-results-to-gh-pages.sh
