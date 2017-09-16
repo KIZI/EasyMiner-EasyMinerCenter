@@ -493,12 +493,17 @@ class AttributesPresenter extends BasePresenter{
    * Action for rendering of a histogram from values of a selected attribute
    * @param int $miner - Miner ID
    * @param int $id - Attribute ID
-   * @param int $offset=0
+   * @param int $offset =0
+   * @throws BadRequestException
    */
   public function renderAttributeHistogram($miner, $id, $offset=0) {
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->minersFacade->checkMinerMetasource($miner);
     $attribute=$this->metasourcesFacade->findAttribute($id);
+    if (!$attribute->active){
+      throw new BadRequestException('Requested attribute is not available.');
+    }
+
     $offset=intval($offset);
 
     $this->template->attribute=$attribute;
@@ -521,12 +526,17 @@ class AttributesPresenter extends BasePresenter{
    * Action for rendering of a histogram from values of a selected attribute
    * @param int $miner - Miner ID
    * @param int $id - Attribute ID
-   * @param int $offset=0
+   * @param int $offset =0
+   * @throws BadRequestException
    */
   public function renderAttributeValuesTable($miner, $id, $offset=0) {
     $miner=$this->findMinerWithCheckAccess($miner);
     $this->minersFacade->checkMinerMetasource($miner);
     $attribute=$this->metasourcesFacade->findAttribute($id);
+    if (!$attribute->active){
+      throw new BadRequestException('Requested attribute is not available.');
+    }
+
     $offset=intval($offset);
 
     $this->template->attribute=$attribute;

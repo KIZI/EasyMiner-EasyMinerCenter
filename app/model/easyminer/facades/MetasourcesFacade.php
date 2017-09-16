@@ -288,6 +288,8 @@ class MetasourcesFacade {
 
   /**
    * @param Attribute|int $attribute
+   * @param int $offset = 0
+   * @param int $limit = 1000
    * @return PpValue[]
    */
   public function getAttributePpValues($attribute,$offset=0,$limit=1000){

@@ -3,6 +3,7 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\Data\Entities\DbField;
+use EasyMinerCenter\Model\Data\Entities\DbValue;
 use EasyMinerCenter\Model\Data\Facades\FileImportsFacade;
 use EasyMinerCenter\Model\Data\Files\CsvImport;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
@@ -31,6 +32,8 @@ class DataPresenter extends BasePresenter{
   use MinersFacadeTrait;
   use UsersTrait;
 
+  const HISTOGRAM_MAX_COLUMNS_COUNT=1000;
+
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
   /** @var  DatasourcesFacade $datasourcesFacade */
@@ -38,6 +41,11 @@ class DataPresenter extends BasePresenter{
   /** @var  MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
 
+  /**
+   * @var string $mode
+   * @persistent
+   */
+  public $mode='default';
 
   #region new miner creation
 
@@ -513,19 +521,77 @@ class DataPresenter extends BasePresenter{
   #endregion open miner
 
   #region data access functions
+
   /**
    * Action for rendering of a histogram from values of a selected datasource column
    * @param int $miner - Miner ID
    * @param int $column - DatasourceColum ID
+   * @param int $offset =0
+   * @throws BadRequestException
    */
-  public function renderColumnHistogram($miner, $column) {
-    //TODO implementovat podporu vykreslení histogramu
+  public function renderColumnHistogram($miner, $column, $offset=0) {
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
 
+    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,$column);
+    if (!$datasourceColumn->active){
+      throw new BadRequestException('Requested column is not available.');
+    }
+
+    $this->template->miner=$miner;
+    $this->template->datasourceColumn=$datasourceColumn;
+
+    /** @var DbValue[] $dbValues */
+    $dbValues=$this->datasourcesFacade->getDatasourceColumnDbValues($datasourceColumn,$offset,self::HISTOGRAM_MAX_COLUMNS_COUNT);
+    $dbValueValues=[];
+    $dbValueFrequencies=[];
+    if (!empty($dbValues)){
+      foreach($dbValues as $dbValue){
+        $dbValueValues[]=$dbValue->value;
+        $dbValueFrequencies[]=$dbValue->frequency;
+      }
+    }
+    $this->template->dbValueValues=$dbValueValues;
+    $this->template->dbValueFrequencies=$dbValueFrequencies;
   }
-  
+
+  /**
+   * Action for rendering of a histogram from values of a selected datasource column
+   * @param int $miner - Miner ID
+   * @param int $column - DatasourceColumn ID
+   * @param int $offset =0
+   * @throws BadRequestException
+   */
+  public function renderColumnValuesTable($miner, $column, $offset=0) {
+    $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
+
+    $datasourceColumn=$this->datasourcesFacade->findDatasourceColumn($miner->datasource,$column);
+    if (!$datasourceColumn->active){
+      throw new BadRequestException('Requested column is not available.');
+    }
+
+    $offset=intval($offset);
+
+    $this->template->miner=$miner;
+    $this->template->datasourceColumn=$datasourceColumn;
+    $this->template->dbValues=$this->datasourcesFacade->getDatasourceColumnDbValues($datasourceColumn,$offset,self::HISTOGRAM_MAX_COLUMNS_COUNT);
+  }
+
+
   
   #endregion data access functions
-  
+
+  /**
+   * Function for selection of the appropriate layout based on the "mode" attribute in the URL (normal or iframe view)
+   */
+  protected function beforeRender(){
+    if ($this->mode=='component' || $this->mode=='iframe'){
+      $this->layout='iframe';
+      $this->template->layout='iframe';
+    }
+    parent::beforeRender();
+  }
   
   #region injections
   /**

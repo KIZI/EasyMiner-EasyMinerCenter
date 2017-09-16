@@ -17,6 +17,7 @@ use LeanMapper\Entity;
  * @property int|null $strLen = null
  * @property bool $active
  * @property Format|null $format m:hasOne
+ * @property int $uniqueValuesCount = 0
  */
 class DatasourceColumn extends Entity{
   const TYPE_STRING='string';

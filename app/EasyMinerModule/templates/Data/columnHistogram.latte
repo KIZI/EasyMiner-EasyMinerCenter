@@ -1,0 +1,63 @@
+{**
+ * Template for DataPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block scripts}
+  {include parent}
+  <script type="text/javascript" src="{$basePath}/js/Chart.js/Chart.min.js"></script>
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/Attributes/attributeHistogram.js"></script>
+{/block}
+{block title}{$datasourceColumn->name} - {_'Histogram'}{/block}
+{block content}
+
+  <div id="histogramPage">
+
+    <h1>{$datasourceColumn->name}</h1>
+
+    <p style="position: relative;">
+      {_'Unique values count:'} <strong>{$datasourceColumn->uniqueValuesCount}</strong>
+      <span style="float:right;font-size:90%;" n:if="$datasourceColumn->uniqueValuesCount>0">
+        <!--TODO styly, datový typ-->
+        <a href="#histogramPage" id="switchChartType">{_'Vertical chart'}</a>
+        |
+        <a href="{link columnValuesTable column=>$datasourceColumn->datasourceColumnId, miner=>$miner->minerId}">{_'Table'}</a>
+      </span>
+    </p>
+
+    {if $datasourceColumn->uniqueValuesCount>0}
+      <div id="valuesHistogramBlock"></div>
+
+      <script type="text/javascript">
+        var valueLabels={$dbValueValues};
+        var valueFrequencies={$dbValueFrequencies};
+        var chartType = 'vertical';
+        var verticalChartHeight = 300;
+
+        (function($){
+          $(document).ready(function(){
+            drawVerticalHistogram($('#valuesHistogramBlock'), valueLabels, valueFrequencies, verticalChartHeight);
+
+            $('#switchChartType').click(function(e){
+              if (chartType==='vertical'){
+                chartType='horizontal';
+                drawHorizontalHistogram($('#valuesHistogramBlock'), valueLabels, valueFrequencies);
+                $(this).text({_'Vertical chart'});
+              }else{
+                chartType='vertical';
+                drawVerticalHistogram($('#valuesHistogramBlock'), valueLabels, valueFrequencies, verticalChartHeight);
+                $(this).text({_'Horizontal chart'});
+              }
+            });
+
+          });
+        })(jQuery);
+
+      </script>
+    {/if}
+
+  </div>
+
+{/block}
+
+

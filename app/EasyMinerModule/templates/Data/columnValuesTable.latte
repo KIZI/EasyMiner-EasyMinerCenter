@@ -1,0 +1,41 @@
+{**
+ * Template for DataPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block content}
+
+  <div id="histogramPage">
+
+    <h1>{$datasourceColumn->name}</h1>
+    <p>{_'Unique values count:'} <strong>{$datasourceColumn->uniqueValuesCount}</strong></p>
+
+    {if $datasourceColumn->uniqueValuesCount>0}
+      <table class="valuesListTable">
+        <thead>
+          <tr>
+            <th>{_'Value'}</th>
+            <th>{_'Frequency'}</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        {foreach $dbValues as $dbValue}
+          <tr>
+            <td class="value">{$dbValue->value}</td>
+            <td>{$dbValue->frequency}</td>
+          </tr>
+        {/foreach}
+
+        </tbody>
+      </table>
+
+      {*TODO paginator*}
+
+    {/if}
+
+  </div>
+
+{/block}
+
+

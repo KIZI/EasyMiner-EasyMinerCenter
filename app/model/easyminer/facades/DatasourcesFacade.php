@@ -9,6 +9,7 @@ use EasyMinerCenter\Model\Data\Databases\DataService\UnlimitedDatabase;
 use EasyMinerCenter\Model\Data\Databases\IDatabase;
 use EasyMinerCenter\Model\Data\Entities\DbConnection;
 use EasyMinerCenter\Model\Data\Entities\DbDatasource;
+use EasyMinerCenter\Model\Data\Entities\DbValue;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
 use EasyMinerCenter\Model\EasyMiner\Entities\User;
@@ -74,7 +75,7 @@ class DatasourcesFacade {
     $result = [];
     $dbTypes=$this->getDbTypes();
     if (!empty($dbTypes)){
-      foreach($dbTypes as $dbType=>&$value){
+      foreach($dbTypes as $dbType=>$value){
         //get URL for each database type
         $databaseConfig=$this->databaseFactory->getDatabaseConfig($dbType);
         $result[$dbType]=[
@@ -424,6 +425,10 @@ class DatasourcesFacade {
             $datasourceColumn->active=true;
             $modified=true;
           }
+          if ($datasourceColumn->uniqueValuesCount!=$dbField->uniqueValuesSize){
+            $datasourceColumn->uniqueValuesCount=$dbField->uniqueValuesSize;
+            $modified=true;
+          }
           if ($modified){
             $this->datasourceColumnsRepository->persist($datasourceColumn);
           }
@@ -440,8 +445,12 @@ class DatasourcesFacade {
             $datasourceColumn->active=true;
             $modified=true;
           }
+          if ($datasourceColumn->uniqueValuesCount!=$dbField->uniqueValuesSize){
+            $datasourceColumn->uniqueValuesCount=$dbField->uniqueValuesSize;
+            $modified=true;
+          }
           if ($modified){
-            $this->datasourceColumnsRepository->persist($datasourceColumn);
+            $this->saveDatasourceColumn($datasourceColumn);
           }
           unset($existingDatasourceColumnsByName[$dbField->name]);
         }else{
@@ -449,12 +458,13 @@ class DatasourcesFacade {
           $datasourceColumn=new DatasourceColumn();
           $datasourceColumn->datasource=$datasource;
           $datasourceColumn->name=$dbField->name;
+          $datasourceColumn->uniqueValuesCount=$dbField->uniqueValuesSize;
           if (is_int($dbField->id)){
             $datasourceColumn->dbDatasourceFieldId=$dbField->id;
           }
           $datasourceColumn->active=true;
           $datasourceColumn->type=$dbField->type;
-          $this->datasourceColumnsRepository->persist($datasourceColumn);
+          $this->saveDatasourceColumn($datasourceColumn);
         }
       }
     }
@@ -508,6 +518,21 @@ class DatasourcesFacade {
       $datasource=$datasource->datasourceId;
     }
     return $this->datasourceColumnsRepository->findBy(['datasource_id'=>$datasource,'name'=>$columnName]);
+  }
+
+  /**
+   * @param DatasourceColumn $datasourceColumn
+   * @param int $offset = 0
+   * @param int $limit = 1000
+   * @return DbValue[]
+   */
+  public function getDatasourceColumnDbValues(DatasourceColumn $datasourceColumn,$offset=0,$limit=1000){
+    $datasource=$datasourceColumn->datasource;
+
+    $database=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(),$datasource->user);
+    $dbDatasource=$database->getDbDatasource($datasourceColumn->datasource->dbDatasourceId);
+    $dbField=$database->getDbField($dbDatasource,$datasourceColumn->dbDatasourceFieldId);
+    return $database->getDbValues($dbField, $offset, $limit);
   }
 
   /**

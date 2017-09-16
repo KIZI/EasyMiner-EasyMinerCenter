@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS `datasource_columns` (
   `str_len` smallint(6) DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `format_id` int(11) DEFAULT NULL,
+  `unique_values_count` int(11) DEFAULT '0',
   PRIMARY KEY (`datasource_column_id`),
   KEY `datasource_id` (`datasource_id`),
   KEY `format_id` (`format_id`)
