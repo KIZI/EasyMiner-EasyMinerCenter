@@ -1733,6 +1733,50 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadDataPage div.preview table tr:nth-child(even) {
   background: #fcfbff;
 }
+#valuesTablePage table.valuesListTable {
+  background: #fff;
+  color: #434343;
+  border-spacing: 0;
+  margin: 20px 0;
+}
+#valuesTablePage table.valuesListTable tr:first-child th {
+  border-top: 1px solid #075783;
+}
+#valuesTablePage table.valuesListTable th {
+  padding: 5px 8px;
+  background: #075783;
+  color: #fff;
+  text-align: left;
+  border: 1px solid #075783;
+  border-left: none;
+  border-top: none;
+}
+#valuesTablePage table.valuesListTable th:first-child {
+  border: 1px solid #075783;
+}
+#valuesTablePage table.valuesListTable th.empty {
+  background: #fff;
+}
+#valuesTablePage table.valuesListTable th.empty:first-child {
+  border-left: none;
+  border-top: none;
+}
+#valuesTablePage table.valuesListTable td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-top: none;
+}
+#valuesTablePage table.valuesListTable td:first-child {
+  border-left: 1px solid #ebebeb;
+}
+#valuesTablePage table.valuesListTable tr:nth-child(even) {
+  background: #fcfbff;
+}
+#valuesTablePage table.valuesListTable .frequency {
+  text-align: right;
+}
 div#homePage #slogan {
   opacity: 0.8;
   margin: 10px;

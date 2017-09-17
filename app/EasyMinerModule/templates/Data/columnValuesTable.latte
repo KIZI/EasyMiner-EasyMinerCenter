@@ -3,9 +3,10 @@
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
+{block title}{$datasourceColumn->name} - {_'Values'}{/block}
 {block content}
 
-  <div id="histogramPage">
+  <div id="valuesTablePage">
 
     <h1>{$datasourceColumn->name}</h1>
     <p>{_'Unique values count:'} <strong>{$datasourceColumn->uniqueValuesCount}</strong></p>
@@ -22,8 +23,8 @@
 
         {foreach $dbValues as $dbValue}
           <tr>
-            <td class="value">{$dbValue->value}</td>
-            <td>{$dbValue->frequency}</td>
+            <td>{$dbValue->value}</td>
+            <td class="frequency">{$dbValue->frequency}</td>
           </tr>
         {/foreach}
 

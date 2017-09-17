@@ -3,9 +3,10 @@
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
+{block title}{$attribute->name} - {_'Values'}{/block}
 {block content}
 
-  <div id="histogramPage">
+  <div id="valuesTablePage">
 
     <h1>{$attribute->name}</h1>
     <p>{_'Unique values count:'} <strong>{$attribute->uniqueValuesCount}</strong></p>
@@ -22,8 +23,8 @@
 
         {foreach $ppValues as $ppValue}
           <tr>
-            <td class="value">{$ppValue->value}</td>
-            <td>{$ppValue->frequency}</td>
+            <td>{$ppValue->value}</td>
+            <td class="frequency">{$ppValue->frequency}</td>
           </tr>
         {/foreach}
 
