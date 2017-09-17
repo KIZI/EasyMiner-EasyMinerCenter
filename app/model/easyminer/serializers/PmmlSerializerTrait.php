@@ -1,8 +1,11 @@
 <?php
 
 namespace EasyMinerCenter\Model\EasyMiner\Serializers;
+use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
+use EasyMinerCenter\Model\Data\Databases\IDatabase;
+use EasyMinerCenter\Model\Data\Entities\DbDatasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Attribute;
-use EasyMinerCenter\Model\EasyMiner\Entities\DatasourceColumn;
+use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\Preprocessing;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
@@ -15,7 +18,6 @@ use Nette\Utils\Strings;
  * @package EasyMinerCenter\Model\EasyMiner\Serializers
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
- * xxx
  */
 trait PmmlSerializerTrait{
 
@@ -134,12 +136,23 @@ trait PmmlSerializerTrait{
   /**
    * Method for appending DataDictionary to PMML
    * @param bool $includeFrequencies = true
+   * @throws \Exception
    */
   public function appendDataDictionary($includeFrequencies=true){
+    /** @var Datasource $datasource */
     $datasource=$this->miner->datasource;
     if (empty($datasource->datasourceColumns)){
       return;
     }
+
+    if (!$this->databaseFactory instanceof DatabaseFactory){
+      throw new \Exception('Preprocessing factory is not configured properly.');
+    }
+    /** @var IDatabase $databaseDriver */
+    $databaseDriver=$this->databaseFactory->getDatabaseInstance($datasource->getDbConnection(),$this->miner->user);
+    /** @var DbDatasource $dbDatasource */
+    $dbDatasource=$databaseDriver->getDbDatasource($datasource->dbDatasourceId);
+
     /** @var \SimpleXMLElement $dataDictionaryXml */
     $dataDictionaryXml=$this->pmml->DataDictionary;
     if (!empty($dataDictionaryXml[0]['numberOfFields'])){
@@ -149,38 +162,41 @@ trait PmmlSerializerTrait{
     }
     //append all data fields (datasource columns)
     foreach($datasource->datasourceColumns as $datasourceColumn){
+      $dbField=$databaseDriver->getDbField($dbDatasource,$datasourceColumn->dbDatasourceFieldId);
+
       $dataFieldXml=$dataDictionaryXml->addChild('DataField');
       $dataFieldXml->addAttribute('name',$datasourceColumn->name);
       $dataFieldXml->addAttribute('dataType',$this->dataTypesTransformationArr[$datasourceColumn->type]);
-      if ($datasourceColumn->type==DatasourceColumn::TYPE_STRING){
-        $dataFieldXml->addAttribute('optype','categorical');
-      }else{
+      if ($datasourceColumn->isNumericType()){
         $dataFieldXml->addAttribute('optype','continuous');
+        try{
+          $dbValuesStats=$databaseDriver->getDbValuesStats($dbField);
+          $this->addExtensionElement($dataFieldXml,'Avg',$dbValuesStats->avg,'Avg');
+          $intervalXml=$dataFieldXml->addChild('Interval');
+          $intervalXml->addAttribute('closure','closedClosed');
+          $intervalXml->addAttribute('leftMargin',$dbValuesStats->min);
+          $intervalXml->addAttribute('rightMargin',$dbValuesStats->max);
+        }catch(\Exception $e){
+          //ignore error...
+        }
+      }else{
+        $dataFieldXml->addAttribute('optype','categorical');
       }
 
-      if ($includeFrequencies /*TODO*/ && false){
-        //TODO replace databasesFacade
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($datasource->dbTable,$datasourceColumn->name);
-        if ($datasourceColumn->type=DatasourceColumn::TYPE_STRING && !empty($valuesStatistics->valuesArr)){
-          //výčet hodnot
-          foreach($valuesStatistics->valuesArr as $value=>$count){
-            $valueXml=$dataFieldXml->addChild('Value');
-            $valueXml->addAttribute('value',$value);
-            $this->addExtensionElement($valueXml,'Frequency',$count,$value);
+      if ($includeFrequencies){
+        try{
+          $dbValues=$databaseDriver->getDbValues($dbField,0,$this->getEnumerationMaxValuesCount());
+          if (!empty($dbValues)){
+            foreach($dbValues as $dbValue){
+              $valueXml=$dataFieldXml->addChild('Value');
+              $valueXml->addAttribute('value',$dbValue->value);
+              $this->addExtensionElement($valueXml,'Frequency',$dbValue->frequency,$dbValue->value);
+            }
           }
-        }elseif(isset($valuesStatistics->minValue) && isset($valuesStatistics->maxValue)){
-          //interval
-          if ($valuesStatistics->minValue<=$valuesStatistics->maxValue){
-            $this->addExtensionElement($dataFieldXml,'Avg',$valuesStatistics->avgValue,'Avg');
-            $intervalXml=$dataFieldXml->addChild('Interval');
-            $intervalXml->addAttribute('closure','closedClosed');
-            $intervalXml->addAttribute('leftMargin',$valuesStatistics->minValue);
-            $intervalXml->addAttribute('rightMargin',$valuesStatistics->maxValue);
-          }
+        }catch(\Exception $e){
+          //ignore error
         }
       }
-
-      //XXX TODO serializace hodnot...
     }
   }
 
@@ -228,7 +244,11 @@ trait PmmlSerializerTrait{
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frequencies
-        $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+        try{
+          $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+        }catch(\Exception $e){
+          $ppValues=null;
+        }
         if (!empty($ppValues)){
           if ($includeFrequencies){
             foreach($ppValues as $ppValue){
@@ -256,7 +276,11 @@ trait PmmlSerializerTrait{
         $discretizeXml->addAttribute('field',$datasourceColumn->name);
         //frequencies
         if ($includeFrequencies){
-          $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+          try{
+            $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+          }catch(\Exception $e){
+            $ppValues=null;
+          }
           if (!empty($ppValues)){
             foreach($ppValues as $ppValue){
               $this->addExtensionElement($discretizeXml,'Frequency',$ppValue->frequency,$ppValue->value);
@@ -286,7 +310,11 @@ trait PmmlSerializerTrait{
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frequencies
         if ($includeFrequencies){
-          $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+          try{
+            $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+          }catch(\Exception $e){
+            $ppValues=null;
+          }
           if (!empty($ppValues)){
             foreach($ppValues as $ppValue){
               $this->addExtensionElement($inlineTableXml,'Frequency',$ppValue->frequency,$ppValue->value);
