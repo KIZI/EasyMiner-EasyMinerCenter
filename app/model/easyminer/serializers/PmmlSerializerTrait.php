@@ -19,6 +19,10 @@ use Nette\Utils\Strings;
  */
 trait PmmlSerializerTrait{
 
+  protected function getEnumerationMaxValuesCount(){
+    return 100;
+  }
+
   protected $dataTypesTransformationArr=[
     'int'=>'integer',
     'float'=>'float',
@@ -193,10 +197,16 @@ trait PmmlSerializerTrait{
     /** @var IPreprocessing $preprocessingDriver */
     $preprocessingDriver=$this->preprocessingFactory->getPreprocessingInstance($this->miner->metasource->getPpConnection(),$this->miner->user);
     if (empty($metasource->attributes)){return;}
+
+    $ppDataset=$preprocessingDriver->getPpDataset($metasource->ppDatasetId);
+
     /** @var \SimpleXMLElement $transformationDictionaryXml */
     $transformationDictionaryXml=$this->pmml->TransformationDictionary;
     foreach($metasource->attributes as $attribute){
       if (empty($attribute->preprocessing)){continue;}
+
+      $ppDatasetAttributeId=$attribute->ppDatasetAttributeId?$attribute->ppDatasetAttributeId:$attribute->name;
+
       $derivedFieldXml=$transformationDictionaryXml->addChild('DerivedField');
       $derivedFieldXml->addAttribute('name',$attribute->name);
       $derivedFieldXml->addAttribute('dataType',$this->dataTypesTransformationArr[$attribute->type]);
@@ -218,8 +228,7 @@ trait PmmlSerializerTrait{
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frequencies
-        $ppDataset=$preprocessingDriver->getPpDataset($metasource->ppDatasetId);
-        $ppValues=$preprocessingDriver->getPpValues($ppDataset,$attribute->ppDatasetAttributeId?$attribute->ppDatasetAttributeId:$attribute->name,0,100);//TODO optimalizovat počet hodnot
+        $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
         if (!empty($ppValues)){
           if ($includeFrequencies){
             foreach($ppValues as $ppValue){
@@ -246,18 +255,17 @@ trait PmmlSerializerTrait{
         $discretizeXml=$derivedFieldXml->addChild('Discretize');
         $discretizeXml->addAttribute('field',$datasourceColumn->name);
         //frequencies
-        //TODO replace databasesFacade
-        /*FIXME načtení values statistics
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
-        if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
-          foreach($valuesStatistics->valuesArr as $value=>$count){
-            $this->addExtensionElement($discretizeXml,'Frequency',$count,$value);
+        if ($includeFrequencies){
+          $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+          if (!empty($ppValues)){
+            foreach($ppValues as $ppValue){
+              $this->addExtensionElement($discretizeXml,'Frequency',$ppValue->frequency,$ppValue->value);
+            }
           }
-        }*/
+        }
         foreach($valuesBins as $valuesBin){
           if (!empty($valuesBin->intervals)) {
             foreach ($valuesBin->intervals as $interval){
-              if (empty($valuesStatistics) || !isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
               $discretizeBinXml = $discretizeXml->addChild('DiscretizeBin');
               $discretizeBinXml->addAttribute('binValue', $valuesBin->name);
               $intervalXml=$discretizeBinXml->addChild('Interval');
@@ -277,18 +285,16 @@ trait PmmlSerializerTrait{
         $fieldColumnPairXml->addAttribute('field',$datasourceColumn->name);
         $inlineTableXml=$mapValuesXml->addChild('InlineTable');
         //frequencies
-        //TODO replace databasesFacade
-        /*FIXME načtení hodnot z preprocessingu
-        $valuesStatistics=$this->databasesFacade->getColumnValuesStatistic($metasource->attributesTable,$attribute->name);
-        if (!empty($valuesStatistics->valuesArr) && $includeFrequencies){
-          foreach($valuesStatistics->valuesArr as $value=>$count){
-            $this->addExtensionElement($inlineTableXml,'Frequency',$count,$value);
+        if ($includeFrequencies){
+          $ppValues=$preprocessingDriver->getPpValues($ppDataset,$ppDatasetAttributeId,0,$this->getEnumerationMaxValuesCount());
+          if (!empty($ppValues)){
+            foreach($ppValues as $ppValue){
+              $this->addExtensionElement($inlineTableXml,'Frequency',$ppValue->frequency,$ppValue->value);
+            }
           }
         }
-        */
         foreach($valuesBins as $valuesBin){
           if (!empty($valuesBin->values)){
-            if (empty($valuesStatistics) || !isset($valuesStatistics->valuesArr[$valuesBin->name])){continue;}//ignore empty values
             foreach ($valuesBin->values as $value){
               $rowXml=$inlineTableXml->addChild('row');
               $columnNode=$rowXml->addChild('column');
