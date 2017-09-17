@@ -45,10 +45,9 @@
           {if $offset>0}
             |
           {/if}
-          <a href="{link columnValuesTable column=>$datasourceColumn->datasourceColumnId, miner=>$miner->minerId, offset=>min($offset+$valuesPerPage,datasourceColumn->uniqueValuesCount)}">{_'Next page'}</a>
+          <a href="{link columnValuesTable column=>$datasourceColumn->datasourceColumnId, miner=>$miner->minerId, offset=>min($offset+$valuesPerPage,$datasourceColumn->uniqueValuesCount)}">{_'Next page'}</a>
         {/if}
       </div>
-      {*TODO paginator*}
 
     {/if}
 
