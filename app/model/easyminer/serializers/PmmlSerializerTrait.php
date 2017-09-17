@@ -283,7 +283,7 @@ trait PmmlSerializerTrait{
           }
           if (!empty($ppValues)){
             foreach($ppValues as $ppValue){
-              $this->addExtensionElement($discretizeXml,'Frequency',$ppValue->frequency,$ppValue->value);
+              $this->addExtensionElement($discretizeXml,'Frequency',$ppValue->frequency,$ppValue->value,false);
             }
           }
         }
@@ -317,7 +317,7 @@ trait PmmlSerializerTrait{
           }
           if (!empty($ppValues)){
             foreach($ppValues as $ppValue){
-              $this->addExtensionElement($inlineTableXml,'Frequency',$ppValue->frequency,$ppValue->value);
+              $this->addExtensionElement($inlineTableXml,'Frequency',$ppValue->frequency,$ppValue->value,false);
             }
           }
         }
