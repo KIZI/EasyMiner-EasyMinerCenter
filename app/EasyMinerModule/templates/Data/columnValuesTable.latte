@@ -9,7 +9,13 @@
   <div id="valuesTablePage">
 
     <h1>{$datasourceColumn->name}</h1>
-    <p>{_'Unique values count:'} <strong>{$datasourceColumn->uniqueValuesCount}</strong></p>
+
+    <div class="basicInfo">
+      {_'Unique values count:'} <strong>{$datasourceColumn->uniqueValuesCount}</strong>
+      <span class="links">
+        <a href="{link columnHistogram column=>$datasourceColumn->datasourceColumnId, miner=>$miner->minerId}">{_'Histogram'}</a>
+      </span>
+    </div>
 
     {if $datasourceColumn->uniqueValuesCount>0}
       <table class="valuesListTable">
@@ -31,6 +37,17 @@
         </tbody>
       </table>
 
+      <div class="pagination">
+        {if $offset>0}
+          <a href="{link columnValuesTable column=>$datasourceColumn->datasourceColumnId, miner=>$miner->minerId, offset=>max($offset-$valuesPerPage,0)}">{_'Previous page'}</a>
+        {/if}
+        {if $offset+$valuesPerPage<$datasourceColumn->uniqueValuesCount}
+          {if $offset>0}
+            |
+          {/if}
+          <a href="{link columnValuesTable column=>$datasourceColumn->datasourceColumnId, miner=>$miner->minerId, offset=>min($offset+$valuesPerPage,datasourceColumn->uniqueValuesCount)}">{_'Next page'}</a>
+        {/if}
+      </div>
       {*TODO paginator*}
 
     {/if}

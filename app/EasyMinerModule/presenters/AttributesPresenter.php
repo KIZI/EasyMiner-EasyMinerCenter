@@ -38,6 +38,7 @@ class AttributesPresenter extends BasePresenter{
   use ResponsesTrait;
 
   const HISTOGRAM_MAX_COLUMNS_COUNT=1000;
+  const VALUES_TABLE_VALUES_PER_PAGE=200;
 
   /** @var  DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
@@ -539,8 +540,11 @@ class AttributesPresenter extends BasePresenter{
 
     $offset=intval($offset);
 
+    $this->template->miner=$miner;
     $this->template->attribute=$attribute;
-    $this->template->ppValues=$this->metasourcesFacade->getAttributePpValues($attribute,$offset,self::HISTOGRAM_MAX_COLUMNS_COUNT);
+    $this->template->ppValues=$this->metasourcesFacade->getAttributePpValues($attribute,$offset,self::VALUES_TABLE_VALUES_PER_PAGE);
+    $this->template->offset=$offset;
+    $this->template->valuesPerPage=self::VALUES_TABLE_VALUES_PER_PAGE;
   }
 
   /**

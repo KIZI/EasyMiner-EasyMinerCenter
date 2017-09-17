@@ -33,6 +33,7 @@ class DataPresenter extends BasePresenter{
   use UsersTrait;
 
   const HISTOGRAM_MAX_COLUMNS_COUNT=1000;
+  const VALUES_TABLE_VALUES_PER_PAGE=200;
 
   /** @var  FileImportsFacade $fileImportsFacade */
   private $fileImportsFacade;
@@ -575,7 +576,9 @@ class DataPresenter extends BasePresenter{
 
     $this->template->miner=$miner;
     $this->template->datasourceColumn=$datasourceColumn;
-    $this->template->dbValues=$this->datasourcesFacade->getDatasourceColumnDbValues($datasourceColumn,$offset,self::HISTOGRAM_MAX_COLUMNS_COUNT);
+    $this->template->dbValues=$this->datasourcesFacade->getDatasourceColumnDbValues($datasourceColumn,$offset,self::VALUES_TABLE_VALUES_PER_PAGE);
+    $this->template->offset=$offset;
+    $this->template->valuesPerPage=self::VALUES_TABLE_VALUES_PER_PAGE;
   }
 
 

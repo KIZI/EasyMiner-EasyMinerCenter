@@ -1777,6 +1777,19 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #valuesTablePage table.valuesListTable .frequency {
   text-align: right;
 }
+#valuesTablePage .pagination {
+  margin: 20px 0;
+  text-align: right;
+}
+#valuesTablePage .basicInfo,
+#histogramPage .basicInfo {
+  position: relative;
+  margin: 20px 10px 20px 0;
+}
+#valuesTablePage .links,
+#histogramPage .links {
+  float: right;
+}
 div#homePage #slogan {
   opacity: 0.8;
   margin: 10px;

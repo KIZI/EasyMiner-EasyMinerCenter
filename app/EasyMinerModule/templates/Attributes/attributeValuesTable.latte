@@ -9,7 +9,13 @@
   <div id="valuesTablePage">
 
     <h1>{$attribute->name}</h1>
-    <p>{_'Unique values count:'} <strong>{$attribute->uniqueValuesCount}</strong></p>
+
+    <div class="basicInfo">
+      {_'Unique values count:'} <strong>{$attribute->uniqueValuesCount}</strong>
+      <span class="links">
+        <a href="{link attributeHistogram id=>$attribute->attributeId, miner=>$miner->minerId}">{_'Histogram'}</a>
+      </span>
+    </div>
 
     {if $attribute->uniqueValuesCount>0}
       <table class="valuesListTable">
@@ -31,8 +37,17 @@
         </tbody>
       </table>
 
-      {*TODO paginator*}
-
+      <div class="pagination">
+      {if $offset>0}
+        <a href="{link attributeValuesTable id=>$attribute->attributeId, miner=>$miner->minerId, offset=>max($offset-$valuesPerPage,0)}">{_'Previous page'}</a>
+      {/if}
+      {if $offset+$valuesPerPage<$attribute->uniqueValuesCount}
+        {if $offset>0}
+          |
+        {/if}
+        <a href="{link attributeValuesTable id=>$attribute->attributeId, miner=>$miner->minerId, offset=>min($offset+$valuesPerPage,$attribute->uniqueValuesCount)}">{_'Next page'}</a>
+      {/if}
+      </div>
     {/if}
 
   </div>
