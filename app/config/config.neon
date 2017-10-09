@@ -168,6 +168,10 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade
 
+	- EasyMinerCenter\Model\EasyMiner\Facades\KnowledgeBaseFacade
+	- EasyMinerCenter\Model\EasyMiner\Repositories\KnowledgeBaseRuleRelationsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\RuleRuleRelationsRepository
+
 	- EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository

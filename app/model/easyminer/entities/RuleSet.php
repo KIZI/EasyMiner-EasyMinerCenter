@@ -32,7 +32,7 @@ class RuleSet extends Entity implements IOwnerResource{
       'name'=>$this->name,
       'description'=>(!empty($this->description)?$this->description:""),
       'rulesCount'=>$this->rulesCount,
-      'lastModified'=>(!empty($this->lastModified))?$this->lastModified->format('c'):null
+      'lastModified'=>(!empty($this->lastModified))?$this->lastModified->getTimestamp():null
     ];
   }
 

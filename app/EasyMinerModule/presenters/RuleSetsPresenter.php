@@ -2,11 +2,15 @@
 
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
+use EasyMinerCenter\Model\EasyMiner\Entities\Cedent;
+use EasyMinerCenter\Model\EasyMiner\Entities\KnowledgeBaseRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Facades\KnowledgeBaseFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
+use EasyMinerCenter\Model\EasyMiner\Repositories\RuleRuleRelationsRepository;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\InvalidArgumentException;
@@ -24,6 +28,8 @@ class RuleSetsPresenter extends BasePresenter{
   private $rulesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
+    /** @var  KnowledgeBaseFacade $knowledgeBaseFacade */
+    private $knowledgeBaseFacade;
   /** @var  UsersFacade $usersFacade */
   private $usersFacade;
   /** @var  XmlTransformator $xmlTransformator */
@@ -265,6 +271,198 @@ class RuleSetsPresenter extends BasePresenter{
 
   #endregion actions for manipulation of relations between Rules and RuleSets
 
+    #region actions for rule comparing
+
+    /**
+     * Action returning Rule set with rule names and relations from Datasource of Miner
+     * @param Int $id RuleSet id
+     * @param Int $miner Miner id
+     */
+    public function actionGetRulesNames($id, $miner){
+        //najití RuleSetu a kontroly
+        $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+        $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+        //připravení výstupu
+        $result=[
+            'ruleset'=>$ruleSet->getDataArr(),
+            'rules'=>[]
+        ];
+        if ($ruleSet->rulesCount>0 || true){
+            $rules=$this->knowledgeBaseFacade->findRulesByDatasource($ruleSet,$miner);
+            if (!empty($rules)){
+                //$result['rules'] = $rules;
+                foreach($rules as $rule){
+                    $result['rules'][$rule->ruleId]=[
+                        'name' => $rule->text,
+                        'relation' => $rule->relation
+                    ];
+                }
+            }
+        }
+        $this->sendJsonResponse($result);
+    }
+
+    /**
+     * Method for finding Rule from Rule set with the best similarity to compared Rule
+     * @param Int $id RuleSet id
+     * @param Int $rule Rule id
+     */
+    public function actionCompareRuleWithRuleset($id, $rule){
+        //finding Rule set and checking
+        $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+        $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+        //prepearing output
+        $result=[];
+        $compareResults=[];
+        try{
+            $ruleSimilarity = $this->knowledgeBaseFacade->findRuleSimilarity($id, $rule);
+        }catch (\Exception $e){
+            $ruleSimilarity = null;
+        }
+        if($ruleSimilarity && ($ruleSimilarity->resultDate->getTimestamp() >= $ruleSet->lastModified->getTimestamp())){ // result from past, which is newer than Rule set last modification
+            $result['max'] = $ruleSimilarity->rate;
+            $result['rule'] = [
+                RuleRuleRelationsRepository::COLUMN_RULESET_RULE => $ruleSimilarity->knowledgeBaseRuleId,
+                RuleRuleRelationsRepository::COLUMN_RELATION => $ruleSimilarity->relation,
+                RuleRuleRelationsRepository::COLUMN_RATE=> $ruleSimilarity->rate
+            ];
+        } elseif ($ruleSet->rulesCount>0 && $rule){
+            if(!$ruleSimilarity){
+                $ruleSimilarity = $rule;
+            }
+            $ruleObj = $this->rulesFacade->findRule($rule);
+            $ruleParts = [
+                "ant" => $this->decomposeCedent($ruleObj->antecedent),
+                "con" => $this->decomposeCedent($ruleObj->consequent)
+            ];
+            $result['max'] = 0;
+            $result['rule'] = [
+                RuleRuleRelationsRepository::COLUMN_RELATION => ''
+            ];
+
+            $ruleCompareResults = $this->knowledgeBaseFacade->getRulesComparingResults($rule, $id);
+            if(count($ruleCompareResults) > 0){
+                $bestResult = array_slice($ruleCompareResults,0,1)[0];
+                if($bestResult[RuleRuleRelationsRepository::COLUMN_RATE] > 0){
+                    $result['rule'] = $bestResult;
+                    $result['max'] = $bestResult[RuleRuleRelationsRepository::COLUMN_RATE];
+                }
+            }
+
+            foreach($this->ruleSetsFacade->findRulesByRuleSet($ruleSet, null) as $ruleSetRule){
+                if(isset($ruleCompareResults[$ruleSetRule->ruleId])){ // has been already compared and is impossible to have higher rate due to DB ordering
+                    continue;
+                }
+                $compareResult = $this->compareRules($ruleParts, $ruleSetRule);
+                if($compareResult[RuleRuleRelationsRepository::COLUMN_RATE] > $result['max']){
+                    $result['max'] = $compareResult[RuleRuleRelationsRepository::COLUMN_RATE];
+                    $result['rule'] = $compareResult;
+                }
+                $compareResult[RuleRuleRelationsRepository::COLUMN_RULE] = $rule;
+                $compareResult[RuleRuleRelationsRepository::COLUMN_RULE_SET] = $id;
+                $compareResults[] = $compareResult;
+            }
+
+            if($result['max'] > 0){
+                try{
+                    $this->knowledgeBaseFacade->addRuleToKBRuleRelation(
+                        $id, $ruleSimilarity,
+                        $result['rule'][RuleRuleRelationsRepository::COLUMN_RULESET_RULE],
+                        $result['rule'][RuleRuleRelationsRepository::COLUMN_RELATION],
+                        $result['max']
+                    );
+                }catch (\Exception $e){}
+            }
+
+            $this->knowledgeBaseFacade->saveComparingResults($compareResults);
+        }
+        $this->sendJsonResponse($result);
+    }
+
+    /**
+     * Method for comparing two rules
+     * @param Array $ruleParts parts of Rule for comparing
+     * @param Array $ruleSetRule Rule from Rule set
+     * @return Array [ID, relation, comparing rate]
+     */
+    private function compareRules($ruleParts, $ruleSetRule){
+        $antecedentAttributesCount = $consequentAttributesCount = 0;
+        $antecedentAttributesSame = $consequentAttributesSame = 0;
+        $crossAttributesConflict = false;
+        $ruleSetRuleDecomposed = json_decode($ruleSetRule->decomposed, true);
+        if(!$ruleSetRuleDecomposed){ // if hasn't rule decomposed yet
+            $ruleSetRuleDecomposed = [
+                "ant" => $this->decomposeCedent($ruleSetRule->antecedent),
+                "con" => $this->decomposeCedent($ruleSetRule->consequent)
+            ];
+            try{
+                $this->knowledgeBaseFacade->setDecomposedRuleSetRule($ruleSetRule->ruleId, json_encode($ruleSetRuleDecomposed));
+            }catch (\Exception $e){}
+        }
+        foreach($ruleSetRuleDecomposed['ant'] as $attribute => $value){
+            if(isset($ruleParts['con'][$attribute]) || array_key_exists($attribute, $ruleParts['con'])){
+                $crossAttributesConflict = true; // attribute on opposite site of rule
+                break;
+            }
+            if(isset($ruleParts['ant'][$attribute]) || array_key_exists($attribute, $ruleParts['ant'])){
+                $antecedentAttributesSame++; // same attribute
+                if($ruleParts['ant'][$attribute] == $value){
+                    $antecedentAttributesSame++; // same value or values bin
+                }
+            }
+            $antecedentAttributesCount++;
+        }
+        foreach($ruleSetRuleDecomposed['con'] as $attribute => $value){
+            if(isset($ruleParts['ant'][$attribute]) || array_key_exists($attribute, $ruleParts['ant'])){
+                $crossAttributesConflict = true; // attribute on opposite site of rule
+                break;
+            }
+            if(isset($ruleParts['con'][$attribute]) || array_key_exists($attribute, $ruleParts['con'])){
+                $consequentAttributesSame++; // same attribute
+                if($ruleParts['con'][$attribute] == $value){
+                    $consequentAttributesSame++; // same value or values bin
+                }
+            }
+            $consequentAttributesCount++;
+        }
+        $sameRateAntecedent = $antecedentAttributesSame/($antecedentAttributesCount+count($ruleParts['ant']));
+        $sameRateConsequent = $consequentAttributesSame/($consequentAttributesCount+count($ruleParts['con']));
+        $sameRateFinal = $crossAttributesConflict ? 0 : ($sameRateAntecedent+$sameRateConsequent)/2;
+
+        return [
+            RuleRuleRelationsRepository::COLUMN_RULESET_RULE => $ruleSetRule->ruleId,
+            RuleRuleRelationsRepository::COLUMN_RELATION => $ruleSetRule->relation,
+            RuleRuleRelationsRepository::COLUMN_RATE => $sameRateFinal
+        ];
+    }
+
+    /**
+     * Method for decomposing Cedent (mostly used recursively!)
+     * @param Cedent $cedent for decomposing
+     * @return Array Attribute => Value
+     */
+    private function decomposeCedent($cedent){
+        $ruleAttributes = [];
+        if(!($cedent instanceof Cedent)){
+            return $ruleAttributes;
+        }
+        foreach($cedent->cedents as $childCedent){
+            $ruleAttributes = $ruleAttributes + $this->decomposeCedent($childCedent);
+        }
+        foreach($cedent->ruleAttributes as $ruleAttribute){
+            if($ruleAttribute->value){
+                $ruleAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->value->valueId;
+            } elseif($ruleAttribute->valuesBin){
+                $ruleAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = $ruleAttribute->valuesBin->valuesBinId;
+            } else{
+                $ruleAttributes[$ruleAttribute->attribute->preprocessing->preprocessingId] = "";
+            }
+        }
+        return $ruleAttributes;
+    }
+
+    #endregion actions for rule comparing
+
   #region injections
   /**
    * @param RulesFacade $rulesFacade
@@ -278,6 +476,12 @@ class RuleSetsPresenter extends BasePresenter{
   public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
     $this->ruleSetsFacade=$ruleSetsFacade;
   }
+    /**
+     * @param KnowledgeBaseFacade $knowledgeBaseFacade
+     */
+    public function injectKnowledgeBaseFacade(KnowledgeBaseFacade $knowledgeBaseFacade){
+        $this->knowledgeBaseFacade=$knowledgeBaseFacade;
+    }
   /**
    * @param UsersFacade $usersFacade
    */

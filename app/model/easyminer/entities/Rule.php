@@ -27,6 +27,8 @@ use LeanMapper\Entity;
  * @property float|null $lift = null
  * @property bool $inRuleClipboard
  * @property-read array $basicDataArr
+ * @property-read string $relation
+ * @property-read string $decomposed
  */
 class Rule extends Entity{
 

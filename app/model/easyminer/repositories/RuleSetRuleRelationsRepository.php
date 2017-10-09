@@ -38,7 +38,7 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
     $relevantTable='rules';
 
     /** @var Fluent $query */
-    $query=$this->connection->select($relevantTable.'.*')
+    $query=$this->connection->select($relevantTable.'.*,'.$this->getTable().'.relation,'.$this->getTable().'.decomposed')
       ->from($relevantTable)
       ->leftJoin('rule_set_rule_relations')->on($relevantTable.'.rule_id=%n.rule_id',$this->getTable())
       ->where('rule_set_id = ?',$ruleSet->ruleSetId);
@@ -46,7 +46,6 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
       $query=$query->orderBy($order);
     }
     $entityClass=$this->mapper->getEntityClass($relevantTable);
-
 
     $ruleRows=$query->fetchAll($offset, $limit);
     $result=[];
@@ -72,5 +71,14 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
     return $result;
   }
 
+    /**
+     * Nastavení dekomponovaného tvaru pravidla pro všechny jeho výskyty
+     * @param Int $ruleId
+     * @param String $decomposed
+     */
+    public function setDecomposed($ruleId, $decomposed){
+        return $this->connection->update($this->getTable(), ['decomposed' => $decomposed])
+            ->where('rule_id = ?',$ruleId)->execute();
+    }
 
 }
