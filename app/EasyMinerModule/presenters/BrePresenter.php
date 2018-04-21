@@ -18,6 +18,7 @@ class BrePresenter extends BasePresenter{
     $this->template->javascriptFiles=BREIntegration::$javascriptFiles;
     $this->template->cssFiles=BREIntegration::$cssFiles;
     $this->template->content=BREIntegration::getContent();
+    $this->template->moduleName=BREIntegration::MODULE_NAME;
   }
 
 } 

@@ -8,6 +8,12 @@
 {/block}
 
 {block scripts}
+  <script type="text/javascript">
+    if (!window.moduleBaseUrls){l}
+        window.moduleBaseUrls=[];
+    {r}
+    window.moduleBaseUrls[{$moduleName}]={$basePath.'/_BRE'};
+  </script>
   {foreach $javascriptFiles as $file}
     <script type="text/javascript" src="{$basePath}/_BRE/{$file}" ></script>
   {/foreach}
