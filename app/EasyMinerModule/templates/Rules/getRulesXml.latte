@@ -1,0 +1,60 @@
+{contentType application/xml}
+{layout ''}
+{block xml}
+<?xml version="1.0" encoding="UTF-8"?>
+{* FIXME: zaregistrovat DTD? *}
+<AssociationRules xmlns="http://keg.vse.cz/easyminer/KBRules">
+    {foreach $rules as $rule}
+        <AssociationRule id="{$rule->ruleId}">
+            <Text>{$rule->text}</Text>
+            <Antecedent>
+                <Cedent connective="{$rule->antecedent->connective}">
+                    {* rekurze nad cedenty *}
+                    {var $cedents = $rule->antecedent->cedents}
+                    {block #anteCedents}
+                        {foreach $cedents as $cedent}
+                            <Cedent connective="{$cedent->connective}">
+                                {include #anteCedents cedents => $cedent->cedents} {* recursive call *}
+                                {foreach $cedent->ruleAttributes as $ruleAttribute}
+                                    <Attribute format="{$ruleAttribute->attribute->type}">
+                                        {* TODO: odkud jsou kategorie? *}
+                                    </Attribute>
+                                {/foreach}
+                            </Cedent>
+                        {/foreach}
+                    {/block}
+                    {foreach $rule->antecedent->ruleAttributes as $ruleAttribute}
+                    <Attribute format="{$ruleAttribute->attribute->type}">
+                        {* TODO: odkud jsou kategorie? *}
+                    </Attribute>
+                    {/foreach}
+                </Cedent>
+            </Antecedent>
+
+            <Consequent>
+                <Cedent connective="{$rule->consequent->connective}">
+                    {* rekurze nad cedenty *}
+                    {var $cedents = $rule->consequent->cedents}
+                    {block #consCedents}
+                        {foreach $cedents as $cedent}
+                            <Cedent connective="{$cedent->connective}">
+                                {include #consCedents cedents => $cedent->cedents} {* recursive call *}
+                                {foreach $cedent->ruleAttributes as $ruleAttribute}
+                                    <Attribute format="{$ruleAttribute->attribute->type}">
+                                        {* TODO: odkud jsou kategorie? *}
+                                    </Attribute>
+                                {/foreach}
+                            </Cedent>
+                        {/foreach}
+                    {/block}
+                    {foreach $rule->consequent->ruleAttributes as $ruleAttribute}
+                        <Attribute format="{$ruleAttribute->attribute->type}">
+                            {* TODO: odkud jsou kategorie? *}
+                        </Attribute>
+                    {/foreach}
+                </Cedent>
+            </Consequent>
+        </AssociationRule>
+    {/foreach}
+</AssociationRules>
+{/block}

@@ -25,13 +25,15 @@ class RulesPresenter  extends BasePresenter{
 
 
   /**
-   * Action for rendering detauls about a rule
+   * Action for rendering details about a rule
    * @param int $id - task ID
    * @param int $miner
    * @param string $rule
    * @throws BadRequestException
    * @throws ForbiddenRequestException
    */
+
+  // https://br-dev.lmcloud.vse.cz/easyminercenter-kopp03/em/rules/rule-details/4499?miner=3122&rule=549049
   public function renderRuleDetails($id=null,$miner,$rule){
     $rule=$this->rulesFacade->findRule($rule);
     //check user privileges
@@ -49,6 +51,12 @@ class RulesPresenter  extends BasePresenter{
   #region functions for work with knowledge base
   public function actionGetRules($id){
     //TODO
+  }
+
+  // https://br-dev.lmcloud.vse.cz/easyminercenter-kopp03/em/rules/get-rules-xml/4499
+  public function actionGetRulesXml($id){
+      $rules = $this->rulesFacade->findRulesByTask($id);
+      $this->template->rules = $rules;
   }
 
   public function actionAddRule($id,$rule){
