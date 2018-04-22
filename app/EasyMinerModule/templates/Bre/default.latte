@@ -13,6 +13,7 @@
         window.moduleBaseUrls=[];
     {r}
     window.moduleBaseUrls[{$moduleName}]={$basePath.'/_BRE'};
+    var $_GET = {$GET};
   </script>
   {foreach $javascriptFiles as $file}
     <script type="text/javascript" src="{$basePath}/_BRE/{$file}" ></script>

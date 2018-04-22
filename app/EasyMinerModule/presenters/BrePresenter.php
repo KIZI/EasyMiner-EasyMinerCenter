@@ -19,6 +19,7 @@ class BrePresenter extends BasePresenter{
     $this->template->cssFiles=BREIntegration::$cssFiles;
     $this->template->content=BREIntegration::getContent();
     $this->template->moduleName=BREIntegration::MODULE_NAME;
+    $this->template->GET=json_encode($_GET);
   }
 
 } 
