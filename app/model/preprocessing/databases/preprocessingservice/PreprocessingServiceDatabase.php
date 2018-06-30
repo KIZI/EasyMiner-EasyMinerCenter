@@ -154,9 +154,10 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
    */
   private function curlRequestResponse($url, $postData='', $method='GET', $headersArr=[], &$responseCode=null){
     if (Strings::startsWith($url,'/')){
-      $url='http://localhost/'.$url;
+      $url='https://localhost'.$url;
     }
     $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch,CURLOPT_MAXREDIRS,0);
@@ -208,8 +209,9 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
   public function createPpDataset(PpDataset $ppDataset=null, PpTask $ppTask=null) {
     if ($ppTask){
       //the task is running
+      $url=$ppTask->getNextLocation(true);
       $response=$this->curlRequestResponse(
-        $ppTask->getNextLocation(),
+        $url,
         null,
         'GET',
         ['Accept'=>'application/json; charset=utf8'],
@@ -231,7 +233,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     try{
       $response=Json::decode($response,Json::FORCE_ARRAY);
     }catch (JsonException $e){
-      throw new PreprocessingCommunicationException('Response encoding failed.',$e);
+      throw new PreprocessingCommunicationException('Response encoding failed.',$e->getCode(),$e);
     }
     switch ($responseCode){
       /** @noinspection PhpMissingBreakStatementInspection */
@@ -293,7 +295,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     if ($ppTask){
       //it is running task
       $response=$this->curlRequestResponse(
-        $ppTask->getNextLocation(),
+        $ppTask->getNextLocation(true),
         null,
         'GET',
         ['Accept'=>'application/json; charset=utf8'],
@@ -319,7 +321,7 @@ abstract class PreprocessingServiceDatabase implements IPreprocessing {
     try{
       $response=Json::decode($response,Json::FORCE_ARRAY);
     }catch (JsonException $e){
-      throw new PreprocessingCommunicationException('Response encoding failed.',$e);
+      throw new PreprocessingCommunicationException('Response encoding failed.',$e->getCode(),$e);
     }
     switch ($responseCode){
       /** @noinspection PhpMissingBreakStatementInspection */

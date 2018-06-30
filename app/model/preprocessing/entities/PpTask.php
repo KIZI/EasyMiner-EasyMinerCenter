@@ -1,6 +1,7 @@
 <?php
 
 namespace EasyMinerCenter\Model\Preprocessing\Entities;
+use Nette\Utils\Strings;
 
 /**
  * Class PpTask
@@ -54,9 +55,14 @@ class PpTask {
 
   /**
    * Method returning the URL for next request
+   * @param bool $requestHttps
    * @return null|string
    */
-  public function getNextLocation() {
-    return $this->statusLocation!=''?$this->statusLocation:$this->resultLocation;
+  public function getNextLocation($requestHttps) {
+    $url=$this->statusLocation!=''?$this->statusLocation:$this->resultLocation;
+    if ($requestHttps && Strings::startsWith(Strings::lower($url),'http:')){
+      $url='https:'.Strings::substring($url,5);
+    }
+    return $url;
   }
 }
