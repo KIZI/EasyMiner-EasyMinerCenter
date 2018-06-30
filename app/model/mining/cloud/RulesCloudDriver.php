@@ -27,7 +27,6 @@ use Tracy\ILogger;
  * @package EasyMinerCenter\Model\Mining\Cloud
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
- * xxx
  */
 class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
   /** @var  Task $task */
