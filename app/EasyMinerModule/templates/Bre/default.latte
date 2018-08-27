@@ -21,7 +21,7 @@
 {block main}
   {$content|noescape}
   <script type="text/javascript">
-      var rulesetId={@$rulesetId};
+      var rulesetId={@$ruleSet->ruleSetId};
       var breConfigUrl={link Bre:config};
       var breResourcesUrl={$basePath."/_BRE"};
   </script>

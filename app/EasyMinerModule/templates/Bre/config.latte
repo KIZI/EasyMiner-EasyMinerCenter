@@ -16,8 +16,8 @@ var config = {
   getAttributeUrl: function(attributeId, rulesetId){
     return {plink Attributes:get id=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
   },
-  getRuleListUrl:function(rulesetId, rulesetId){
-    {*TODO*}
+  getRuleListUrl:function(rulesetId){
+    return {plink RuleSets:getRules id=>'__RULESETID__', offset=>0, limit=>100}.replace('__RULESETID__',rulesetId);
   },
   getRuleUrl:function(ruleId, rulesetId){
     {*TODO*}
@@ -25,8 +25,8 @@ var config = {
   getSaveRuleUrl:function(ruleId, rulesetId){
     {*TODO*}
   },
-  getDeleteRuleUrl:function(ruleId, rulesetId){
-    {*TODO*}
+  getRemoveRuleUrl:function(ruleId, rulesetId){
+    return {plink RuleSets:getRules id=>'__RULESETID__', rules=>'__RULEID__', offset=>0, limit=>100}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
   },
   getRuleUrl:function(ruleId, rulesetId){
     {*TODO*}
