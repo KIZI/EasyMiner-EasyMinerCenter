@@ -1,0 +1,66 @@
+{**
+ * Template for BrePresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+
+{contentType text/javascript}
+
+var config = {
+  "locale": "en",
+  "init-brackets": true,
+  "init-helper": true,
+  getAttributeListUrl: function(rulesetId, rulesetId){
+    return {plink Attributes:list ruleset=>'__RULESETID__'}.replace('__RULESETID__',rulesetId);
+  },
+  getAttributeUrl: function(attributeId, rulesetId){
+    return {plink Attributes:get id=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
+  },
+  getRuleListUrl:function(rulesetId, rulesetId){
+    {*TODO*}
+  },
+  getRuleUrl:function(ruleId, rulesetId){
+    {*TODO*}
+  },
+  getSaveRuleUrl:function(ruleId, rulesetId){
+    {*TODO*}
+  },
+  getDeleteRuleUrl:function(ruleId, rulesetId){
+    {*TODO*}
+  },
+  getRuleUrl:function(ruleId, rulesetId){
+    {*TODO*}
+  },
+  {*TODO remove
+  "api-connect": {
+    "attribute-list": "/attribute/list?baseId=%s",
+    "attribute-get": "/attribute/get?uri=%s&baseId=%s",
+    "rule-list": "/rule-set/get?ruleset=%s&baseId=%s",//TODO
+    "rule-get": "/rule/get?uri=%s&ruleset=%s&baseId=%s",
+    "rule-save": "/rule/save?uri=%s&ruleset=%s&baseId=%s",
+    "rule-delete": "/rule/delete?uri=%s&ruleset=%s",
+    "reset": "homepage/reset"
+  },*}
+  "operators": [
+    { "visible": true, "label": "is", "opt": ["=", ""] },
+    { "visible": true, "label": "not", "opt": ["¬", "!"] },
+    { "visible": true, "label": "break" },
+    { "visible": true, "label": "lower than", "opt": [">", ""] },
+    { "visible": true, "label": "greater than", "opt": ["<", ""] },
+    { "visible": true, "label": "lower than or equals", "opt": [">=", ""] },
+    { "visible": true, "label": "greater than or equals", "opt": ["<=", ""] },
+    { "visible": false, "label": "and", "opt": ["∧", "&&"] },
+    { "visible": false, "label": "or", "opt": ["∨", "||"] },
+    { "visible": false, "label": "is lower than", "opt": [">", ""] },
+    { "visible": false, "label": "is greater than", "opt": ["<", ""] },
+    { "visible": false, "label": "is not", "opt": ["≠", "!="] },
+    { "visible": false, "label": "is lower than or equals", "opt": ["<=", ""] },
+    { "visible": false, "label": "is greater than or equals", "opt": [">=", ""] }
+  ],
+  "connections": {
+    "Conjunction": "and",
+    "Disjunction": "or",
+    "Negation": "not"
+  },
+  "rule-ns": "http://keg.vse.cz/easyminer/KBRules"
+}

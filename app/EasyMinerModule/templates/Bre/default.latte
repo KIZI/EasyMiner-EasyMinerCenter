@@ -7,19 +7,6 @@
   {_'Business Rules Editor'}
 {/block}
 
-{block scripts}
-  <script type="text/javascript">
-    if (!window.moduleBaseUrls){l}
-        window.moduleBaseUrls=[];
-    {r}
-    window.moduleBaseUrls[{$moduleName}]={$basePath.'/_BRE'};
-    var $_GET = {$GET};
-  </script>
-  {foreach $javascriptFiles as $file}
-    <script type="text/javascript" src="{$basePath}/_BRE/{$file}" ></script>
-  {/foreach}
-{/block}
-
 {block head}
   {foreach $cssFiles as $file}
     <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_BRE/{$file}" />
@@ -33,4 +20,13 @@
 
 {block main}
   {$content|noescape}
+  <script type="text/javascript">
+      var rulesetId={@$rulesetId};
+      var breConfigUrl={link Bre:config};
+      var breResourcesUrl={$basePath."/_BRE"};
+  </script>
+  <script type="text/javascript" src="{link Bre:config}" ></script>
+  {foreach $javascriptFiles as $file}
+    <script type="text/javascript" src="{$basePath}/_BRE/{$file}" ></script>
+  {/foreach}
 {/block}
