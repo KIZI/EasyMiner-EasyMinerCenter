@@ -49,6 +49,8 @@ abstract class BasePresenter extends Presenter{//BaseRestPresenter
   #region ACL
   /**
    * Method called on the startup of the presenter, solves the access permissions to the given source (ACL)
+   * @throws ForbiddenRequestException
+   * @throws \Nette\Application\AbortException
    */
   protected function startup() {
     $user=$this->getUser();
