@@ -10,10 +10,10 @@ var config = {
   "locale": "en",
   "init-brackets": true,
   "init-helper": true,
-  getAttributeListUrl: function(rulesetId, rulesetId){
-    return {plink Attributes:list ruleset=>'__RULESETID__'}.replace('__RULESETID__',rulesetId);
+  getAttributeListUrl: function(minerId){
+    return {plink Bre:getAttributesByMiner miner=>'__MINERID__'}.replace('__MINERID__',minerId);
   },
-  getAttributeUrl: function(attributeId, rulesetId){
+  getAttributeUrl: function(attributeId){
     return {plink Attributes:get id=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
   },
   getRuleListUrl:function(rulesetId){
