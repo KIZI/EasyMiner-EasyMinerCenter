@@ -2,8 +2,8 @@
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMiner\BRE\Integration as BREIntegration;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
-use Nette\Utils\Json;
 
 /**
  * Class BrePresenter - presenter with the functionality for integration of the submodule EasyMiner-BRE
@@ -17,6 +17,8 @@ class BrePresenter extends BasePresenter{
 
   /** @var RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
+  /** @var MetasourcesFacade $metasourcesFacade */
+  private $metasourcesFacade;
 
 
   /**
@@ -42,6 +44,7 @@ class BrePresenter extends BasePresenter{
    */
   public function actionGetAttributesByMiner($miner){
     $miner=$this->findMinerWithCheckAccess($miner);
+    $this->minersFacade->checkMinerMetasource($miner);
     $metasource=$miner->metasource;
     $attributesArr=$metasource->getAttributesArr();
     $result=[];
@@ -53,9 +56,39 @@ class BrePresenter extends BasePresenter{
     $this->sendJsonResponse($result);
   }
 
-  public function actionGetAttribute($attributeId){
-    //TODO
+  /**
+   * Akce vracející detaily jednoho atributu
+   * @param int $attribute
+   * @param int $valuesLimit=1000
+   * @throws \Nette\Application\BadRequestException
+   * @throws \Nette\Application\ForbiddenRequestException
+   */
+  public function actionGetAttribute($attribute,$valuesLimit=1000){
+    $attribute=$this->metasourcesFacade->findAttribute($attribute);
+    $preprocessing=$attribute->preprocessing;
+    $format=$preprocessing->format;
 
+    $valuesArr=[];
+    $ppValues=$this->metasourcesFacade->getAttributePpValues($attribute,0,intval($valuesLimit));
+    if (!empty($ppValues)){
+      foreach ($ppValues as $ppValue){
+        $valuesArr[]=$ppValue->value;
+      }
+    }
+
+    $result=[
+      'id'=>$attribute->attributeId,
+      'name'=>$attribute->name,
+      'preprocessing'=>$preprocessing->preprocessingId,
+      'format'=>[
+        'id'=>$format->formatId,
+        'name'=>$format->name,
+        'dataType'=>$format->dataType
+      ],
+      'bins'=>$valuesArr
+      //tady možná doplnit ještě range?
+    ];
+    $this->sendJsonResponse($result);
   }
 
 
@@ -65,6 +98,12 @@ class BrePresenter extends BasePresenter{
    */
   public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
     $this->ruleSetsFacade=$ruleSetsFacade;
+  }
+  /**
+   * @param MetasourcesFacade $metasourcesFacade
+   */
+  public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade){
+    $this->metasourcesFacade=$metasourcesFacade;
   }
   #endregion injections
 } 

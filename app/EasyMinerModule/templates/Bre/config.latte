@@ -14,7 +14,7 @@ var config = {
     return {plink Bre:getAttributesByMiner miner=>'__MINERID__'}.replace('__MINERID__',minerId);
   },
   getAttributeUrl: function(attributeId){
-    return {plink Attributes:get id=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
+    return {plink Bre:getAttribute attribute=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
   },
   getRuleListUrl:function(rulesetId){
     return {plink RuleSets:getRules id=>'__RULESETID__', offset=>0, limit=>100}.replace('__RULESETID__',rulesetId);
@@ -28,34 +28,21 @@ var config = {
   getRemoveRuleUrl:function(ruleId, rulesetId){
     return {plink RuleSets:getRules id=>'__RULESETID__', rules=>'__RULEID__', offset=>0, limit=>100}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
   },
-  getRuleUrl:function(ruleId, rulesetId){
-    {*TODO*}
-  },
-  {*TODO remove
-  "api-connect": {
-    "attribute-list": "/attribute/list?baseId=%s",
-    "attribute-get": "/attribute/get?uri=%s&baseId=%s",
-    "rule-list": "/rule-set/get?ruleset=%s&baseId=%s",//TODO
-    "rule-get": "/rule/get?uri=%s&ruleset=%s&baseId=%s",
-    "rule-save": "/rule/save?uri=%s&ruleset=%s&baseId=%s",
-    "rule-delete": "/rule/delete?uri=%s&ruleset=%s",
-    "reset": "homepage/reset"
-  },*}
   "operators": [
     { "visible": true, "label": "is", "opt": ["=", ""] },
-    { "visible": true, "label": "not", "opt": ["¬", "!"] },
+    //{ "visible": true, "label": "not", "opt": ["¬", "!"] },
     { "visible": true, "label": "break" },
-    { "visible": true, "label": "lower than", "opt": [">", ""] },
-    { "visible": true, "label": "greater than", "opt": ["<", ""] },
-    { "visible": true, "label": "lower than or equals", "opt": [">=", ""] },
-    { "visible": true, "label": "greater than or equals", "opt": ["<=", ""] },
+    //{ "visible": true, "label": "lower than", "opt": [">", ""] },
+    //{ "visible": true, "label": "greater than", "opt": ["<", ""] },
+    //{ "visible": true, "label": "lower than or equals", "opt": [">=", ""] },
+    //{ "visible": true, "label": "greater than or equals", "opt": ["<=", ""] },
     { "visible": false, "label": "and", "opt": ["∧", "&&"] },
     { "visible": false, "label": "or", "opt": ["∨", "||"] },
-    { "visible": false, "label": "is lower than", "opt": [">", ""] },
-    { "visible": false, "label": "is greater than", "opt": ["<", ""] },
-    { "visible": false, "label": "is not", "opt": ["≠", "!="] },
-    { "visible": false, "label": "is lower than or equals", "opt": ["<=", ""] },
-    { "visible": false, "label": "is greater than or equals", "opt": [">=", ""] }
+    //{ "visible": false, "label": "is lower than", "opt": [">", ""] },
+    //{ "visible": false, "label": "is greater than", "opt": ["<", ""] },
+    //{ "visible": false, "label": "is not", "opt": ["≠", "!="] },
+    //{ "visible": false, "label": "is lower than or equals", "opt": ["<=", ""] },
+    //{ "visible": false, "label": "is greater than or equals", "opt": [">=", ""] }
   ],
   "connections": {
     "Conjunction": "and",
