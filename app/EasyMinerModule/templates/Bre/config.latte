@@ -17,16 +17,16 @@ var config = {
     return {plink Bre:getAttribute attribute=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
   },
   getRuleListUrl:function(rulesetId){
-    return {plink RuleSets:getRules id=>'__RULESETID__', offset=>0, limit=>100}.replace('__RULESETID__',rulesetId);
+    return {plink RuleSets:getRules id=>'__RULESETID__', offset=>0, limit=>1000}.replace('__RULESETID__',rulesetId);
   },
   getRuleUrl:function(ruleId, rulesetId){
-    {*TODO*}
+    return {plink Bre:getRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULEID__',ruleId).replace('__RULESETID__',rulesetId);
   },
   getSaveRuleUrl:function(ruleId, rulesetId){
-    {*TODO*}
+    return {plink Bre:saveRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULEID__',ruleId).replace('__RULESETID__',rulesetId);
   },
   getRemoveRuleUrl:function(ruleId, rulesetId){
-    return {plink RuleSets:getRules id=>'__RULESETID__', rules=>'__RULEID__', offset=>0, limit=>100}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
+    return {plink Bre:removeRule id=>'__RULESETID__', rules=>'__RULEID__'}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
   },
   "operators": [
     { "visible": true, "label": "is", "opt": ["=", ""] },

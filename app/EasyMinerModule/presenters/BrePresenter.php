@@ -2,8 +2,11 @@
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMiner\BRE\Integration as BREIntegration;
+use EasyMinerCenter\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 
 /**
  * Class BrePresenter - presenter with the functionality for integration of the submodule EasyMiner-BRE
@@ -15,10 +18,12 @@ class BrePresenter extends BasePresenter{
   use MinersFacadeTrait;
   use ResponsesTrait;
 
-  /** @var RuleSetsFacade $ruleSetsFacade */
-  private $ruleSetsFacade;
   /** @var MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
+  /** @var RuleSetsFacade $ruleSetsFacade */
+  private $ruleSetsFacade;
+  /** @var RulesFacade $rulesFacade */
+  private $rulesFacade;
 
 
   /**
@@ -91,8 +96,89 @@ class BrePresenter extends BasePresenter{
     $this->sendJsonResponse($result);
   }
 
+  /**
+   * Akce vracející detaily jednoho pravidla
+   * @param int $ruleset
+   * @param int $rule
+   * @throws \Nette\Application\BadRequestException
+   * @throws \Exception
+   */
+  public function actionGetRule($ruleset,$rule){
+    $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
+    if (!($rulesetRuleRelation=$this->ruleSetsFacade->findRuleSetRuleRelation($ruleset,$rule))){
+      //kontrola, jestli je pravidlo v rule setu
+      throw new EntityNotFoundException('Rule is not in RuleSet!');
+    }
+    $rule=$rulesetRuleRelation->rule;
+
+    //TODO
+  }
+
+  /**
+   * Akce pro uložení upraveného pravidla
+   * @param int $ruleset
+   * @param int $rule
+   * @param string $relation
+   * @throws \Nette\Application\BadRequestException
+   */
+  public function actionSaveRule($ruleset,$rule,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
+    $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
+    $rule=$this->rulesFacade->findRule($rule);
+    if (!empty($rule->task)){
+      //pravidlo je součástí úlohy => odebereme ho z rule setu a vytvoříme pravidlo nové
+      try{
+        $this->ruleSetsFacade->removeRuleFromRuleSet($rule, $ruleset);
+      }catch (\Exception $e){
+        //chybu ignorujeme - stejně budeme přidávat nové pravidlo
+      }
+      $rule=null;
+    }
+    //TODO uložení pravidla
+
+  }
+
+  /**
+   * Akce pro odebrání pravidla z rule setu a případné odebrání celého pravidla
+   * @param int $ruleset
+   * @param int $rule
+   * @throws EntityNotFoundException
+   * @throws \Nette\Application\BadRequestException
+   * @throws \Exception
+   */
+  public function actionRemoveRule($ruleset, $rule){
+    $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
+    if (!($rulesetRuleRelation=$this->ruleSetsFacade->findRuleSetRuleRelation($ruleset,$rule))){
+      //kontrola, jestli je pravidlo v rule setu
+      $this->sendJsonResponse(['state'=>'ok']);
+    }
+
+    $rule=$rulesetRuleRelation->rule;
+    if (empty($rule->task)){
+      //pravidlo není součástí úlohy => zkontrolujeme, jestli je v nějakém rulesetu
+      $ruleSetRuleRelations=$rule->ruleSetRuleRelations;
+      if (count($ruleSetRuleRelations)<=1){
+        //smažeme samotné pravidlo
+        $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleset);
+        $this->rulesFacade->deleteRule($rule);
+      }else{
+        $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleset);
+      }
+    }else{
+      $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleset);
+    }
+    $this->sendJsonResponse(['state'=>'ok']);
+  }
 
   #region injections
+  /**
+   * @param MetasourcesFacade $metasourcesFacade
+   */
+  public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade){
+    $this->metasourcesFacade=$metasourcesFacade;
+  }
   /**
    * @param RuleSetsFacade $ruleSetsFacade
    */
@@ -100,10 +186,10 @@ class BrePresenter extends BasePresenter{
     $this->ruleSetsFacade=$ruleSetsFacade;
   }
   /**
-   * @param MetasourcesFacade $metasourcesFacade
+   * @param RulesFacade $rulesFacade
    */
-  public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade){
-    $this->metasourcesFacade=$metasourcesFacade;
+  public function injectRulesFacade(RulesFacade $rulesFacade){
+    $this->rulesFacade=$rulesFacade;
   }
   #endregion injections
 } 

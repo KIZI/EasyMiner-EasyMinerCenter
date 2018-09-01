@@ -185,6 +185,20 @@ class RuleSetsFacade {
 
   /**
    * @param RuleSet|int $ruleSet
+   * @param Rule|int $rule
+   * @return bool|RuleSetRuleRelation
+   */
+  public function findRuleSetRuleRelation($ruleSet, $rule){
+    try{
+      $result=$this->ruleSetRuleRelationsRepository->findBy(['rule_id'=>($rule instanceof Rule?$rule->ruleId:$rule),'rule_set_id'=>($ruleSet instanceof RuleSet?$ruleSet->ruleSetId:$ruleSet)]);
+      return $result;
+    }catch (\Exception $e){
+      return false;
+    }
+  }
+
+  /**
+   * @param RuleSet|int $ruleSet
    * @param User|int $user
    * @throws BadRequestException
    */
