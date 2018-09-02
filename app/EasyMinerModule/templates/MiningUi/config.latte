@@ -77,6 +77,8 @@ var Config = new Class({
 
   knowledgeBaseSetMinerRuleSetUrl: {plink Miners:setRuleSet miner=>'__MINERID__', ruleSet=>'__RULESETID__'},
 
+  knowledgeBaseRuleEditorUrl: {plink Bre:default miner=>'__MINERID__',ruleset=>'__RULESETID__'},
+
   showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',id=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},
   showTaskDetailsUrl: {plink Tasks:taskDetails id=>'__TASKID__'},
   getTaskPMMLUrl: {plink Tasks:taskPmml},
@@ -239,6 +241,10 @@ var Config = new Class({
 
   getKnowledgeBaseSetMinerRuleSetUrl: function (rulesetId) {
     return this.knowledgeBaseSetMinerRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
+  },
+
+  getKnowledgeBaseRuleEditorUrl: function (rulesetId) {
+    return this.knowledgeBaseRuleEditorUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
   },
 
   getKnowledgeBaseAddRuleClipboardUrl: function(rulesetId,taskId,relation){
