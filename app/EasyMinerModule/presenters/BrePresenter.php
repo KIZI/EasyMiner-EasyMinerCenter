@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
+use EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleSerializer;
 
 /**
  * Class BrePresenter - presenter with the functionality for integration of the submodule EasyMiner-BRE
@@ -73,11 +74,11 @@ class BrePresenter extends BasePresenter{
     $preprocessing=$attribute->preprocessing;
     $format=$preprocessing->format;
 
-    $valuesArr=[];
+    $binsArr=[];
     $ppValues=$this->metasourcesFacade->getAttributePpValues($attribute,0,intval($valuesLimit));
     if (!empty($ppValues)){
       foreach ($ppValues as $ppValue){
-        $valuesArr[]=$ppValue->value;
+        $binsArr[]=$ppValue->value;
       }
     }
 
@@ -90,7 +91,7 @@ class BrePresenter extends BasePresenter{
         'name'=>$format->name,
         'dataType'=>$format->dataType
       ],
-      'bins'=>$valuesArr
+      'bins'=>$binsArr
       //tady možná doplnit ještě range?
     ];
     $this->sendJsonResponse($result);
@@ -111,8 +112,9 @@ class BrePresenter extends BasePresenter{
       throw new EntityNotFoundException('Rule is not in RuleSet!');
     }
     $rule=$rulesetRuleRelation->rule;
-
-    //TODO
+    $breRuleSerializer=new BreRuleSerializer();
+    $breRuleSerializer->serializeRule($rule);
+    $this->sendXmlResponse($breRuleSerializer->getXml());
   }
 
   /**
