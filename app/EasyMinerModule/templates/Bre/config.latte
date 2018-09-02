@@ -26,7 +26,7 @@ var config = {
     return {plink Bre:saveRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULEID__',ruleId).replace('__RULESETID__',rulesetId);
   },
   getRemoveRuleUrl:function(ruleId, rulesetId){
-    return {plink Bre:removeRule id=>'__RULESETID__', rules=>'__RULEID__'}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
+    return {plink Bre:removeRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
   },
   "operators": [
     { "visible": true, "label": "is", "opt": ["=", ""] },

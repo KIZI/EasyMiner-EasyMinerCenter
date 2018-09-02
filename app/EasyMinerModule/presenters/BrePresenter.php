@@ -8,6 +8,8 @@ use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleSerializer;
+use Nette\Application\BadRequestException;
+use Nette\InvalidArgumentException;
 
 /**
  * Class BrePresenter - presenter with the functionality for integration of the submodule EasyMiner-BRE
@@ -123,8 +125,12 @@ class BrePresenter extends BasePresenter{
    * @param int $rule
    * @param string $relation
    * @throws \Nette\Application\BadRequestException
+   * @throws InvalidArgumentException
+   * @throws \Exception
    */
   public function actionSaveRule($ruleset,$rule,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
+    throw new BadRequestException();//FIXME
+    #region nalezení pravidla, ošetření jeho vztahu k rule setu
     $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
     $rule=$this->rulesFacade->findRule($rule);
@@ -137,8 +143,26 @@ class BrePresenter extends BasePresenter{
       }
       $rule=null;
     }
+    #endregion nalezení pravidla, ošetření jeho vztahu k rule setu
+
+    #region naparsování XML zápisu pravidla
+    try{
+      $ruleXml=simplexml_load_string($_POST['rule']);
+      if (!($ruleXml instanceof  \SimpleXMLElement)){
+        throw new \Exception();
+      }
+    }catch (\Exception $e){
+      throw new InvalidArgumentException('Rule XML cannot be parsed!');
+    }
+    #endregion naparsování XML zápisu pravidla
+
+    #region kontrola, jestli jde o stávající, nebo nové pravidlo
+    //TODO
+    #endregion kontrola, jestli jde o stávající, nebo nové pravidlo
     //TODO uložení pravidla
 
+    //odešleme stejnou odpověď, jako kdyby chtěl uživatel pravidlo jen načíst
+    $this->actionGetRule($ruleset->ruleSetId,$ruleId);
   }
 
   /**
