@@ -12,7 +12,7 @@ use LeanMapper\Entity;
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *
  * @property int $ruleId
- * @property Task $task m:hasOne
+ * @property Task|null $task m:hasOne
  * @property-read RuleSetRuleRelation[] $ruleSetRuleRelations m:belongsToMany
  * @property string $text
  * @property string $pmmlRuleId = ''
@@ -34,7 +34,19 @@ class Rule extends Entity{
    * @return array
    */
   public function getBasicDataArr() {
-    return ['id'=>$this->ruleId,'task'=>$this->task->taskId,'text'=>$this->text,'a'=>$this->a,'b'=>$this->b,'c'=>$this->c,'d'=>$this->d,'selected'=>($this->inRuleClipboard?'1':'0')];
+    $result=[
+      'id'=>$this->ruleId,
+      'text'=>$this->text,
+      'a'=>$this->a,
+      'b'=>$this->b,
+      'c'=>$this->c,
+      'd'=>$this->d,
+      'selected'=>($this->inRuleClipboard?'1':'0')
+    ];
+    if (!empty($this->row->task_id)){
+      $result['task']=$this->row->task_id;
+    }
+    return $result;
   }
 
   /**

@@ -4,6 +4,7 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 use EasyMiner\BRE\Integration as BREIntegration;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
@@ -136,21 +137,28 @@ class BrePresenter extends BasePresenter{
     #region nalezení pravidla, ošetření jeho vztahu k rule setu
     $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
-    $rule=$this->rulesFacade->findRule($rule);
-    if (!empty($rule->task)){
+    $existingRule=$this->rulesFacade->findRule($rule);
+    if (!empty($existingRule->task)){
       //pravidlo je součástí úlohy => odebereme ho z rule setu a vytvoříme pravidlo nové
       try{
-        $this->ruleSetsFacade->removeRuleFromRuleSet($rule, $ruleset);
+        $this->ruleSetsFacade->removeRuleFromRuleSet($existingRule, $ruleset);
       }catch (\Exception $e){
         //chybu ignorujeme - stejně budeme přidávat nové pravidlo
       }
-      $rule=null;
+      $rule=new Rule();
+      $rule->a=$existingRule->a;
+      $rule->b=$existingRule->b;
+      $rule->c=$existingRule->c;
+      $rule->d=$existingRule->d;
+      $rule->confidence=$existingRule->confidence;
+      $rule->support=$existingRule->support;
+      $rule->lift=$existingRule->lift;
     }
     #endregion nalezení pravidla, ošetření jeho vztahu k rule setu
 
     #region naparsování XML zápisu pravidla
     try{
-      $ruleXml=$data=$this->getHttpRequest()->getRawBody();
+      $ruleXml=simplexml_load_string($data=$this->getHttpRequest()->getRawBody());
       if (!($ruleXml instanceof  \SimpleXMLElement)){
         throw new \Exception();
       }
@@ -158,11 +166,13 @@ class BrePresenter extends BasePresenter{
       throw new InvalidArgumentException('Rule XML cannot be parsed!');
     }
     $breRuleUnserializer=new BreRuleUnserializer($this->rulesFacade, $this->metasourcesFacade, $this->metaAttributesFacade);
-    $rule=$breRuleUnserializer->unserialize($ruleXml);
+    $rule=$breRuleUnserializer->unserialize($ruleXml,($rule instanceof Rule?$rule:null));
     #endregion naparsování XML zápisu pravidla
 
     #region kontrola výsledku a odeslání odpovědi
-    if (!$rule instanceof Rule){
+    if ($rule instanceof Rule){
+      $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleset,RuleSetRuleRelation::RELATION_POSITIVE);
+    }else{
       throw new \Exception('Rule was not saved.');
     }
     $breRuleSerializer=new BreRuleSerializer();

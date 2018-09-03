@@ -42,7 +42,48 @@ class BreRuleUnserializer{
       $antecedent=$this->saveCedent($xml->Antecedent);
     }
     $consequent=$this->saveCedent($xml->Consequent);
-    //TODO uložení pravidla
+
+    $confidence=floatval((string)@$xml->Rating[0]['confidence']);
+    $support=floatval((string)@$xml->Rating[0]['support']);
+
+    if ($existingRule instanceof Rule){
+      $rule=$existingRule;
+    }else{
+      $rule=new Rule();
+    }
+
+    #region určení měr zajímavosti
+    if ((round(((string)$rule->confidence)*1000000)!=round($confidence*1000000)) || (round(((string)$rule->support)*1000000)!=round($support*1000000))){
+      //musíme určit nové hodnoty měr zajímavosti, protože původní pravidlo buď nemá čtyřpolní tabulku, nebo došlo ke změně hodnot měr zajímavosti
+      $a=1000000;
+      $c=0;
+
+      $b=round(($a*(1-$confidence))/$confidence);
+      $d=round($a/$support-$a-$b);
+
+      $confidence=$a/($a+$b);
+      $support=$a/($a+$b+$c+$d);
+
+      $rule->a=$a;
+      $rule->b=$b;
+      $rule->c=$c;
+      $rule->d=$d;
+      $rule->confidence=$confidence;
+      $rule->support=$support;
+    }
+    #endregion určení měr zajímavosti
+
+    if (!empty($antecedent)){
+      $rule->antecedent=$antecedent;
+    }
+    $rule->consequent=$consequent;
+
+    //TODO textová reprezentace pravidla
+    $rule->text='DOPLNIT';
+
+    $rule->task=null;
+    $this->rulesFacade->saveRule($rule);
+    return $rule;
   }
 
   /**
@@ -65,7 +106,7 @@ class BreRuleUnserializer{
         try{
           $valuesBin=$this->metaAttributesFacade->findValuesBin($format,$valuesBinName);
         }catch (\Exception $e){/*prostě to není values bin*/}
-        if ($valuesBin instanceof ValuesBin){
+        if (!empty($valuesBin) && $valuesBin instanceof ValuesBin){
           $dataArr[]=$valuesBin;
         }else{
           try{
