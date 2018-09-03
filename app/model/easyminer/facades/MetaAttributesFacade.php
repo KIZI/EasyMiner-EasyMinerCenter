@@ -443,6 +443,22 @@ class MetaAttributesFacade {
   }
 
   /**
+   * @param Format|int $format
+   * @param string $valuesBinName
+   * @return ValuesBin
+   * @throws \Exception
+   */
+  public function findValuesBin($format,$valuesBinName){
+    if (!($format instanceof Format)){
+      $format=$this->formatsRepository->find($format);
+    }
+    return $this->valuesBinsRepository->findBy([
+      'format_id'=>$format->formatId,
+      'name'=>$valuesBinName
+    ]);
+  }
+
+  /**
    * Method for finding a Value from given Format, if it does not exist, creates a new one
    * @param Format|int $format
    * @param string $value

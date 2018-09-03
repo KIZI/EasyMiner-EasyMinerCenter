@@ -3,12 +3,14 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMiner\BRE\Integration as BREIntegration;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleSerializer;
-use Nette\Application\BadRequestException;
+use EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleUnserializer;
 use Nette\InvalidArgumentException;
 
 /**
@@ -27,6 +29,8 @@ class BrePresenter extends BasePresenter{
   private $ruleSetsFacade;
   /** @var RulesFacade $rulesFacade */
   private $rulesFacade;
+  /** @var MetaAttributesFacade $metaAttributesFacade */
+  private $metaAttributesFacade;
 
 
   /**
@@ -129,7 +133,6 @@ class BrePresenter extends BasePresenter{
    * @throws \Exception
    */
   public function actionSaveRule($ruleset,$rule,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
-    throw new BadRequestException();//FIXME
     #region nalezení pravidla, ošetření jeho vztahu k rule setu
     $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
@@ -147,22 +150,25 @@ class BrePresenter extends BasePresenter{
 
     #region naparsování XML zápisu pravidla
     try{
-      $ruleXml=simplexml_load_string($_POST['rule']);
+      $ruleXml=$data=$this->getHttpRequest()->getRawBody();
       if (!($ruleXml instanceof  \SimpleXMLElement)){
         throw new \Exception();
       }
     }catch (\Exception $e){
       throw new InvalidArgumentException('Rule XML cannot be parsed!');
     }
+    $breRuleUnserializer=new BreRuleUnserializer($this->rulesFacade, $this->metasourcesFacade, $this->metaAttributesFacade);
+    $rule=$breRuleUnserializer->unserialize($ruleXml);
     #endregion naparsování XML zápisu pravidla
 
-    #region kontrola, jestli jde o stávající, nebo nové pravidlo
-    //TODO
-    #endregion kontrola, jestli jde o stávající, nebo nové pravidlo
-    //TODO uložení pravidla
-
-    //odešleme stejnou odpověď, jako kdyby chtěl uživatel pravidlo jen načíst
-    $this->actionGetRule($ruleset->ruleSetId,$ruleId);
+    #region kontrola výsledku a odeslání odpovědi
+    if (!$rule instanceof Rule){
+      throw new \Exception('Rule was not saved.');
+    }
+    $breRuleSerializer=new BreRuleSerializer();
+    $breRuleSerializer->serializeRule($rule);
+    $this->sendXmlResponse($breRuleSerializer->getXml());
+    #endregion kontrola výsledku a odeslání odpovědi
   }
 
   /**
@@ -216,6 +222,12 @@ class BrePresenter extends BasePresenter{
    */
   public function injectRulesFacade(RulesFacade $rulesFacade){
     $this->rulesFacade=$rulesFacade;
+  }
+  /**
+   * @param MetaAttributesFacade $metaAttributesFacade
+   */
+  public function injectMetaAttributesFacade(MetaAttributesFacade $metaAttributesFacade){
+    $this->metaAttributesFacade=$metaAttributesFacade;
   }
   #endregion injections
 } 
