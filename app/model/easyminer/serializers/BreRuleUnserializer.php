@@ -78,8 +78,7 @@ class BreRuleUnserializer{
     }
     $rule->consequent=$consequent;
 
-    //TODO textová reprezentace pravidla
-    $rule->text='DOPLNIT';
+    $rule->text=RuleTextSerializer::serialize($rule);
 
     $rule->task=null;
     $this->rulesFacade->saveRule($rule);
@@ -115,6 +114,7 @@ class BreRuleUnserializer{
             //pokud hodnota neexistuje, tak ji vytvoříme
             $value=new Value();
             $value->format=$format;
+            $value->value=$valuesBinName;
             $this->metaAttributesFacade->saveValue($value);
           }
           $dataArr[]=$value;
@@ -191,6 +191,10 @@ class BreRuleUnserializer{
     #endregion vyřešení spojky
 
     if (!empty($cedentXml->Cedent)){
+      if (count($cedentXml->Cedent)==1 && count($cedentXml->RuleAttribute)==0 && $connective==Cedent::CONNECTIVE_CONJUNCTION){
+        //jde o zbytečný, prázdný cedent
+        return $this->saveCedent($cedentXml->Cedent[0]);
+      }
       foreach ($cedentXml->Cedent as $childCedentXml){
         $childCedents[]=$this->saveCedent($childCedentXml);
       }

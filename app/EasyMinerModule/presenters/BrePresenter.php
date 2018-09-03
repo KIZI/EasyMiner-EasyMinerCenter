@@ -137,7 +137,10 @@ class BrePresenter extends BasePresenter{
     #region nalezení pravidla, ošetření jeho vztahu k rule setu
     $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
-    $existingRule=$this->rulesFacade->findRule($rule);
+    try{
+      $existingRule=$this->rulesFacade->findRule($rule);
+    }catch (\Exception $e){/*pravidlo nebylo nalezeno*/}
+
     if (!empty($existingRule->task)){
       //pravidlo je součástí úlohy => odebereme ho z rule setu a vytvoříme pravidlo nové
       try{
@@ -153,6 +156,8 @@ class BrePresenter extends BasePresenter{
       $rule->confidence=$existingRule->confidence;
       $rule->support=$existingRule->support;
       $rule->lift=$existingRule->lift;
+    }elseif(!empty($existingRule)){
+      $rule=$existingRule;
     }
     #endregion nalezení pravidla, ošetření jeho vztahu k rule setu
 
