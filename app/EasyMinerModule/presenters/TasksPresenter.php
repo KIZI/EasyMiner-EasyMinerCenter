@@ -280,6 +280,39 @@ class TasksPresenter  extends BasePresenter{
   }
 
   /**
+   * Action for rendering of task rules in plaintext form
+   * @param int $id
+   * @param bool $inClipboard = false - if true, we want to export only rules selected to rule clipboard
+   * @throws \Exception
+   * @throws BadRequestException
+   * @throws ForbiddenRequestException
+   */
+  public function renderTaskRulesText($id,$inClipboard=false){
+    $task=$this->tasksFacade->findTask($id);
+    $miner=$task->miner;
+    $this->checkMinerAccess($miner);
+    $result='Task: '.$task->name."\nRules count: ".$task->rulesCount."\n";
+    if ($inClipboard){
+      $result.='Rules in Rule clipboard: '.$task->rulesInRuleClipboardCount."\n";
+    }
+    $result.="\n";
+    $rules=$task->rules;
+    if (!empty($rules)){
+      if ($inClipboard){
+        foreach ($rules as $rule){
+          if (!$rule->inRuleClipboard){continue;}
+          $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.']'."\n";
+        }
+      }else{
+        foreach ($rules as $rule){
+          $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.']'."\n";
+        }
+      }
+    }
+    $this->sendTextResponse($result);
+  }
+
+  /**
    * Action for rendering task details as HTML
    * @param int $id
    * @throws \Exception

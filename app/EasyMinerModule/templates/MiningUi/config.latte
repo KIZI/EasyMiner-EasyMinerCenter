@@ -53,15 +53,18 @@ var Config = new Class({
   ruleClipboardExportLinks: {l}
     guhaPmml:{l}text:"Task details (GUHA PMML)",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
     guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
+    text:{l}text:"Plain Text (only rules in Rule clipboard)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>true}{r},
   {r},
 
   discoveredRulesExportLinks: {l}
     guhaPmml:{l}text:"GUHA PMML",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
     guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
+    text:{l}text:"Plain Text",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__'}{r},
   {r},
 
   knowledgeBaseExportLinks: {l}
-    drl:{l}text:"Drools DRL",url:{plink RuleSets:drl id=>'__RULESETID__'}{r}
+    drl:{l}text:"Drools DRL",url:{plink RuleSets:drl id=>'__RULESETID__'}{r},
+    text:{l}text:"Plain Text",url:{plink RuleSets:text id=>'__RULESETID__'}{r}
   {r},
 
   knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),

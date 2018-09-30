@@ -46,6 +46,25 @@ class RuleSetsPresenter extends BasePresenter{
   }
 
   /**
+   * Action for serialization of Rules in the RuleSet in plaintext form
+   * @param int $id - id of the RuleSet
+   * @throws \Exception
+   * @throws \Nette\Application\BadRequestException
+   */
+  public function renderText($id){
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    $result='Rule set: '.$ruleSet->name."\nRules count: ".$ruleSet->rulesCount."\n\n";
+    $rules=$ruleSet->findRules();
+    if (!empty($rules)){
+      foreach ($rules as $rule){
+        $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.']'."\n";
+      }
+    }
+    $this->sendTextResponse($result);
+  }
+
+  /**
    * Action for list of existing RuleSets
    */
   public function actionList(){
