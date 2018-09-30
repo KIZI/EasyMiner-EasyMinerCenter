@@ -504,7 +504,7 @@ var DataUpload=function(){
      * @return {boolean}
      */
     Nette.validators.UniqueNamesValidator=function(elem, arg, value){
-      var namesArr=[];
+      var namesArr={};
       $('#'+elem.form.id+' input.columnName').each(function(){
         if (elem.id==$(this).attr('id')){return;}
         var name=$(this).val();
