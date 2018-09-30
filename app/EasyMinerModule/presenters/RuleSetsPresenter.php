@@ -42,6 +42,7 @@ class RuleSetsPresenter extends BasePresenter{
     //generate DRL and send it as text response
     $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($ruleSet->findRules());
     $xml=$associationRulesXmlSerializer->getXml();
+    //FIXME implementovat $this->sendXmlResponse($xml);return;
     $this->sendTextResponse($this->xmlTransformator->transformToDrl($xml));
   }
 

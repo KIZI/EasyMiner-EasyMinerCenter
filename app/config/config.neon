@@ -38,7 +38,7 @@ parameters:
                 contentOnly: true
                 reportLang: $lang
         DRL:
-            path: "associationRules2DRL/ar2drl.xslt"
+            path: "associationRules2DRL/ar2drl.xsl"
     miningDriverFactory:
         driver_lm:
             class: EasyMinerCenter\Model\Mining\LM\LMDriver
