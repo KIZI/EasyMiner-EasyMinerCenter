@@ -8,6 +8,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\PlainTextRuleSerializer;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\InvalidArgumentException;
 
@@ -54,14 +55,10 @@ class RuleSetsPresenter extends BasePresenter{
    */
   public function renderText($id){
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
-    $result='Rule set: '.$ruleSet->name."\nRules count: ".$ruleSet->rulesCount."\n\n";
-    $rules=$ruleSet->findRules();
-    if (!empty($rules)){
-      foreach ($rules as $rule){
-        $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.']'."\n";
-      }
-    }
+    $user=$this->usersFacade->findUser($this->user->id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$user);
+    //serialize result and send it
+    $result=PlainTextRuleSerializer::serialize($ruleSet->findRules(),$user,$ruleSet);
     $this->sendTextResponse($result);
   }
 

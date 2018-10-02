@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\GuhaPmmlSerializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\PlainTextRuleSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
 use Nette\Application\BadRequestException;
@@ -291,24 +292,27 @@ class TasksPresenter  extends BasePresenter{
     $task=$this->tasksFacade->findTask($id);
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
-    $result='Task: '.$task->name."\nRules count: ".$task->rulesCount."\n";
+    $user=$this->usersFacade->findUser($this->user->id);
+
+    $rules=[];
     if ($inClipboard){
-      $result.='Rules in Rule clipboard: '.$task->rulesInRuleClipboardCount."\n";
-    }
-    $result.="\n";
-    $rules=$task->rules;
-    if (!empty($rules)){
-      if ($inClipboard){
-        foreach ($rules as $rule){
-          if (!$rule->inRuleClipboard){continue;}
-          $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.']'."\n";
-        }
-      }else{
-        foreach ($rules as $rule){
-          $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.']'."\n";
+      //we want to export only rules from rule clipboard
+      $taskRules=$task->rules;
+      if (!empty($taskRules)){
+        foreach ($taskRules as $taskRule){
+          if ($taskRule->inRuleClipboard){
+            $rules[]=$taskRule;
+          }
         }
       }
+      $modeText='rule clipboard';
+    }else{
+      //we want to export all task rules
+      $rules=$task->rules;
+      $modeText='all task rules';
     }
+
+    $result=PlainTextRuleSerializer::serialize($rules,$user,$task,$modeText);
     $this->sendTextResponse($result);
   }
 

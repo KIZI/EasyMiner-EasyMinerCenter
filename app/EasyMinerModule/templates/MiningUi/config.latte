@@ -53,7 +53,8 @@ var Config = new Class({
   ruleClipboardExportLinks: {l}
     guhaPmml:{l}text:"Task details (GUHA PMML)",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
     guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
-    text:{l}text:"Plain Text (only rules in Rule clipboard)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>true}{r},
+    textClipboard:{l}text:"Plain Text (only rules in Rule clipboard)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>true}{r},
+    text:{l}text:"Plain Text (all task rules)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>false}{r},
   {r},
 
   discoveredRulesExportLinks: {l}
