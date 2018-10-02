@@ -1,0 +1,22 @@
+{**
+ * Template for RuleSetsPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block title}{_'Select datasource for scorer'}{/block}
+
+{block content}
+
+  <h2>{_'Test model'}</h2>
+  <div class="actionsDiv bigButtons">
+    <h3>{_'Select datasource for testing'}</h3>
+    {foreach $datasources as $datasource}
+      <a href="{link RuleSets:scorer id=>$ruleSet->ruleSetId,datasource=>$datasource->datasourceId}">
+        {$datasource->type}: {$datasource->getName()}
+      </a>
+    {/foreach}
+  </div>
+
+{/block}
+
+

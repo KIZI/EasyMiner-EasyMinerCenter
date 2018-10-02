@@ -4,12 +4,15 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
+use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\PlainTextRuleSerializer;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
+use EasyMinerCenter\Model\Scoring\ScorerDriverFactory;
+use Nette\Application\BadRequestException;
 use Nette\InvalidArgumentException;
 
 /**
@@ -20,15 +23,18 @@ use Nette\InvalidArgumentException;
  */
 class RuleSetsPresenter extends BasePresenter{
   use ResponsesTrait;
+  use UsersTrait;
 
+  /** @var DatasourcesFacade $datasourcesFacade */
+  private $datasourcesFacade;
   /** @var  RulesFacade $rulesFacade */
   private $rulesFacade;
   /** @var  RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
-  /** @var  UsersFacade $usersFacade */
-  private $usersFacade;
   /** @var  XmlTransformator $xmlTransformator */
   private $xmlTransformator;
+  /** @var ScorerDriverFactory $scorerDriverFactory */
+  private $scorerDriverFactory;
 
 
   /**
@@ -55,7 +61,7 @@ class RuleSetsPresenter extends BasePresenter{
    */
   public function renderText($id){
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
-    $user=$this->usersFacade->findUser($this->user->id);
+    $user=$this->getCurrentUser();
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$user);
     //serialize result and send it
     $result=PlainTextRuleSerializer::serialize($ruleSet->findRules(),$user,$ruleSet);
@@ -282,7 +288,68 @@ class RuleSetsPresenter extends BasePresenter{
 
   #endregion actions for manipulation of relations between Rules and RuleSets
 
+  /**
+   * Action for selection of datasource for model tester
+   * @param int $id - ruleset id
+   * @param string $scorer = ''
+   * @throws \Nette\Application\BadRequestException
+   */
+  public function renderScorerSelectDatasource($id, $scorer=''){
+    try{
+      $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+    $currentUser=$this->getCurrentUser();
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$currentUser);
+
+    $this->layout='iframe';
+    $this->template->layout='iframe';
+    $this->template->scorer=$scorer;
+    $this->template->ruleSet=$ruleSet;
+    $this->template->datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser, true);
+  }
+
+  /**
+   * @param int $id
+   * @param null $datasource =null
+   * @param string $scorer = ''
+   * @throws \Nette\Application\AbortException
+   * @throws BadRequestException
+   */
+  public function renderScorer($id, $datasource=null, $scorer=''){
+    #region find ruleset and datasource
+    if (!($datasource)){
+      $this->forward('scorerSelectDatasource',['id'=>$id,'scorer'=>$scorer]);
+    }
+    $currentUser=$this->getCurrentUser();
+    try{
+      $datasource=$this->datasourcesFacade->findDatasource($datasource);
+    }catch (\Exception $e){
+      $this->forward('scorerSelectDatasource',['id'=>$id,'scorer'=>$scorer]);
+    }
+    $this->datasourcesFacade->checkDatasourceAccess($datasource,$currentUser);
+    try{
+      $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$currentUser);
+    #endregion find ruleset and datasource
+    $this->layout='iframe';
+    $this->template->layout='iframe';
+    $this->template->ruleSet=$ruleSet;
+    //run scorer and show results
+    //TODO
+  }
+
   #region injections
+  /**
+   * @param DatasourcesFacade $datasourcesFacade
+   */
+  public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
+    $this->datasourcesFacade=$datasourcesFacade;
+  }
   /**
    * @param RulesFacade $rulesFacade
    */
@@ -296,18 +363,18 @@ class RuleSetsPresenter extends BasePresenter{
     $this->ruleSetsFacade=$ruleSetsFacade;
   }
   /**
-   * @param UsersFacade $usersFacade
-   */
-  public function injectUsersFacade(UsersFacade $usersFacade){
-    $this->usersFacade=$usersFacade;
-  }
-  /**
    * @param XmlTransformator $xmlTransformator
    */
   public function injectXmlTransformator(XmlTransformator $xmlTransformator){
     $this->xmlTransformator=$xmlTransformator;
     //nastaven basePath
     $this->xmlTransformator->setBasePath($this->template->basePath);
+  }
+  /**
+   * @param ScorerDriverFactory $scorerDriverFactory
+   */
+  public function injectScorerDriverFactory(ScorerDriverFactory $scorerDriverFactory){
+    $this->scorerDriverFactory=$scorerDriverFactory;
   }
   #endregion injections
 }

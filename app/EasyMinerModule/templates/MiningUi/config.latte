@@ -24,7 +24,6 @@ var Config = new Class({
   userLoginUrl: {plink User:login},
   userInfoUrl:  {plink User:info},
 
-
   getDataUrl: {plink MiningUi:getData miner=>'__MINERID__'},
   showAttributeHistogramUrl: {plink Attributes:attributeHistogram miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
   showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
@@ -36,6 +35,8 @@ var Config = new Class({
   stopMiningUrl: {plink Tasks:stopMining miner=>'__MINERID__',id=>'__TASKID__'},
   taskRenameUrl: {plink Tasks:renameTask miner=>'__MINERID__',id=>'__TASKID__',name=>'__NAME__'},
   taskRulesOrderUrl: {plink Tasks:rulesOrder miner=>'__MINERID__',id=>'__TASKID__',rulesOrder=>'__ORDER__'},
+
+  taskModelTesterUrl: "",{*TODO implementovat model tester*}
 
   minerGetConfigParamUrl: {plink Miners:getConfig miner=>'__MINERID__',property=>'__PROPERTY__'},
   minerSetConfigParamUrl: {plink Miners:setConfig miner=>'__MINERID__',property=>'__PROPERTY__',value=>'__VALUE__'},
@@ -82,6 +83,7 @@ var Config = new Class({
   knowledgeBaseSetMinerRuleSetUrl: {plink Miners:setRuleSet miner=>'__MINERID__', ruleSet=>'__RULESETID__'},
 
   knowledgeBaseRuleEditorUrl: {plink Bre:default miner=>'__MINERID__',ruleset=>'__RULESETID__'},
+  knowledgeBaseModelTesterUrl: {plink RuleSets:scorer id=>'__RULESETID__'},
 
   showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',id=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},
   showTaskDetailsUrl: {plink Tasks:taskDetails id=>'__TASKID__'},
@@ -260,7 +262,16 @@ var Config = new Class({
     return this.ruleClipboardRemoveFromKnowledgeBaseUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId);
   },
 
+  getKnowledgeBaseModelTesterUrl: function(rulesetId){
+    return this.knowledgeBaseModelTesterUrl.replace('__RULESETID__',rulesetId);
+  },
+
   //endregion knowledgeBase
+
+  getTaskModelTesterUrl: function (taskId, ruleId) {
+    //jako parametr je možné zadat i více ID oddělených čárkou
+    return this.taskModelTesterUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
+  },
 
   //region minerConfig
   getMinerGetConfigParamUrl: function (property) {
