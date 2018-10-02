@@ -3,8 +3,10 @@ namespace EasyMinerCenter\Model\Scoring\ModelTester;
 
 use EasyMinerCenter\Model\Data\Databases\DatabaseFactory;
 use EasyMinerCenter\Model\EasyMiner\Entities\Datasource;
+use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Entities\User;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\CsvSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
@@ -44,21 +46,19 @@ class ModelTesterScorer implements IScorerDriver{
   }
 
   /**
-   * Method for evaluation of a given Task with association rules, testing using the given Datasource
-   * @param Task $task
+   * Method for evaluation of rules from task or ruleset
+   * @param Rule[] $rules
+   * @param string $tempXmlFilename
    * @param Datasource $testingDatasource
    * @return ScoringResult
+   * @throws \Exception
    */
-  public function evaluateTask(Task $task, Datasource $testingDatasource) {
-    $rulesXmlFileName=$task->taskId.'.xml';
-    /** @var string $rulesXmlFilePath - cesta souboru s pravidly v XML */
-    $rulesXmlFilePath=@$this->params['tempDirectory'].'/'.$rulesXmlFileName;
-
-    $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($task->rules);
+  private function evaluateRules($rules, $tempXmlFilename, Datasource $testingDatasource, User $user){
+    $associationRulesXmlSerializer=new AssociationRulesXmlSerializer($rules);
     $rulesXml=$associationRulesXmlSerializer->getXml()->asXML();
-    file_put_contents($rulesXmlFilePath,$rulesXml);
+    file_put_contents($this->getTempFilePath($tempXmlFilename),$rulesXml);
 
-    $database=$this->databaseFactory->getDatabaseInstance($testingDatasource->getDbConnection(),$task->miner->user);
+    $database=$this->databaseFactory->getDatabaseInstance($testingDatasource->getDbConnection(),$user);
     $dbDatasource=$database->getDbDatasource($testingDatasource->dbDatasourceId>0?$testingDatasource->dbDatasourceId:$testingDatasource->dbTable);
 
     $dbRowsCount=$dbDatasource->size;
@@ -74,17 +74,17 @@ class ModelTesterScorer implements IScorerDriver{
       $csvFilePath=@$this->params['tempDirectory'].'/'.$csvFileName;
 
       file_put_contents($csvFilePath,$csv);
-      $url=$this->serverUrl.'?rulesXml='.$this->getTempFileUrl($rulesXmlFileName).'&dataCsv='.$this->getTempFileUrl($csvFileName);
+      $url=$this->serverUrl.'?rulesXml='.$this->getTempFileUrl($tempXmlFilename).'&dataCsv='.$this->getTempFileUrl($csvFileName);
 
       //try{
-        $response=self::curlRequestResponse($url);
-        $xml=simplexml_load_string($response);
-        $partialResult=new ScoringResult();
-        $partialResult->truePositive=(string)$xml->truePositive;
-        $partialResult->falsePositive=(string)$xml->falsePositive;
-        $partialResult->rowsCount=(string)$xml->rowsCount;
-        $partialResults[]=$partialResult;
-        unset($xml);
+      $response=self::curlRequestResponse($url);
+      $xml=simplexml_load_string($response);
+      $partialResult=new ScoringResult();
+      $partialResult->truePositive=(string)$xml->truePositive;
+      $partialResult->falsePositive=(string)$xml->falsePositive;
+      $partialResult->rowsCount=(string)$xml->rowsCount;
+      $partialResults[]=$partialResult;
+      unset($xml);
       //}catch (\Exception $e){
       //  /*ignore error...*/
       //}
@@ -96,16 +96,14 @@ class ModelTesterScorer implements IScorerDriver{
   }
 
   /**
-   * Private method returning URL of application for building of links to download test data
-   * @return string
+   * Method for evaluation of a given Task with association rules, testing using the given Datasource
+   * @param Task $task
+   * @param Datasource $testingDatasource
+   * @return ScoringResult
    */
-  private function getTempFileUrl($filename) {
-    //FIXME HACK!
-    $requestUri=substr($_SERVER['SCRIPT_NAME'],0,strrpos($_SERVER['SCRIPT_NAME'],'/www'));
-    $requestUri='http://'.$_SERVER['HTTP_HOST'].$requestUri;
-    return $requestUri.'/temp/'.$filename;
+  public function evaluateTask(Task $task, Datasource $testingDatasource){
+    return $this->evaluateRules($task->rules,'task'.$task->taskId.'.xml',$testingDatasource,$task->miner->user);
   }
-
 
   /**
    * Method for evaluation of a given RuleSet with association rules, testing using the given Datasource
@@ -113,9 +111,29 @@ class ModelTesterScorer implements IScorerDriver{
    * @param Datasource $testingDatasource
    * @return ScoringResult
    */
-  public function evaluateRuleSet(RuleSet $ruleSet, Datasource $testingDatasource) {
-    // TODO: Implement evaluateRuleSet() method.
-    throw new NotImplementedException();
+  public function evaluateRuleSet(RuleSet $ruleSet, Datasource $testingDatasource){
+    return $this->evaluateRules($ruleSet->findRules(),'ruleset'.$ruleSet->ruleSetId.'.xml',$testingDatasource,$ruleSet->user);
+  }
+
+  /**
+   * Private method returning URL of application for building of links to download test data
+   * @return string
+   */
+  private function getTempFileUrl($filename) {
+    //FIXME HACK!
+    $requestUri=substr($_SERVER['SCRIPT_NAME'],0,strrpos($_SERVER['SCRIPT_NAME'],'/www'));
+    $requestUri='https://'.$_SERVER['HTTP_HOST'].$requestUri;
+    return $requestUri.'/temp/'.$filename;
+  }
+
+  /**
+   * Private metho returning path of the temp file
+   * @param $filename
+   * @return string
+   */
+  private function getTempFilePath($filename){
+    //TODO
+    return @$this->params['tempDirectory'].'/'.$filename;
   }
 
   /**

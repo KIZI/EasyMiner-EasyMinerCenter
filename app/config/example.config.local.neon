@@ -21,7 +21,7 @@ parameters:
 
     scorerDriverFactory:
         driver_modelTester:
-            server: "http://br-dev.lmcloud.vse.cz:8080/DroolsModelTester_web/rest/"
+            server: "https://br-dev.lmcloud.vse.cz:8181/DroolsModelTester_web/rest/"
             tempDirectory: "/var/www/easyminercenter/www/temp"
         driver_easyMinerScorer:
             server: "http://xtest.lmcloud.vse.cz:9980/easyminer-scorer/latest/"
