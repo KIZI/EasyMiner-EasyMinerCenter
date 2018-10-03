@@ -122,7 +122,7 @@ class EvaluationPresenter extends BaseResourcePresenter {
       $result['task']=$task->getDataArr(false);
     }elseif(!empty($inputData['ruleSet'])){
       $ruleSet=$this->ruleSetsFacade->findRuleSet($inputData['ruleSet']);
-      //TODO kontrola oprávnění k rule setu
+      $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->getCurrentUser());
       $result=$scorerDriver->evaluateRuleSet($ruleSet,$datasource)->getDataArr();
       $result['ruleSet']=$ruleSet->getDataArr();
     }else{

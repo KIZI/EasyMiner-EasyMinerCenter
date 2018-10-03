@@ -1790,6 +1790,77 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #histogramPage .links {
   float: right;
 }
+#ruleSetsScorer table.infoTable th {
+  text-align: left;
+  min-width: 150px;
+}
+#ruleSetsScorer table.infoTable td {
+  font-weight: bold;
+}
+#ruleSetsScorer table.infoTable th,
+#ruleSetsScorer table.infoTable td {
+  padding: 5px 8px;
+}
+#ruleSetsScorer .container {
+  position: relative;
+}
+#ruleSetsScorer table#resultsTable {
+  float: left;
+  background: #fff;
+  color: #434343;
+  border-spacing: 0;
+  margin: 20px 0;
+}
+#ruleSetsScorer table#resultsTable tr:first-child th {
+  border-top: 1px solid #075783;
+}
+#ruleSetsScorer table#resultsTable th {
+  padding: 5px 8px;
+  background: #075783;
+  color: #fff;
+  text-align: left;
+  border: 1px solid #075783;
+  border-left: none;
+  border-top: none;
+}
+#ruleSetsScorer table#resultsTable th:first-child {
+  border: 1px solid #075783;
+}
+#ruleSetsScorer table#resultsTable th.empty {
+  background: #fff;
+}
+#ruleSetsScorer table#resultsTable th.empty:first-child {
+  border-left: none;
+  border-top: none;
+}
+#ruleSetsScorer table#resultsTable td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-top: none;
+}
+#ruleSetsScorer table#resultsTable td:first-child {
+  border-left: 1px solid #ebebeb;
+}
+#ruleSetsScorer table#resultsTable tr:nth-child(even) {
+  background: #fcfbff;
+}
+#ruleSetsScorer table#resultsTable th {
+  min-width: 150px;
+}
+#ruleSetsScorer table#resultsTable tr:first-child td.value {
+  border-top: 1px solid #ebebeb;
+}
+#ruleSetsScorer table#resultsTable td.value {
+  padding-left: 20px;
+  text-align: right;
+}
+#ruleSetsScorer #resultsChartBlock {
+  float: right;
+  width: 300px;
+  height: 250px;
+}
 div#homePage #slogan {
   opacity: 0.8;
   margin: 10px;

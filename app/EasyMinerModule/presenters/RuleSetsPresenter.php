@@ -11,6 +11,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\UsersFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\PlainTextRuleSerializer;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
+use EasyMinerCenter\Model\Scoring\IScorerDriver;
 use EasyMinerCenter\Model\Scoring\ScorerDriverFactory;
 use Nette\Application\BadRequestException;
 use Nette\InvalidArgumentException;
@@ -336,11 +337,19 @@ class RuleSetsPresenter extends BasePresenter{
     }
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$currentUser);
     #endregion find ruleset and datasource
+    //run scorer and show results
+    /** @var IScorerDriver $scorerDriver */
+    if (empty($inputData['scorer'])){
+      $scorerDriver=$this->scorerDriverFactory->getDefaultScorerInstance();
+    }else{
+      $scorerDriver=$this->scorerDriverFactory->getScorerInstance($scorer);
+    }
+
     $this->layout='iframe';
     $this->template->layout='iframe';
     $this->template->ruleSet=$ruleSet;
-    //run scorer and show results
-    //TODO
+    $this->template->datasource=$datasource;
+    $this->template->scoringResult=$scorerDriver->evaluateRuleSet($ruleSet,$datasource);
   }
 
   #region injections

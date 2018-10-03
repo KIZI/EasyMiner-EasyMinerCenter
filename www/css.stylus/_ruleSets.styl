@@ -1,0 +1,31 @@
+#ruleSetsScorer
+  table.infoTable
+    infoTable()
+    th
+      text-align left
+      min-width 150px
+    td
+      font-weight bold
+    th
+    td
+      padding tableTdPadding
+
+  .container
+    position relative
+
+  table#resultsTable
+    float left
+    listTable()
+    th
+      min-width 150px
+    tr:first-child
+      td.value
+        border-top 1px solid tableTdBorderColor
+    td.value
+      padding-left 20px
+      text-align right
+
+  #resultsChartBlock
+    float right
+    width 300px
+    height 250px

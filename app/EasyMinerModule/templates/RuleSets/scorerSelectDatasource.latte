@@ -7,11 +7,12 @@
 
 {block content}
 
-  <h2>{_'Test model'}</h2>
+  <h2>{_'Test classification model'}</h2>
+
   <div class="actionsDiv bigButtons">
     <h3>{_'Select datasource for testing'}</h3>
     {foreach $datasources as $datasource}
-      <a href="{link RuleSets:scorer id=>$ruleSet->ruleSetId,datasource=>$datasource->datasourceId}">
+      <a href="{link RuleSets:scorer id=>$ruleSet->ruleSetId,datasource=>$datasource->datasourceId}" class="slowLoading">
         {$datasource->type}: {$datasource->getName()}
       </a>
     {/foreach}

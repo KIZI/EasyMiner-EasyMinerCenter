@@ -1,0 +1,68 @@
+{**
+ * Template for RuleSetsPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block scripts}
+  {include parent}
+  <script type="text/javascript" src="{$basePath}/js/Chart.js/Chart.min.js"></script>
+  <script type="text/javascript" src="{$basePath}/js/EasyMiner/RuleSets/scorerChart.js"></script>
+{/block}
+{block title}{_'Classification model evaluation'}{/block}
+{block content}
+<div id="ruleSetsScorer">
+  <h2>{_'Classification model evaluation'}</h2>
+
+  <table class="infoTable">
+    <tr>
+      <th>{_'Rule set:'}</th>
+      <td>{$ruleSet->name}</td>
+    </tr>
+    <tr>
+      <th>{_'Rules count:'}</th>
+      <td>{$ruleSet->rulesCount}</td>
+    </tr>
+    <tr>
+      <th>{_'Datasource:'}</th>
+      <td>{$datasource->name}</td>
+    </tr>
+  </table>
+
+  <div class="container">
+    <table id="resultsTable">
+      <tr>
+        <th>{_'True positive'}</th>
+        <td class="value"><strong>{$scoringResult->truePositive}</strong></td>
+        <td class="value">{round($scoringResult->truePositive*100/$scoringResult->rowsCount,1)} %</td>
+      </tr>
+      <tr>
+        <th>{_'False positive'}</th>
+        <td class="value"><strong>{$scoringResult->falsePositive}</strong></td>
+        <td class="value">{round($scoringResult->falsePositive*100/$scoringResult->rowsCount,1)} %</td>
+      </tr>
+      <tr>
+        <th>{_'Unclassified'}</th>
+        <td class="value"><strong>{$scoringResult->rowsCount-$scoringResult->truePositive-$scoringResult->falsePositive}</strong></td>
+        <td class="value">{round(($scoringResult->rowsCount-$scoringResult->truePositive-$scoringResult->falsePositive)*100/$scoringResult->rowsCount,1)} %</td>
+      </tr>
+    </table>
+
+    <div id="resultsChartBlock"></div>
+  </div>
+
+  <script type="text/javascript">
+    var labels=[ {_'True positive'}, {_'False positive'}, {_'Unclassified'} ];
+    var dataColors=['#009E00', '#F5690B', '#d0d0d0'];
+    var data=[ {$scoringResult->truePositive}, {$scoringResult->falsePositive}, {$scoringResult->rowsCount-$scoringResult->truePositive-$scoringResult->falsePositive} ];
+
+    (function($){
+      $(document).ready(function(){
+        drawPieChart($('#resultsChartBlock'), labels, data, dataColors);
+      });
+    })(jQuery);
+
+  </script>
+</div>
+{/block}
+
+
