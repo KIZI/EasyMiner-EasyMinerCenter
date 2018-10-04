@@ -48,10 +48,27 @@ class DbValuesRows{
 
   /**
    * Function returning data from individual DB rows
+   * @param bool $includeEmptyFields = false
    * @return array
    */
-  public function getValuesRows(){
-    return $this->valuesRows;
+  public function getValuesRows($includeEmptyFields=false){
+    if (!$includeEmptyFields){
+      return $this->valuesRows;
+    }else{
+      $result=[];
+      if (!empty($this->valuesRows)){
+        foreach ($this->valuesRows as $valuesRowId=>$valuesRow){
+          $rowResult=[];
+          if (!empty($this->dbFields)){
+            foreach ($this->dbFields as $dbField){
+              $rowResult[$dbField->id]=(!empty($valuesRow[$dbField->id])?$valuesRow[$dbField->id]:'');
+            }
+          }
+          $result[$valuesRowId]=$rowResult;
+        }
+      }
+      return $result;
+    }
   }
 
   /**

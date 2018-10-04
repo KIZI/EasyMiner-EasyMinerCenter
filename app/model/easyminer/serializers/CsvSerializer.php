@@ -49,7 +49,7 @@ class CsvSerializer{
         fputcsv($fd, $dbRows->getFieldNames(), $delimiter, $enclosure);
         $firstRequest=false;
       }
-      $valuesRows=$dbRows->getValuesRows();
+      $valuesRows=$dbRows->getValuesRows(true);
       if (!empty($valuesRows)){
         foreach($valuesRows as $valuesRow){
           fputcsv($fd, $valuesRow, $delimiter, $enclosure);
