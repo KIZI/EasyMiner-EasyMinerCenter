@@ -48,10 +48,6 @@ class AssociationRulesXmlSerializer {
   }
 
   private function serializeRule(Rule $rule){
-    if (empty($rule->antecedent)){
-      //FIXME remove!!! jen dočasné opatření...
-      return;
-    }
     $ruleXml=$this->xml->addChild('AssociationRule');
     $ruleXml->addAttribute('id',$rule->ruleId);
     if (!empty($rule->antecedent)){
