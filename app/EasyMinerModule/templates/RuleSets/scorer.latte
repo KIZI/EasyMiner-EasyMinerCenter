@@ -51,7 +51,7 @@
   </div>
 
   <script type="text/javascript">
-    var labels=[ {_'True positive'}, {_'False positive'}, {_'Unclassified'} ];
+    var labels=[ {_'Correctly classified'}, {_'Incorrectly classified'}, {_'Unclassified'} ];
     var dataColors=['#009E00', '#F5690B', '#d0d0d0'];
     var data=[ {$scoringResult->truePositive}, {$scoringResult->falsePositive}, {$scoringResult->rowsCount-$scoringResult->truePositive-$scoringResult->falsePositive} ];
 
