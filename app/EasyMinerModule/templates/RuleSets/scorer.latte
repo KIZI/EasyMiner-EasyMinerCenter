@@ -31,12 +31,12 @@
   <div class="container">
     <table id="resultsTable">
       <tr>
-        <th>{_'True positive'}</th>
+        <th title="{_'True positive'}">{_'Correctly classified'}</th>
         <td class="value"><strong>{$scoringResult->truePositive}</strong></td>
         <td class="value">{round($scoringResult->truePositive*100/$scoringResult->rowsCount,1)} %</td>
       </tr>
       <tr>
-        <th>{_'False positive'}</th>
+        <th title="{_'False positive'}">{_'Incorrectly classified'}</th>
         <td class="value"><strong>{$scoringResult->falsePositive}</strong></td>
         <td class="value">{round($scoringResult->falsePositive*100/$scoringResult->rowsCount,1)} %</td>
       </tr>
