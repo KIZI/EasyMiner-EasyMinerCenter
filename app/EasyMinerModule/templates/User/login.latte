@@ -27,7 +27,7 @@
 
     <div class="otherLogins" n:if="(@$allowFacebook || @$allowGoogle)">
       {if @$allowFacebook}
-        <a n:href="facebookLogin-open!" class="facebookLogin button">{_'Log in using Facebook...'}</a>
+        <a n:href="facebookLogin-open! backlink=>''" class="facebookLogin button">{_'Log in using Facebook...'}</a>
       {/if}
       {if @$allowGoogle}
         <a n:href="googleLogin-open!" class="googleLogin button">{_'Log in using Google...'}</a>
