@@ -20,6 +20,8 @@ headerLink()
   &.disabled
     opacity 0.4
     cursor not-allowed
+  +tablet_l()
+    flexbox(flex)
 
 headerAppsLink()
   display block
@@ -50,9 +52,15 @@ body > header
   min-width 100%
   font-family fontFamily
   font-size baseFontSize
+  +tablet_l()
+    flexbox(flex)
+    flex-direction(row)
+    min-height 100px
   div.content
     height 100px
     centerMainContent()
+    +tablet_l()
+      width 100%
     h1
       color #fff
       font-family "Times New Roman", Times, serif
