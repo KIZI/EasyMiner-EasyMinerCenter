@@ -42,11 +42,14 @@ body
     min-width 0.3 * minContentWidth2
 
   > main
-    // centerMainContent()
+    centerMainContent()
     +tablet_l()
       flexbox(flex)
       flex-direction(row)
       height 100%
+      width initial
+      margin 0
+      position initial
       
     margin-bottom footerHeight+ 10px
     padding 0
