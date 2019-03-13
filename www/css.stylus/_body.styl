@@ -23,6 +23,7 @@ html
     display none
   +tablet_l()
     position initial
+    flexbox(flex)
 
 body
   background bodyBackgroundColor url("../images/bg-body.jpg") center repeat
@@ -35,7 +36,8 @@ body
   +tablet_l()
     flexbox(flex)
     flex-direction(column)
-    height 100vh
+    flex-justify(center)
+    width 100%
 
   &.iframe
     background iframeBodyBackgroundColor
@@ -45,9 +47,10 @@ body
     centerMainContent()
     +tablet_l()
       flexbox(flex)
-      flex-direction(row)
+      flex-direction(column)
+      flex-justify(center)
       height 100%
-      width initial
+      width 100%
       margin 0
       position initial
       
