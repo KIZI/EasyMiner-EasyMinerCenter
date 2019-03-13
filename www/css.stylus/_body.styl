@@ -21,6 +21,8 @@ html
   position relative
   &.js .jshidden
     display none
+  +tablet_l()
+    position initial
 
 body
   background bodyBackgroundColor url("../images/bg-body.jpg") center repeat
@@ -29,14 +31,23 @@ body
   overflow-y scroll
   margin 0
   padding 0
-  min-width minContentWidth2
+  // min-width minContentWidth2
+  +tablet_l()
+    flexbox(flex)
+    flex-direction(column)
+    height 100vh
 
   &.iframe
     background iframeBodyBackgroundColor
     min-width 0.3 * minContentWidth2
 
   > main
-    centerMainContent()
+    // centerMainContent()
+    +tablet_l()
+      flexbox(flex)
+      flex-direction(row)
+      height 100%
+      
     margin-bottom footerHeight+ 10px
     padding 0
     &#IZIMiner

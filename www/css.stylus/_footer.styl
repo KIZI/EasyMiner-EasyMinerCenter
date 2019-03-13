@@ -15,6 +15,10 @@ body > footer
   position absolute
   left 0
   bottom 0
+  +tablet_l()
+    flexbox(flex)
+    position initial
+    min-width initial
 
   div.content
     height footerContentHeight
@@ -22,16 +26,36 @@ body > footer
     centerMainContent()
     font-size footerFontSize
     text-align left
+    +tablet_l()
+      flexbox(flex)
+      flex-align(center)
+      flex-direction(row)
+      flex-justify(space-between)
+      width 100%
+      height 100%
+      padding 0
+      position initial
 
     .disclaimer
-      padding-left 20px
+      padding 10px 0 10px 10px
+      height footerContentHeight
       float left
+      +tablet_l()
+        flexbox(flex)
+        float none
+        height auto
+        padding 7px 0 7px 10px
 
     .copyright
       padding-right 20px
       float right
+      +tablet_l()
+        flexbox(flex)
+        float none
 
     a
+      // flexbox(flex)
+      padding-right 0.3em
       font-size footerFontSize
       color footerFontColor
       &:hover
