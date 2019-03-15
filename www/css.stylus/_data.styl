@@ -4,6 +4,48 @@ uploadConfigSelectWidth=200px
 
 #uploadFormBlock
   mainBlock()
+  +tablet_l()
+    flexbox(flex)
+    flex-direction(column)
+    flex-align(start)
+    margin 0
+    width 450px
+    > form
+      tr 
+        flexbox(flex)
+        flex-direction(row)
+        margin 5px
+        margin-left 0
+      tr:nth-child(2)
+        th
+          label 
+            flex-align(start)
+            margin-top 11px
+      tr:last-child
+        td 
+          flexbox(flex)
+          flex-direction(row)
+          input
+            flexbox(flex)
+            width initial
+            &[name="_submit"]
+              margin-right 10px
+      th,td
+        flexbox(flex)
+        min-width 110px
+        margin-right 5px
+        label 
+          flexbox(flex)
+          flex-align(center)
+          width 100%
+          padding 0
+      td 
+        flex-direction(column)
+        width 100%
+
+      input,select 
+        width 100%
+
 
 #uploadConfigBlock
   flexbox(flex)
@@ -16,19 +58,27 @@ uploadConfigSelectWidth=200px
     background white
     flex(null,0,0)
     normalizeInputWidth(0.7*normalInputWidth)
+    +tablet_l()
+      margin-left 10px
 
   #uploadConfigPreviewBlock
     flex(null,1,1)
     block()
+    +tablet_l()
+      margin-left 10px
 
     > table
       listTable()
       margin 0
+      +tablet_l()
+        width 100%
 
 
 
 #uploadColumnsBlock
   block()
+  +tablet_l()
+    margin-left 10px
   #uploadColumnsListBlock > table
     listTable()
     width 100%

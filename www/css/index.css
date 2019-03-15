@@ -446,6 +446,27 @@ body > main #mainBlock > h1,
 body > main #mainBlock > h2 {
   margin-top: 0;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body > main #mainBlock {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    margin: 0;
+    width: initial;
+  }
+  body > main #mainBlock #frm-newMinerForm tr {
+    margin: 5px;
+  }
+}
 body #ajax-spinner {
   margin: 15px 0 0 15px;
   padding: 13px;
@@ -1729,6 +1750,117 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadFormBlock > h2 {
   margin-top: 0;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #uploadFormBlock {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: start;
+    -moz-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    margin: 0;
+    width: 450px;
+  }
+  #uploadFormBlock > form tr {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    margin: 5px;
+    margin-left: 0;
+  }
+  #uploadFormBlock > form tr:nth-child(2) th label {
+    -webkit-box-align: start;
+    -moz-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    margin-top: 11px;
+  }
+  #uploadFormBlock > form tr:last-child td {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+  }
+  #uploadFormBlock > form tr:last-child td input {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    width: initial;
+  }
+  #uploadFormBlock > form tr:last-child td input[name="_submit"] {
+    margin-right: 10px;
+  }
+  #uploadFormBlock > form th,
+  #uploadFormBlock > form td {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    min-width: 110px;
+    margin-right: 5px;
+  }
+  #uploadFormBlock > form th label,
+  #uploadFormBlock > form td label {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+  }
+  #uploadFormBlock > form td {
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    width: 100%;
+  }
+  #uploadFormBlock > form input,
+  #uploadFormBlock > form select {
+    width: 100%;
+  }
+}
 #uploadConfigBlock {
   display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
   display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1775,6 +1907,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadConfigBlock > .form select {
   width: 196px;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #uploadConfigBlock > .form {
+    margin-left: 10px;
+  }
+}
 #uploadConfigBlock #uploadConfigPreviewBlock {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
@@ -1793,6 +1930,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadConfigBlock #uploadConfigPreviewBlock > h1,
 #uploadConfigBlock #uploadConfigPreviewBlock > h2 {
   margin-top: 0;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #uploadConfigBlock #uploadConfigPreviewBlock {
+    margin-left: 10px;
+  }
 }
 #uploadConfigBlock #uploadConfigPreviewBlock > table {
   background: #fff;
@@ -1836,6 +1978,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadConfigBlock #uploadConfigPreviewBlock > table tr:nth-child(even) {
   background: #fcfbff;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #uploadConfigBlock #uploadConfigPreviewBlock > table {
+    width: 100%;
+  }
+}
 #uploadColumnsBlock {
   color: #434343;
   background-color: #fff;
@@ -1849,6 +1996,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadColumnsBlock > h1,
 #uploadColumnsBlock > h2 {
   margin-top: 0;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #uploadColumnsBlock {
+    margin-left: 10px;
+  }
 }
 #uploadColumnsBlock #uploadColumnsListBlock > table {
   background: #fff;
