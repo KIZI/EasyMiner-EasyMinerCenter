@@ -1,36 +1,5 @@
 blockMargin = 10px
 smallBlockWidth = 500px
-portrait-width-min = 768px
-portrait-width-max = 960px
-landscape-width-min = 1024px
-landscape-width-max = 1280px
-/** Mixins for responsive mode */
-/** Media queries */
-max(bp)
- @media only screen and (max-width: bp)
-  {block}
-
-min(bp)
- @media only screen and (min-width: bp)
-  {block}
-
-between(bp1, bp2)
- @media only screen and (min-width: bp1) and (max-width: bp2)
-  {block} 
-
-// tablet portrait
-tablet_p()
- +between(portrait-width-min, portrait-width-max)
-  {block}
-
-// tablet landscape
-tablet_l()
- +between(landscape-width-min, landscape-width-max)
-  {block}
-
-// pc()
-//  +min(pc-start-value)
-//   {block}
 
 /** hlavní blok zobrazovaný v EMC */
 block()

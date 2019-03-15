@@ -413,6 +413,11 @@ body > main {
     -webkit-justify-content: center;
     -ms-flex-pack: center;
     justify-content: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     height: 100%;
     width: 100%;
     margin: 0;
@@ -709,6 +714,23 @@ body > header div.content div.headerLinks a.user {
   margin-left: 10px;
   text-align: center;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body > header div.content div.headerLinks a.user {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    padding-top: 2px;
+  }
+}
 body > header div.content div.headerLinks a.user .img {
   display: block;
   background: url("../images/icons/user-48.png") center center no-repeat;
@@ -727,6 +749,20 @@ body > header div.content div.headerLinks a.user .img img {
 body > header div.content div.headerLinks a.user .name {
   margin-top: 5px;
   font-size: 10px;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body > header div.content div.headerLinks a.user .name {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+  }
 }
 body > header div.content div.headerLinks a.user:hover .img img,
 body > header div.content div.headerLinks a.user.active .img img {
@@ -763,6 +799,13 @@ body > header div.content div.headerLinks a.help.disabled {
     display: -ms-flexbox /* TWEENER - IE 10 */;
     display: -webkit-flex /* NEW - Chrome */;
     display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 1;
   }
 }
 body > header div.content div.headerLinks a#headerAppsLink {
@@ -796,6 +839,13 @@ body > header div.content div.headerLinks a#headerAppsLink.disabled {
     display: -ms-flexbox /* TWEENER - IE 10 */;
     display: -webkit-flex /* NEW - Chrome */;
     display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 1;
   }
 }
 body > header .headerMenu {
@@ -1140,7 +1190,7 @@ div.flash {
 }
 @media only screen and (min-width: 1024px) and (max-width: 1280px) {
   div.flash {
-    min-width: 500px;
+    min-width: 400px;
     padding: 20px;
     margin: 1em auto;
   }
@@ -1401,11 +1451,74 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #loginPage > h2 {
   margin-top: 0;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: start;
+    -moz-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    width: 400px;
+    margin: 20px 0;
+  }
+  #loginPage h1 {
+    margin: 0;
+  }
+}
 #loginPage > form {
   padding-bottom: 12px;
   margin: 5px 0;
   position: relative;
   overflow: auto;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage > form {
+    width: 100%;
+  }
+  #loginPage > form div {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    width: 100%;
+  }
+  #loginPage > form input.button {
+    margin-right: 2%;
+  }
+  #loginPage > form#frm-loginForm {
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
 }
 #loginPage > form#frm-registrationForm label {
   font-size: 12px;
@@ -1414,10 +1527,30 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   margin: 5px 0 0 0;
   padding: 0;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage > form#frm-registrationForm label {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    min-width: 75px;
+  }
+}
 #loginPage > form input.text {
   display: block;
   width: 422px;
   margin: 5px 0 2px 0;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage > form input.text {
+    width: 100%;
+  }
 }
 #loginPage > form .error {
   padding-left: 15px;
@@ -1431,16 +1564,114 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   margin-bottom: 10px;
   margin-top: 5px;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage > form .small {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+  #loginPage > form .small #frm-loginForm-remember {
+    margin-right: 5px;
+  }
+}
 #loginPage > form .small label {
   float: left;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage > form .small label {
+    padding: 7px 7px 7px 0;
+  }
+  #loginPage > form .small label[for="frm-loginForm-remember"] {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+  }
 }
 #loginPage > form .small a {
   display: inline-block;
   float: right;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage > form .small a {
+    padding: 7px 7px 7px 0;
+  }
+}
 #loginPage > form .actions {
   text-align: center;
   margin: 15px 0 0 0;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage > form .actions {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+  }
+  #loginPage > form .actions .extButton {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+  }
+  #loginPage > form .actions a.button {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+  }
 }
 #loginPage > form .actions input.button {
   display: inline-block;
@@ -1449,6 +1680,16 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #loginPage div.otherLogins {
   border-top: 1px solid #ededed;
   padding-top: 10px;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #loginPage div.otherLogins {
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    width: 100%;
+  }
 }
 #loginPage div.otherLogins a {
   display: block;
@@ -2053,6 +2294,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center;
+    height: 100%;
   }
 }
 div#homePage #slogan {

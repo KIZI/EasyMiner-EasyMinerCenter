@@ -22,6 +22,9 @@ headerLink()
     cursor not-allowed
   +tablet_l()
     flexbox(flex)
+    flex-justify(center)
+    color headerTextColor
+    opacity 1
 
 headerAppsLink()
   display block
@@ -121,6 +124,10 @@ body > header
           float right
           margin-left 10px
           text-align center
+          +tablet_l()
+            flexbox(flex)
+            flex-direction(column)
+            padding-top 2px
           .img
             display block
             background url('../images/icons/user-48.png') center center no-repeat
@@ -137,6 +144,9 @@ body > header
           .name
             margin-top 5px
             font-size 10px
+            +tablet_l()
+              flexbox(flex)
+              flex-justify(center)
           &:hover, &.active
             .img img
               border-color headerTextColor
