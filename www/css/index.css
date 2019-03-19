@@ -387,12 +387,22 @@ body.iframe {
   background: #fff;
   min-width: 400.5px;
 }
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body.iframe {
+    min-width: initial;
+  }
+}
 body > main {
   width: 1335px;
   margin: 0 auto;
   position: relative;
   margin-bottom: 44px;
   padding: 0;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body > main {
+    min-width: initial;
+  }
 }
 @media only screen and (min-width: 1024px) and (max-width: 1280px) {
   body > main {
@@ -426,6 +436,22 @@ body > main {
 }
 body > main#IZIMiner {
   position: inherit;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body > main#IZIMiner {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+  }
 }
 body > main #mainBlock {
   color: #434343;
@@ -663,6 +689,11 @@ body > header div.content {
   width: 1335px;
   margin: 0 auto;
   position: relative;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body > header div.content {
+    min-width: initial;
+  }
 }
 @media only screen and (min-width: 1024px) and (max-width: 1280px) {
   body > header div.content {
@@ -1034,6 +1065,11 @@ body > footer div.content {
   position: relative;
   font-size: 11px;
   text-align: left;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  body > footer div.content {
+    min-width: initial;
+  }
 }
 @media only screen and (min-width: 1024px) and (max-width: 1280px) {
   body > footer div.content {
@@ -2212,6 +2248,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -webkit-align-items: flex-start;
   -ms-flex-align: start;
   align-items: flex-start;
+}
+@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+  #uploadDataPage {
+    width: initial;
+  }
 }
 #uploadDataPage div.config {
   color: #434343;
