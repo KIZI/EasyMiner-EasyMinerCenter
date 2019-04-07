@@ -343,7 +343,7 @@ html {
 html.js .jshidden {
   display: none;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   html {
     position: initial;
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
@@ -361,7 +361,7 @@ body {
   margin: 0;
   padding: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -387,7 +387,7 @@ body.iframe {
   background: #fff;
   min-width: 400.5px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body.iframe {
     min-width: initial;
   }
@@ -399,12 +399,12 @@ body > main {
   margin-bottom: 44px;
   padding: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > main {
     min-width: initial;
   }
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > main {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -437,7 +437,7 @@ body > main {
 body > main#IZIMiner {
   position: inherit;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > main#IZIMiner {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -472,7 +472,7 @@ body > main #mainBlock > h1,
 body > main #mainBlock > h2 {
   margin-top: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > main #mainBlock {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -667,7 +667,7 @@ body > header {
   font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
   font-size: 16px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > header {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -690,12 +690,12 @@ body > header div.content {
   margin: 0 auto;
   position: relative;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > header div.content {
     min-width: initial;
   }
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > header div.content {
     width: 100%;
   }
@@ -766,7 +766,7 @@ body > header div.content div.headerLinks a.user {
   margin-left: 10px;
   text-align: center;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > header div.content div.headerLinks a.user {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -802,7 +802,7 @@ body > header div.content div.headerLinks a.user .name {
   margin-top: 5px;
   font-size: 10px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > header div.content div.headerLinks a.user .name {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -844,7 +844,7 @@ body > header div.content div.headerLinks a.help.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > header div.content div.headerLinks a.help {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -884,7 +884,7 @@ body > header div.content div.headerLinks a#headerAppsLink.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > header div.content div.headerLinks a#headerAppsLink {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1046,7 +1046,7 @@ body > footer {
   left: 0;
   bottom: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > footer {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1066,12 +1066,12 @@ body > footer div.content {
   font-size: 11px;
   text-align: left;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > footer div.content {
     min-width: initial;
   }
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > footer div.content {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1106,7 +1106,7 @@ body > footer div.content .disclaimer {
   height: 20px;
   float: left;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > footer div.content .disclaimer {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1122,7 +1122,7 @@ body > footer div.content .copyright {
   padding-right: 20px;
   float: right;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   body > footer div.content .copyright {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1245,7 +1245,7 @@ div.flash {
   padding: 1em;
   margin: 1em 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div.flash {
     min-width: 400px;
     padding: 20px;
@@ -1508,7 +1508,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #loginPage > h2 {
   margin-top: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1545,7 +1545,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   position: relative;
   overflow: auto;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage > form {
     width: 100%;
   }
@@ -1584,7 +1584,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   margin: 5px 0 0 0;
   padding: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage > form#frm-registrationForm label {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1604,7 +1604,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   width: 422px;
   margin: 5px 0 2px 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage > form input.text {
     width: 100%;
   }
@@ -1621,7 +1621,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   margin-bottom: 10px;
   margin-top: 5px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage > form .small {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1643,7 +1643,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #loginPage > form .small label {
   float: left;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage > form .small label {
     padding: 7px 7px 7px 0;
   }
@@ -1671,7 +1671,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   display: inline-block;
   float: right;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage > form .small a {
     padding: 7px 7px 7px 0;
   }
@@ -1680,7 +1680,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   text-align: center;
   margin: 15px 0 0 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage > form .actions {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1738,7 +1738,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   border-top: 1px solid #ededed;
   padding-top: 10px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #loginPage div.otherLogins {
     -webkit-box-align: center;
     -moz-box-align: center;
@@ -1786,7 +1786,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadFormBlock > h2 {
   margin-top: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #uploadFormBlock {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1943,7 +1943,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadConfigBlock > .form select {
   width: 196px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #uploadConfigBlock > .form {
     margin-left: 10px;
   }
@@ -1967,7 +1967,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadConfigBlock #uploadConfigPreviewBlock > h2 {
   margin-top: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #uploadConfigBlock #uploadConfigPreviewBlock {
     margin-left: 10px;
   }
@@ -2014,7 +2014,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadConfigBlock #uploadConfigPreviewBlock > table tr:nth-child(even) {
   background: #fcfbff;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #uploadConfigBlock #uploadConfigPreviewBlock > table {
     width: 100%;
   }
@@ -2033,7 +2033,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadColumnsBlock > h2 {
   margin-top: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #uploadColumnsBlock {
     margin-left: 10px;
   }
@@ -2249,7 +2249,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -ms-flex-align: start;
   align-items: flex-start;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   #uploadDataPage {
     width: initial;
   }
@@ -2463,7 +2463,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   width: 300px;
   height: 250px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div#homePage {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -2495,7 +2495,7 @@ div#homePage #slogan {
   margin: 10px;
   min-height: 80px;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div#homePage #slogan {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -2520,7 +2520,7 @@ div#homePage #slogan > div {
 div#homePage #slogan > div.visible {
   display: block;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div#homePage #slogan > div.visible {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -2541,7 +2541,7 @@ div#homePage #slogan > div.visible {
     justify-content: flex-start;
   }
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div#homePage #slogan > div .slogan-content {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -2641,7 +2641,7 @@ div#homePage #actions section > h1,
 div#homePage #actions section > h2 {
   margin-top: 0;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div#homePage #actions section li {
     padding: 10px;
   }
@@ -2656,7 +2656,7 @@ div#homePage #actions section.start {
   -ms-flex: 1 0 auto;
   flex: 1 0 auto;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div#homePage #actions section.start {
     margin-left: 10px;
   }
@@ -2677,7 +2677,7 @@ div#homePage #actions section.more h2 {
 div#homePage #actions section.about h2 {
   background: url("../images/icons/flag-48.png") left center no-repeat;
 }
-@media only screen and (min-width: 1024px) and (max-width: 1280px) {
+@media only screen and (min-width: 768px) and (max-width: 1280px) {
   div#homePage #actions section.about a {
     padding: 10px;
   }
