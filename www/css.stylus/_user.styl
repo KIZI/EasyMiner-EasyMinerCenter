@@ -11,12 +11,13 @@ labelColor = rgb(165,165,165)
 /*region login and registration form*/
 #loginPage
   mainBlock()
-  +tablet_l()
+  +tablet()
       flexbox(flex)
       flex-direction(column)
       flex-justify(center)
       flex-align(start)
-      width 400px
+      box-sizing border-box
+      width 100%
       margin 20px 0
       h1
         margin 0
@@ -26,7 +27,7 @@ labelColor = rgb(165,165,165)
     position relative
     overflow auto
 
-    +tablet_l()
+    +tablet()
       width 100%
       div 
         flexbox(flex)
@@ -44,7 +45,7 @@ labelColor = rgb(165,165,165)
         display block
         margin 5px 0 0 0
         padding 0
-      +tablet_l()
+      +tablet()
         label
           flexbox(flex)
           flex-align(center)
@@ -54,7 +55,7 @@ labelColor = rgb(165,165,165)
       display block
       width loginFormInputWidth
       margin 5px 0 2px 0
-      +tablet_l()
+      +tablet()
         width 100%
 
     .error
@@ -68,7 +69,7 @@ labelColor = rgb(165,165,165)
       overflow auto
       margin-bottom 10px
       margin-top 5px
-      +tablet_l()
+      +tablet()
         flexbox(flex)
         flex-direction(column)
         #frm-loginForm-remember
@@ -76,7 +77,7 @@ labelColor = rgb(165,165,165)
 
       label
         float left
-        +tablet_l()
+        +tablet()
           padding 7px 7px 7px 0
           &[for="frm-loginForm-remember"]
             flexbox(flex)
@@ -86,13 +87,13 @@ labelColor = rgb(165,165,165)
       a
         display inline-block
         float right
-        +tablet_l()
+        +tablet()
           padding 7px 7px 7px 0
 
     .actions
       text-align center
       margin 15px 0 0 0
-      +tablet_l()
+      +tablet()
         flexbox(flex)
         flex-justify(center)
         flex-direction(row)
@@ -111,7 +112,7 @@ labelColor = rgb(165,165,165)
   div.otherLogins
     border-top invisButtonBorder
     padding-top 10px
-    +tablet_l()
+    +tablet()
       flex-align(center)
       width 100%
 

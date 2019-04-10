@@ -21,7 +21,7 @@ html
   position relative
   &.js .jshidden
     display none
-  +tablet_l()
+  +tablet()
     position initial
     flexbox(flex)
 
@@ -32,42 +32,49 @@ body
   overflow-y scroll
   margin 0
   padding 0
-  // min-width minContentWidth2
-  +tablet_l()
+  min-width minContentWidth2
+  +tablet()
     flexbox(flex)
     flex-direction(column)
     flex-justify(center)
     width 100%
+    min-width 100%
 
   &.iframe
     background iframeBodyBackgroundColor
     min-width 0.3 * minContentWidth2
-    +tablet_l()
+    +tablet()
       min-width initial
 
   > main
     centerMainContent()
-    +tablet_l()
+    +tablet()
       flexbox(flex)
       flex-direction(column)
       flex-justify(center)
       flex-align(center)
       height 100%
-      width 100%
+      width initial
       margin 0
       position initial
+      padding 0 25%
+    +mobile()
+      padding 0 10%
       
     margin-bottom footerHeight+ 10px
     padding 0
     &#IZIMiner
       position inherit
-      +tablet_l()
+      +tablet()
         flexbox(flex)
         flex-direction(row)
+        padding 0
+      +tablet_p()
+        flex-direction(column)
 
     #mainBlock
       mainBlock()
-      +tablet_l()
+      +tablet()
         flexbox(flex)
         flex-direction(column)
         margin 0

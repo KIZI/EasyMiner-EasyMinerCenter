@@ -1,15 +1,17 @@
 div#homePage
-  +tablet_l()
+  +tablet()
     flexbox(flex)
     flex-direction(column)
     flex-justify(start)
     flex-align(center)
     height 100%
+    div 
+      box-sizing border-box
   #slogan
     opacity 0.8
     margin blockMargin
     min-height 80px
-    +tablet_l()
+    +tablet()
       flexbox(flex)
       flex-direction(row)
       width 100%
@@ -19,11 +21,11 @@ div#homePage
       display none
       &.visible
         display block
-        +tablet_l()
+        +tablet()
           flexbox(flex)
           flex-direction(row)
           flex-justify(start)
-      +tablet_l()
+      +tablet()
         .slogan-content
           flexbox(flex)
           flex-direction(column)
@@ -65,11 +67,13 @@ div#homePage
     flex-wrap(wrap)
     flex-content(center)
     flex-align(stretch)
+    +mobile()
+      flex-direction(colum)
 
     section
       block()
       flex(25%)
-      +tablet_l()
+      +tablet()
         li
           padding 10px
 
@@ -77,7 +81,7 @@ div#homePage
         padding 10px 10px 5px 60px
       &.start
         flex(grow:1)
-        +tablet_l()
+        +tablet()
           margin-left 10px
         h2
           background url(../images/icons/plane-48.png) left center no-repeat
@@ -92,6 +96,9 @@ div#homePage
       &.about
         h2
           background url(../images/icons/flag-48.png) left center no-repeat
-        +tablet_l()
+        +tablet()
           a
             padding 10px
+      +mobile()
+        flex(90%)
+        margin 10px

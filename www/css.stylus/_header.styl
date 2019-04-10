@@ -20,7 +20,7 @@ headerLink()
   &.disabled
     opacity 0.4
     cursor not-allowed
-  +tablet_l()
+  +tablet()
     flexbox(flex)
     flex-justify(center)
     color headerTextColor
@@ -55,14 +55,14 @@ body > header
   min-width 100%
   font-family fontFamily
   font-size baseFontSize
-  +tablet_l()
+  +tablet()
     flexbox(flex)
     flex-direction(row)
     min-height 100px
   div.content
     height 100px
     centerMainContent()
-    +tablet_l()
+    +tablet()
       width 100%
     h1
       color #fff
@@ -124,7 +124,7 @@ body > header
           float right
           margin-left 10px
           text-align center
-          +tablet_l()
+          +tablet()
             flexbox(flex)
             flex-direction(column)
             padding-top 2px
@@ -144,7 +144,7 @@ body > header
           .name
             margin-top 5px
             font-size 10px
-            +tablet_l()
+            +tablet()
               flexbox(flex)
               flex-justify(center)
           &:hover, &.active

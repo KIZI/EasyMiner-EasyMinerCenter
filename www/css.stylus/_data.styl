@@ -4,7 +4,7 @@ uploadConfigSelectWidth=200px
 
 #uploadFormBlock
   mainBlock()
-  +tablet_l()
+  +tablet()
     flexbox(flex)
     flex-direction(column)
     flex-align(start)
@@ -58,26 +58,26 @@ uploadConfigSelectWidth=200px
     background white
     flex(null,0,0)
     normalizeInputWidth(0.7*normalInputWidth)
-    +tablet_l()
+    +tablet()
       margin-left 10px
 
   #uploadConfigPreviewBlock
     flex(null,1,1)
     block()
-    +tablet_l()
+    +tablet()
       margin-left 10px
 
     > table
       listTable()
       margin 0
-      +tablet_l()
+      +tablet()
         width 100%
 
 
 
 #uploadColumnsBlock
   block()
-  +tablet_l()
+  +tablet()
     margin-left 10px
   #uploadColumnsListBlock > table
     listTable()
@@ -148,8 +148,12 @@ uploadConfigSelectWidth=200px
   flex-wrap(wrap)
   flex-content(center)
   flex-align(start)
+  +tablet()
+      width 100%
   > div
     smallBlock()
+    +tablet()
+      width 100%
 
     #existingDataSources
       display none
@@ -164,7 +168,7 @@ uploadConfigSelectWidth=200px
   flex-wrap(nowrap)
   flex-content(stretch)
   flex-align(start)
-  +tablet_l()
+  +tablet()
     width initial
 
   div.config
