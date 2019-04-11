@@ -7,6 +7,7 @@ div#homePage
     height 100%
     div 
       box-sizing border-box
+    padding 0 5%
   #slogan
     opacity 0.8
     margin blockMargin
@@ -16,6 +17,8 @@ div#homePage
       flex-direction(row)
       width 100%
       min-height 133px
+    +mobile()
+      min-height 230px
     > div
       padding 2*blockMargin blockMargin
       display none
@@ -41,6 +44,10 @@ div#homePage
             margin 0
             padding 0
             color white
+            overflow hidden
+            text-overflow ellipsis
+            white-space nowrap
+            width 500px
 
 
       h2
@@ -58,6 +65,16 @@ div#homePage
         width 80px
         height 80px
         margin-right 30px
+        +mobile()
+          display none
+      +mobile()
+        .slogan-content
+          p 
+            visibility hidden
+            overflow hidden
+            text-overflow ellipsis
+            white-space nowrap
+            width 260px
 
   #actions
     overflow auto

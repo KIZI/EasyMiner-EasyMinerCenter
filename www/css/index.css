@@ -434,7 +434,6 @@ body > main {
     width: initial;
     margin: 0;
     position: initial;
-    padding: 0 25%;
   }
 }
 @media only screen and (min-width: 320px) and (max-width: 767px) {
@@ -462,7 +461,7 @@ body > main#IZIMiner {
     padding: 0;
   }
 }
-@media only screen and (max-width: potrait-width-max) {
+@media only screen and (min-width: 768px) and (max-width: 960px) {
   body > main#IZIMiner {
     -webkit-box-direction: normal;
     -moz-box-direction: normal;
@@ -1553,7 +1552,6 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     -ms-flex-align: start;
     align-items: flex-start;
     box-sizing: border-box;
-    width: 100%;
     margin: 20px 0;
   }
   #loginPage h1 {
@@ -2221,7 +2219,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #newMinerPage {
-    width: 100%;
+    padding: 0 25%;
   }
 }
 #newMinerPage > div {
@@ -2519,6 +2517,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     -ms-flex-align: center;
     align-items: center;
     height: 100%;
+    padding: 0 5%;
   }
   div#homePage div {
     box-sizing: border-box;
@@ -2545,6 +2544,11 @@ div#homePage #slogan {
     flex-direction: row;
     width: 100%;
     min-height: 133px;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  div#homePage #slogan {
+    min-height: 230px;
   }
 }
 div#homePage #slogan > div {
@@ -2606,6 +2610,10 @@ div#homePage #slogan > div.visible {
     margin: 0;
     padding: 0;
     color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 500px;
   }
 }
 div#homePage #slogan > div h2 {
@@ -2623,6 +2631,20 @@ div#homePage #slogan > div > img {
   width: 80px;
   height: 80px;
   margin-right: 30px;
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  div#homePage #slogan > div > img {
+    display: none;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  div#homePage #slogan > div .slogan-content p {
+    visibility: hidden;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 260px;
+  }
 }
 div#homePage #actions {
   overflow: auto;
