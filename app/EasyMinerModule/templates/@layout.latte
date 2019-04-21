@@ -56,31 +56,34 @@
 <body>
   <header>
     <div class="content">
-      <h1 id="applicationMainTitle" onclick="location.reload();">
-        EasyMiner<sup>{@$version}</sup>
-        <span>easy association rule mining</span>
-      </h1>
-      <div id="applicationSubTitle"></div>
-
-      <div class="headerLinks">
-        {block headerLinks}
-          {if ($user->loggedIn)}
-            <a href="{link User:details}" id="headerUserLink" class="user">
-              <span class="img">{if !empty($user->identity->imageUrl)}<img src="{$user->identity->imageUrl}" alt="{$user->identity->name}" />{/if}</span>
-              <span class="name">{$user->identity->name}</span>
-            </a>
-          {else}
-            <a href="{link User:login}" class="user">
-              <span class="img"></span>
-              <span class="name">{_'Login...'}</span>
-            </a>
-          {/if}
-          <a id="headerAppsLink" href="#">{_'Menu'}</a>
-          {if !empty($includeHelp)}
-            <a class="help"  id="headerHelpLink" href="#">{_'Help'}</a>
-          {/if}
-        {/block}
+      <div>
+        <h1 id="applicationMainTitle" onclick="location.reload();">
+          EasyMiner<sup>{@$version}</sup>
+          <span>easy association rule mining</span>
+        </h1>
+        <div class="headerLinks">
+          {block headerLinks}
+            <a href="#" id="show-main-header-menu"></a>
+            {if ($user->loggedIn)}
+              <a href="{link User:details}" id="headerUserLink" class="user">
+                <span class="img">{if !empty($user->identity->imageUrl)}<img src="{$user->identity->imageUrl}" alt="{$user->identity->name}" />{/if}</span>
+                <span class="name">{$user->identity->name}</span>
+              </a>
+            {else}
+              <a href="{link User:login}" class="user">
+                <span class="img"></span>
+                <span class="name">{_'Login...'}</span>
+              </a>
+            {/if}
+            <a id="headerAppsLink" href="#">{_'Menu'}</a>
+            {if !empty($includeHelp)}
+              <a class="help"  id="headerHelpLink" href="#">{_'Help'}</a>
+            {/if}
+          {/block}
+        </div>
       </div>
+    <div id="applicationSubTitle"></div>
+
     </div>
     {*region headerMenus*}
     {if ($user->loggedIn)}

@@ -42,9 +42,10 @@ body
 
   &.iframe
     background iframeBodyBackgroundColor
-    min-width 0.3 * minContentWidth2
-    +tablet()
-      min-width initial
+    // min-width 0.3 * minContentWidth2
+    min-width 100%
+    // +max(320px)
+    //   min-width initial
 
   > main
     centerMainContent()
@@ -82,6 +83,10 @@ body
         #frm-newMinerForm
           tr 
             margin 5px
+      +mobile()
+        #frm-newMinerForm
+          input,select
+            width initial
 
   #ajax-spinner
     margin 15px 0 0 15px

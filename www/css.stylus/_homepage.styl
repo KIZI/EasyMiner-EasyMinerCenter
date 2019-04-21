@@ -1,9 +1,10 @@
 div#homePage
   +tablet()
     flexbox(flex)
-    flex-direction(column)
+    flex-direction(row)
+    flex-wrap(wrap)
     flex-justify(start)
-    flex-align(center)
+    flex-align(start)
     height 100%
     div 
       box-sizing border-box
@@ -16,9 +17,8 @@ div#homePage
       flexbox(flex)
       flex-direction(row)
       width 100%
-      min-height 133px
     +mobile()
-      min-height 230px
+      min-height initial
     > div
       padding 2*blockMargin blockMargin
       display none
@@ -28,6 +28,11 @@ div#homePage
           flexbox(flex)
           flex-direction(row)
           flex-justify(start)
+      .slogan-content
+        .normal
+          flexbox(flex)
+        .mobile
+          display none
       +tablet()
         .slogan-content
           flexbox(flex)
@@ -48,6 +53,10 @@ div#homePage
             text-overflow ellipsis
             white-space nowrap
             width 500px
+          .normal
+            display none
+          .mobile
+            flexbox(flex)
 
 
       h2
@@ -70,10 +79,10 @@ div#homePage
       +mobile()
         .slogan-content
           p 
-            visibility hidden
-            overflow hidden
-            text-overflow ellipsis
-            white-space nowrap
+            // visibility hidden
+            // overflow hidden
+            // text-overflow ellipsis
+            // white-space nowrap
             width 260px
 
   #actions
@@ -85,7 +94,18 @@ div#homePage
     flex-content(center)
     flex-align(stretch)
     +mobile()
-      flex-direction(colum)
+      flex-direction(column)
+    +tablet_p()
+      flex-direction(column)
+      padding 0 30%
+      .start
+      .more
+      .about
+        flexbox(flex)
+        flex-direction(column)
+        flex-align(center)
+        width 100%
+
 
     section
       block()
@@ -100,6 +120,8 @@ div#homePage
         flex(grow:1)
         +tablet()
           margin-left 10px
+        +tablet_p()
+          margin-left 0
         h2
           background url(../images/icons/plane-48.png) left center no-repeat
         .actions

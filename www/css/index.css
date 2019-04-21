@@ -387,12 +387,7 @@ body {
 }
 body.iframe {
   background: #fff;
-  min-width: 400.5px;
-}
-@media only screen and (min-width: 320px) and (max-width: 1280px) {
-  body.iframe {
-    min-width: initial;
-  }
+  min-width: 100%;
 }
 body > main {
   width: 1335px;
@@ -493,6 +488,11 @@ body > main #mainBlock > h2 {
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   body > main #mainBlock {
+    width: initial;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  body > main #mainBlock {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
     display: -ms-flexbox /* TWEENER - IE 10 */;
@@ -510,6 +510,12 @@ body > main #mainBlock > h2 {
   }
   body > main #mainBlock #frm-newMinerForm tr {
     margin: 5px;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  body > main #mainBlock #frm-newMinerForm input,
+  body > main #mainBlock #frm-newMinerForm select {
+    width: initial;
   }
 }
 body #ajax-spinner {
@@ -551,6 +557,11 @@ h3 {
 .smallBlock > h1,
 .smallBlock > h2 {
   margin-top: 0;
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  .smallBlock {
+    width: initial;
+  }
 }
 .block {
   color: #434343;
@@ -700,7 +711,12 @@ body > header {
     -webkit-flex-direction: row;
     -ms-flex-direction: row;
     flex-direction: row;
-    min-height: 100px;
+    height: initial;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  body > header {
+    background: #075783;
   }
 }
 body > header div.content {
@@ -717,6 +733,14 @@ body > header div.content {
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   body > header div.content {
     width: 100%;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  body > header div.content {
+    height: initial;
+    min-height: 100px;
   }
 }
 body > header div.content h1 {
@@ -733,6 +757,17 @@ body > header div.content h1 {
   top: 0;
   cursor: pointer;
 /*SPECIAL TYPES OF H1*/
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  body > header div.content h1 {
+    position: initial;
+    margin-left: 5px;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > header div.content h1.small {
+    opacity: 0.1;
+  }
 }
 body > header div.content h1 span {
   display: block;
@@ -768,12 +803,49 @@ body > header div.content div#applicationSubTitle {
   max-height: 60px;
   overflow-y: hidden;
 }
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  body > header div.content div#applicationSubTitle {
+    position: initial;
+  }
+}
+body > header div.content #show-main-header-menu {
+  display: none;
+}
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > header div.content #show-main-header-menu {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    background-image: url("../images/icons/hamburger-white-48.png");
+    background-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
 body > header div.content div.headerLinks {
   position: absolute;
   top: 20px;
   right: 20px;
   font-weight: bold;
   color: #cee7f7;
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  body > header div.content div.headerLinks {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: reverse;
+    -moz-box-direction: reverse;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row-reverse;
+    -ms-flex-direction: row-reverse;
+    flex-direction: row-reverse;
+  }
 }
 body > header div.content div.headerLinks a {
   color: #fff;
@@ -800,6 +872,13 @@ body > header div.content div.headerLinks a.user {
     -ms-flex-direction: column;
     flex-direction: column;
     padding-top: 2px;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > header div.content div.headerLinks a.user {
+    visibility: hidden;
+    width: 0;
+    margin: 0;
   }
 }
 body > header div.content div.headerLinks a.user .img {
@@ -879,6 +958,13 @@ body > header div.content div.headerLinks a.help.disabled {
     opacity: 1;
   }
 }
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > header div.content div.headerLinks a.help {
+    visibility: hidden;
+    width: 0;
+    margin: 0;
+  }
+}
 body > header div.content div.headerLinks a#headerAppsLink {
   display: block;
   float: right;
@@ -918,6 +1004,50 @@ body > header div.content div.headerLinks a#headerAppsLink.disabled {
     color: #fff;
     opacity: 1;
   }
+}
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > header div.content div.headerLinks a#headerAppsLink {
+    visibility: hidden;
+    width: 0;
+    margin: 0;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > header div.content div.headerLinks.show .user {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    visibility: visible;
+    width: 48px;
+    margin-left: 10px;
+    background-color: #075783;
+  }
+  body > header div.content div.headerLinks.show .help {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    visibility: visible;
+    width: 48px;
+    background-color: #075783;
+  }
+  body > header div.content div.headerLinks.show #headerAppsLink {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    visibility: visible;
+    width: 48px;
+    margin-left: 10px;
+    background-color: #075783;
+  }
+}
+body > header div.content div.headerLinks.show #applicationMainTitle {
+  margin-bottom: 15px;
 }
 body > header .headerMenu {
   background: #fff;
@@ -996,6 +1126,11 @@ body > header .headerMenu#headerUserMenu div.actions a:focus {
 body > header .headerMenu#headerAppsMenu {
   padding: 10px;
   max-width: 240px;
+}
+@media only screen and (min-width: 768px) and (max-width: 960px) {
+  body > header .headerMenu#headerAppsMenu {
+    top: 117px;
+  }
 }
 body > header .headerMenu#headerAppsMenu a.newMiner {
   display: block;
@@ -1076,6 +1211,11 @@ body > footer {
     min-width: initial;
   }
 }
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > footer {
+    height: initial;
+  }
+}
 body > footer div.content {
   height: 20px;
   padding: 7px 0;
@@ -1120,8 +1260,18 @@ body > footer div.content {
     position: initial;
   }
 }
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  body > footer div.content {
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+}
 body > footer div.content .disclaimer {
-  padding: 10px 0 10px 10px;
   height: 20px;
   float: left;
 }
@@ -1135,6 +1285,11 @@ body > footer div.content .disclaimer {
     float: none;
     height: auto;
     padding: 7px 0 7px 10px;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  body > footer div.content .disclaimer {
+    overflow: hidden;
   }
 }
 body > footer div.content .copyright {
@@ -1529,6 +1684,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #loginPage {
+    width: initial;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  #loginPage {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
     display: -ms-flexbox /* TWEENER - IE 10 */;
@@ -1552,6 +1712,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     -ms-flex-align: start;
     align-items: flex-start;
     box-sizing: border-box;
+    width: initial;
     margin: 20px 0;
   }
   #loginPage h1 {
@@ -1631,6 +1792,12 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #loginPage > form .error {
   padding-left: 15px;
   display: block;
+  box-sizing: border-box;
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  #loginPage > form .error {
+    padding: 0;
+  }
 }
 #loginPage > form .small {
   font-size: 13px;
@@ -1753,6 +1920,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   display: inline-block;
   width: 200px;
 }
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  #loginPage > form .actions input.button {
+    width: 50%;
+  }
+}
 #loginPage div.otherLogins {
   border-top: 1px solid #ededed;
   padding-top: 10px;
@@ -1807,6 +1979,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #uploadFormBlock {
+    width: initial;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  #uploadFormBlock {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
     display: -ms-flexbox /* TWEENER - IE 10 */;
@@ -1825,7 +2002,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     -ms-flex-align: start;
     align-items: flex-start;
     margin: 0;
-    width: 450px;
+    box-sizing: border-box;
   }
   #uploadFormBlock > form tr {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
@@ -1916,6 +2093,24 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     width: 100%;
   }
 }
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  #uploadFormBlock > form tr {
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+  #uploadFormBlock > form th {
+    margin-bottom: 5px;
+  }
+  #uploadFormBlock > form th,
+  #uploadFormBlock > form td {
+    min-width: initial;
+  }
+}
 #uploadConfigBlock {
   display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
   display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1989,6 +2184,16 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #uploadConfigBlock #uploadConfigPreviewBlock {
     margin-left: 10px;
+    max-width: 590px;
+    overflow-x: auto;
+    padding: 20px 0;
+    border-left: 20px solid #fff;
+    border-right: 20px solid #fff;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  #uploadConfigBlock #uploadConfigPreviewBlock {
+    max-width: 308px;
   }
 }
 #uploadConfigBlock #uploadConfigPreviewBlock > table {
@@ -2057,6 +2262,12 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     margin-left: 10px;
   }
 }
+@media only screen and (min-width: 320px) and (max-width: 420px) {
+  #uploadColumnsBlock #uploadColumnsListBlock {
+    max-width: 308px;
+    overflow-x: auto;
+  }
+}
 #uploadColumnsBlock #uploadColumnsListBlock > table {
   background: #fff;
   color: #434343;
@@ -2104,11 +2315,27 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadColumnsBlock #uploadColumnsListBlock > table tr:first-child th:nth-child(1) {
   width: 280px;
 }
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  #uploadColumnsBlock #uploadColumnsListBlock > table tr:first-child th:nth-child(1) {
+    width: 200px;
+  }
+  #uploadColumnsBlock #uploadColumnsListBlock > table tr:first-child th:nth-child(1) input {
+    width: initial;
+  }
+}
 #uploadColumnsBlock #uploadColumnsListBlock > table tr:first-child th:nth-child(2) {
   width: 168px;
 }
 #uploadColumnsBlock #uploadColumnsListBlock > table td:nth-child(1) {
   width: 280px;
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  #uploadColumnsBlock #uploadColumnsListBlock > table td:nth-child(1) {
+    width: 200px;
+  }
+  #uploadColumnsBlock #uploadColumnsListBlock > table td:nth-child(1) input {
+    width: initial;
+  }
 }
 #uploadColumnsBlock #uploadColumnsListBlock > table td:nth-child(2) {
   width: 168px;
@@ -2222,6 +2449,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     padding: 0 25%;
   }
 }
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  #newMinerPage {
+    padding: 0;
+  }
+}
 #newMinerPage > div {
   color: #434343;
   background-color: #fff;
@@ -2236,6 +2468,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #newMinerPage > div > h1,
 #newMinerPage > div > h2 {
   margin-top: 0;
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  #newMinerPage > div {
+    width: initial;
+  }
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #newMinerPage > div {
@@ -2297,6 +2534,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 #uploadDataPage div.config > h1,
 #uploadDataPage div.config > h2 {
   margin-top: 0;
+}
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  #uploadDataPage div.config {
+    width: initial;
+  }
 }
 #uploadDataPage div.preview {
   color: #434343;
@@ -2501,21 +2743,24 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
     -webkit-box-direction: normal;
     -moz-box-direction: normal;
-    -webkit-box-orient: vertical;
-    -moz-box-orient: vertical;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
     -webkit-box-pack: start;
     -moz-box-pack: start;
     -webkit-justify-content: flex-start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    -webkit-box-align: center;
-    -moz-box-align: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
+    -webkit-box-align: start;
+    -moz-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
     height: 100%;
     padding: 0 5%;
   }
@@ -2543,12 +2788,11 @@ div#homePage #slogan {
     -ms-flex-direction: row;
     flex-direction: row;
     width: 100%;
-    min-height: 133px;
   }
 }
 @media only screen and (min-width: 320px) and (max-width: 767px) {
   div#homePage #slogan {
-    min-height: 230px;
+    min-height: initial;
   }
 }
 div#homePage #slogan > div {
@@ -2578,6 +2822,16 @@ div#homePage #slogan > div.visible {
     -ms-flex-pack: start;
     justify-content: flex-start;
   }
+}
+div#homePage #slogan > div .slogan-content .normal {
+  display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+  display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+  display: -ms-flexbox /* TWEENER - IE 10 */;
+  display: -webkit-flex /* NEW - Chrome */;
+  display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+}
+div#homePage #slogan > div .slogan-content .mobile {
+  display: none;
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   div#homePage #slogan > div .slogan-content {
@@ -2615,6 +2869,16 @@ div#homePage #slogan > div.visible {
     white-space: nowrap;
     width: 500px;
   }
+  div#homePage #slogan > div .slogan-content .normal {
+    display: none;
+  }
+  div#homePage #slogan > div .slogan-content .mobile {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+  }
 }
 div#homePage #slogan > div h2 {
   margin: 0;
@@ -2639,10 +2903,6 @@ div#homePage #slogan > div > img {
 }
 @media only screen and (min-width: 320px) and (max-width: 767px) {
   div#homePage #slogan > div .slogan-content p {
-    visibility: hidden;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     width: 260px;
   }
 }
@@ -2679,9 +2939,47 @@ div#homePage #actions {
 }
 @media only screen and (min-width: 320px) and (max-width: 767px) {
   div#homePage #actions {
-    -webkit-flex-direction: colum;
-    -ms-flex-direction: colum;
-    flex-direction: colum;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+}
+@media only screen and (min-width: 768px) and (max-width: 960px) {
+  div#homePage #actions {
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    padding: 0 30%;
+  }
+  div#homePage #actions .start,
+  div#homePage #actions .more,
+  div#homePage #actions .about {
+    display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
+    display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
+    display: -ms-flexbox /* TWEENER - IE 10 */;
+    display: -webkit-flex /* NEW - Chrome */;
+    display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    width: 100%;
   }
 }
 div#homePage #actions section {
@@ -2722,6 +3020,11 @@ div#homePage #actions section.start {
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   div#homePage #actions section.start {
     margin-left: 10px;
+  }
+}
+@media only screen and (min-width: 768px) and (max-width: 960px) {
+  div#homePage #actions section.start {
+    margin-left: 0;
   }
 }
 div#homePage #actions section.start h2 {

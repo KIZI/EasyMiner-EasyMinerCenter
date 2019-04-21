@@ -58,12 +58,20 @@ body > header
   +tablet()
     flexbox(flex)
     flex-direction(row)
-    min-height 100px
+    height initial
+    // min-height 100px
+  +mobile()
+    background headerBgColor
   div.content
     height 100px
     centerMainContent()
     +tablet()
       width 100%
+      margin-bottom 5px
+      box-sizing border-box
+    +mobile()
+      height initial
+      min-height 100px
     h1
       color #fff
       font-family "Times New Roman", Times, serif
@@ -77,6 +85,14 @@ body > header
       left 20px
       top 0
       cursor pointer
+      +mobile()
+        position initial
+        margin-left 5px
+      &.small
+        +mobile_p()
+          opacity 0.1
+
+
       span
         display block
         font-size 17px
@@ -107,6 +123,17 @@ body > header
       color headerTextColor
       max-height 60px
       overflow-y hidden
+      +mobile()
+        position initial
+
+    #show-main-header-menu
+      display none
+      +mobile_p()
+        flexbox(flex)
+        background-image url('../images/icons/hamburger-white-48.png')
+        background-size 48px
+        width 48px
+        height 48px
 
 
     div.headerLinks
@@ -115,7 +142,9 @@ body > header
       right 20px
       font-weight: bold;
       color: rgb(206,231,247);
-
+      +tablet()
+        flexbox(flex)
+        flex-direction(row-reverse)
       a
         color headerTextColor
         text-decoration none
@@ -128,6 +157,10 @@ body > header
             flexbox(flex)
             flex-direction(column)
             padding-top 2px
+          +mobile_p()
+            visibility hidden
+            width 0
+            margin 0
           .img
             display block
             background url('../images/icons/user-48.png') center center no-repeat
@@ -153,9 +186,38 @@ body > header
         &.help
           headerLink()
           background-image url('../images/icons/help-48.png')
+          +mobile_p()
+            visibility hidden
+            width 0
+            margin 0
         &#headerAppsLink
           headerLink()
           background-image url('../images/icons/apps-48.png')
+          +mobile_p()
+            visibility hidden
+            width 0
+            margin 0
+      &.show
+        +mobile_p()
+          .user
+            flexbox(flex)
+            visibility visible
+            width 48px
+            margin-left 10px
+            background-color headerBgColor
+          .help
+            flexbox(flex)
+            visibility visible
+            width 48px
+            background-color headerBgColor
+          #headerAppsLink
+            flexbox(flex)
+            visibility visible
+            width 48px
+            margin-left 10px
+            background-color headerBgColor
+        #applicationMainTitle
+          margin-bottom 15px
 
   .headerMenu
     background headerMenuBgColor
@@ -209,6 +271,8 @@ body > header
     &#headerAppsMenu
       padding 10px
       max-width 240px
+      +tablet_p()
+        top 117px
       a
         &.newMiner
           headerAppsLink()

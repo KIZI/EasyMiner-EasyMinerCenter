@@ -9,7 +9,8 @@ uploadConfigSelectWidth=200px
     flex-direction(column)
     flex-align(start)
     margin 0
-    width 450px
+    // width 450px
+    box-sizing border-box
     > form
       tr 
         flexbox(flex)
@@ -45,7 +46,14 @@ uploadConfigSelectWidth=200px
 
       input,select 
         width 100%
-
+  +mobile()
+    > form 
+      tr 
+        flex-direction(column)
+      th 
+        margin-bottom 5px
+      th,td
+        min-width initial
 
 #uploadConfigBlock
   flexbox(flex)
@@ -66,6 +74,13 @@ uploadConfigSelectWidth=200px
     block()
     +tablet()
       margin-left 10px
+      max-width 590px
+      overflow-x auto
+      padding 20px 0
+      border-left 20px solid white
+      border-right 20px solid white
+    +mobile_p()
+      max-width 308px
 
     > table
       listTable()
@@ -79,6 +94,10 @@ uploadConfigSelectWidth=200px
   block()
   +tablet()
     margin-left 10px
+  +mobile_p()
+    #uploadColumnsListBlock
+      max-width 308px
+      overflow-x auto
   #uploadColumnsListBlock > table
     listTable()
     width 100%
@@ -88,11 +107,19 @@ uploadConfigSelectWidth=200px
     tr:first-child
       th:nth-child(1)
         width normalInputWidth
+        +mobile()
+          width 200px
+          input 
+            width initial
       th:nth-child(2)
         width 0.6*normalInputWidth
 
     td:nth-child(1)
       width normalInputWidth
+      +mobile()
+        width 200px
+        input 
+          width initial
     td:nth-child(2)
       width 0.6*normalInputWidth
       select
@@ -150,6 +177,9 @@ uploadConfigSelectWidth=200px
   flex-align(start)
   +tablet()
     padding 0 25%
+  +mobile()
+    padding 0
+
   > div
     smallBlock()
     +tablet()

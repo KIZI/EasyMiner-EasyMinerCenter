@@ -19,6 +19,8 @@ body > footer
     flexbox(flex)
     position initial
     min-width initial
+  +mobile_p()
+    height initial
 
   div.content
     height footerContentHeight
@@ -35,9 +37,10 @@ body > footer
       height 100%
       padding 0
       position initial
-
+    +mobile_p()
+      flex-direction(column)
     .disclaimer
-      padding 10px 0 10px 10px
+      // padding 10px 0 10px 10px
       height footerContentHeight
       float left
       +tablet()
@@ -45,6 +48,8 @@ body > footer
         float none
         height auto
         padding 7px 0 7px 10px
+      +tablet()
+        overflow hidden
 
     .copyright
       padding-right 20px

@@ -20,7 +20,8 @@ var HeaderMenu = function($,options){
     subMenus : ['User','Apps'],
     links : ['Help'],
     SPACE_FROM_RIGHT : 10,
-    MENU_LINK_ARROW_SIZE : 9
+    MENU_LINK_ARROW_SIZE : 9,
+    MARGIN_CONTENT: 5
   };
 
   /**
@@ -36,10 +37,21 @@ var HeaderMenu = function($,options){
     var menuBlockWidth = menuBlock.outerWidth();
     var menuBlockShiftCenterToLeft=Math.max(0, Math.ceil(menuBlockWidth/2)-menuLinkCenterFromDocumentRight);
     var menuBlockLeft=(menuLinkCenterFromDocumentLeft-menuBlockShiftCenterToLeft-Math.ceil(menuBlockWidth/2));
-    menuBlock.css({left:menuBlockLeft,top:(menuLink.offset().top+menuLink.outerHeight()+this.options.MENU_LINK_ARROW_SIZE)});
+    menuBlock.css({left:menuBlockLeft,top:(
+        menuLink.offset().top + menuLink.outerHeight() + this.options.MENU_LINK_ARROW_SIZE + this.options.MARGIN_CONTENT + this.getAdditionalTop()
+      )
+    });
     var menuLinkArrowLeft = Math.floor((menuBlockWidth-this.options.MENU_LINK_ARROW_SIZE)/2)+menuBlockShiftCenterToLeft;
     menuBlock.find('div.menuLinkArrow').css({left:menuLinkArrowLeft});
   };
+
+  this.getAdditionalTop = function () {
+    if ($('header .content')[0].scrollHeight > 100 && window.getSize().x <= 960) {
+      return 18;
+    } else {
+      return 0;
+    }
+  }
 
   /**
    * Function for initialization of all submenus (headerMenus)
@@ -133,7 +145,43 @@ var HeaderMenu = function($,options){
  * Append the events for EasyMiner-Help after the page load
  */
 $(document).ready(function($){
-  new HeaderMenu($);
+  var headerMenu = new HeaderMenu($);
+  console.log($('#show-main-header-menu'))
+  $('#show-main-header-menu').click(function () {
+    var headerLinks = $('.headerLinks');
+    var header = $('#applicationMainTitle')
+    if (headerLinks.hasClass('show')) {
+      headerLinks.removeClass('show');
+      headerMenu.menuVisible=false;
+      $('.headerMenu').hide();
+      $('.headerLinks a').removeClass('active');
+    } else {
+      headerLinks.addClass('show');
+    }
+    if (header.hasClass('small')) {
+      header.removeClass('small');
+    } else {  
+      header.addClass('small');
+    }
+  })
+  
+  $('main').click(function () {
+    var headerLinks = $('.headerLinks');
+    var header = $('#applicationMainTitle')
+    if (headerLinks.hasClass('show')) {
+      headerLinks.removeClass('show');
+      headerMenu.menuVisible=false;
+      $('.headerMenu').hide();
+      $('.headerLinks a').removeClass('active');
+    } else {
+      headerLinks.addClass('show');
+    }
+    if (header.hasClass('small')) {
+      header.removeClass('small');
+    } else {  
+      header.addClass('small');
+    }
+  })
 });
 
 /*endregion headerMenu*/
