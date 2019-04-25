@@ -508,6 +508,12 @@ body > main #mainBlock > h2 {
     margin: 0;
     width: initial;
   }
+  body > main #mainBlock h1 {
+    font-size: 29px;
+  }
+  body > main #mainBlock #frm-forgottenPasswordForm-email {
+    width: initial;
+  }
   body > main #mainBlock #frm-newMinerForm tr {
     margin: 5px;
   }
@@ -687,6 +693,12 @@ div.bigButtons a span.details span.right {
   float: right;
   visibility: hidden;
 }
+@media only screen and (min-width: 320px) and (max-width: 1280px) {
+  div.bigButtons a span.details span.details,
+  div.bigButtons a span.details span.right {
+    visibility: visible;
+  }
+}
 div.bigButtons a:hover span.details span.right {
   visibility: visible;
 }
@@ -764,10 +776,8 @@ body > header div.content h1 {
     margin-left: 5px;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
-  body > header div.content h1.small {
-    opacity: 0.1;
-  }
+body > header div.content h1.small {
+  opacity: 0.1;
 }
 body > header div.content h1 span {
   display: block;
@@ -811,13 +821,14 @@ body > header div.content div#applicationSubTitle {
 body > header div.content #show-main-header-menu {
   display: none;
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   body > header div.content #show-main-header-menu {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
     display: -ms-flexbox /* TWEENER - IE 10 */;
     display: -webkit-flex /* NEW - Chrome */;
     display: flex /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+    opacity: 0.8;
     background-image: url("../images/icons/hamburger-white-48.png");
     background-size: 48px;
     width: 48px;
@@ -874,7 +885,7 @@ body > header div.content div.headerLinks a.user {
     padding-top: 2px;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   body > header div.content div.headerLinks a.user {
     visibility: hidden;
     width: 0;
@@ -958,7 +969,7 @@ body > header div.content div.headerLinks a.help.disabled {
     opacity: 1;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   body > header div.content div.headerLinks a.help {
     visibility: hidden;
     width: 0;
@@ -1005,14 +1016,14 @@ body > header div.content div.headerLinks a#headerAppsLink.disabled {
     opacity: 1;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   body > header div.content div.headerLinks a#headerAppsLink {
     visibility: hidden;
     width: 0;
     margin: 0;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   body > header div.content div.headerLinks.show .user {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
     display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
@@ -1211,7 +1222,7 @@ body > footer {
     min-width: initial;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   body > footer {
     height: initial;
   }
@@ -1260,7 +1271,7 @@ body > footer div.content {
     position: initial;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   body > footer div.content {
     -webkit-box-direction: normal;
     -moz-box-direction: normal;
@@ -1713,6 +1724,8 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     align-items: flex-start;
     box-sizing: border-box;
     width: initial;
+    position: initial;
+    min-width: 60%;
     margin: 20px 0;
   }
   #loginPage h1 {
@@ -1728,6 +1741,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #loginPage > form {
     width: 100%;
+    min-width: 60%;
   }
   #loginPage > form div {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
@@ -1746,6 +1760,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   }
   #loginPage > form input.button {
     margin-right: 2%;
+    width: 30%;
   }
   #loginPage > form#frm-loginForm {
     -webkit-box-direction: normal;
@@ -1755,6 +1770,13 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 450px) {
+  #loginPage > form input[type="email"],
+  #loginPage > form input[type="password"],
+  #loginPage > form input:focus {
+    font-size: 16px;
   }
 }
 #loginPage > form#frm-registrationForm label {
@@ -1922,7 +1944,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #loginPage > form .actions input.button {
-    width: 50%;
+    width: 30%;
   }
 }
 #loginPage div.otherLogins {
@@ -2002,7 +2024,14 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     -ms-flex-align: start;
     align-items: flex-start;
     margin: 0;
+    width: 80%;
     box-sizing: border-box;
+  }
+  #uploadFormBlock > form {
+    width: 100%;
+  }
+  #uploadFormBlock > form table {
+    width: 100%;
   }
   #uploadFormBlock > form tr {
     display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
@@ -2148,6 +2177,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -webkit-flex: 0 0 auto;
   -ms-flex: 0 0 auto;
   flex: 0 0 auto;
+  margin: 10px;
 }
 #uploadConfigBlock > .form > h1,
 #uploadConfigBlock > .form > h2 {
@@ -2176,6 +2206,9 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
   padding: 20px;
   margin: 10px 10px 10px 0;
+  max-width: 65%;
+  overflow-x: auto;
+  border-right: 20px solid #fff;
 }
 #uploadConfigBlock #uploadConfigPreviewBlock > h1,
 #uploadConfigBlock #uploadConfigPreviewBlock > h2 {
@@ -2191,7 +2224,12 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     border-right: 20px solid #fff;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 768px) and (max-width: 960px) {
+  #uploadConfigBlock #uploadConfigPreviewBlock {
+    max-width: 700px;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   #uploadConfigBlock #uploadConfigPreviewBlock {
     max-width: 308px;
   }
@@ -2262,7 +2300,7 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
     margin-left: 10px;
   }
 }
-@media only screen and (min-width: 320px) and (max-width: 420px) {
+@media only screen and (min-width: 320px) and (max-width: 450px) {
   #uploadColumnsBlock #uploadColumnsListBlock {
     max-width: 308px;
     overflow-x: auto;
@@ -2414,7 +2452,6 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   margin-top: 0;
 }
 #newMinerPage {
-  width: auto;
   display: -webkit-box /* OLD - iOS 6-, Safari 3.1-6 */;
   display: -moz-box /* OLD - Firefox 19- (buggy but mostly works) */;
   display: -ms-flexbox /* TWEENER - IE 10 */;
@@ -2443,10 +2480,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
   -webkit-align-items: flex-start;
   -ms-flex-align: start;
   align-items: flex-start;
+  width: auto;
 }
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #newMinerPage {
-    padding: 0 25%;
+    padding: 0 10%;
   }
 }
 @media only screen and (min-width: 320px) and (max-width: 767px) {
@@ -2477,6 +2515,11 @@ div#preprocessingPage table.attributesListTable tr:nth-child(even) {
 @media only screen and (min-width: 320px) and (max-width: 1280px) {
   #newMinerPage > div {
     width: 100%;
+  }
+}
+@media only screen and (min-width: 320px) and (max-width: 767px) {
+  #newMinerPage > div {
+    margin: 10px 0;
   }
 }
 #newMinerPage > div #existingDataSources {

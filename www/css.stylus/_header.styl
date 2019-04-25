@@ -88,10 +88,8 @@ body > header
       +mobile()
         position initial
         margin-left 5px
-      &.small
-        +mobile_p()
-          opacity 0.1
-
+      &.small 
+        opacity 0.1
 
       span
         display block
@@ -130,6 +128,7 @@ body > header
       display none
       +mobile_p()
         flexbox(flex)
+        opacity 0.8
         background-image url('../images/icons/hamburger-white-48.png')
         background-size 48px
         width 48px

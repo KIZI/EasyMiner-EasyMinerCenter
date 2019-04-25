@@ -18,6 +18,8 @@ labelColor = rgb(165,165,165)
     flex-align(start)
     box-sizing border-box
     width initial
+    position initial
+    min-width 60%
     margin 20px 0
     h1
       margin 0
@@ -29,14 +31,21 @@ labelColor = rgb(165,165,165)
 
     +tablet()
       width 100%
+      min-width 60%
       div 
         flexbox(flex)
         flex-direction(column)
         width 100%
       input.button
         margin-right 2%
+        width 30%
       &#frm-loginForm
         flex-direction(column)
+    +mobile_p()
+      input[type="email"],
+      input[type="password"],
+      input:focus
+        font-size 16px
 
     &#frm-registrationForm
       label
@@ -112,7 +121,7 @@ labelColor = rgb(165,165,165)
         display inline-block
         width 200px
         +tablet()
-          width 50%
+          width 30%
 
   div.otherLogins
     border-top invisButtonBorder

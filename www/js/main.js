@@ -167,20 +167,13 @@ $(document).ready(function($){
   
   $('main').click(function () {
     var headerLinks = $('.headerLinks');
-    var header = $('#applicationMainTitle')
     if (headerLinks.hasClass('show')) {
       headerLinks.removeClass('show');
       headerMenu.menuVisible=false;
       $('.headerMenu').hide();
       $('.headerLinks a').removeClass('active');
-    } else {
-      headerLinks.addClass('show');
     }
-    if (header.hasClass('small')) {
-      header.removeClass('small');
-    } else {  
-      header.addClass('small');
-    }
+    $('helpBox').hide()
   })
 });
 
