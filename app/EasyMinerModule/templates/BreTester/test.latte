@@ -1,0 +1,20 @@
+{**
+ * Template for UserPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block content}
+
+  <div id="mainBlock">
+    <h1 n:block=title>{_'Rule Editor Test'}</h1>
+    <h2 n:if="(!empty($breTest->name))">{$breTest->name}</h2>
+    <p>{$breTest->infoText}</p>
+
+    <div class="actions">
+      <a href="{link newUser testKey=>$breTest->testKey}" >{_'Start test...'}</a>
+    </div>
+  </div>
+
+{/block}
+
+

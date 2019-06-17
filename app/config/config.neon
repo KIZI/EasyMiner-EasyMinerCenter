@@ -104,6 +104,9 @@ services:
 			- addResource('EasyMiner:Bre')
 			- allow('authenticated','EasyMiner:Bre')
 
+			- addResource('EasyMiner:BreTester')
+			- allow('guest','EasyMiner:BreTester')
+
 			- addResource('EasyMiner:Cron')
 			- allow('guest','EasyMiner:Cron')
 
@@ -161,6 +164,7 @@ services:
 	- EasyMinerCenter\Model\Data\Databases\DatabaseFactory(%databases%)
 	- EasyMinerCenter\Model\Preprocessing\Databases\PreprocessingFactory(%databases%)
 
+	- EasyMinerCenter\Model\EasyMiner\Facades\BreTestsFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\OutliersTasksFacade
@@ -168,6 +172,8 @@ services:
 	- EasyMinerCenter\Model\EasyMiner\Facades\PreprocessingsFacade
 	- EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade
 
+	- EasyMinerCenter\Model\EasyMiner\Repositories\BreTestsRepository
+	- EasyMinerCenter\Model\EasyMiner\Repositories\BreTestUsersRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\DatasourcesRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\DatasourceColumnsRepository
 	- EasyMinerCenter\Model\EasyMiner\Repositories\MetasourcesRepository

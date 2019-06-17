@@ -1,0 +1,53 @@
+{**
+ * Template for BreTesterPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+
+{contentType text/javascript}
+
+var config = {
+  "locale": "en",
+  "init-brackets": true,
+  "init-helper": true,
+  getAttributeListUrl: function(minerId){
+    return {plink Bre:getAttributesByMiner miner=>'__MINERID__'}.replace('__MINERID__',minerId);
+  },
+  getAttributeUrl: function(attributeId){
+    return {plink Bre:getAttribute attribute=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
+  },
+  getRuleListUrl:function(rulesetId){
+    return {plink RuleSets:getRules id=>'__RULESETID__', offset=>0, limit=>1000}.replace('__RULESETID__',rulesetId);
+  },
+  getRuleUrl:function(ruleId, rulesetId){
+    return {plink Bre:getRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULEID__',ruleId).replace('__RULESETID__',rulesetId);
+  },
+  getSaveRuleUrl:function(ruleId, rulesetId){
+    return {plink Bre:saveRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULEID__',ruleId).replace('__RULESETID__',rulesetId);
+  },
+  getRemoveRuleUrl:function(ruleId, rulesetId){
+    return {plink Bre:removeRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
+  },
+  "operators": [
+    { "visible": true, "label": "is", "opt": ["=", ""] },
+    //{ "visible": true, "label": "not", "opt": ["¬", "!"] },
+    { "visible": true, "label": "break" },
+    //{ "visible": true, "label": "lower than", "opt": [">", ""] },
+    //{ "visible": true, "label": "greater than", "opt": ["<", ""] },
+    //{ "visible": true, "label": "lower than or equals", "opt": [">=", ""] },
+    //{ "visible": true, "label": "greater than or equals", "opt": ["<=", ""] },
+    { "visible": false, "label": "and", "opt": ["∧", "&&"] },
+    { "visible": false, "label": "or", "opt": ["∨", "||"] },
+    //{ "visible": false, "label": "is lower than", "opt": [">", ""] },
+    //{ "visible": false, "label": "is greater than", "opt": ["<", ""] },
+    //{ "visible": false, "label": "is not", "opt": ["≠", "!="] },
+    //{ "visible": false, "label": "is lower than or equals", "opt": ["<=", ""] },
+    //{ "visible": false, "label": "is greater than or equals", "opt": [">=", ""] }
+  ],
+  "connections": {
+    "Conjunction": "and",
+    "Disjunction": "or",
+    "Negation": "not"
+  },
+  "rule-ns": {\EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleSerializer::DEFAULT_XMLNS}
+}

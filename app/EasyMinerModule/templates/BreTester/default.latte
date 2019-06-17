@@ -1,0 +1,34 @@
+{**
+ * Template for BreTesterPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block title}
+  {_'Rule Editor Tester'}
+{/block}
+
+{block head}
+  {foreach $cssFiles as $file}
+    <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_BRE/{$file}" />
+  {/foreach}
+  <meta http-equiv="Cache-Control" content="no-cache" />
+{/block}
+
+{block headerLinks}
+  {*TODO možná nějaký odkaz na nápovědu?*}
+{/block}
+
+{block main}
+  {$content|noescape}
+  <script type="text/javascript">
+      var rulesetId={@$ruleSet->ruleSetId};
+      var minerId={@$miner->minerId};
+      var scorerUrl={link RuleSet}
+      var breConfigUrl={link Bre:config};
+      var breResourcesUrl={$basePath."/_BRE"};
+  </script>
+  <script type="text/javascript" src="{link BreTester:config}" ></script>
+  {foreach $javascriptFiles as $file}
+    <script type="text/javascript" src="{$basePath}/_BRE/{$file}" ></script>
+  {/foreach}
+{/block}
