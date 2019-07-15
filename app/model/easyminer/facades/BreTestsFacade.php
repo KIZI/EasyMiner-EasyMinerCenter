@@ -1,13 +1,17 @@
 <?php
 
 namespace EasyMinerCenter\Model\EasyMiner\Facades;
+
 use EasyMinerCenter\Libs\StringsHelper;
 use EasyMinerCenter\Model\EasyMiner\Entities\BreTest;
 use EasyMinerCenter\Model\EasyMiner\Entities\BreTestUser;
+use EasyMinerCenter\Model\EasyMiner\Entities\BreTestUserLog;
 use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Repositories\BreTestsRepository;
+use EasyMinerCenter\Model\EasyMiner\Repositories\BreTestUserLogsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\BreTestUsersRepository;
+use LeanMapper\Exception\InvalidArgumentException;
 
 /**
  * Class BreTestsFacade
@@ -20,8 +24,31 @@ class BreTestsFacade{
   private $breTestsRepository;
   /** @var BreTestUsersRepository $breTestUsersRepository */
   private $breTestUsersRepository;
+  /** @var BreTestUserLogsRepository $breTestUserLogsRepository */
+  private $breTestUserLogsRepository;
   /** @var RuleSetsFacade $ruleSetsFacade */
   private $ruleSetsFacade;
+
+  /**
+   * @param int $breTestId
+   * @param int $breTestUserId
+   * @param string $message
+   * @param string $data
+   */
+  public function saveLog($breTestId, $breTestUserId, $message, $data=''){
+    try{
+      $breTestUserLog = new BreTestUserLog();
+    }catch (InvalidArgumentException $e){
+      return;
+    }
+    $breTestUserLog->breTestId=$breTestId;
+    $breTestUserLog->breTestUserId=$breTestUserId;
+    $breTestUserLog->message=$message;
+    if (!empty($data) && !is_string($data)){
+      $breTestUserLog->data=json_encode($data);
+    }
+    $this->breTestUserLogsRepository->persist($breTestUserLog);
+  }
 
   /**
    * @param $id
@@ -129,11 +156,13 @@ class BreTestsFacade{
    * BreTestsFacade constructor.
    * @param BreTestsRepository $breTestsRepository
    * @param BreTestUsersRepository $breTestUsersRepository
+   * @param BreTestUserLogsRepository $breTestUserLogsRepository
    * @param RuleSetsFacade $ruleSetsFacade
    */
-  public function __construct(BreTestsRepository $breTestsRepository, BreTestUsersRepository $breTestUsersRepository, RuleSetsFacade $ruleSetsFacade){
+  public function __construct(BreTestsRepository $breTestsRepository, BreTestUsersRepository $breTestUsersRepository, BreTestUserLogsRepository $breTestUserLogsRepository, RuleSetsFacade $ruleSetsFacade){
     $this->breTestsRepository=$breTestsRepository;
     $this->breTestUsersRepository=$breTestUsersRepository;
+    $this->breTestUserLogsRepository=$breTestUserLogsRepository;
     $this->ruleSetsFacade=$ruleSetsFacade;
   }
 

@@ -26,6 +26,7 @@
 {block main}
   {$content|noescape}
   <script type="text/javascript">
+      var testUserKey={$breTestUser->testKey};
       var rulesetId={@$ruleSet->ruleSetId};
       var minerId={@$miner->minerId};
       //TODO var scorerUrl={link BreTester:}

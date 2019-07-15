@@ -63,6 +63,7 @@ class BreTesterPresenter extends BasePresenter{
     }
     //create new user and redirect him to editor
     $breTestUser=$this->breTestsFacade->createNewBreTestUser($breTest);
+    $this->breTestsFacade->saveLog($breTest->breTestId,$breTestUser->breTestUserId,'User created');
     $this->redirect('default',['testUserKey'=>$breTestUser->testKey]);
   }
 
@@ -225,12 +226,19 @@ class BreTesterPresenter extends BasePresenter{
 
   /**
    * Akce vracející seznam atributů dle mineru
-   * @param int $miner
+   * @param string $testUserKey
    * @throws \Nette\Application\BadRequestException
    * @throws \Nette\Application\ForbiddenRequestException
    */
-  public function actionGetAttributesByMiner($miner){
-    $miner=$this->minersFacade->findMiner($miner);
+  public function actionGetAttributesByMiner($testUserKey){
+    try{
+      /** @var BreTestUser $breTestUser */
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+      $miner=$breTestUser->breTest->miner;
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
     $this->minersFacade->checkMinerMetasource($miner);
     $metasource=$miner->metasource;
     $attributesArr=$metasource->getAttributesArr();
@@ -280,15 +288,21 @@ class BreTesterPresenter extends BasePresenter{
 
   /**
    * Akce vracející detaily jednoho pravidla
-   * @param int $ruleset
+   * @param string $testUserKey
    * @param int $rule
    * @throws \Nette\Application\BadRequestException
    * @throws \Exception
    */
-  public function actionGetRule($ruleset,$rule){
-    $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
-    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
-    if (!($rulesetRuleRelation=$this->ruleSetsFacade->findRuleSetRuleRelation($ruleset,$rule))){
+  public function actionGetRule($testUserKey,$rule){
+    try{
+      /** @var BreTestUser $breTestUser */
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+      $ruleSet=$breTestUser->ruleSet;
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
+    if (!($rulesetRuleRelation=$this->ruleSetsFacade->findRuleSetRuleRelation($ruleSet,$rule))){
       //kontrola, jestli je pravidlo v rule setu
       throw new EntityNotFoundException('Rule is not in RuleSet!');
     }
@@ -300,17 +314,23 @@ class BreTesterPresenter extends BasePresenter{
 
   /**
    * Akce pro uložení upraveného pravidla
-   * @param int $ruleset
+   * @param string $testUserKey
    * @param int $rule
    * @param string $relation
    * @throws \Nette\Application\BadRequestException
    * @throws InvalidArgumentException
    * @throws \Exception
    */
-  public function actionSaveRule($ruleset,$rule,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
+  public function actionSaveRule($testUserKey,$rule,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
     #region nalezení pravidla, ošetření jeho vztahu k rule setu
-    $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
-    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
+    try{
+      /** @var BreTestUser $breTestUser */
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+      $ruleSet=$breTestUser->ruleSet;
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
     try{
       $existingRule=$this->rulesFacade->findRule($rule);
     }catch (\Exception $e){/*pravidlo nebylo nalezeno*/}
@@ -318,7 +338,7 @@ class BreTesterPresenter extends BasePresenter{
     if (!empty($existingRule->task)){
       //pravidlo je součástí úlohy => odebereme ho z rule setu a vytvoříme pravidlo nové
       try{
-        $this->ruleSetsFacade->removeRuleFromRuleSet($existingRule, $ruleset);
+        $this->ruleSetsFacade->removeRuleFromRuleSet($existingRule, $ruleSet);
       }catch (\Exception $e){
         //chybu ignorujeme - stejně budeme přidávat nové pravidlo
       }
@@ -350,7 +370,8 @@ class BreTesterPresenter extends BasePresenter{
 
     #region kontrola výsledku a odeslání odpovědi
     if ($rule instanceof Rule){
-      $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleset,RuleSetRuleRelation::RELATION_POSITIVE);
+      $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
+      $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Remove rule', ['ruleId'=>$rule,'rule'=>$rule->text,'confidence'=>$rule->confidence,'support'=>$rule->support]);
     }else{
       throw new \Exception('Rule was not saved.');
     }
@@ -362,15 +383,22 @@ class BreTesterPresenter extends BasePresenter{
 
   /**
    * Action returning one concrete RuleSet with basic list of Rules
-   * @param int $ruleset
+   * @param string $testUserKey
    * @param int $offset
    * @param int $limit
    * @param string|null $order = null
+   * @throws BadRequestException
    */
-  public function actionGetRules($ruleset,$offset=0,$limit=25,$order=null){
+  public function actionGetRules($testUserKey,$offset=0,$limit=25,$order=null){
     //find RuleSet and check it
-    $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleset);
-    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    try{
+      /** @var BreTestUser $breTestUser */
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+      $ruleSet=$breTestUser->ruleSet;
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
     //prepare the result
     $result=[
       'ruleset'=>$ruleSet->getDataArr(),
@@ -389,20 +417,28 @@ class BreTesterPresenter extends BasePresenter{
 
   /**
    * Akce pro odebrání pravidla z rule setu a případné odebrání celého pravidla
-   * @param int $ruleset
+   * @param string $testUserKey
    * @param int $rule
    * @throws EntityNotFoundException
    * @throws \Nette\Application\BadRequestException
    * @throws \Exception
    */
-  public function actionRemoveRule($ruleset, $rule){
-    $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
-    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
+  public function actionRemoveRule($testUserKey, $rule){
+    try{
+      /** @var BreTestUser $breTestUser */
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
+    $ruleset=$breTestUser->ruleSet;
     if (!($rulesetRuleRelation=$this->ruleSetsFacade->findRuleSetRuleRelation($ruleset,$rule))){
       //kontrola, jestli je pravidlo v rule setu
+      $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Remove rule', ['ruleId'=>$rule,'state'=>'already not in rule set']);
       $this->sendJsonResponse(['state'=>'ok']);
     }
 
+    /** @var Rule $rule */
     $rule=$rulesetRuleRelation->rule;
     if (empty($rule->task)){
       //pravidlo není součástí úlohy => zkontrolujeme, jestli je v nějakém rulesetu
@@ -417,6 +453,9 @@ class BreTesterPresenter extends BasePresenter{
     }else{
       $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleset);
     }
+
+    $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Remove rule', ['ruleId'=>$rule,'rule'=>$rule->text,'state'=>'removed']);
+
     $this->sendJsonResponse(['state'=>'ok']);
   }
 
@@ -436,6 +475,8 @@ class BreTesterPresenter extends BasePresenter{
     //run scorer and show results
     /** @var IScorerDriver $scorerDriver */
     $scorerDriver=$this->scorerDriverFactory->getDefaultScorerInstance();
+
+    $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Model evaluation', ['rulesCount'=>$breTestUser->ruleSet->rulesCount]);
 
     $this->layout='iframe';
     $this->template->layout='iframe';

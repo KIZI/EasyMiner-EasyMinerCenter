@@ -18,6 +18,7 @@ use LeanMapper\Entity;
  * @property Datasource $datasource m:hasOne
  * @property string $testKey = ''
  * @property BreTestUser[] $breTestUsers m:belongsToMany
+ * @property-read BreTestUserLog[] $breTestUserLogs m:belongsToMany
  */
 class BreTest extends Entity {
 

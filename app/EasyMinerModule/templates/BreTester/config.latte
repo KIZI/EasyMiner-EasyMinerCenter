@@ -11,22 +11,22 @@ var config = {
   "init-brackets": true,
   "init-helper": true,
   getAttributeListUrl: function(minerId){
-    return {plink BreTester:getAttributesByMiner miner=>'__MINERID__'}.replace('__MINERID__',minerId);
+    return {plink BreTester:getAttributesByMiner testUserKey=>'__TESTUSERKEY__'}.replace('__TESTUSERKEY__',testUserKey);
   },
   getAttributeUrl: function(attributeId){
     return {plink BreTester:getAttribute attribute=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
   },
   getRuleListUrl:function(rulesetId){
-    return {plink BreTester:getRules ruleset=>'__RULESETID__', offset=>0, limit=>1000}.replace('__RULESETID__',rulesetId);
+    return {plink BreTester:getRules testUserKey=>'__TESTUSERKEY__', offset=>0, limit=>1000}.replace('__TESTUSERKEY__',testUserKey);
   },
   getRuleUrl:function(ruleId, rulesetId){
-    return {plink BreTester:getRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULEID__',ruleId).replace('__RULESETID__',rulesetId);
+    return {plink BreTester:getRule rule=>'__RULEID__',testUserKey=>'__TESTUSERKEY__'}.replace('__RULEID__',ruleId).replace('__TESTUSERKEY__',testUserKey);
   },
   getSaveRuleUrl:function(ruleId, rulesetId){
-    return {plink BreTester:saveRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULEID__',ruleId).replace('__RULESETID__',rulesetId);
+    return {plink BreTester:saveRule rule=>'__RULEID__',testUserKey=>'__TESTUSERKEY__'}.replace('__RULEID__',ruleId).replace('__TESTUSERKEY__',testUserKey);
   },
   getRemoveRuleUrl:function(ruleId, rulesetId){
-    return {plink BreTester:removeRule rule=>'__RULEID__',ruleset=>'__RULESETID__'}.replace('__RULESETID__',rulesetId).replace('__RULEID__',ruleId);
+    return {plink BreTester:removeRule rule=>'__RULEID__',testUserKey=>'__TESTUSERKEY__'}.replace('__TESTUSERKEY__',testUserKey).replace('__RULEID__',ruleId);
   },
   "operators": [
     { "visible": true, "label": "is", "opt": ["=", ""] },
