@@ -502,7 +502,7 @@ class BreTesterPresenter extends BasePresenter{
    * @throws \Nette\Application\AbortException
    * @throws \Nette\Application\BadRequestException
    */
-  public function renderScorer($testUserKey){
+  public function renderScorer($testUserKey,$layout='iframe'){
     try{
       /** @var BreTestUser $breTestUser */
       $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
@@ -516,8 +516,8 @@ class BreTesterPresenter extends BasePresenter{
 
     $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Model evaluation', ['rulesCount'=>$breTestUser->ruleSet->rulesCount]);
 
-    $this->layout='iframe';
-    $this->template->layout='iframe';
+    $this->layout=$layout;
+    $this->template->layout=$layout;
     $this->template->ruleSet=$breTestUser->ruleSet;
     $this->template->datasource=$breTestUser->breTest->datasource;
     $this->template->scoringResult=$scorerDriver->evaluateRuleSet($breTestUser->ruleSet,$breTestUser->breTest->datasource);

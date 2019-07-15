@@ -10,7 +10,7 @@
 {/block}
 {block title}{_'Classification model evaluation'}{/block}
 {block content}
-<div id="ruleSetsScorer">
+<div id="ruleSetsScorer" {if ($layout!='iframe')}class="block" style="overflow: auto;" {/if}>
   <h2>{_'Classification model evaluation'}</h2>
 
   <table class="infoTable">

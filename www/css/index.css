@@ -2014,3 +2014,6 @@ div#homePage #actions section.about h2 {
 #breTestDetailsParticipants table.participantsTable tr:nth-child(even) {
   background: #fcfbff;
 }
+#wrapper.bre {
+  margin-bottom: 50px;
+}

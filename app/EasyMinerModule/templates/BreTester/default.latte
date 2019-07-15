@@ -29,7 +29,11 @@
       var testUserKey={$breTestUser->testKey};
       var rulesetId={@$ruleSet->ruleSetId};
       var minerId={@$miner->minerId};
-      //TODO var scorerUrl={link BreTester:}
+      {if !empty($breTestUser->breTest->datasource)}
+        var scorerUrl={link BreTester:scorer testUserKey=>$breTestUser->testKey,'layout'=>'layout'};
+      {else}
+        var scorerUrl='';
+      {/if}
       var breConfigUrl={link BreTester:config};
       var breResourcesUrl={$basePath."/_BRE"};
   </script>

@@ -15,7 +15,7 @@ use LeanMapper\Entity;
  * @property User $user m:hasOne
  * @property Miner $miner m:hasOne
  * @property RuleSet $ruleSet m:hasOne
- * @property Datasource $datasource m:hasOne
+ * @property Datasource|null $datasource m:hasOne
  * @property string $testKey = ''
  * @property BreTestUser[] $breTestUsers m:belongsToMany
  * @property-read BreTestUserLog[] $breTestUserLogs m:belongsToMany
