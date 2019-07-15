@@ -218,6 +218,7 @@ class BreTesterPresenter extends BasePresenter{
     $this->template->cssFiles=BREIntegration::$cssFiles;
     $this->template->content=BREIntegration::getContent();
     $this->template->moduleName=BREIntegration::MODULE_NAME;
+    $this->template->breTestUser=$breTestUser;
     $this->template->ruleSet=$breTestUser->ruleSet;
     $this->template->miner=$breTestUser->breTest->miner;
   }
