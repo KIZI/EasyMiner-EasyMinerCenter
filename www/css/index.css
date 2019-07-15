@@ -1973,3 +1973,44 @@ div#homePage #actions section.more h2 {
 div#homePage #actions section.about h2 {
   background: url("../images/icons/flag-48.png") left center no-repeat;
 }
+#breTestDetailsParticipants table.participantsTable {
+  background: #fff;
+  color: #434343;
+  border-spacing: 0;
+  margin: 20px 0;
+}
+#breTestDetailsParticipants table.participantsTable tr:first-child th {
+  border-top: 1px solid #075783;
+}
+#breTestDetailsParticipants table.participantsTable th {
+  padding: 5px 8px;
+  background: #075783;
+  color: #fff;
+  text-align: left;
+  border: 1px solid #075783;
+  border-left: none;
+  border-top: none;
+}
+#breTestDetailsParticipants table.participantsTable th:first-child {
+  border: 1px solid #075783;
+}
+#breTestDetailsParticipants table.participantsTable th.empty {
+  background: #fff;
+}
+#breTestDetailsParticipants table.participantsTable th.empty:first-child {
+  border-left: none;
+  border-top: none;
+}
+#breTestDetailsParticipants table.participantsTable td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-top: none;
+}
+#breTestDetailsParticipants table.participantsTable td:first-child {
+  border-left: 1px solid #ebebeb;
+}
+#breTestDetailsParticipants table.participantsTable tr:nth-child(even) {
+  background: #fcfbff;
+}

@@ -1,11 +1,11 @@
 {**
- * Template for UserPresenter
+ * Template for BreTesterPresenter
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
 {block content}
 
-  <div id="mainBlock">
+  <div class="block">
     <h1 n:block=title>{_'Rule Editor Experiment'}</h1>
     <h2>{$breTest->name}</h2>
     <p>{_'Participants count:'} <strong>{$breTest->getBreTestUsersCount()}</strong></p>
@@ -19,6 +19,36 @@
       {*TODO akční tlačítka*}
       <!--<a href="{link newUser testKey=>$breTest->testKey}" >{_'Start test...'}</a>-->
     </div>
+  </div>
+
+  <div class="block" id="breTestDetailsParticipants">
+    <h2>{_'Participants data'}</h2>
+    {if (!empty($breTest->breTestUsers))}
+
+      <table class="participantsTable">
+        <thead>
+          <tr>
+            <th>{_'Test user ID'}</th>
+            <th>{_'Created'}</th>
+            <th>{_'Actions'}</th>
+          </tr>
+        </thead>
+        {foreach $breTest->breTestUsers as $breTestUser}
+          <tr>
+            <td>{$breTestUser->testKey}</td>
+            <td>{$breTestUser->created}</td>
+            <td class="actions">
+              <a href="{plink RuleSets:text id=>$breTestUser->ruleSet->ruleSetId}" target="_blank">{_'Export rules'}</a>
+              &nbsp;
+              <a href="{plink BreTester:exportLog testUserKey=>$breTestUser->testKey}" target="_blank">{_'Export log'}</a>
+            </td>
+          </tr>
+        {/foreach}
+      </table>
+
+    {else}
+      <p><em>{_'No participants data found.'}</em></p>
+    {/if}
   </div>
 
 {/block}

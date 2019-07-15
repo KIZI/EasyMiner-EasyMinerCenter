@@ -371,7 +371,7 @@ class BreTesterPresenter extends BasePresenter{
     #region kontrola výsledku a odeslání odpovědi
     if ($rule instanceof Rule){
       $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
-      $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Remove rule', ['ruleId'=>$rule,'rule'=>$rule->text,'confidence'=>$rule->confidence,'support'=>$rule->support]);
+      $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Save rule', ['ruleId'=>$rule->ruleId,'rule'=>$rule->text,'confidence'=>$rule->confidence,'support'=>$rule->support]);
     }else{
       throw new \Exception('Rule was not saved.');
     }
@@ -454,9 +454,47 @@ class BreTesterPresenter extends BasePresenter{
       $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleset);
     }
 
-    $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Remove rule', ['ruleId'=>$rule,'rule'=>$rule->text,'state'=>'removed']);
+    $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Remove rule', ['ruleId'=>$rule->ruleId,'rule'=>$rule->text,'state'=>'removed']);
 
     $this->sendJsonResponse(['state'=>'ok']);
+  }
+
+  /**
+   * @param string $testUserKey
+   * @throws BadRequestException
+   */
+  public function renderExportLog($testUserKey){
+    try{
+      /** @var BreTestUser $breTestUser */
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
+    $result=[
+      'testId'=>$breTestUser->breTest->breTestId,
+      'testName'=>$breTestUser->breTest->name,
+      'testUserId'=>$breTestUser->testKey,
+      'operations'=>[]
+    ];
+
+    $logs=$breTestUser->breTestUserLogs;
+    if (!empty($logs)){
+      foreach ($logs as $log){
+        if (!empty($log->data)){
+          $logData=json_decode($log->data);
+          if ($logData===false){
+            $logData=$log->data;
+          }
+        }
+        $result['operations'][]=[
+          'created'=>$log->created->format('c'),
+          'message'=>$log->message,
+          'data'=>$logData
+        ];
+      }
+    }
+    $this->sendJsonResponse($result);
   }
 
   /**
