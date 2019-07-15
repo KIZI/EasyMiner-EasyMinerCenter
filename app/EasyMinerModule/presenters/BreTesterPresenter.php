@@ -487,11 +487,14 @@ class BreTesterPresenter extends BasePresenter{
             $logData=$log->data;
           }
         }
-        $result['operations'][]=[
+        $data=[
           'created'=>$log->created->format('c'),
           'message'=>$log->message,
-          'data'=>$logData
         ];
+        if (!empty($logData)){
+          $data['data']=$logData;
+        }
+        $result['operations'][]=$data;
       }
     }
     $this->sendJsonResponse($result);
@@ -518,6 +521,7 @@ class BreTesterPresenter extends BasePresenter{
 
     $this->layout=$layout;
     $this->template->layout=$layout;
+    $this->template->breTestUser=$breTestUser;
     $this->template->ruleSet=$breTestUser->ruleSet;
     $this->template->datasource=$breTestUser->breTest->datasource;
     $this->template->scoringResult=$scorerDriver->evaluateRuleSet($breTestUser->ruleSet,$breTestUser->breTest->datasource);

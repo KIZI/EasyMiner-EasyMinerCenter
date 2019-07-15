@@ -9,6 +9,16 @@
   <script type="text/javascript" src="{$basePath}/js/EasyMiner/RuleSets/scorerChart.js"></script>
 {/block}
 {block title}{_'Classification model evaluation'}{/block}
+
+{block applicationSubTitle}
+  {_'Test user ID:'} <input type="text" id="testKeyInput" value="{$breTestUser->testKey}" title="" style="background:transparent;color:yellow;font-weight:bold;border:none;text-align: center;" onclick="document.getElementById('testKeyInput').select();if(document.execCommand('copy'))alert('{_'User ID copied to clipboard.'|noescape}');" readonly />
+  <!--<a href="#" onclick="document.getElementById('testKeyInput').select();if(document.execCommand('copy'))alert('{_'User ID copied to clipboard.'|noescape}');" class="button" title="{_'Copy ID to clipboard'}">copy</a>-->
+{/block}
+
+{block headerLinks}
+  {*TODO možná nějaký odkaz na nápovědu?*}
+{/block}
+
 {block content}
 <div id="ruleSetsScorer" {if ($layout!='iframe')}class="block" style="overflow: auto;" {/if}>
   <h2>{_'Classification model evaluation'}</h2>
