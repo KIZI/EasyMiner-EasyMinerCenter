@@ -27,6 +27,33 @@ class RuleSetsFacade {
   private $rulesFacade;
 
   /**
+   * Method for cloning of existing RuleSet
+   * @param RuleSet $ruleSet
+   * @return RuleSet
+   * @throws \LeanMapper\Exception\InvalidArgumentException
+   */
+  public function cloneRuleSet(RuleSet $ruleSet,$ruleSetName=''){
+    $result=new RuleSet();
+    $result->user=$ruleSet->user;
+    $result->name=!empty($ruleSetName)?$ruleSetName:$ruleSet->name.' clone '.date('c');
+    $result->rulesCount=$ruleSet->rulesCount;
+    $result->lastModified=new \DateTime();
+    $this->saveRuleSet($result);
+
+    if ($ruleSet->rulesCount>0){
+      foreach ($ruleSet->ruleSetRuleRelations as $ruleSetRuleRelation){
+        $resultRuleRelation=new RuleSetRuleRelation();
+        $resultRuleRelation->ruleSet=$result;
+        $resultRuleRelation->rule=$ruleSetRuleRelation->rule;
+        $resultRuleRelation->relation=$ruleSetRuleRelation->relation;
+        $this->ruleSetRuleRelationsRepository->persist($resultRuleRelation);
+      }
+    }
+
+    return $result;
+  }
+
+  /**
    * Method for adding/updating a relation between Rule and RuleSet
    * @param Rule|int $rule
    * @param RuleSet|int $ruleSet

@@ -20,6 +20,8 @@ class BreTestsFacade{
   private $breTestsRepository;
   /** @var BreTestUsersRepository $breTestUsersRepository */
   private $breTestUsersRepository;
+  /** @var RuleSetsFacade $ruleSetsFacade */
+  private $ruleSetsFacade;
 
   /**
    * @param $id
@@ -79,9 +81,22 @@ class BreTestsFacade{
   /**
    * @param BreTest $breTest
    * @return BreTestUser
+   * @throws \LeanMapper\Exception\InvalidArgumentException
    */
   public function createNewBreTestUser(BreTest $breTest){
-    //TODO
+    /** @noinspection PhpUnhandledExceptionInspection */
+    $ruleSet=$this->ruleSetsFacade->cloneRuleSet($breTest->ruleSet);
+
+    $breTestUser=new BreTestUser();
+    $breTestUser->breTest=$breTest;
+    $breTestUser->ruleSet=$ruleSet;
+    $breTestUser->created=new \DateTime();
+    $this->saveBreTestUser($breTestUser);
+
+    $ruleSet->name=$breTestUser->testKey;
+    $this->ruleSetsFacade->saveRuleSet($ruleSet);
+
+    return $breTestUser;
   }
 
   /**
@@ -91,7 +106,7 @@ class BreTestsFacade{
   public function saveBreTestUser(BreTestUser &$breTestUser){
     $result=$this->breTestUsersRepository->persist($breTestUser);
     if (empty($breTestUser->testKey)){
-      $breTestUser->testKey=StringsHelper::randString(10).(103910+$breTestUser->breTestId).StringsHelper::randString(3);
+      $breTestUser->testKey=StringsHelper::randString(10).(103910+$breTestUser->breTestUserId).StringsHelper::randString(3);
       $this->breTestUsersRepository->persist($breTestUser);
     }
     return $result;
@@ -114,10 +129,12 @@ class BreTestsFacade{
    * BreTestsFacade constructor.
    * @param BreTestsRepository $breTestsRepository
    * @param BreTestUsersRepository $breTestUsersRepository
+   * @param RuleSetsFacade $ruleSetsFacade
    */
-  public function __construct(BreTestsRepository $breTestsRepository, BreTestUsersRepository $breTestUsersRepository){
+  public function __construct(BreTestsRepository $breTestsRepository, BreTestUsersRepository $breTestUsersRepository, RuleSetsFacade $ruleSetsFacade){
     $this->breTestsRepository=$breTestsRepository;
     $this->breTestUsersRepository=$breTestUsersRepository;
+    $this->ruleSetsFacade=$ruleSetsFacade;
   }
 
 }
