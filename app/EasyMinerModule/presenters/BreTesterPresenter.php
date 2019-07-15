@@ -8,6 +8,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\BreTestUser;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\BreTestsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
@@ -36,6 +37,8 @@ class BreTesterPresenter extends BasePresenter{
 
   /** @var BreTestsFacade $breTestsFacade */
   private $breTestsFacade;
+  /** @var DatasourcesFacade $datasourcesFacade */
+  private $datasourcesFacade;
   /** @var MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
   /** @var RuleSetsFacade $ruleSetsFacade */
@@ -126,7 +129,8 @@ class BreTesterPresenter extends BasePresenter{
     $this->template->ruleSet=$ruleSet;
     $this->getComponent('newTestForm')->setDefaults([
       'miner'=>$miner->minerId,
-      'ruleset'=>$ruleSet->ruleSetId
+      'ruleset'=>$ruleSet->ruleSetId,
+      'datasource'=>$miner->datasource->datasourceId
     ]);
   }
 
@@ -148,6 +152,20 @@ class BreTesterPresenter extends BasePresenter{
       ->setRequired(false)
       ->addRule(Form::MAX_LENGTH,'Max length of instructions is %s characters!',500);
 
+    $currentUser=$this->getCurrentUser();
+    $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
+    $datasources=$this->datasourcesFacade->findDatasourcesByUser($currentUser, true);
+    $datasourceItems=[];
+    if (!empty($datasources)){
+      foreach ($datasources as $datasource){
+        $datasourceItems[$datasource->datasourceId]=$datasource->type.': '.$datasource->name;
+      }
+    }
+
+    $form->addSelect('datasource','Datasource for testing:',$datasourceItems)
+      ->setPrompt('--none--')
+      ->setRequired(false);
+
     $form->addSubmit('submit','Create ...')
       ->onClick[]=function(SubmitButton $submitButton){
       /** @var Form $form */
@@ -159,7 +177,13 @@ class BreTesterPresenter extends BasePresenter{
       $breTest=new BreTest();
       $breTest->ruleSet=$ruleset;
       $breTest->miner=$miner;
-      //TODO datasource $breTest->datasource=$miner->datasource;
+      if (!empty($values['datasource'])){
+        try{
+          $breTest->datasource=$this->datasourcesFacade->findDatasource($values['datasource']);
+        }catch (\Exception $e){
+          $breTest->datasource=null;
+        }
+      }
       $breTest->name=$values['name'];
       $breTest->infoText=$values['infoText'];
       $breTest->user=$this->getCurrentUser();
@@ -205,7 +229,7 @@ class BreTesterPresenter extends BasePresenter{
    * @throws \Nette\Application\ForbiddenRequestException
    */
   public function actionGetAttributesByMiner($miner){
-    $miner=$this->findMinerWithCheckAccess($miner);//FIXME
+    $miner=$this->minersFacade->findMiner($miner);
     $this->minersFacade->checkMinerMetasource($miner);
     $metasource=$miner->metasource;
     $attributesArr=$metasource->getAttributesArr();
@@ -262,7 +286,7 @@ class BreTesterPresenter extends BasePresenter{
    */
   public function actionGetRule($ruleset,$rule){
     $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);//FIXME
+    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
     if (!($rulesetRuleRelation=$this->ruleSetsFacade->findRuleSetRuleRelation($ruleset,$rule))){
       //kontrola, jestli je pravidlo v rule setu
       throw new EntityNotFoundException('Rule is not in RuleSet!');
@@ -285,7 +309,7 @@ class BreTesterPresenter extends BasePresenter{
   public function actionSaveRule($ruleset,$rule,$relation=RuleSetRuleRelation::RELATION_POSITIVE){
     #region nalezení pravidla, ošetření jeho vztahu k rule setu
     $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);//FIXME
+    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
     try{
       $existingRule=$this->rulesFacade->findRule($rule);
     }catch (\Exception $e){/*pravidlo nebylo nalezeno*/}
@@ -336,6 +360,33 @@ class BreTesterPresenter extends BasePresenter{
   }
 
   /**
+   * Action returning one concrete RuleSet with basic list of Rules
+   * @param int $ruleset
+   * @param int $offset
+   * @param int $limit
+   * @param string|null $order = null
+   */
+  public function actionGetRules($ruleset,$offset=0,$limit=25,$order=null){
+    //find RuleSet and check it
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleset);
+    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+    //prepare the result
+    $result=[
+      'ruleset'=>$ruleSet->getDataArr(),
+      'rules'=>[]
+    ];
+    if ($ruleSet->rulesCount>0 || true){
+      $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
+      if (!empty($rules)){
+        foreach($rules as $rule){
+          $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
+        }
+      }
+    }
+    $this->sendJsonResponse($result);
+  }
+
+  /**
    * Akce pro odebrání pravidla z rule setu a případné odebrání celého pravidla
    * @param int $ruleset
    * @param int $rule
@@ -345,7 +396,7 @@ class BreTesterPresenter extends BasePresenter{
    */
   public function actionRemoveRule($ruleset, $rule){
     $ruleset=$this->ruleSetsFacade->findRuleSet($ruleset);
-    $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);//FIXME
+    //TODO $this->ruleSetsFacade->checkRuleSetAccess($ruleset,$this->user->id);
     if (!($rulesetRuleRelation=$this->ruleSetsFacade->findRuleSetRuleRelation($ruleset,$rule))){
       //kontrola, jestli je pravidlo v rule setu
       $this->sendJsonResponse(['state'=>'ok']);
@@ -398,6 +449,12 @@ class BreTesterPresenter extends BasePresenter{
    */
   public function injectBreTestsFacade(BreTestsFacade $breTestsFacade){
     $this->breTestsFacade=$breTestsFacade;
+  }
+  /**
+   * @param DatasourcesFacade $datasourcesFacade
+   */
+  public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
+    $this->datasourcesFacade=$datasourcesFacade;
   }
   /**
    * @param MetasourcesFacade $metasourcesFacade
