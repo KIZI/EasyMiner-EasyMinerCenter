@@ -15,10 +15,17 @@ use LeanMapper\Entity;
  * @property User $user m:hasOne
  * @property Miner $miner m:hasOne
  * @property RuleSet $ruleSet m:hasOne
- * @property Datasource $datasource = null m:hasOne
- * @property string $test_key
+ * @property Datasource $datasourcem:hasOne
+ * @property string $testKey = ''
  * @property BreTestUser[] $breTestUsers m:belongsToMany
  */
 class BreTest extends Entity {
+
+  /**
+   * @return int
+   */
+  public function getBreTestUsersCount(){
+    return count($this->breTestUsers);
+  }
 
 }

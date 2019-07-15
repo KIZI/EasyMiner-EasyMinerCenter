@@ -1,0 +1,26 @@
+{**
+ * Template for UserPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{block content}
+
+  <div id="mainBlock">
+    <h1 n:block=title>{_'Rule Editor Experiment'}</h1>
+    <h2>{$breTest->name}</h2>
+    <p>{_'Participants count:'} <strong>{$breTest->getBreTestUsersCount()}</strong></p>
+    <p>
+      {_'Experiment URL:'}<br />
+      <a href="{plink //test id=>$breTest->testKey}" target="_blank">{plink //test id=>$breTest->testKey}</a>
+    </p>
+
+
+    <div class="actions">
+      {*TODO akční tlačítka*}
+      <!--<a href="{link newUser testKey=>$breTest->testKey}" >{_'Start test...'}</a>-->
+    </div>
+  </div>
+
+{/block}
+
+

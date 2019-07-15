@@ -3,6 +3,7 @@ namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
 use EasyMiner\BRE\Integration as BREIntegration;
 use EasyMinerCenter\Exceptions\EntityNotFoundException;
+use EasyMinerCenter\Model\EasyMiner\Entities\BreTest;
 use EasyMinerCenter\Model\EasyMiner\Entities\BreTestUser;
 use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
@@ -16,6 +17,10 @@ use EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleUnserializer;
 use EasyMinerCenter\Model\Scoring\IScorerDriver;
 use EasyMinerCenter\Model\Scoring\ScorerDriverFactory;
 use Nette\Application\BadRequestException;
+use Nette\Application\ForbiddenRequestException;
+use Nette\Application\UI\Form;
+use Nette\Application\UI\Presenter;
+use Nette\Forms\Controls\SubmitButton;
 use Nette\InvalidArgumentException;
 
 /**
@@ -27,6 +32,7 @@ use Nette\InvalidArgumentException;
 class BreTesterPresenter extends BasePresenter{
   use MinersFacadeTrait;
   use ResponsesTrait;
+  use UsersTrait;
 
   /** @var BreTestsFacade $breTestsFacade */
   private $breTestsFacade;
@@ -41,28 +47,14 @@ class BreTesterPresenter extends BasePresenter{
   /** @var ScorerDriverFactory $scorerDriverFactory */
   private $scorerDriverFactory;
 
-
   /**
-   * @param string $testKey
+   * Action for creation of new test user
+   * @param string $id
    * @throws BadRequestException
    */
-  public function renderTest($testKey){
+  public function actionNewUser($id){
     try{
-      $breTest=$this->breTestsFacade->findBreTestByKey($testKey);
-    }catch (\Exception $e){
-      throw new BadRequestException();
-    }
-
-    $this->template->breTest=$breTest;
-  }
-
-  /**
-   * @param string $testKey
-   * @throws BadRequestException
-   */
-  public function actionNewUser($testKey){
-    try{
-      $breTest=$this->breTestsFacade->findBreTestByKey($testKey);
+      $breTest=$this->breTestsFacade->findBreTestByKey($id);
     }catch (\Exception $e){
       throw new BadRequestException();
     }
@@ -71,8 +63,123 @@ class BreTesterPresenter extends BasePresenter{
     $this->redirect('default',['testUserKey'=>$breTestUser->testKey]);
   }
 
+
   /**
-   * Action for display of EasyMiner-BRE
+   * Action for rendering of test for external user
+   * @param string $id = ''
+   * @throws BadRequestException
+   */
+  public function renderTest($id=''){
+    try{
+      $breTest=$this->breTestsFacade->findBreTestByKey($id);
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
+    $this->template->breTest=$breTest;
+  }
+
+  /**
+   * Action for rendering of details of existing test
+   * @param int|null $id = null
+   * @param string $testKey = ''
+   * @throws BadRequestException
+   */
+  public function renderTestDetails($id=null,$testKey=''){
+    try{
+      $breTest=$this->breTestsFacade->findBreTest($id);
+    }catch (\Exception $e){
+      try{
+        $breTest=$this->breTestsFacade->findBreTestByKey($testKey);
+      }catch (\Exception $e){
+        throw new BadRequestException();
+      }
+    }
+    if ($breTest->user->userId!=$this->user->getId()){
+      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected experiment!'));
+    }
+
+    $this->template->breTest=$breTest;
+  }
+
+  /**
+   * Action for displaying of new test form
+   * @param int $ruleset
+   * @param int $miner
+   * @throws BadRequestException
+   */
+  public function renderNewTest($ruleset, $miner){
+    try{
+      $ruleSet=$this->ruleSetsFacade->findRuleSet($ruleset);
+      $miner=$this->findMinerWithCheckAccess($miner);
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
+    if ($breTest=$this->breTestsFacade->findBreTestByRulesetAndMiner($ruleSet,$miner)){
+      //test already exists -> redirect user to its details
+      $this->flashMessage('Experiment for this ruleset is already defined.','info');
+      $this->redirect('testDetails',['id'=>$breTest->breTestId]);
+    }
+
+    //create new test
+    $this->template->ruleSet=$ruleSet;
+    $this->getComponent('newTestForm')->setDefaults([
+      'miner'=>$miner->minerId,
+      'ruleset'=>$ruleSet->ruleSetId
+    ]);
+  }
+
+  /**
+   * @return Form
+   * @throws \Exception
+   */
+  public function createComponentNewTestForm() {
+    $form = new Form();
+    $form->setTranslator($this->translator);
+    $form->addHidden('miner');
+    $form->addHidden('ruleset');
+    $form->addText('name','Experiment name:')
+      ->setAttribute('class','normalWidth')
+      ->setRequired('Input the experiment name!')
+      ->addRule(Form::MAX_LENGTH,'Max length of experiment name is %s characters!',100);
+    $form->addTextArea('infoText','Instructions:')
+      ->setAttribute('class','normalWidth tinymce')
+      ->setRequired(false)
+      ->addRule(Form::MAX_LENGTH,'Max length of instructions is %s characters!',500);
+
+    $form->addSubmit('submit','Create ...')
+      ->onClick[]=function(SubmitButton $submitButton){
+      /** @var Form $form */
+      $form=$submitButton->form;
+      $values=$form->getValues(true);
+      $ruleset=$this->ruleSetsFacade->findRuleSet($values['ruleset']);
+      $miner=$this->findMinerWithCheckAccess($values['miner']);
+
+      $breTest=new BreTest();
+      $breTest->ruleSet=$ruleset;
+      $breTest->miner=$miner;
+      //TODO datasource $breTest->datasource=$miner->datasource;
+      $breTest->name=$values['name'];
+      $breTest->infoText=$values['infoText'];
+      $breTest->user=$this->getCurrentUser();
+      $this->breTestsFacade->saveBreTest($breTest);
+
+      $this->redirect('testDetails',['id'=>$breTest->breTestId]);
+    };
+    $form->addSubmit('storno','storno')
+      ->setValidationScope(array())
+      ->onClick[]=function(SubmitButton $button){
+      /** @var Presenter $presenter */
+      $presenter=$button->form->getParent();
+      $presenter->flashMessage('Experiment creation canceled.','warning');
+      $presenter->redirect('MiningUi:default',['id'=>$button->form->values['miner']]);
+    };
+    return $form;
+  }
+
+  /**
+   * Action for display of EasyMiner-BRE for behaviour experiments
    * @param string $testUserKey
    * @throws \Exception
    */

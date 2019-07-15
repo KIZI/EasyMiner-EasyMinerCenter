@@ -4,6 +4,8 @@ namespace EasyMinerCenter\Model\EasyMiner\Facades;
 use EasyMinerCenter\Libs\StringsHelper;
 use EasyMinerCenter\Model\EasyMiner\Entities\BreTest;
 use EasyMinerCenter\Model\EasyMiner\Entities\BreTestUser;
+use EasyMinerCenter\Model\EasyMiner\Entities\Miner;
+use EasyMinerCenter\Model\EasyMiner\Entities\RuleSet;
 use EasyMinerCenter\Model\EasyMiner\Repositories\BreTestsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\BreTestUsersRepository;
 
@@ -56,6 +58,25 @@ class BreTestsFacade{
   }
 
   /**
+   * @param RuleSet|int $ruleSet
+   * @param Miner|int $miner
+   * @return BreTest|null
+   */
+  public function findBreTestByRulesetAndMiner($ruleSet, $miner){
+    if ($ruleSet instanceof RuleSet){
+      $ruleSet=$ruleSet->ruleSetId;
+    }
+    if ($miner instanceof Miner){
+      $miner=$miner->minerId;
+    }
+    try{
+      return $this->breTestsRepository->findBy(['miner_id' => $miner, 'rule_set_id' => $ruleSet]);
+    }catch (\Exception $e){
+      return null;
+    }
+  }
+
+  /**
    * @param BreTest $breTest
    * @return BreTestUser
    */
@@ -69,8 +90,8 @@ class BreTestsFacade{
    */
   public function saveBreTestUser(BreTestUser &$breTestUser){
     $result=$this->breTestUsersRepository->persist($breTestUser);
-    if (empty($breTestUser->test_key)){
-      $breTestUser->test_key=StringsHelper::randString(10).(103910+$breTestUser->breTestId).StringsHelper::randString(3);
+    if (empty($breTestUser->testKey)){
+      $breTestUser->testKey=StringsHelper::randString(10).(103910+$breTestUser->breTestId).StringsHelper::randString(3);
       $this->breTestUsersRepository->persist($breTestUser);
     }
     return $result;
@@ -82,8 +103,8 @@ class BreTestsFacade{
    */
   public function saveBreTest(BreTest &$breTest){
     $result=$this->breTestsRepository->persist($breTest);
-    if (empty($breTest->test_key)){
-      $breTest->test_key=StringsHelper::randString(10).(11310+$breTest->breTestId).StringsHelper::randString(3);
+    if (empty($breTest->testKey)){
+      $breTest->testKey=StringsHelper::randString(10).(11310+$breTest->breTestId).StringsHelper::randString(3);
       $this->breTestsRepository->persist($breTest);
     }
     return $result;

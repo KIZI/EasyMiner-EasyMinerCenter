@@ -873,7 +873,8 @@ body > footer div.content a:hover {
   color: #fff;
 }
 form input,
-form select {
+form select,
+form textarea {
   box-sizing: border-box;
   padding: 11px 13px;
   font-family: 'Arial', /*'Droid Sans',*/ 'sans-serif';
@@ -884,22 +885,28 @@ form select {
 }
 form input:hover,
 form select:hover,
+form textarea:hover,
 form input:focus,
 form select:focus,
+form textarea:focus,
 form input:active,
-form select:active {
+form select:active,
+form textarea:active {
   border: 1px solid #2d83be;
 }
 form input.has-error,
-form select.has-error {
+form select.has-error,
+form textarea.has-error {
   border-color: #d01d1d !important;
 }
 form input.noBorder,
-form select.noBorder {
+form select.noBorder,
+form textarea.noBorder {
   border: none !important;
 }
 form input[type="checkbox"],
-form select[type="checkbox"] {
+form select[type="checkbox"],
+form textarea[type="checkbox"] {
   width: auto;
 }
 form input[size="1"],

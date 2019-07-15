@@ -84,6 +84,7 @@ var Config = new Class({
 
   knowledgeBaseRuleEditorUrl: {plink Bre:default miner=>'__MINERID__',ruleset=>'__RULESETID__'},
   knowledgeBaseModelTesterUrl: {plink RuleSets:scorer id=>'__RULESETID__'},
+  knowledgeBaseKnowledgeExperimentUrl: {plink BreTester:newTest miner=>'__MINERID__',ruleset=>'__RULESETID__'},
 
   showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',id=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},
   showTaskDetailsUrl: {plink Tasks:taskDetails id=>'__TASKID__'},
@@ -267,6 +268,11 @@ var Config = new Class({
   },
 
   //endregion knowledgeBase
+
+
+  getKnowledgeBaseKnowledgeExperimentUrl: function (rulesetId) {
+    return this.knowledgeBaseKnowledgeExperimentUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
+  },
 
   getTaskModelTesterUrl: function (taskId, ruleId) {
     //jako parametr je možné zadat i více ID oddělených čárkou

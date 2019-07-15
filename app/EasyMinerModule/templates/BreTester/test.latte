@@ -1,13 +1,17 @@
 {**
- * Template for UserPresenter
+ * Template for BreTesterPresenter
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
+
+{block headerLinks}
+  {*TODO možná nějaký odkaz na nápovědu?*}
+{/block}
+
 {block content}
 
   <div id="mainBlock">
-    <h1 n:block=title>{_'Rule Editor Test'}</h1>
-    <h2 n:if="(!empty($breTest->name))">{$breTest->name}</h2>
+    <h1 n:block=title n:if="(!empty($breTest->name))">{$breTest->name}</h1>
     <p>{$breTest->infoText}</p>
 
     <div class="actions">

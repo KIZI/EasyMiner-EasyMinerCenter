@@ -12,7 +12,7 @@ use LeanMapper\Entity;
  * @property int $breTestUserId
  * @property RuleSet $ruleSet m:hasOne
  * @property BreTest $breTest m:hasOne
- * @property string $test_key
+ * @property string $testKey
  * @property \DateTime $created
  */
 class BreTestUser extends Entity {
