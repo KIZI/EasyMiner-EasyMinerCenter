@@ -25,6 +25,7 @@ use LeanMapper\Entity;
  * @property float|null $confidence = null
  * @property float|null $support = null
  * @property float|null $lift = null
+ * @property int|null $antecedentRuleAttributes = null
  * @property bool $inRuleClipboard
  * @property-read array $basicDataArr
  */
@@ -43,6 +44,18 @@ class Rule extends Entity{
       'd'=>$this->d,
       'selected'=>($this->inRuleClipboard?'1':'0')
     ];
+    if ($this->confidence!=null){
+      $result['confidence']=$this->confidence;
+    }
+    if ($this->support!=null){
+      $result['support']=$this->support;
+    }
+    if ($this->lift!=null){
+      $result['lift']=$this->lift;
+    }
+    if ($this->antecedentRuleAttributes!=null){
+      $result['antecedentRuleAttributes']=$this->antecedentRuleAttributes;
+    }
     if (!empty($this->row->task_id)){
       $result['task']=$this->row->task_id;
     }

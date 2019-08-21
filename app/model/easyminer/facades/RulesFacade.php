@@ -127,7 +127,26 @@ class RulesFacade {
    * @param Rule $rule
    */
   public function saveRule(Rule &$rule){
+    #region antecedentRuleAttributes
+    if ($rule->antecedentRuleAttributes==null){
+      if (empty($rule->antecedent)){
+        $rule->antecedentRuleAttributes=0;
+      }else{
+        $rule->antecedentRuleAttributes=$this->calculateCedentRuleAttributesCount($rule->antecedent);
+      }
+    }
+    #endregion antecedentRuleAttributes
     $this->rulesRepository->persist($rule);
+  }
+
+  private function calculateCedentRuleAttributesCount(Cedent $cedent){
+    $result=count($cedent->ruleAttributes);
+    if (!empty($cedent->cedents)){
+      foreach ($cedent->cedents as $childCedent){
+        $result+=$this->calculateCedentRuleAttributesCount($childCedent);
+      }
+    }
+    return $result;
   }
 
   /**

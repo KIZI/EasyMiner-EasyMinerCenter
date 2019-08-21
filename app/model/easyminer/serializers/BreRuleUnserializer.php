@@ -70,6 +70,8 @@ class BreRuleUnserializer{
       $rule->d=$d;
       $rule->confidence=$confidence;
       $rule->support=$support;
+      $rule->lift=null;
+      $rule->antecedentRuleAttributes=null;
     }
     #endregion určení měr zajímavosti
 
