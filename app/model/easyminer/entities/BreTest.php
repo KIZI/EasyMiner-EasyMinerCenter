@@ -37,9 +37,12 @@ class BreTest extends Entity {
    */
   public function getAllowedEditorOperators(){
     try{
-      $arr=Json::decode($this->row->allowedEditorOperators,Json::FORCE_ARRAY);
+      $arr=Json::decode($this->row->allowed_editor_operators,Json::FORCE_ARRAY);
     }catch (\Exception $e){
-      $arr=['and','is'];
+      $arr=[];
+    }
+    if (empty($arr)){
+      $arr=['is'];
     }
     return $arr;
   }
@@ -50,7 +53,7 @@ class BreTest extends Entity {
    */
   public function setAllowedEditorOperators($config){
     if (is_array($config)||is_object($config)){
-      $this->row->allowedEditorOperators=Json::encode($config);
+      $this->row->allowed_editor_operators=Json::encode($config);
     }
   }
 
@@ -59,9 +62,9 @@ class BreTest extends Entity {
    */
   public function getAllowedRuleAttributesCount(){
     try{
-      $arr=Json::decode($this->row->allowedRuleAttributesCount,Json::FORCE_ARRAY);
+      $arr=Json::decode($this->row->allowed_rule_attributes_count,Json::FORCE_ARRAY);
     }catch (\Exception $e){
-      $arr=['and','is'];
+      $arr=['antecedentMin'=>null,'antecedentMax'=>null,'consequentMin'=>null,'consequentMax'=>null];
     }
     return $arr;
   }
@@ -72,7 +75,7 @@ class BreTest extends Entity {
    */
   public function setAllowedRuleAttributesCount($config){
     if (is_array($config)||is_object($config)){
-      $this->row->allowedRuleAttributesCount=Json::encode($config);
+      $this->row->allowed_rule_attributes_count=Json::encode($config);
     }
   }
 }

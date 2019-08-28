@@ -4,9 +4,10 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
 
-{var $allowedEditorOperators=$breTest->getAllowedEditorOperators()}
-
 {contentType text/javascript}
+
+{var $allowedEditorOperators=$breTest->getAllowedEditorOperators()}
+{var $allowedRuleAttributesCount=$breTest->getAllowedRuleAttributesCount()}
 
 var config = {
   "locale": "en",
@@ -63,10 +64,10 @@ var config = {
     "Negation": "not"
   },
   "allowedRuleAttributesCount":{
-    "antecedentMin": null,
-    "antecedentMax": null,
-    "consequentMin": null,
-    "consequentMax": null,
+    "antecedentMin": {isset($allowedRuleAttributesCount['antecedentMin'])?$allowedRuleAttributesCount['antecedentMin']:null},
+    "antecedentMax": {isset($allowedRuleAttributesCount['antecedentMax'])?$allowedRuleAttributesCount['antecedentMax']:null},
+    "consequentMin": {isset($allowedRuleAttributesCount['consequentMin'])?$allowedRuleAttributesCount['consequentMin']:null},
+    "consequentMax": {isset($allowedRuleAttributesCount['consequentMax'])?$allowedRuleAttributesCount['consequentMax']:null},
   },
   "rule-ns": {\EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleSerializer::DEFAULT_XMLNS}
 }

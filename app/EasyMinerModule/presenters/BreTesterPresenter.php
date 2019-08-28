@@ -153,13 +153,31 @@ class BreTesterPresenter extends BasePresenter{
       ->setRequired(false)
       ->addRule(Form::MAX_LENGTH,'Max length of instructions is %s characters!',500);
     $form->addCheckbox('allowAnd','Allow conjunctions in editor')
-      ->setRequired(false);
+      ->setRequired(false)
+      ->setDefaultValue(true);
     $form->addCheckbox('allowOr','Allow disjunctions in editor')
       ->setRequired(false);
     /*$form->addCheckbox('allowNot','Allow negations in editor')
       ->setRequired(false);*/
     $form->addCheckbox('allowBrackets','Allow brackets in editor')
-      ->setRequired(false);
+      ->setRequired(false)
+      ->setDefaultValue(true);
+    $form->addText('antecedentMinRuleAttributes','Min count of attributes in antecedent')
+      ->setRequired(false)
+      ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
+      ->addRule(Form::MIN,'Antecedent length has to positive number or 0.',0);
+    $form->addText('antecedentMaxRuleAttributes','Max count of attributes in antecedent')
+      ->setRequired(false)
+      ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
+      ->addRule(Form::MIN,'Antecedent length has to positive number or 0.',0);
+    $form->addText('consequentMinRuleAttributes','Min count of attributes in consequent')
+      ->setRequired(false)
+      ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
+      ->addRule(Form::MIN,'Consequent length has to be 1 or more.',1);
+    $form->addText('consequentMaxRuleAttributes','Max count of attributes in consequent')
+      ->setRequired(false)
+      ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
+      ->addRule(Form::MIN,'Consequent length has to be 1 or more.',1);
 
     $currentUser=$this->getCurrentUser();
     $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
@@ -210,6 +228,12 @@ class BreTesterPresenter extends BasePresenter{
       if ($values['allowBrackets']){
         $allowedEditorOperators[]='brackets';
       }
+      $breTest->allowedRuleAttributesCount=[
+        'antecedentMin'=>($values['antecedentMinRuleAttributes']!=''?intval($values['antecedentMinRuleAttributes']):1),
+        'antecedentMax'=>($values['antecedentMaxRuleAttributes']!=''?intval($values['antecedentMaxRuleAttributes']):null),
+        'consequentMin'=>($values['consequentMinRuleAttributes']!=''?intval($values['consequentMinRuleAttributes']):null),
+        'consequentMax'=>($values['consequentMaxRuleAttributes']!=''?intval($values['consequentMaxRuleAttributes']):null),
+      ];
 
       $this->breTestsFacade->saveBreTest($breTest);
 
