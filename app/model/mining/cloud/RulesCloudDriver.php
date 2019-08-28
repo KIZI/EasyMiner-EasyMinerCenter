@@ -268,6 +268,8 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
 
     /** @var Cedent[] $cedentsArr */
     $cedentsArr=[];
+    /** @var int[] $cedentRuleAttributesCountArr */
+    $cedentRuleAttributesCountArr=[];
     /** @var RuleAttribute[] $ruleAttributesArr */
     $ruleAttributesArr=[];
     /** @var string[] $unprocessedIdsArr */
@@ -378,7 +380,7 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
 
     #region association rules
     /** @var Cedent[] $topCedentsArr - array with top-level cedents (if a RuleAttribute is on the top level, it has to be packed in a cedent) */
-    $topCedentsArr=array();
+    $topCedentsArr=[];
 
     foreach ($associationRulesXml->AssociationRule as $associationRule){
       $rule=false;
@@ -391,6 +393,9 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
         $rule=new Rule();
       }
       $rule->task=$this->task;
+
+      $ruleAntecedentLength=0;
+
       #region antecedent
       if (isset($associationRule['antecedent'])){
         //it is rule with antecedent
@@ -410,11 +415,19 @@ class RulesCloudDriver extends AbstractCloudDriver implements IMiningDriver{
               $topCedentsArr[$antecedentId] = $cedent;
               $cedent->addToRuleAttributes($ruleAttributesArr[$antecedentId]);
               $this->rulesFacade->saveCedent($cedent);
+              $cedentRuleAttributesCountArr[$cedent->cedentId]=count($cedent->ruleAttributes);
             }
             $rule->antecedent=$topCedentsArr[$antecedentId];
           }else{
             throw new \Exception('Import failed!');
           }
+        }
+
+        if (isset($cedentRuleAttributesCountArr[$rule->antecedent->cedentId])){
+          $rule->antecedentRuleAttributes=$cedentRuleAttributesCountArr[$rule->antecedent->cedentId];
+        }else{
+          $rule->antecedentRuleAttributes=$this->rulesFacade->calculateCedentRuleAttributesCount($rule->antecedent);
+          $cedentRuleAttributesCountArr[$rule->antecedent->cedentId]=$rule->antecedentRuleAttributes;
         }
 
       }else{

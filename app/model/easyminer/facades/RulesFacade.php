@@ -139,7 +139,12 @@ class RulesFacade {
     $this->rulesRepository->persist($rule);
   }
 
-  private function calculateCedentRuleAttributesCount(Cedent $cedent){
+  /**
+   * Metoda pro výpočet počtu atributů v cedentu
+   * @param Cedent $cedent
+   * @return int
+   */
+  public function calculateCedentRuleAttributesCount(Cedent $cedent){
     $result=count($cedent->ruleAttributes);
     if (!empty($cedent->cedents)){
       foreach ($cedent->cedents as $childCedent){
