@@ -18,8 +18,8 @@ use Nette\Utils\Json;
  * @property RuleSet $ruleSet m:hasOne
  * @property Datasource|null $datasource m:hasOne
  * @property string $testKey = ''
- * @property string $allowedEditorOperators
- * @property string $allowedEditorConnections
+ * @property string $allowedEditorOperators = ''
+ * @property string $allowedRuleAttributesCount = ''
  * @property BreTestUser[] $breTestUsers m:belongsToMany
  * @property-read BreTestUserLog[] $breTestUserLogs m:belongsToMany
  */
@@ -54,4 +54,25 @@ class BreTest extends Entity {
     }
   }
 
+  /**
+   * @return array
+   */
+  public function getAllowedRuleAttributesCount(){
+    try{
+      $arr=Json::decode($this->row->allowedRuleAttributesCount,Json::FORCE_ARRAY);
+    }catch (\Exception $e){
+      $arr=['and','is'];
+    }
+    return $arr;
+  }
+
+  /**
+   * @param array $config
+   * @throws \Nette\Utils\JsonException
+   */
+  public function setAllowedRuleAttributesCount($config){
+    if (is_array($config)||is_object($config)){
+      $this->row->allowedRuleAttributesCount=Json::encode($config);
+    }
+  }
 }
