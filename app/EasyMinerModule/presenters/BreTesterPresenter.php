@@ -152,6 +152,14 @@ class BreTesterPresenter extends BasePresenter{
       ->setAttribute('class','normalWidth tinymce')
       ->setRequired(false)
       ->addRule(Form::MAX_LENGTH,'Max length of instructions is %s characters!',500);
+    $form->addCheckbox('allowAnd','Allow conjunctions in editor')
+      ->setRequired(false);
+    $form->addCheckbox('allowOr','Allow disjunctions in editor')
+      ->setRequired(false);
+    /*$form->addCheckbox('allowNot','Allow negations in editor')
+      ->setRequired(false);*/
+    $form->addCheckbox('allowBrackets','Allow brackets in editor')
+      ->setRequired(false);
 
     $currentUser=$this->getCurrentUser();
     $this->datasourcesFacade->updateRemoteDatasourcesByUser($currentUser);
@@ -188,6 +196,21 @@ class BreTesterPresenter extends BasePresenter{
       $breTest->name=$values['name'];
       $breTest->infoText=$values['infoText'];
       $breTest->user=$this->getCurrentUser();
+
+      $allowedEditorOperators=[];
+      if ($values['allowAnd']){
+        $allowedEditorOperators[]='and';
+      }
+      if ($values['allowOr']){
+        $allowedEditorOperators[]='or';
+      }
+      if ($values['allowNot']){
+        $allowedEditorOperators[]='not';
+      }
+      if ($values['allowBrackets']){
+        $allowedEditorOperators[]='brackets';
+      }
+
       $this->breTestsFacade->saveBreTest($breTest);
 
       $this->redirect('testDetails',['id'=>$breTest->breTestId]);
@@ -222,6 +245,15 @@ class BreTesterPresenter extends BasePresenter{
     $this->template->breTestUser=$breTestUser;
     $this->template->ruleSet=$breTestUser->ruleSet;
     $this->template->miner=$breTestUser->breTest->miner;
+  }
+
+  public function renderConfig($testUserKey){
+    try{
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+    $this->template->breTest=$breTestUser->breTest;
   }
 
   /**
@@ -404,7 +436,7 @@ class BreTesterPresenter extends BasePresenter{
       'ruleset'=>$ruleSet->getDataArr(),
       'rules'=>[]
     ];
-    if ($ruleSet->rulesCount>0 || true){
+    if ($ruleSet->rulesCount>0){
       $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
       if (!empty($rules)){
         foreach($rules as $rule){

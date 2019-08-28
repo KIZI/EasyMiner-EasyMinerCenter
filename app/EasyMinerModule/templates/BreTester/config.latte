@@ -4,11 +4,13 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
 
+{var $allowedEditorOperators=$breTest->getAllowedEditorOperators()}
+
 {contentType text/javascript}
 
 var config = {
   "locale": "en",
-  "init-brackets": true,
+  "init-brackets": {if in_array('brackets',$allowedEditorOperators)}true{else}false{/if},
   "init-helper": true,
   getAttributeListUrl: function(minerId){
     return {plink BreTester:getAttributesByMiner testUserKey=>'__TESTUSERKEY__'}.replace('__TESTUSERKEY__',testUserKey);
@@ -43,6 +45,17 @@ var config = {
     //{ "visible": false, "label": "is not", "opt": ["≠", "!="] },
     //{ "visible": false, "label": "is lower than or equals", "opt": ["<=", ""] },
     //{ "visible": false, "label": "is greater than or equals", "opt": [">=", ""] }
+  ],
+  "visibleConnections": [
+    {if in_array('and',$allowedEditorOperators)}
+      "and",
+    {/if}
+    {if in_array('or',$allowedEditorOperators)}
+      "or",
+    {/if}
+    {if in_array('not',$allowedEditorOperators)}
+      "not",
+    {/if}
   ],
   "connections": {
     "Conjunction": "and",

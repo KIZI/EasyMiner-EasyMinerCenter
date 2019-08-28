@@ -34,10 +34,10 @@
       {else}
         var scorerUrl='';
       {/if}
-      var breConfigUrl={link BreTester:config};
+      var breConfigUrl={link BreTester:config testUserKey=>$breTestUser->testKey};
       var breResourcesUrl={$basePath."/_BRE"};
   </script>
-  <script type="text/javascript" src="{link BreTester:config}" ></script>
+  <script type="text/javascript" src="{link BreTester:config testUserKey=>$breTestUser->testKey}" ></script>
   {foreach $javascriptFiles as $file}
     <script type="text/javascript" src="{$basePath}/_BRE/{$file}" ></script>
   {/foreach}

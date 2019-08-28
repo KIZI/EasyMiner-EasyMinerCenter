@@ -167,7 +167,7 @@ class RuleSetsFacade {
    */
   public function findRulesByRuleSet($ruleSet,$order,$offset=null,$limit=null){
     $order=strtolower($order);
-    if (!in_array($order,['confidence','support','lift','antecedent_rule_attributes'])){
+    if (!in_array($order,['confidence','support','lift','antecedent_rule_attributes','cba'])){
       $order='confidence';
     }
 
