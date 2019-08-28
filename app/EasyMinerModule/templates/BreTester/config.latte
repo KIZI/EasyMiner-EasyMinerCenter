@@ -17,7 +17,7 @@ var config = {
     return {plink BreTester:getAttribute attribute=>'__ATTRIBUTEID__'}.replace('__ATTRIBUTEID__',attributeId);
   },
   getRuleListUrl:function(rulesetId){
-    return {plink BreTester:getRules testUserKey=>'__TESTUSERKEY__', offset=>0, limit=>1000}.replace('__TESTUSERKEY__',testUserKey);
+    return {plink BreTester:getRules testUserKey=>'__TESTUSERKEY__', offset=>0, limit=>1000, order=>'cba'}.replace('__TESTUSERKEY__',testUserKey);
   },
   getRuleUrl:function(ruleId, rulesetId){
     return {plink BreTester:getRule rule=>'__RULEID__',testUserKey=>'__TESTUSERKEY__'}.replace('__RULEID__',ruleId).replace('__TESTUSERKEY__',testUserKey);

@@ -45,11 +45,11 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
     if ($order){
       #region vyřešení pravidel pro řazení výsledků
       if (in_array($order,['confidence','support','lift'])){
-        $order=$order.' ASC';
+        $order=$order.' DESC';
       }elseif($order=='antecedent_rule_attributes'){
-        $order='antecedent_rule_attributes DESC';
+        $order='antecedent_rule_attributes ASC';
       }elseif($order=='cba'){
-        $order='(antecedent_rule_attributes=0) ASC,confidence ASC,support ASC,antecedent_rule_attributes DESC';
+        $order='(antecedent_rule_attributes=0) ASC,confidence DESC,support DESC,antecedent_rule_attributes ASC';
       }
       #endregion vyřešení pravidel pro řazení výsledků
 
