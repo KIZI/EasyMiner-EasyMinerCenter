@@ -1,0 +1,4 @@
+# ignore everything except this file and readme
+*
+!.gitignore
+!README.md
