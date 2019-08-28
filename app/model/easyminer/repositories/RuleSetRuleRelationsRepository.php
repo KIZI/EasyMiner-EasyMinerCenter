@@ -43,6 +43,16 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
       ->leftJoin('rule_set_rule_relations')->on($relevantTable.'.rule_id=%n.rule_id',$this->getTable())
       ->where('rule_set_id = ?',$ruleSet->ruleSetId);
     if ($order){
+      #region vyřešení pravidel pro řazení výsledků
+      if (in_array($order,['confidence','support','lift'])){
+        $order=$order.' ASC';
+      }elseif($order=='antecedent_rule_attributes'){
+        $order='antecedent_rule_attributes DESC';
+      }elseif($order=='cba'){
+        $order='(antecedent_rule_attributes=0) ASC,confidence ASC,support ASC,antecedent_rule_attributes DESC';
+      }
+      #endregion vyřešení pravidel pro řazení výsledků
+
       $query=$query->orderBy($order);
     }
     $entityClass=$this->mapper->getEntityClass($relevantTable);

@@ -165,7 +165,12 @@ class RuleSetsFacade {
    * @param null|int $limit
    * @return Rule[]
    */
-  public function findRulesByRuleSet($ruleSet,$order,$offset=null,$limit=null){//TODO order...
+  public function findRulesByRuleSet($ruleSet,$order,$offset=null,$limit=null){
+    $order=strtolower($order);
+    if (!in_array($order,['confidence','support','lift','antecedent_rule_attributes'])){
+      $order='confidence';
+    }
+
     return $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet,$order,$offset,$limit);
   }
   
