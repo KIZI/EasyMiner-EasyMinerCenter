@@ -77,6 +77,8 @@ class BreRuleUnserializer{
 
     if (!empty($antecedent)){
       $rule->antecedent=$antecedent;
+    }else{
+      $rule->antecedent=null;
     }
     $rule->consequent=$consequent;
 
