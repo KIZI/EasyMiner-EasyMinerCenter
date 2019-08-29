@@ -464,7 +464,7 @@ class BreTesterPresenter extends BasePresenter{
       $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
       if (!empty($rules)){
         foreach($rules as $rule){
-          $result['rules'][$rule->ruleId]=$rule->getBasicDataArr();
+          $result['rules'][]=$rule->getBasicDataArr();
         }
       }
     }

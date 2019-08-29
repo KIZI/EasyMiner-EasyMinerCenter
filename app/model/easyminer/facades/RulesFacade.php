@@ -128,7 +128,7 @@ class RulesFacade {
    */
   public function saveRule(Rule &$rule){
     #region antecedentRuleAttributes
-    if ($rule->antecedentRuleAttributes==null){
+    if ($rule->antecedentRuleAttributes===null){
       if (empty($rule->antecedent)){
         $rule->antecedentRuleAttributes=0;
       }else{

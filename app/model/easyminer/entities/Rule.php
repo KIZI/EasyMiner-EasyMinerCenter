@@ -53,7 +53,7 @@ class Rule extends Entity{
     if ($this->lift!=null){
       $result['lift']=$this->lift;
     }
-    if ($this->antecedentRuleAttributes!=null){
+    if ($this->antecedentRuleAttributes!==null){
       $result['antecedentRuleAttributes']=$this->antecedentRuleAttributes;
     }
     if (!empty($this->row->task_id)){
@@ -78,7 +78,19 @@ class Rule extends Entity{
         }
       }
     }
-    //TODO add return statement
+    return null;
+  }
+
+  public function getAntecedentRuleAttrbutes(){
+    return $this->row->antecedent_rule_attributes;
+  }
+
+  public function setAntecedentRuleAttributes($value){
+    if ($value===null){
+      $this->row->antecedent_rule_attributes=null;
+    }else{
+      $this->row->antecedent_rule_attributes=$value;
+    }
   }
 
   /**

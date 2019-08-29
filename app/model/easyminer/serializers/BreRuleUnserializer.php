@@ -71,14 +71,15 @@ class BreRuleUnserializer{
       $rule->confidence=$confidence;
       $rule->support=$support;
       $rule->lift=null;
-      $rule->antecedentRuleAttributes=null;
     }
     #endregion určení měr zajímavosti
 
     if (!empty($antecedent)){
       $rule->antecedent=$antecedent;
+      $rule->antecedentRuleAttributes=$this->rulesFacade->calculateCedentRuleAttributesCount($antecedent);
     }else{
       $rule->antecedent=null;
+      $rule->antecedentRuleAttributes=0;
     }
     $rule->consequent=$consequent;
 
