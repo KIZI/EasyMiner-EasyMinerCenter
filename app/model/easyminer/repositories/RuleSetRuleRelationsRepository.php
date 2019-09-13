@@ -57,7 +57,6 @@ class RuleSetRuleRelationsRepository extends BaseRepository{
     }
     $entityClass=$this->mapper->getEntityClass($relevantTable);
 
-
     $ruleRows=$query->fetchAll($offset, $limit);
     $result=[];
     foreach ($ruleRows as $ruleRow){
