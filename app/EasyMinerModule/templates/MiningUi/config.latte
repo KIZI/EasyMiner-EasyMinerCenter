@@ -78,6 +78,7 @@ var Config = new Class({
 
   knowledgeBaseAddRulesUrl: {plink RuleSets:addRules id=>'__RULESETID__',rules=>'__RULEIDS__',relation=>'__RELATION__',result=>'__RESULT__'},
   knowledgeBaseRemoveRulesUrl: {plink RuleSets:removeRules id=>'__RULESETID__',rules=>'__RULEIDS__',result=>'__RESULT__'},
+  knowledgeBaseAddAllTaskRulesUrl: {plink RuleSets:addAllTaskRules id=>'__RULESETID__',relation=>'__RELATION__',miner=>'__MINERID__',task=>'__TASKID__',returnRules=>'__RETURNRULES__'},
   knowledgeBaseRemoveAllRulesUrl: {plink RuleSets:removeAllRules id=>'__RULESETID__'},
 
   knowledgeBaseSetMinerRuleSetUrl: {plink Miners:setRuleSet miner=>'__MINERID__', ruleSet=>'__RULESETID__'},
@@ -309,6 +310,13 @@ var Config = new Class({
       ruleIds='';//jako parametr je možné zadat i více ID oddělených čárkou
     }
     return this.ruleClipboardAddAllRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RETURNRULES__',ruleIds);
+  },
+  getKBAddAllRulesUrl: function(taskId, rulesetId, relation, ruleIds){
+    if (ruleIds == undefined){
+    ruleIds='';//jako parametr je možné zadat i více ID oddělených čárkou
+    }
+    relation = (typeof relation === "undefined" || relation=='') ? 'positive' : relation;
+    return this.knowledgeBaseAddAllTaskRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleIds).replace('__RELATION__',relation).replace('__RETURNRULES__',ruleIds);
   },
   getRuleClipboardRemoveRuleUrl: function (taskId, ruleId) {
     //jako parametr je možné zadat i více ID oddělených čárkou

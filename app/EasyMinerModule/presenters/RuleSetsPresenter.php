@@ -7,6 +7,7 @@ use EasyMinerCenter\Model\EasyMiner\Entities\RuleSetRuleRelation;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\AssociationRulesXmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\PlainTextRuleSerializer;
 use EasyMinerCenter\Model\EasyMiner\Transformators\XmlTransformator;
@@ -22,9 +23,12 @@ use Nette\InvalidArgumentException;
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
 class RuleSetsPresenter extends BasePresenter{
+  use MinersFacadeTrait;
   use ResponsesTrait;
   use UsersTrait;
 
+  /** @var TasksFacade $tasksFacade */
+  private $tasksFacade;
   /** @var DatasourcesFacade $datasourcesFacade */
   private $datasourcesFacade;
   /** @var  RulesFacade $rulesFacade */
@@ -184,7 +188,7 @@ class RuleSetsPresenter extends BasePresenter{
    * @param string $result = "simple" (varianty "simple", "rules")
    */
   public function actionAddRules($id,$rules,$relation=RuleSetRuleRelation::RELATION_POSITIVE, $result="simple"){
-    //fing RuleSet and check it
+    //find RuleSet and check it
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
     /** @var int[] $ruleIdsArr */
@@ -226,8 +230,8 @@ class RuleSetsPresenter extends BasePresenter{
       foreach($ruleIdsArr as $ruleId){
         if (!$ruleId){continue;}
         try{
-          $rule=$this->rulesFacade->findRule($ruleId);
-          $this->ruleSetsFacade->removeRuleFromRuleSet($rule,$ruleSet);
+          //$rule=$this->rulesFacade->findRule($ruleId);
+          $this->ruleSetsFacade->removeRuleFromRuleSet($ruleId,$ruleSet);
         }catch (\Exception $e){continue;}
       }
     }
@@ -239,6 +243,42 @@ class RuleSetsPresenter extends BasePresenter{
         'rules'=>[]
       ];
       $result['rules']=$this->prepareRulesResult($ruleIdsArr, $ruleSet);
+      $this->sendJsonResponse($result);
+    }else{
+      $this->sendJsonResponse(['state'=>'ok']);
+    }
+  }
+
+  /**
+   * Action for adding the full list of task results (all rules) to rule clipboard
+   * @param int $id
+   * @param string $returnRules ='' - IDs of rules, separated with commas (or a single ID)
+   * @param string $result
+   * @param int $task
+   * @throws \Exception
+   */
+  public function actionAddAllTaskRules($id=null,$relation=RuleSetRuleRelation::RELATION_POSITIVE, $task, $returnRules=null){
+    $task=$this->tasksFacade->findTask($task);
+    $this->checkMinerAccess($task->miner);
+
+    //find RuleSet and check it
+    $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
+    $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$this->user->id);
+
+    if (!empty($task->rules)){
+      foreach ($task->rules as $rule){
+        $this->ruleSetsFacade->addRuleToRuleSet($rule, $ruleSet, $relation);
+      }
+    }
+
+    if (!empty($returnRules)){
+      $ruleIdsArr=explode(',',str_replace(';',',',$returnRules));
+      $result=[
+        'ruleset'=>$ruleSet->getDataArr(),
+        'rules'=>[]
+      ];
+      $result['rules']=$this->prepareRulesResult($ruleIdsArr,$ruleSet);
+
       $this->sendJsonResponse($result);
     }else{
       $this->sendJsonResponse(['state'=>'ok']);
@@ -359,6 +399,12 @@ class RuleSetsPresenter extends BasePresenter{
    */
   public function injectDatasourcesFacade(DatasourcesFacade $datasourcesFacade){
     $this->datasourcesFacade=$datasourcesFacade;
+  }
+  /**
+   * @param TasksFacade $tasksFacade
+   */
+  public function injectTasksFacade(TasksFacade $tasksFacade){
+    $this->tasksFacade=$tasksFacade;
   }
   /**
    * @param RulesFacade $rulesFacade
