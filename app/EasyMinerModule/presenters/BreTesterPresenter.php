@@ -211,28 +211,28 @@ class BreTesterPresenter extends BasePresenter{
           $breTest->datasource=null;
         }
       }
-      $breTest->name=$values['name'];
-      $breTest->infoText=$values['infoText'];
+      $breTest->name=@$values['name'];
+      $breTest->infoText=@$values['infoText'];
       $breTest->user=$this->getCurrentUser();
 
       $allowedEditorOperators=[];
-      if ($values['allowAnd']){
+      if (isset($values['allowAnd']) && $values['allowAnd']){
         $allowedEditorOperators[]='and';
       }
-      if ($values['allowOr']){
+      if (isset($values['allowOr']) && $values['allowOr']){
         $allowedEditorOperators[]='or';
       }
-      if ($values['allowNot']){
+      if (isset($values['allowNot']) && $values['allowNot']){
         $allowedEditorOperators[]='not';
       }
-      if ($values['allowBrackets']){
+      if (isset($values['allowBrackets']) && $values['allowBrackets']){
         $allowedEditorOperators[]='brackets';
       }
       $breTest->allowedRuleAttributesCount=[
-        'antecedentMin'=>($values['antecedentMinRuleAttributes']!=''?intval($values['antecedentMinRuleAttributes']):1),
-        'antecedentMax'=>($values['antecedentMaxRuleAttributes']!=''?intval($values['antecedentMaxRuleAttributes']):null),
-        'consequentMin'=>($values['consequentMinRuleAttributes']!=''?intval($values['consequentMinRuleAttributes']):null),
-        'consequentMax'=>($values['consequentMaxRuleAttributes']!=''?intval($values['consequentMaxRuleAttributes']):null),
+        'antecedentMin'=>(@$values['antecedentMinRuleAttributes']!=''?intval($values['antecedentMinRuleAttributes']):1),
+        'antecedentMax'=>(@$values['antecedentMaxRuleAttributes']!=''?intval($values['antecedentMaxRuleAttributes']):null),
+        'consequentMin'=>(@$values['consequentMinRuleAttributes']!=''?intval($values['consequentMinRuleAttributes']):null),
+        'consequentMax'=>(@$values['consequentMaxRuleAttributes']!=''?intval($values['consequentMaxRuleAttributes']):null),
       ];
 
       $this->breTestsFacade->saveBreTest($breTest);
