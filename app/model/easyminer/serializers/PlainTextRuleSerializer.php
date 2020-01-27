@@ -30,8 +30,10 @@ class PlainTextRuleSerializer{
       $result.='Rules in Rule clipboard: '.$topEntity->rulesInRuleClipboardCount."\n";
     }
     $result.='Exported: '.date('Y-m-d H:i:s');
-    if ($user instanceof User){
+    if (!empty($user) && ($user instanceof User)){
       $result.=', '.$user->name.' ('.$user->email.')';
+    }elseif(!empty($user) && is_string($user)){
+      $result.=', '.$user;
     }
     if (!empty($modeText)){
       $result.="\nExport mode: ".$modeText;

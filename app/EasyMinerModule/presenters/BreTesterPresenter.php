@@ -15,6 +15,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\BreRuleUnserializer;
+use EasyMinerCenter\Model\EasyMiner\Serializers\PlainTextRuleSerializer;
 use EasyMinerCenter\Model\Scoring\IScorerDriver;
 use EasyMinerCenter\Model\Scoring\ScorerDriverFactory;
 use Nette\Application\BadRequestException;
@@ -560,6 +561,26 @@ class BreTesterPresenter extends BasePresenter{
       }
     }
     $this->sendJsonResponse($result);
+  }
+
+  /**
+   * Akce pro textovou serializaci pravidel
+   * @param string $testUserKey
+   * @throws BadRequestException
+   */
+  public function renderExportRules($testUserKey){
+    try{
+      /** @var BreTestUser $breTestUser */
+      $breTestUser=$this->breTestsFacade->findBreTestUserByKey($testUserKey);
+      $ruleSet=$breTestUser->ruleSet;
+    }catch (\Exception $e){
+      throw new BadRequestException();
+    }
+
+    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null);
+    //serialize result and send it
+    $result=PlainTextRuleSerializer::serialize($rules,'External user ID: '.$breTestUser->testKey,$ruleSet,'Rule Editor Experiment results');
+    $this->sendTextResponse($result);
   }
 
   /**

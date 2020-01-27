@@ -40,7 +40,7 @@
             <td class="actions">
               <a href="{plink BreTester:default testUserKey=>$breTestUser->testKey}" target="_blank">{_'Open in editor'}</a>
               &nbsp;
-              <a href="{plink RuleSets:text id=>$breTestUser->ruleSet->ruleSetId}" target="_blank">{_'Export rules'}</a>
+              <a href="{plink BreTester:exportRules testUserKey=>$breTestUser->testKey}" target="_blank">{_'Export rules'}</a>
               &nbsp;
               <a href="{plink BreTester:exportLog testUserKey=>$breTestUser->testKey}" target="_blank">{_'Export log'}</a>
             </td>
