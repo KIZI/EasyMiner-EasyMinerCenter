@@ -239,6 +239,8 @@ class BreTesterPresenter extends BasePresenter{
         'consequentMax'=>(@$values['consequentMaxRuleAttributes']!=''?intval($values['consequentMaxRuleAttributes']):null),
       ];
 
+      $breTest->setAllowedEditorOperators($allowedEditorOperators);
+
       $this->breTestsFacade->saveBreTest($breTest);
 
       $this->redirect('testDetails',['id'=>$breTest->breTestId]);
