@@ -164,18 +164,22 @@ class BreTesterPresenter extends BasePresenter{
       ->setDefaultValue(true);
     $form->addText('antecedentMinRuleAttributes','Min count of attributes in antecedent')
       ->setRequired(false)
+      ->setDefaultValue(0)
       ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
-      ->addRule(Form::MIN,'Antecedent length has to positive number or 0.',0);
+      ->addRule(Form::MIN,'Antecedent length has to be a positive number or 0.',0);
     $form->addText('antecedentMaxRuleAttributes','Max count of attributes in antecedent')
       ->setRequired(false)
+      ->setDefaultValue(10)
       ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
-      ->addRule(Form::MIN,'Antecedent length has to positive number or 0.',0);
+      ->addRule(Form::MIN,'Antecedent length has to be a positive number or 0.',0);
     $form->addText('consequentMinRuleAttributes','Min count of attributes in consequent')
       ->setRequired(false)
+      ->setDefaultValue(1)
       ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
       ->addRule(Form::MIN,'Consequent length has to be 1 or more.',1);
     $form->addText('consequentMaxRuleAttributes','Max count of attributes in consequent')
       ->setRequired(false)
+      ->setDefaultValue(10)
       ->addRule(Form::INTEGER,'You have to input integer, or leave this field empty.')
       ->addRule(Form::MIN,'Consequent length has to be 1 or more.',1);
 
