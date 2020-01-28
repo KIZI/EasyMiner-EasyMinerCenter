@@ -599,15 +599,18 @@ class BreTesterPresenter extends BasePresenter{
     //run scorer and show results
     /** @var IScorerDriver $scorerDriver */
     $scorerDriver=$this->scorerDriverFactory->getDefaultScorerInstance();
+    $scoringResult=$scorerDriver->evaluateRuleSet($breTestUser->ruleSet,$breTestUser->breTest->datasource);
+    $logResults=$scoringResult->getCorrectIncorrectDataArr();
+    $logResults['rulesCount']=$breTestUser->ruleSet->rulesCount;
 
-    $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Model evaluation', ['rulesCount'=>$breTestUser->ruleSet->rulesCount]);
+    $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Model evaluation',$logResults);
 
     $this->layout=$layout;
     $this->template->layout=$layout;
     $this->template->breTestUser=$breTestUser;
     $this->template->ruleSet=$breTestUser->ruleSet;
     $this->template->datasource=$breTestUser->breTest->datasource;
-    $this->template->scoringResult=$scorerDriver->evaluateRuleSet($breTestUser->ruleSet,$breTestUser->breTest->datasource);
+    $this->template->scoringResult=$scoringResult;
   }
 
   #region injections
