@@ -1,6 +1,7 @@
 <?php
 namespace EasyMinerCenter\EasyMinerModule\Presenters;
 
+use EasyMinerCenter\Model\EasyMiner\Facades\BreTestsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
@@ -23,6 +24,8 @@ class MiningUiPresenter extends BasePresenter{
 
   /** @var  IZIConfig $config */
   private $config;
+  /** @var BreTestsFacade $breTestsFacade */
+  private $breTestsFacade;
   /** @var  DatasourcesFacade $datasourcesFacade*/
   private $datasourcesFacade;
   /** @var  MetasourcesFacade $metasourcesFacade */
@@ -82,6 +85,11 @@ class MiningUiPresenter extends BasePresenter{
     }
 
     $responseContent['miner_ruleset'] = ['id'=>$ruleSet->ruleSetId, 'name'=>$ruleSet->name];
+
+    if ($breTest=$this->breTestsFacade->findBreTestByRulesetAndMiner($ruleSet,$miner)){
+      $responseContent['bre_test']=['id'=>$breTest->breTestId,'name'=>$breTest->name];
+    }
+
     $responseContent['miner_config'] = $miner->getExternalConfig();
 
     $this->sendJsonResponse($responseContent);
@@ -126,6 +134,12 @@ class MiningUiPresenter extends BasePresenter{
    */
   public function injectRuleSetsFacade(RuleSetsFacade $ruleSetsFacade){
     $this->ruleSetsFacade=$ruleSetsFacade;
+  }
+  /**
+   * @param BreTestsFacade $breTestsFacade
+   */
+  public function injectBreTestsFacade(BreTestsFacade $breTestsFacade){
+    $this->breTestsFacade=$breTestsFacade;
   }
   #endregion injections
 } 
