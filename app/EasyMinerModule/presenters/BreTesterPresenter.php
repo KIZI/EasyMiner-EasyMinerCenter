@@ -428,13 +428,14 @@ class BreTesterPresenter extends BasePresenter{
       throw new InvalidArgumentException('Rule XML cannot be parsed!');
     }
     $breRuleUnserializer=new BreRuleUnserializer($this->rulesFacade, $this->metasourcesFacade, $this->metaAttributesFacade);
-    $rule=$breRuleUnserializer->unserialize($ruleXml,($rule instanceof Rule?$rule:null));
+    $ruleExists=($rule instanceof Rule);
+    $rule=$breRuleUnserializer->unserialize($ruleXml,($ruleExists?$rule:null));
     #endregion naparsování XML zápisu pravidla
 
     #region kontrola výsledku a odeslání odpovědi
     if ($rule instanceof Rule){
       $this->ruleSetsFacade->addRuleToRuleSet($rule,$ruleSet,$relation);
-      $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,'Save rule', ['ruleId'=>$rule->ruleId,'rule'=>$rule->text,'confidence'=>$rule->confidence,'support'=>$rule->support]);
+      $this->breTestsFacade->saveLog($breTestUser->breTest->breTestId,$breTestUser->breTestUserId,$ruleExists?'Save rule':'Save new rule', ['ruleId'=>$rule->ruleId,'rule'=>$rule->text,'confidence'=>$rule->confidence,'support'=>$rule->support]);
     }else{
       throw new \Exception('Rule was not saved.');
     }
