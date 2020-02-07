@@ -580,9 +580,36 @@ class BreTesterPresenter extends BasePresenter{
 
     $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null);
     //serialize result and send it
-    $result=PlainTextRuleSerializer::serialize($rules,'External user ID: '.$breTestUser->testKey,$ruleSet,'Rule Editor Experiment results');
+    $result=PlainTextRuleSerializer::serialize($rules,'External user ID: '.$breTestUser->testKey,$ruleSet,'Rule Editor Experiment results',true);
     $this->sendTextResponse($result);
   }
+
+  /**
+   * @param int|null $id = null
+   * @param string $testKey = ''
+   * @throws BadRequestException
+   */
+  public function renderExportTestRules($id=null,$testKey=''){
+    try{
+      $breTest = $this->breTestsFacade->findBreTest($id);
+    }catch (\Exception $e){
+      try{
+        $breTest = $this->breTestsFacade->findBreTestByKey($testKey);
+      }catch (\Exception $e){
+        throw new BadRequestException();
+      }
+    }
+    if ($breTest->user->userId != $this->user->getId()){
+      throw new ForbiddenRequestException($this->translator->translate('You are not authorized to access selected experiment!'));
+    }
+
+    $ruleSet=$breTest->ruleSet;
+    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null);
+    //serialize result and send it
+    $result=PlainTextRuleSerializer::serialize($rules,'Experiment name: '.$breTest->name,$ruleSet,'Rule Editor Experiment - default ruleset',true);
+    $this->sendTextResponse($result);
+  }
+  
 
   /**
    * @param string $testUserKey

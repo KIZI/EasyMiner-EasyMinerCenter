@@ -19,9 +19,10 @@ class PlainTextRuleSerializer{
    * @param User|null $user = null
    * @param RuleSet|Task|null $topEntity = null
    * @param string $modeText=''
+   * @param bool $exportRuleIds = false
    * @return string
    */
-  public static function serialize($rules, $user=null, $topEntity=null, $modeText=''){
+  public static function serialize($rules, $user=null, $topEntity=null, $modeText='', $exportRuleIds = false){
     $result='';
     if ($topEntity instanceof RuleSet){
       $result.='Rule set: '.$topEntity->name."\nRules count: ".$topEntity->rulesCount."\n";
@@ -41,7 +42,7 @@ class PlainTextRuleSerializer{
     $result.="\n\n";
     if (!empty($rules)){
       foreach ($rules as $rule){
-        $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.']'."\n";
+        $result.=$rule->text.' [conf='.$rule->confidence.',supp='.$rule->support.($exportRuleIds?',ruleId='.$rule->ruleId:'').']'."\n";
       }
     }
     return $result;
