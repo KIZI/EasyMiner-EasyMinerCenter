@@ -8,6 +8,3 @@
 [submodule "submodules/EasyMiner-BRE"]
 	path = submodules/EasyMiner-BRE
 	url = https://github.com/KIZI/EasyMiner-BRE.git
-[submodule "submodules/EasyMiner-XML"]
-	path = submodules/EasyMiner-XML
-	url = https://github.com/KIZI/EasyMiner-XML.git
