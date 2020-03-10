@@ -34,6 +34,30 @@ class RulesFacade {
   }
 
   /**
+   * Metoda pro vytvoření základního klonu pravidla
+   * @param Rule $rule
+   * @return Rule
+   * @throws \LeanMapper\Exception\InvalidArgumentException
+   */
+  public function cloneRule(Rule $rule){
+    /** @noinspection PhpUnhandledExceptionInspection */
+    $newRule=new Rule();
+    $newRule->text=$rule->text;
+    $newRule->antecedent=$rule->antecedent;
+    $newRule->consequent=$rule->consequent;
+    $newRule->a=$rule->a;
+    $newRule->b=$rule->b;
+    $newRule->c=$rule->c;
+    $newRule->d=$rule->d;
+    $newRule->confidence=$rule->confidence;
+    $newRule->support=$rule->support;
+    $newRule->lift=$rule->lift;
+    $newRule->antecedentRuleAttributes=$rule->antecedentRuleAttributes;
+    $this->saveRule($newRule);
+    return $newRule;
+  }
+
+  /**
    * @param int $taskId
    * @param int $pmmlRuleId
    * @return Rule

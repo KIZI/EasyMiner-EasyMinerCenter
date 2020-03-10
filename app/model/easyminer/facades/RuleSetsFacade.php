@@ -29,10 +29,11 @@ class RuleSetsFacade {
   /**
    * Method for cloning of existing RuleSet
    * @param RuleSet $ruleSet
+   * @param bool $cloneRules
    * @return RuleSet
    * @throws \LeanMapper\Exception\InvalidArgumentException
    */
-  public function cloneRuleSet(RuleSet $ruleSet,$ruleSetName=''){
+  public function cloneRuleSet(RuleSet $ruleSet,$ruleSetName='',$cloneRules=true){
     $result=new RuleSet();
     $result->user=$ruleSet->user;
     $result->name=!empty($ruleSetName)?$ruleSetName:$ruleSet->name.' clone '.date('c');
@@ -44,7 +45,7 @@ class RuleSetsFacade {
       foreach ($ruleSet->ruleSetRuleRelations as $ruleSetRuleRelation){
         $resultRuleRelation=new RuleSetRuleRelation();
         $resultRuleRelation->ruleSet=$result;
-        $resultRuleRelation->rule=$ruleSetRuleRelation->rule;
+        $resultRuleRelation->rule=$this->rulesFacade->cloneRule($ruleSetRuleRelation->rule);
         $resultRuleRelation->relation=$ruleSetRuleRelation->relation;
         $this->ruleSetRuleRelationsRepository->persist($resultRuleRelation);
       }
