@@ -35,7 +35,6 @@ WORKDIR easyminercenter
 RUN php -r "readfile('https://getcomposer.org/installer');" | php && \
     php composer.phar update && \
     chmod 775 /root/start.sh && \
-    mkdir temp/pmmlImports/cloud && \
     chmod 777 temp/pmmlImports/cloud
 
 ADD docker/config.local.neon /var/www/html/easyminercenter/app/config
