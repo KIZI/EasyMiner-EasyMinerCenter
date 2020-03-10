@@ -15,8 +15,21 @@
 {/block}
 
 {block applicationSubTitle}
-  {_'External user ID:'} <input type="text" id="testKeyInput" value="{$breTestUser->testKey}" title="" style="background:transparent;color:yellow;font-weight:bold;border:none;text-align: center;" onclick="document.getElementById('testKeyInput').select();if(document.execCommand('copy'))alert('{_'User ID copied to clipboard.'|noescape}');" readonly />
-  <!--<a href="#" onclick="document.getElementById('testKeyInput').select();if(document.execCommand('copy'))alert('{_'User ID copied to clipboard.'|noescape}');" class="button" title="{_'Copy ID to clipboard'}">copy</a>-->
+  {_'External user ID:'} <input type="text" id="testKeyInput" value="{$breTestUser->testKey}" title="" style="background:transparent;color:yellow;font-weight:bold;border:none;text-align: center;" readonly  />
+  <a href="#" id="testKeyInputCopy" class="button" title="{_'Copy ID to clipboard'}">copy</a>
+  <script n:syntax="double">
+    jQuery(document).ready(function(){
+      $('#testKeyInputCopy').click(function (){
+        navigator.clipboard.writeText({{$breTestUser->testKey}}).then(function() {
+          /* clipboard successfully set */
+          alert({{_'User ID copied to clipboard.'}});
+        }, function() {
+          /* clipboard write failed */
+          alert({{_'Sorry, it was not possible to copy your User ID to clipboard. Please rewrite it amnualll'}});
+        });
+      });
+    })
+  </script>
 {/block}
 
 {block headerLinks}
