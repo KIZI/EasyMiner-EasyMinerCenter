@@ -28,8 +28,8 @@ class RequestHelper {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION,true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
     curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1000);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
     curl_setopt($ch, CURLOPT_FAILONERROR, false);
     curl_setopt($ch, CURLOPT_VERBOSE, false);
