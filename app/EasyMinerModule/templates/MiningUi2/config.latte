@@ -5,373 +5,369 @@
  *}
 {contentType text/javascript}
 
-var Config = new Class({
-  {*TODO*}
-  GetterSetter: ['stopMiningUrl', 'showFeedback', 'minerId', 'rootElementId'],
+var UIConfig = {
 
-  rulesPerPage: 20,//TODO
-  $minerId: 61,
+minerId: null,
 
-  // language
-  lang: {$lang},
-  titleAppName: {$titleAppName},
+// language
+lang: {$lang},
+titleAppName: {$titleAppName},
 
-  //region EasyMinerCenter config
-  //TODO
+//region EasyMinerCenter config
 
-  newMinerUrl: {plink Data:newMiner},
-  //users actions
-  userLoginUrl: {plink User:login},
-  userInfoUrl:  {plink User:info},
+newMinerUrl: {plink Data:newMiner},
+//users actions
+userLoginUrl: {plink User:login},
+userInfoUrl:  {plink User:info},
 
-  getDataUrl: {plink MiningUi:getData miner=>'__MINERID__'},
-  showAttributeHistogramUrl: {plink Attributes:attributeHistogram miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
-  showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
-  getAttributeValuesUrl: {plink Attributes:attributeValues miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
-  addAttributeUrl: {plink Attributes:addAttribute miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
-  addAttributesUrl: {plink Attributes:addAttributes miner=>'__MINERID__',columnNames=>'__COLUMNNAME__',mode=>'iframe'},
-  getRulesUrl: {plink Tasks:getRules miner=>'__MINERID__',id=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
-  startMiningUrl: {plink Tasks:startMining miner=>'__MINERID__',id=>'__TASKID__'},
-  stopMiningUrl: {plink Tasks:stopMining miner=>'__MINERID__',id=>'__TASKID__'},
-  taskRenameUrl: {plink Tasks:renameTask miner=>'__MINERID__',id=>'__TASKID__',name=>'__NAME__'},
-  taskRulesOrderUrl: {plink Tasks:rulesOrder miner=>'__MINERID__',id=>'__TASKID__',rulesOrder=>'__ORDER__'},
+getDataUrl: {plink MiningUi:getData miner=>'__MINERID__'},
+showAttributeHistogramUrl: {plink Attributes:attributeHistogram miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
+showColumnHistogramUrl: {plink Data:columnHistogram miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
+getAttributeValuesUrl: {plink Attributes:attributeValues miner=>'__MINERID__',id=>'__ATTRIBUTEID__',mode=>'iframe'},
+addAttributeUrl: {plink Attributes:addAttribute miner=>'__MINERID__',column=>'__COLUMNID__',mode=>'iframe'},
+addAttributesUrl: {plink Attributes:addAttributes miner=>'__MINERID__',columnNames=>'__COLUMNNAME__',mode=>'iframe'},
+getRulesUrl: {plink Tasks:getRules miner=>'__MINERID__',id=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
+startMiningUrl: {plink Tasks:startMining miner=>'__MINERID__',id=>'__TASKID__'},
+stopMiningUrl: {plink Tasks:stopMining miner=>'__MINERID__',id=>'__TASKID__'},
+taskRenameUrl: {plink Tasks:renameTask miner=>'__MINERID__',id=>'__TASKID__',name=>'__NAME__'},
+taskRulesOrderUrl: {plink Tasks:rulesOrder miner=>'__MINERID__',id=>'__TASKID__',rulesOrder=>'__ORDER__'},
 
-  taskModelTesterUrl: "",{*TODO implementovat model tester*}
+taskModelTesterUrl: "",{*TODO implementovat model tester*}
 
-  minerGetConfigParamUrl: {plink Miners:getConfig miner=>'__MINERID__',property=>'__PROPERTY__'},
-  minerSetConfigParamUrl: {plink Miners:setConfig miner=>'__MINERID__',property=>'__PROPERTY__',value=>'__VALUE__'},
+minerGetConfigParamUrl: {plink Miners:getConfig miner=>'__MINERID__',property=>'__PROPERTY__'},
+minerSetConfigParamUrl: {plink Miners:setConfig miner=>'__MINERID__',property=>'__PROPERTY__',value=>'__VALUE__'},
 
-  ruleClipboardGetTasksUrl: {plink RuleClipboard:getTasks miner=>'__MINERID__'},
-  ruleClipboardGetRulesUrl: {plink RuleClipboard:getRules miner=>'__MINERID__',id=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
-  ruleClipboardAddRuleUrl: {plink RuleClipboard:addRule miner=>'__MINERID__',id=>'__TASKID__',rules=>'__RULEIDS__'},
-  ruleClipboardAddAllRulesUrl: {plink RuleClipboard:addAllRules miner=>'__MINERID__',id=>'__TASKID__',returnRules=>'__RETURNRULES__'},
-  ruleClipboardRemoveRuleUrl:  {plink RuleClipboard:removeRule miner=>'__MINERID__',id=>'__TASKID__',rules=>'__RULEIDS__'},
-  ruleClipboardRemoveAllRulesUrl: {plink RuleClipboard:removeAllRules miner=>'__MINERID__',id=>'__TASKID__'},
+ruleClipboardGetTasksUrl: {plink RuleClipboard:getTasks miner=>'__MINERID__'},
+ruleClipboardGetRulesUrl: {plink RuleClipboard:getRules miner=>'__MINERID__',id=>'__TASKID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
+ruleClipboardAddRuleUrl: {plink RuleClipboard:addRule miner=>'__MINERID__',id=>'__TASKID__',rules=>'__RULEIDS__'},
+ruleClipboardAddAllRulesUrl: {plink RuleClipboard:addAllRules miner=>'__MINERID__',id=>'__TASKID__',returnRules=>'__RETURNRULES__'},
+ruleClipboardRemoveRuleUrl:  {plink RuleClipboard:removeRule miner=>'__MINERID__',id=>'__TASKID__',rules=>'__RULEIDS__'},
+ruleClipboardRemoveAllRulesUrl: {plink RuleClipboard:removeAllRules miner=>'__MINERID__',id=>'__TASKID__'},
 
-  ruleClipboardAddToKnowledgeBaseUrl: {plink RuleClipboard:addRulesToRuleSet miner=>'__MINERID__',id=>'__TASKID__',ruleset=>'__RULESETID__',relation=>'__RELATION__'},
-  ruleClipboardRemoveFromKnowledgeBaseUrl: {plink RuleClipboard:removeRulesFromRuleSet miner=>'__MINERID__',id=>'__TASKID__',ruleset=>'__RULESETID__'},
+ruleClipboardAddToKnowledgeBaseUrl: {plink RuleClipboard:addRulesToRuleSet miner=>'__MINERID__',id=>'__TASKID__',ruleset=>'__RULESETID__',relation=>'__RELATION__'},
+ruleClipboardRemoveFromKnowledgeBaseUrl: {plink RuleClipboard:removeRulesFromRuleSet miner=>'__MINERID__',id=>'__TASKID__',ruleset=>'__RULESETID__'},
 
-  ruleClipboardExportLinks: {l}
-    guhaPmml:{l}text:"Task details (GUHA PMML)",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
-    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
-    textClipboard:{l}text:"Plain Text (only rules in Rule clipboard)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>true}{r},
-    text:{l}text:"Plain Text (all task rules)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>false}{r},
-  {r},
+ruleClipboardExportLinks: {l}
+guhaPmml:{l}text:"Task details (GUHA PMML)",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
+guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
+textClipboard:{l}text:"Plain Text (only rules in Rule clipboard)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>true}{r},
+text:{l}text:"Plain Text (all task rules)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__',inClipboard=>false}{r},
+{r},
 
-  discoveredRulesExportLinks: {l}
-    guhaPmml:{l}text:"GUHA PMML",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
-    guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
-    text:{l}text:"Plain Text",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__'}{r},
-  {r},
+discoveredRulesExportLinks: {l}
+guhaPmml:{l}text:"GUHA PMML",miningInProgress:true,importInProgress:false,url:{plink Tasks:taskPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
+guhaSettingPmml:{l}text:"Task setting (GUHA PMML)",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskSettingPmml miner=>'__MINERID__',id=>'__TASKID__'}{r},
+text:{l}text:"Plain Text",miningInProgress:true,importInProgress:true,url:{plink Tasks:taskRulesText miner=>'__MINERID__',id=>'__TASKID__'}{r},
+{r},
 
-  knowledgeBaseExportLinks: {l}
-    /*drl:{l}text:"Drools DRL",url:{plink RuleSets:drl id=>'__RULESETID__'}{r},*/
-    text:{l}text:"Plain Text",url:{plink RuleSets:text id=>'__RULESETID__'}{r}
-  {r},
+knowledgeBaseExportLinks: {l}
+/*drl:{l}text:"Drools DRL",url:{plink RuleSets:drl id=>'__RULESETID__'}{r},*/
+text:{l}text:"Plain Text",url:{plink RuleSets:text id=>'__RULESETID__'}{r}
+{r},
 
-  knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
-  knowledgeBaseGetRuleSetsUrl: {plink RuleSets:list},
+knowledgeBaseGetRulesUrl: {plink RuleSets:getRules id=>'__RULESETID__',offset=>'-999991999',limit=>'-999992999',order=>'__ORDER__'}.replace('-999991999','__OFFSET__').replace('-999992999','__LIMIT__'),
+knowledgeBaseGetRuleSetsUrl: {plink RuleSets:list},
 
-  knowledgeBaseAddRuleSetUrl: {plink RuleSets:new name=>'__NAME__',description=>'__DESCRIPTION__'},
-  knowledgeBaseRenameRuleSetUrl: {plink RuleSets:rename id=>'__RULESETID__',name=>'__NAME__',description=>'__DESCRIPTION__'},
-  knowledgeBaseDeleteRuleSetUrl: {plink RuleSets:delete id=>'__RULESETID__'},
+knowledgeBaseAddRuleSetUrl: {plink RuleSets:new name=>'__NAME__',description=>'__DESCRIPTION__'},
+knowledgeBaseRenameRuleSetUrl: {plink RuleSets:rename id=>'__RULESETID__',name=>'__NAME__',description=>'__DESCRIPTION__'},
+knowledgeBaseDeleteRuleSetUrl: {plink RuleSets:delete id=>'__RULESETID__'},
 
-  knowledgeBaseAddRulesUrl: {plink RuleSets:addRules id=>'__RULESETID__',rules=>'__RULEIDS__',relation=>'__RELATION__',result=>'__RESULT__'},
-  knowledgeBaseRemoveRulesUrl: {plink RuleSets:removeRules id=>'__RULESETID__',rules=>'__RULEIDS__',result=>'__RESULT__'},
-  knowledgeBaseAddAllTaskRulesUrl: {plink RuleSets:addAllTaskRules id=>'__RULESETID__',relation=>'__RELATION__',miner=>'__MINERID__',task=>'__TASKID__',returnRules=>'__RETURNRULES__'},
-  knowledgeBaseRemoveAllRulesUrl: {plink RuleSets:removeAllRules id=>'__RULESETID__'},
+knowledgeBaseAddRulesUrl: {plink RuleSets:addRules id=>'__RULESETID__',rules=>'__RULEIDS__',relation=>'__RELATION__',result=>'__RESULT__'},
+knowledgeBaseRemoveRulesUrl: {plink RuleSets:removeRules id=>'__RULESETID__',rules=>'__RULEIDS__',result=>'__RESULT__'},
+knowledgeBaseAddAllTaskRulesUrl: {plink RuleSets:addAllTaskRules id=>'__RULESETID__',relation=>'__RELATION__',miner=>'__MINERID__',task=>'__TASKID__',returnRules=>'__RETURNRULES__'},
+knowledgeBaseRemoveAllRulesUrl: {plink RuleSets:removeAllRules id=>'__RULESETID__'},
 
-  knowledgeBaseSetMinerRuleSetUrl: {plink Miners:setRuleSet miner=>'__MINERID__', ruleSet=>'__RULESETID__'},
+knowledgeBaseSetMinerRuleSetUrl: {plink Miners:setRuleSet miner=>'__MINERID__', ruleSet=>'__RULESETID__'},
 
-  knowledgeBaseRuleEditorUrl: {plink Bre:default miner=>'__MINERID__',ruleset=>'__RULESETID__'},
-  knowledgeBaseModelTesterUrl: {plink RuleSets:scorer id=>'__RULESETID__'},
-  knowledgeBaseKnowledgeExperimentUrl: {plink BreTester:newTest miner=>'__MINERID__',ruleset=>'__RULESETID__'},
+knowledgeBaseRuleEditorUrl: {plink Bre:default miner=>'__MINERID__',ruleset=>'__RULESETID__'},
+knowledgeBaseModelTesterUrl: {plink RuleSets:scorer id=>'__RULESETID__'},
+knowledgeBaseKnowledgeExperimentUrl: {plink BreTester:newTest miner=>'__MINERID__',ruleset=>'__RULESETID__'},
 
-  showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',id=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},
-  showTaskDetailsUrl: {plink Tasks:taskDetails id=>'__TASKID__'},
-  getTaskPMMLUrl: {plink Tasks:taskPmml},
-  //endregion
+showRuleDetailsUrl: {plink Rules:ruleDetails miner=>'__MINERID__',id=>'__TASKID__',rule=>'__RULE__',mode=>'iframe'},
+showTaskDetailsUrl: {plink Tasks:taskDetails id=>'__TASKID__'},
+getTaskPMMLUrl: {plink Tasks:taskPmml},
+//endregion
 
 {syntax off}
-  $showFeedback: false,
-  $rootElementId: 'IZIMiner',
 
-  perPageOptions: [10, 20, 50, 100],
+$rootElementId: 'IZIMiner',
 
-
-  initialize: function () {
-  },
-
-  getLang: function () {
-    return this.lang;
-  },
-
-  setLang: function (lang) {
-    this.lang = lang;
-  },
-
-  getListAnalyticalReportsUrl: function () {
-    //FIXME
-    console.log('not implemented: getListAnalyticalReportsUrl');
-    return '';
-  },
-
-  getETreeGetURL: function () {
-    //FIXME
-    console.log('not implemented: getETreeGetURL');
-    return '';
-  },
-
-  getAddAttributeURL: function (fieldId) {
-    return  this.addAttributeUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNID__',fieldId);
-  },
-
-  getAddAttributesURL: function (fieldNames) {
-    return  this.addAttributesUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNNAME__',fieldNames.join(','));
-  },
-
-  getShowHistogramURL: function (id, type) {
-    if (type === 'attribute') {
-      return  this.showAttributeHistogramUrl.replace('__MINERID__',this.getMinerId()).replace('__ATTRIBUTEID__',encodeURIComponent(id));
-    } else {
-      return  this.showColumnHistogramUrl.replace('__MINERID__',this.getMinerId()).replace('__COLUMNID__',encodeURIComponent(id));
-    }
-  },
-
-  getAttributeValuesURL: function(attributeId){
-    return this.getAttributeValuesUrl.replace('__MINERID__',this.getMinerId()).replace('__ATTRIBUTEID__',attributeId)
-  },
-
-  //region easyMinerCenterUrls
-  getUserLoginUrl: function () {
-    return this.userLoginUrl+'?url='+encodeURIComponent(location.href);
-  },
-
-  getUserDetailsUrl: function () {
-    return this.userDetailsUrl;
-  },
-
-  getUserInfoUrl: function(){
-    return this.userInfoUrl;
-  },
-
-  getNewTaskURL: function () {
-    return this.newMinerUrl;
-  },
-
-  getRuleDetailsUrl:function(taskId,ruleId){
-    return this.showRuleDetailsUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULE__',ruleId);
-  },
-
-  getTaskDetailsUrl:function(taskId){
-    return this.showTaskDetailsUrl.replace('__TASKID__',taskId);
-  },
-
-  getGetDataURL: function () {
-    return this.getDataUrl.replace('__MINERID__', this.getMinerId());
-  },
-  //endregion easyMinerCenterUrls
-
-  getRootElementID: function () {
-    return this.rootElementID;
-  },
-
-  //region mining
-  getStartMiningUrl: function (taskId) {
-    return this.startMiningUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId==0?'':taskId);
-  },
-  getStopMiningUrl: function (taskId) {
-    return this.stopMiningUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
-  },
-  getGetRulesUrl: function (taskId,offset,limit,order) {
-    offset = (typeof offset === "undefined") ? 0 : offset;
-    limit = ((typeof limit === "undefined") || (limit == null) || (limit == 0)) ? this.rulesPerPage : limit;
-    order = (typeof order === "undefined") ? '' : order;
-    return this.getRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__OFFSET__',offset).replace('__LIMIT__',limit).replace('__ORDER__',order);
-  },
-  //endregion mining
-
-  //region knowledgeBase
-  getKnowledgeBaseGetRulesUrl: function (rulesetId,offset,limit,order) {
-    offset = (typeof offset === "undefined") ? 0 : offset;
-    limit = ((typeof limit === "undefined") || (limit == null) || (limit == 0)) ? this.rulesPerPage : limit;
-    order = (typeof order === "undefined") ? '' : order;
-
-    //FIXME
-    order='';
-
-    return this.knowledgeBaseGetRulesUrl.replace('__RULESETID__',rulesetId).replace('__OFFSET__',offset).replace('__LIMIT__',limit).replace('__ORDER__',order);
-  },
-
-  getKnowledgeBaseGetRuleSetsUrl: function () {
-    return this.knowledgeBaseGetRuleSetsUrl;
-  },
-
-  getKnowledgeBaseAddRuleSetUrl: function(name, description){
-    return this.knowledgeBaseAddRuleSetUrl.replace('__NAME__',name).replace('__DESCRIPTION__',description);
-  },
-
-  getKnowledgeBaseRenameRuleSetUrl: function (rulesetId, newName, description) {
-    return this.knowledgeBaseRenameRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__NAME__',newName).replace('__DESCRIPTION__',description);
-  },
-
-  getKnowledgeBaseDeleteRuleSetUrl: function (rulesetId){
-    return this.knowledgeBaseDeleteRuleSetUrl.replace('__RULESETID__',rulesetId);
-  },
-
-  /**
-   * Funkce pro sestavení adresy pro přidání pravidla do knowledge base
-   * @param {string} rulesetId
-   * @param {string} ruleIds  - jako parametr je možné zadat i více ID oddělených čárkou
-   * @param {string} relation
-   * @param {boolean} returnRules
-   * @returns {string}
-   */
-  getKnowledgeBaseAddRulesUrl: function (rulesetId, ruleIds, relation, returnRules) {
-    relation = (typeof relation === "undefined" || relation=='') ? 'positive' : relation;
-    return this.knowledgeBaseAddRulesUrl.replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleIds).replace('__RELATION__',relation).replace('__RESULT__',(returnRules?'rules':''));
-  },
-
-  /**
-   * Funkce pro sestavení adresy pro odebrání pravidla z knowledge base
-   * @param {string} rulesetId
-   * @param {string} ruleId
-   * @param {boolean} returnRules
-   * @returns {string}
-   */
-  getKnowledgeBaseRemoveRulesUrl: function (rulesetId, ruleId, returnRules) {
-    return this.knowledgeBaseRemoveRulesUrl.replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleId).replace('__RESULT__',(returnRules?'rules':''));
-  },
-
-  getKnowledgeBaseRemoveAllRulesUrl: function (rulesetId) {
-    return this.knowledgeBaseRemoveAllRulesUrl.replace('__RULESETID__',rulesetId);
-  },
-
-  getKnowledgeBaseSetMinerRuleSetUrl: function (rulesetId) {
-    return this.knowledgeBaseSetMinerRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
-  },
-
-  getKnowledgeBaseRuleEditorUrl: function (rulesetId) {
-    return this.knowledgeBaseRuleEditorUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
-  },
-
-  getKnowledgeBaseAddRuleClipboardUrl: function(rulesetId,taskId,relation){
-    relation = (typeof relation === "undefined" || relation=='') ? 'positive' : relation;
-    return this.ruleClipboardAddToKnowledgeBaseUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId).replace('__RELATION__',relation);
-  },
-
-  getKnowledgeBaseRemoveRuleClipboardUrl: function(rulesetId,taskId){
-    return this.ruleClipboardRemoveFromKnowledgeBaseUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId);
-  },
-
-  getKnowledgeBaseModelTesterUrl: function(rulesetId){
-    return this.knowledgeBaseModelTesterUrl.replace('__RULESETID__',rulesetId);
-  },
-
-  //endregion knowledgeBase
+perPageOptions: [10, 20, 50, 100],
 
 
-  getKnowledgeBaseKnowledgeExperimentUrl: function (rulesetId) {
-    return this.knowledgeBaseKnowledgeExperimentUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.getMinerId());
-  },
+initialize: function () {
+},
 
-  getTaskModelTesterUrl: function (taskId, ruleId) {
-    //jako parametr je možné zadat i více ID oddělených čárkou
-    return this.taskModelTesterUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
-  },
+getLang: function () {
+return this.lang;
+},
 
-  //region minerConfig
-  getMinerGetConfigParamUrl: function (property) {
-    property = (typeof property === "undefined") ? "" : property;
-    return this.minerGetConfigParamUrl.replace('__MINERID__',this.getMinerId()).replace('__PROPERTY__',encodeURIComponent(property));
-  },
-  getMinerSetConfigParamUrl: function (property,value) {
-    return this.minerSetConfigParamUrl.replace('__MINERID__',this.getMinerId()).replace('__PROPERTY__',encodeURIComponent(property)).replace('__VALUE__',encodeURIComponent(value));
-  },
-  //endregion minerConfig
+setLang: function (lang) {
+this.lang = lang;
+},
 
-  //region ruleClipboard
-  getRuleClipboardGetRulesUrl: function (taskId,offset,limit,order) {
-    offset = (typeof offset === "undefined") ? 0 : offset;
-    limit = ((typeof limit === "undefined") || (limit == null) || (limit == 0)) ? this.rulesPerPage : limit;
-    order = (typeof order === "undefined") ? '' : order;
+getListAnalyticalReportsUrl: function () {
+//FIXME
+console.log('not implemented: getListAnalyticalReportsUrl');
+return '';
+},
 
-    return this.ruleClipboardGetRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__OFFSET__',offset).replace('__LIMIT__',limit).replace('__ORDER__',order);
-  },
-  getRuleClipboardGetTasksUrl: function () {
-    return this.ruleClipboardGetTasksUrl.replace('__MINERID__',this.getMinerId());
-  },
-  getRuleClipboardAddRuleUrl: function (taskId, ruleId) {
-    //jako parametr je možné zadat i více ID oddělených čárkou
-    return this.ruleClipboardAddRuleUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
-  },
-  getRuleClipboardAddAllRulesUrl: function(taskId,ruleIds){
-    if (ruleIds == undefined){
-      ruleIds='';//jako parametr je možné zadat i více ID oddělených čárkou
-    }
-    return this.ruleClipboardAddAllRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RETURNRULES__',ruleIds);
-  },
-  getKBAddAllRulesUrl: function(taskId, rulesetId, relation, ruleIds){
-    if (ruleIds == undefined){
-    ruleIds='';//jako parametr je možné zadat i více ID oddělených čárkou
-    }
-    relation = (typeof relation === "undefined" || relation=='') ? 'positive' : relation;
-    return this.knowledgeBaseAddAllTaskRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleIds).replace('__RELATION__',relation).replace('__RETURNRULES__',ruleIds);
-  },
-  getRuleClipboardRemoveRuleUrl: function (taskId, ruleId) {
-    //jako parametr je možné zadat i více ID oddělených čárkou
-    return this.ruleClipboardRemoveRuleUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
-  },
-  getRuleClipboardRemoveAllRulesUrl: function(taskId){
-    return this.ruleClipboardRemoveAllRulesUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
-  },
-  //endregion
-  getTaskRenameUrl: function (taskId, newName) {
-    return this.taskRenameUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__NAME__',newName);
-  },
+getETreeGetURL: function () {
+//FIXME
+console.log('not implemented: getETreeGetURL');
+return '';
+},
 
-  getTaskRuleOrderUrl: function(taskId, rulesOrder){
-    return this.taskRulesOrderUrl.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId).replace('__ORDER__',rulesOrder);
-  },
+getAddAttributeURL: function (fieldId) {
+return  this.addAttributeUrl.replace('__MINERID__',this.minerId).replace('__COLUMNID__',fieldId);
+},
 
-  getRuleClipboardExportLinks: function(taskId){
-    var links=this.ruleClipboardExportLinks;
-    for (var linkId in links){
-      var url=links[linkId].url;
-      links[linkId].url=url.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
-    }
-    return links;
-  },
+getAddAttributesURL: function (fieldNames) {
+return  this.addAttributesUrl.replace('__MINERID__',this.minerId).replace('__COLUMNNAME__',fieldNames.join(','));
+},
 
-  getDiscoveredRulesExportLinks: function(taskId){
-    var links=this.discoveredRulesExportLinks;
-    for (var linkId in links){
-      var url=links[linkId].url;
-      links[linkId].url=url.replace('__MINERID__',this.getMinerId()).replace('__TASKID__',taskId);
-    }
-    return links;
-  },
+getShowHistogramURL: function (id, type) {
+if (type === 'attribute') {
+return  this.showAttributeHistogramUrl.replace('__MINERID__',this.minerId).replace('__ATTRIBUTEID__',encodeURIComponent(id));
+} else {
+return  this.showColumnHistogramUrl.replace('__MINERID__',this.minerId).replace('__COLUMNID__',encodeURIComponent(id));
+}
+},
 
-  getKnowledgeBaseExportLinks: function(rulesetId){
-    var links=this.knowledgeBaseExportLinks;
-    for (var linkId in links){
-      var url=links[linkId].url;
-      links[linkId].url=url.replace('__RULESETID__',rulesetId);
-    }
-    return links;
-  },
+getAttributeValuesURL: function(attributeId){
+return this.getAttributeValuesUrl.replace('__MINERID__',this.minerId).replace('__ATTRIBUTEID__',attributeId)
+},
 
-  getPerPageOptions: function(){
-    return this.perPageOptions;
-  },
+//region easyMinerCenterUrls
+getUserLoginUrl: function () {
+return this.userLoginUrl+'?url='+encodeURIComponent(location.href);
+},
 
-  getPaginatorType: function(){
-    //return 'selectPaginator';
-    return 'linksPaginator';
-  },
+getUserDetailsUrl: function () {
+return this.userDetailsUrl;
+},
 
-  getAutoShowAttributeBinningDialog: function(){
-    return false;
-  }
+getUserInfoUrl: function(){
+return this.userInfoUrl;
+},
 
-});
+getNewTaskURL: function () {
+return this.newMinerUrl;
+},
+
+getRuleDetailsUrl:function(taskId,ruleId){
+return this.showRuleDetailsUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RULE__',ruleId);
+},
+
+getTaskDetailsUrl:function(taskId){
+return this.showTaskDetailsUrl.replace('__TASKID__',taskId);
+},
+
+getGetDataURL: function () {
+return this.getDataUrl.replace('__MINERID__', this.minerId);
+},
+//endregion easyMinerCenterUrls
+
+getRootElementID: function () {
+return this.rootElementID;
+},
+
+//region mining
+getStartMiningUrl: function (taskId) {
+return this.startMiningUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId==0?'':taskId);
+},
+getStopMiningUrl: function (taskId) {
+return this.stopMiningUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId);
+},
+getGetRulesUrl: function (taskId,offset,limit,order) {
+offset = (typeof offset === "undefined") ? 0 : offset;
+limit = ((typeof limit === "undefined") || (limit == null) || (limit == 0)) ? this.rulesPerPage : limit;
+order = (typeof order === "undefined") ? '' : order;
+return this.getRulesUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__OFFSET__',offset).replace('__LIMIT__',limit).replace('__ORDER__',order);
+},
+//endregion mining
+
+//region knowledgeBase
+getKnowledgeBaseGetRulesUrl: function (rulesetId,offset,limit,order) {
+offset = (typeof offset === "undefined") ? 0 : offset;
+limit = ((typeof limit === "undefined") || (limit == null) || (limit == 0)) ? this.rulesPerPage : limit;
+order = (typeof order === "undefined") ? '' : order;
+
+//FIXME
+order='';
+
+return this.knowledgeBaseGetRulesUrl.replace('__RULESETID__',rulesetId).replace('__OFFSET__',offset).replace('__LIMIT__',limit).replace('__ORDER__',order);
+},
+
+getKnowledgeBaseGetRuleSetsUrl: function () {
+return this.knowledgeBaseGetRuleSetsUrl;
+},
+
+getKnowledgeBaseAddRuleSetUrl: function(name, description){
+return this.knowledgeBaseAddRuleSetUrl.replace('__NAME__',name).replace('__DESCRIPTION__',description);
+},
+
+getKnowledgeBaseRenameRuleSetUrl: function (rulesetId, newName, description) {
+return this.knowledgeBaseRenameRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__NAME__',newName).replace('__DESCRIPTION__',description);
+},
+
+getKnowledgeBaseDeleteRuleSetUrl: function (rulesetId){
+return this.knowledgeBaseDeleteRuleSetUrl.replace('__RULESETID__',rulesetId);
+},
+
+/**
+* Funkce pro sestavení adresy pro přidání pravidla do knowledge base
+* @param {string} rulesetId
+* @param {string} ruleIds  - jako parametr je možné zadat i více ID oddělených čárkou
+* @param {string} relation
+* @param {boolean} returnRules
+* @returns {string}
+*/
+getKnowledgeBaseAddRulesUrl: function (rulesetId, ruleIds, relation, returnRules) {
+relation = (typeof relation === "undefined" || relation=='') ? 'positive' : relation;
+return this.knowledgeBaseAddRulesUrl.replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleIds).replace('__RELATION__',relation).replace('__RESULT__',(returnRules?'rules':''));
+},
+
+/**
+* Funkce pro sestavení adresy pro odebrání pravidla z knowledge base
+* @param {string} rulesetId
+* @param {string} ruleId
+* @param {boolean} returnRules
+* @returns {string}
+*/
+getKnowledgeBaseRemoveRulesUrl: function (rulesetId, ruleId, returnRules) {
+return this.knowledgeBaseRemoveRulesUrl.replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleId).replace('__RESULT__',(returnRules?'rules':''));
+},
+
+getKnowledgeBaseRemoveAllRulesUrl: function (rulesetId) {
+return this.knowledgeBaseRemoveAllRulesUrl.replace('__RULESETID__',rulesetId);
+},
+
+getKnowledgeBaseSetMinerRuleSetUrl: function (rulesetId) {
+return this.knowledgeBaseSetMinerRuleSetUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.minerId);
+},
+
+getKnowledgeBaseRuleEditorUrl: function (rulesetId) {
+return this.knowledgeBaseRuleEditorUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.minerId);
+},
+
+getKnowledgeBaseAddRuleClipboardUrl: function(rulesetId,taskId,relation){
+relation = (typeof relation === "undefined" || relation=='') ? 'positive' : relation;
+return this.ruleClipboardAddToKnowledgeBaseUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId).replace('__RELATION__',relation);
+},
+
+getKnowledgeBaseRemoveRuleClipboardUrl: function(rulesetId,taskId){
+return this.ruleClipboardRemoveFromKnowledgeBaseUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId);
+},
+
+getKnowledgeBaseModelTesterUrl: function(rulesetId){
+return this.knowledgeBaseModelTesterUrl.replace('__RULESETID__',rulesetId);
+},
+
+//endregion knowledgeBase
+
+
+getKnowledgeBaseKnowledgeExperimentUrl: function (rulesetId) {
+return this.knowledgeBaseKnowledgeExperimentUrl.replace('__RULESETID__',rulesetId).replace('__MINERID__',this.minerId);
+},
+
+getTaskModelTesterUrl: function (taskId, ruleId) {
+//jako parametr je možné zadat i více ID oddělených čárkou
+return this.taskModelTesterUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
+},
+
+//region minerConfig
+getMinerGetConfigParamUrl: function (property) {
+property = (typeof property === "undefined") ? "" : property;
+return this.minerGetConfigParamUrl.replace('__MINERID__',this.minerId).replace('__PROPERTY__',encodeURIComponent(property));
+},
+getMinerSetConfigParamUrl: function (property,value) {
+return this.minerSetConfigParamUrl.replace('__MINERID__',this.minerId).replace('__PROPERTY__',encodeURIComponent(property)).replace('__VALUE__',encodeURIComponent(value));
+},
+//endregion minerConfig
+
+//region ruleClipboard
+getRuleClipboardGetRulesUrl: function (taskId,offset,limit,order) {
+offset = (typeof offset === "undefined") ? 0 : offset;
+limit = ((typeof limit === "undefined") || (limit == null) || (limit == 0)) ? this.rulesPerPage : limit;
+order = (typeof order === "undefined") ? '' : order;
+
+return this.ruleClipboardGetRulesUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__OFFSET__',offset).replace('__LIMIT__',limit).replace('__ORDER__',order);
+},
+getRuleClipboardGetTasksUrl: function () {
+return this.ruleClipboardGetTasksUrl.replace('__MINERID__',this.minerId);
+},
+getRuleClipboardAddRuleUrl: function (taskId, ruleId) {
+//jako parametr je možné zadat i více ID oddělených čárkou
+return this.ruleClipboardAddRuleUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
+},
+getRuleClipboardAddAllRulesUrl: function(taskId,ruleIds){
+if (ruleIds == undefined){
+ruleIds='';//jako parametr je možné zadat i více ID oddělených čárkou
+}
+return this.ruleClipboardAddAllRulesUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RETURNRULES__',ruleIds);
+},
+getKBAddAllRulesUrl: function(taskId, rulesetId, relation, ruleIds){
+if (ruleIds == undefined){
+ruleIds='';//jako parametr je možné zadat i více ID oddělených čárkou
+}
+relation = (typeof relation === "undefined" || relation=='') ? 'positive' : relation;
+return this.knowledgeBaseAddAllTaskRulesUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RULESETID__',rulesetId).replace('__RULEIDS__',ruleIds).replace('__RELATION__',relation).replace('__RETURNRULES__',ruleIds);
+},
+getRuleClipboardRemoveRuleUrl: function (taskId, ruleId) {
+//jako parametr je možné zadat i více ID oddělených čárkou
+return this.ruleClipboardRemoveRuleUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__RULEIDS__',ruleId);
+},
+getRuleClipboardRemoveAllRulesUrl: function(taskId){
+return this.ruleClipboardRemoveAllRulesUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId);
+},
+//endregion
+getTaskRenameUrl: function (taskId, newName) {
+return this.taskRenameUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__NAME__',newName);
+},
+
+getTaskRuleOrderUrl: function(taskId, rulesOrder){
+return this.taskRulesOrderUrl.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId).replace('__ORDER__',rulesOrder);
+},
+
+getRuleClipboardExportLinks: function(taskId){
+var links=this.ruleClipboardExportLinks;
+for (var linkId in links){
+var url=links[linkId].url;
+links[linkId].url=url.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId);
+}
+return links;
+},
+
+getDiscoveredRulesExportLinks: function(taskId){
+var links=this.discoveredRulesExportLinks;
+for (var linkId in links){
+var url=links[linkId].url;
+links[linkId].url=url.replace('__MINERID__',this.minerId).replace('__TASKID__',taskId);
+}
+return links;
+},
+
+getKnowledgeBaseExportLinks: function(rulesetId){
+var links=this.knowledgeBaseExportLinks;
+for (var linkId in links){
+var url=links[linkId].url;
+links[linkId].url=url.replace('__RULESETID__',rulesetId);
+}
+return links;
+},
+
+getPerPageOptions: function(){
+return this.perPageOptions;
+},
+
+getPaginatorType: function(){
+//return 'selectPaginator';
+return 'linksPaginator';
+},
+
+getAutoShowAttributeBinningDialog: function(){
+return false;
+}
+
+}

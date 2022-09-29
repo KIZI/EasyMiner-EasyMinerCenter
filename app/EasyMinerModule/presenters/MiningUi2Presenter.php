@@ -5,19 +5,19 @@ use EasyMinerCenter\Model\EasyMiner\Facades\BreTestsFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
-use EasyMiner\MiningUI\Integration as MiningUIIntegration;
+use EasyMiner\MiningUI2\Integration as MiningUIIntegration;
 use IZI\IZIConfig;
 use IZI\Parser\DataParser;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Utils\Strings;
 
 /**
- * Class MiningUiPresenter - presented with the functionality required by the submodule EasyMiner-MiningUI (UI for mining of association rules)
+ * Class MiningUi2Presenter - presented with the functionality required by the submodule EasyMiner-MiningUI2 (UI for mining of association rules)
  * @package EasyMinerCenter\EasyMinerModule\Presenters
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  */
-class MiningUiPresenter extends BasePresenter{
+class MiningUi2Presenter extends BasePresenter{
   use MinersFacadeTrait;
   use ResponsesTrait;
   use UsersTrait;

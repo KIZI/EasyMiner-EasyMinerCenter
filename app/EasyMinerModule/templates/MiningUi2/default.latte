@@ -3,7 +3,6 @@
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
-{var includeHelp=>"miningUI"}
 
 {block scripts}
   {include parent}
@@ -11,7 +10,10 @@
   <script>
     var $jq=jQuery.noConflict();
     var minerId={$miner->minerId};
-    var rootElementId='IZIMiner';
+    var rootElementId='MiningUI';
+    $jq.ready(function(){
+      MiningUI.minerId=minerId;
+    });
   </script>
   {foreach $javascriptFiles as $file}
     {if $file=='config'}
@@ -29,10 +31,6 @@
   <meta http-equiv="Cache-Control" content="no-cache" />
 {/block}
 
-{*block headerLinks }
-  {include parent, includeHelp=>"miningUI"}
-{ /block*}
-
 {block main}
-  <main id="IZIMiner" class="clearfix"></main>
+  <main id="MiningUI" class="clearfix"></main>
 {/block}
