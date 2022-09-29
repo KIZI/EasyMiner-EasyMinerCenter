@@ -1,0 +1,38 @@
+{**
+ * Template for MiningUiPresenter
+ * @author Stanislav Vojíř
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ *}
+{var includeHelp=>"miningUI"}
+
+{block scripts}
+  {include parent}
+
+  <script>
+    var $jq=jQuery.noConflict();
+    var minerId={$miner->minerId};
+    var rootElementId='IZIMiner';
+  </script>
+  {foreach $javascriptFiles as $file}
+    {if $file=='config'}
+      <script type="text/javascript" src={link config} ></script>
+    {else}
+      <script type="text/javascript" src="{$basePath}/_miningUI/{$file}" ></script>
+    {/if}
+  {/foreach}
+{/block}
+
+{block head}
+  {foreach $cssFiles as $file}
+    <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_miningUI/{$file}" />
+  {/foreach}
+  <meta http-equiv="Cache-Control" content="no-cache" />
+{/block}
+
+{*block headerLinks }
+  {include parent, includeHelp=>"miningUI"}
+{ /block*}
+
+{block main}
+  <main id="IZIMiner" class="clearfix"></main>
+{/block}
