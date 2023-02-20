@@ -21,7 +21,7 @@
 		}
 	],
 	"require": {
-		"php": ">= 5.3.7",
+		"php": ">=5.4",
 		"nette/nette": "~2.3.0",
 		"tharos/leanmapper": "dev-patch-1",
 		"kdyby/facebook": "v2.0.1@stable",
