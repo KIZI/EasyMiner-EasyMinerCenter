@@ -503,6 +503,8 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  * @SWG\Definition(
  *   definition="ColumnBasicInfoResponse",
  *   required={"name"},
- *   @SWG\Property(property="name",type="string")
+ *   @SWG\Property(property="id",type="integer"),
+ *   @SWG\Property(property="name",type="string"),
+ *   @SWG\Property(property="type",type="string")
  * )
  */
