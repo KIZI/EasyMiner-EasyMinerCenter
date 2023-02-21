@@ -36,6 +36,21 @@ class Metasource extends Entity{
   const STATE_PREPARATION='preparation';
 
   /**
+   * Method returning an array with basic data properties of the given datasource
+   * @return array
+   */
+  public function getDataArr(){
+    return [
+      'id'=>$this->metasourceId,
+      'type'=>$this->type,
+      'name'=>$this->name,
+      'ppDatasetId'=>$this->ppDatasetId,
+      'available'=>$this->available,
+      'size'=>$this->size
+    ];
+  }
+
+  /**
    * Method for creation of new Metasource using a PpConnection
    * @param PpConnection $ppConnection
    * @return Metasource

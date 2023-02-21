@@ -460,6 +460,23 @@ class MetasourcesFacade {
   }
 
   /**
+   * Method for checking, if the given user is allowed to access the selected datasource
+   * @param Metasource|int $datasource
+   * @param User|int $user
+   * @return bool
+   */
+  public function checkMetasourceAccess($metasource, $user) {
+    if (!($metasource instanceof Metasource)){
+      $metasource=$this->findMetasource($metasource);
+    }
+    if ($user instanceof User){
+      $user=$user->userId;
+    }
+    return $metasource->user->userId==$user;
+  }
+
+
+  /**
    * Method returning info about the support of long column names in metasource
    * @param Metasource $metasource
    * @return bool

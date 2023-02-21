@@ -67,7 +67,11 @@ use Nette\Utils\Strings;
  * )
  * @SWG\Tag(
  *   name="Datasources",
- *   description="Management of datasources"
+ *   description="Management of user-uploaded datasets"
+ * )
+ * @SWG\Tag(
+ *   name="Metasources",
+ *   description="Management of datasets prepared for data mining"
  * )
  * @SWG\Tag(
  *   name="Miners",
