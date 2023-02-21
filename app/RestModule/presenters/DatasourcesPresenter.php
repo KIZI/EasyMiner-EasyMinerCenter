@@ -238,7 +238,7 @@ class DatasourcesPresenter extends BaseResourcePresenter{
     $result=$datasource->getDataArr();
     if (!empty($datasource->datasourceColumns)){
       foreach($datasource->datasourceColumns as $column){
-        $result['column'][]=['id'=>$column->datasourceColumnId,'name'=>$column->name,'type'=>$column->type,'uniqueValues'=>$column->uniqueValuesCount,'active'=>(int)$column->active];
+        $result['column'][]=['id'=>$column->datasourceColumnId,'name'=>$column->name,'type'=>$column->type,'uniqueValues'=>$column->uniqueValuesCount,'active'=>$column->active];
       }
     }
     $this->resource=$result;
@@ -507,6 +507,6 @@ class DatasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="name",type="string",description="Name of the column"),
  *   @SWG\Property(property="type",type="string",enum={"nominal","numeric"},description="Data type of the column"),
  *   @SWG\Property(property="uniqueValues",type="int",description="Count of unique values of the column"),
- *   @SWG\Property(property="active",type="bool")
+ *   @SWG\Property(property="active",type="boolean")
  * )
  */

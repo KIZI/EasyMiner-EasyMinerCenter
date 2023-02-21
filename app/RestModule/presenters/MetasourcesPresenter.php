@@ -125,6 +125,6 @@ class MetasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="datasourceColumnId",type="int"),
  *   @SWG\Property(property="preprocessingId",type="int"),
  *   @SWG\Property(property="uniqueValues",type="int",description="Count of unique values of the attribute"),
- *   @SWG\Property(property="active",type="bool")
+ *   @SWG\Property(property="active",type="boolean")
  * )
  */
