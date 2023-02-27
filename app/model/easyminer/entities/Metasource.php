@@ -45,7 +45,7 @@ class Metasource extends Entity{
       'type'=>$this->type,
       'name'=>$this->name,
       'ppDatasetId'=>$this->ppDatasetId,
-      'available'=>$this->available,
+      'state'=>$this->state,
       'size'=>$this->size
     ];
   }

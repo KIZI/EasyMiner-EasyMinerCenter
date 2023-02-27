@@ -101,7 +101,7 @@ class MetasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="type",type="string",description="Type of the used database",enum={"limited","unlimited","mysql"}),
  *   @SWG\Property(property="name",type="string",description="Name of the database table"),
  *   @SWG\Property(property="dbDatasourceId",type="integer",description="ID of the metasource on the remote data service"),
- *   @SWG\Property(property="available",type="boolean"),
+ *   @SWG\Property(property="state",type="string",enum={"available","unavailable","preparation"})
  * )
  * @SWG\Definition(
  *   definition="MetasourceWithAttributesResponse",
@@ -111,7 +111,7 @@ class MetasourcesPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="type",type="string",description="Type of the used database"),
  *   @SWG\Property(property="name",type="string",description="Name of the database table"),
  *   @SWG\Property(property="ppDatasetId",type="integer",description="ID of the metasource on the remote data service"),
- *   @SWG\Property(property="available",type="boolean"),
+ *   @SWG\Property(property="state",type="string",enum={"available","unavailable","preparation"}),
  *   @SWG\Property(property="attribute",type="array",
  *     @SWG\Items(ref="#/definitions/AttributeBasicInfoResponse")
  *   )
