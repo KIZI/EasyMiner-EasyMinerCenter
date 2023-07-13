@@ -1,7 +1,0 @@
-# Vendor directory - initialized using composer
-# ignore GIT subdirectories
-*/.git
-
-# ignore everything except this file
-/*
-!.gitignore

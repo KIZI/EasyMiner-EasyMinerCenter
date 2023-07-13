@@ -17,24 +17,52 @@
 	"repositories": [
 		{
 			"type": "git",
-			"url": "https://github.com/vojir/LeanMapper.git"
+			"url": "https://github.com/vojir/FormsReplicator.git"
+		},
+		{
+			"type": "git",
+			"url": "https://github.com/vojir/Restful.git"
+		},
+		{
+			"type": "git",
+			"url": "https://github.com/vojir/nette-reflection.git"
+		},
+		{
+			"type": "git",
+			"url": "https://github.com/vojir/kdyby-curl.git"
 		}
 	],
 	"require": {
-		"php": ">=5.4",
-		"nette/nette": "~2.3.0",
-		"tharos/leanmapper": "dev-patch-1",
-		"kdyby/facebook": "v2.0.1@stable",
-		"kdyby/google": "dev-master",
-		"srigi/nette-confirmationdialog": "1.0.1",
-		"kdyby/curl": "v2.2.0",
-		"kdyby/forms-replicator": "@dev",
+		"php": ">=8.1",
+		"nette/application": "^3.1",
+		"nette/bootstrap": "^3.2",
+		"nette/di": "^3.1",
+		"nette/finder": "^3.0",
+		"nette/forms": "^3.1",
+		"nette/mail": "^4.0",
+		"nette/caching": "^3.2",
+		"nette/security": "^3.1",
+		"latte/latte": "^3.0",
+		"tracy/tracy": "^2.10",
+		"nette/utils": "^4.0",
+		"zircote/swagger-php": "^4.7",
+		"joseki/error-presenter-extension": "^1.0",
+		"tharos/leanmapper": "v4.0",
+		"contributte/forms-multiplier": "^3.3",
+		"nette/reflection": "2.4.x-dev",
 		"drahak/restful": "dev-master",
-		"joseki/error-presenter-extension": "v1.0.1",
-		"zircote/swagger-php": "2.0.1"
+		"kdyby/curl": "2.2.x-dev",
+		"kdyby/forms-replicator": "2.0.x-dev"
 	},
-	"require-dev": {
-		"nette/tester": "~1.4"
-	},
-	"minimum-stability": "stable"
+	"minimum-stability": "stable",
+	"config": {
+		"platform": {
+			"php": "8.2",
+			"ext-json": "1",
+			"ext-curl": "1",
+			"ext-fileinfo": "1",
+			"ext-gd": "1",
+			"ext-simplexml": "1"
+		}
+	}
 }
