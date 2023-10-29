@@ -104,6 +104,7 @@ class MiningUi2Presenter extends BasePresenter{
 
     $miner=$this->findMinerWithCheckAccess($id);
     $this->template->miner=$miner;
+    $this->template->encodedApiKey = $this->getCurrentUser()->encodedApiKey;
 
     $this->template->javascriptFiles = MiningUIIntegration::$javascriptFiles;
     $this->template->cssFiles = MiningUIIntegration::$cssFiles;

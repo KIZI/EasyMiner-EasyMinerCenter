@@ -11,15 +11,14 @@
     var $jq=jQuery.noConflict();
     var minerId={$miner->minerId};
     var rootElementId='MiningUI';
-    $jq.ready(function(){
-      MiningUI.minerId=minerId;
-    });
+    var userApiKey={$encodedApiKey};
+    console.log('API KEY: '+userApiKey);
   </script>
   {foreach $javascriptFiles as $file}
     {if $file=='config'}
       <script type="text/javascript" src={link config} ></script>
     {else}
-      <script type="text/javascript" src="{$basePath}/_miningUI/{$file}" ></script>
+      <script type="text/javascript" src="{$basePath}/_miningUI2/{$file}" ></script>
     {/if}
   {/foreach}
 {/block}
