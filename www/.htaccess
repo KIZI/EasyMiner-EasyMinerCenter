@@ -1,5 +1,9 @@
 # Apache configuration file (see httpd.apache.org/docs/current/mod/quickreference.html)
 Header set Access-Control-Allow-Origin: *
+# Header set Cross-Origin-Embedder-Policy "unsafe-none"
+Header set Cross-Origin-Opener-Policy: *
+Header always unset Content-Security-Policy
+Header set Content-Security-Policy "upgrade-insecure-requests;frame-src *;frame-ancestors *"
 Header set X-UA-Compatible "IE=Edge,chrome=1"
 
 # disable directory listing
