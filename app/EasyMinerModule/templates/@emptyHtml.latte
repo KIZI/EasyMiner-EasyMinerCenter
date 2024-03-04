@@ -7,7 +7,7 @@
  * @param array    $flashes  flash messages
  *}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<meta charset="utf-8">
 	<title>{ifset #title}{include title|striptags} :: {/ifset}{$titleAppName}</title>
@@ -16,7 +16,7 @@
   {/block}
   {block head}{/block}
 </head>
-<body>
+<body class="{block $bodyClass}{/block}">
   {block body}{/block}
 </body>
 </html>
