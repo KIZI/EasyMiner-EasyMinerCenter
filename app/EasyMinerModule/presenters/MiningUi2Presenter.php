@@ -101,13 +101,13 @@ class MiningUi2Presenter extends BasePresenter{
    * @param int $id - Miner ID
    */
   public function renderDefault($id) {
-
     $miner=$this->findMinerWithCheckAccess($id);
     $this->template->miner=$miner;
     $this->template->encodedApiKey = $this->getCurrentUser()->encodedApiKey;
 
-    $this->template->javascriptFiles = MiningUIIntegration::$javascriptFiles;
-    $this->template->cssFiles = MiningUIIntegration::$cssFiles;
+    $this->template->layout='emptyHtml';
+    $this->template->javascriptFiles = MiningUIIntegration::getJavascriptFiles();
+    $this->template->cssFiles = MiningUIIntegration::getCssFiles();
   }
   
 

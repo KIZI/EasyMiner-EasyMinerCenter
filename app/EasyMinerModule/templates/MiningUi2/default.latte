@@ -3,10 +3,7 @@
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
-
 {block scripts}
-  {include parent}
-
   <script>
     var $jq=jQuery.noConflict();
     var minerId={$miner->minerId};
@@ -34,6 +31,6 @@
   <meta http-equiv="Cache-Control" content="no-cache" />
 {/block}
 
-{block main}
+{block body}
   <main id="MiningUI" class="clearfix"></main>
 {/block}
