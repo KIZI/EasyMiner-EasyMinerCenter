@@ -54,6 +54,11 @@ class AttributesPresenter extends BasePresenter{
    * @persistent
    */
   public $mode='default';
+  /**
+   * @var bool $returnPostMessage
+   * @persistent
+   */
+  public $returnPostMessage=false;
 
   /**
    * @param int $miner
@@ -444,7 +449,17 @@ class AttributesPresenter extends BasePresenter{
    * @param $id
    */
   public function renderPreprocessingTask($id) {
-    $this->template->metasourceTask=$this->metasourcesFacade->findMetasourceTask($id);
+    $metasourceTask=$this->metasourcesFacade->findMetasourceTask($id);
+    $this->template->metasourceTask=$metasourceTask;
+    $this->template->returnPostMessage=$this->returnPostMessage;
+    $metasourceTaskAttributes=[];
+    if (!empty($metasourceTask->attributes)){
+      foreach ($metasourceTask->attributes as $attribute){
+        /** @var Attribute $attribute */
+        $metasourceTaskAttributes[]=['id'=>$attribute->attributeId,'name'=>$attribute->name,'columnId'=>$attribute->datasourceColumn->datasourceColumnId,'columnName'=>$attribute->datasourceColumn->name];
+      }
+    }
+    $this->template->metasourceTaskAttributes=$metasourceTaskAttributes;
   }
 
   /**
@@ -459,7 +474,7 @@ class AttributesPresenter extends BasePresenter{
       case MetasourceTask::STATE_DONE:
         //task finished => delete it and reload the UI
         $this->metasourcesFacade->deleteMetasourceTask($metasourceTask);
-        $this->sendJsonResponse(['redirect'=>$this->link('reloadUI')]);
+        $this->sendJsonResponse(['state'=>'done','redirect'=>$this->link('reloadUI')]);
         return;
       case MetasourceTask::STATE_IN_PROGRESS:
         $this->sendJsonResponse(['message'=>$metasourceTask->getPpTask()->statusMessage,'state'=>$metasourceTask->state]);

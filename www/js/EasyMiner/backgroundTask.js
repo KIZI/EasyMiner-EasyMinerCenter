@@ -9,6 +9,9 @@ var BackgroundTask = function(params){
   var url=params.url;
   var sleepInterval = params.sleep ? params.sleep : 500;
   var messageTarget = params.messageTarget;
+  var returnPostMessage= params.returnPostMessage ? params.returnPostMessage : false;
+  var type=params.type ? params.type : false;
+  var attributes= params.attributes ? params.attributes : null;
 
   var sendTaskRequest = function(){
     jQuery.getJSON(
@@ -16,8 +19,19 @@ var BackgroundTask = function(params){
       function(data){
         if (data!=undefined){
           $(messageTarget).html(data.message);
+          if (returnPostMessage){
+            window.parent.postMessage({
+              type: type,
+              message: data.message,
+              state: data.state,
+              attributes: attributes
+            })
+          }
+
           if (data.redirect!=undefined && data.redirect!=''){
-            location.href=data.redirect;
+            if (!returnPostMessage){
+              location.href=data.redirect;
+            }
             return;
           }
         }
@@ -27,7 +41,17 @@ var BackgroundTask = function(params){
       }
     )
       .fail(function(data){
-        $(messageTarget).html('<div class="error">ERROR occured during preprocessing task.</div><div style="text-align:center;"><a href="#" onclick="parent.reload();" class="button" >OK</a></div>');
+        $(messageTarget).html('<div class="error">ERROR occured during preprocessing task.</div>');
+        if (returnPostMessage){
+          window.parent.postMessage({
+            type: type,
+            message: data.message,
+            state: data.state,
+            attributes: attributes
+          })
+        }else{
+          $(messageTarget).append('<div style="text-align:center;"><a href="#" onclick="parent.reload();" class="button" >OK</a></div>');
+        }
       });
   };
 

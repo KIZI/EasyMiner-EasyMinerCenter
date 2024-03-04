@@ -3,6 +3,7 @@
  * @author Stanislav Vojíř
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  *}
+{default $returnPostMessage=false}
 {block title}{_'Preprocessing in progress'}{/block}
 
 {block scripts}
@@ -12,11 +13,15 @@
     $(document).ready(function(){
       var backgroundTask = new BackgroundTask({
         url:{link preprocessingTaskRun id=>$metasourceTask->metasourceTaskId},
-        messageTarget:'#backgroundTaskBlock .message'
+        messageTarget:'#backgroundTaskBlock .message',
+        returnPostMessage: {$returnPostMessage},
+        type: {$metasourceTask->type},
+        attributes: {$metasourceTaskAttributes}
       });
       backgroundTask.run();
-
-      parent.removeOverlayClose();//zabránění zavření okna pomocí javascriptu
+      {if !$returnPostMessage}
+        parent.removeOverlayClose();//zabránění zavření okna pomocí javascriptu
+      {/if}
     });
   </script>
 {/block}
