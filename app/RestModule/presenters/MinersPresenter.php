@@ -10,6 +10,7 @@ use EasyMinerCenter\Model\EasyMiner\Facades\DatasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetaAttributesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\MetasourcesFacade;
 use EasyMinerCenter\Model\EasyMiner\Facades\RuleSetsFacade;
+use EasyMinerCenter\Model\EasyMiner\Facades\TasksFacade;
 use Nette\Application\BadRequestException;
 
 /**
@@ -29,6 +30,8 @@ class MinersPresenter extends BaseResourcePresenter{
   private $metaAttributesFacade;
   /** @var  MetasourcesFacade $metasourcesFacade */
   private $metasourcesFacade;
+  /** @var TasksFacade $tasksFacade */
+  private $tasksFacade;
 
   /** @var null|Datasource $datasource */
   private $datasource=null;
@@ -109,8 +112,11 @@ class MinersPresenter extends BaseResourcePresenter{
   /**
    * Action for reading a list of all task associated with one selected miner
    * @param $id
+   * @param null $orderby
+   * @param int|null $offset
+   * @param int|null $limit
    * @throws BadRequestException
-   *
+   * @throws \Nette\Application\AbortException
    * @SWG\Get(
    *   tags={"Miners"},
    *   path="/miners/{id}/tasks",
@@ -123,6 +129,38 @@ class MinersPresenter extends BaseResourcePresenter{
    *     required=true,
    *     type="integer",
    *     in="path"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="orderby",
+   *     description="Order tasks by",
+   *     required=false,
+   *     type="string",
+   *     enum={"task_id","name","last_modified"},
+   *     default="task_id",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="order",
+   *     description="Order tasks collation",
+   *     required=false,
+   *     type="string",
+   *     enum={"ASC","DESC"},
+   *     default="ASC",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="offset",
+   *     description="Paginator offset",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="limit",
+   *     description="Limit tasks count",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
    *   ),
    *   @SWG\Response(
    *     response=200,
@@ -139,7 +177,7 @@ class MinersPresenter extends BaseResourcePresenter{
    *   @SWG\Response(response=404, description="Requested miner was not found.")
    * )
    */
-  public function actionReadTasks($id) {
+  public function actionReadTasks($id, $orderby=null, $order="ASC", $offset=null, $limit=null) {
     $this->setXmlMapperElements('miner');
     if (empty($id)){$this->forward('list');return;}
     $miner=$this->findMinerWithCheckAccess($id);
@@ -148,18 +186,30 @@ class MinersPresenter extends BaseResourcePresenter{
       'miner'=>[
         'id'=>$miner->minerId,
         'name'=>$miner->name,
-        'type'=>$miner->type
+        'type'=>$miner->type,
+        'tasksCount'=>$this->tasksFacade->findTasksByMinerCount($miner)
       ],
       'task'=>[]
     ];
-    $tasks=$miner->tasks;
+
+    if (!empty($orderby)){
+      $orderby=((in_array($orderby,['task_id','name','last_modified']))?$orderby:'task_id');
+      if (strtoupper($order)=='DESC'){
+        $orderby.=' DESC';
+      }
+    }
+
+    $tasks=$this->tasksFacade->findTasksByMiner($miner, $orderby, $offset>0?$offset:null, $limit>0?$limit:null);
     if (!empty($tasks)){
       foreach ($tasks as $task){
         $result['task'][]=[
           'id'=>$task->taskId,
           'name'=>$task->name,
           'state'=>$task->state,
-          'rulesCount'=>$task->rulesCount
+          'rulesCount'=>$task->rulesCount,
+          'interestMeasure'=>array_values($task->getInterestMeasures(true)),
+          'created'=>!empty($task->created)?$task->created->format('Y-m-d H:i:s'):'',
+          'lastModified'=>$task->lastModified->format('Y-m-d H:i:s')
         ];
       }
     }
@@ -387,6 +437,12 @@ class MinersPresenter extends BaseResourcePresenter{
   public function injectMetasourcesFacade(MetasourcesFacade $metasourcesFacade){
     $this->metasourcesFacade=$metasourcesFacade;
   }
+  /**
+   * @param TasksFacade $tasksFacade
+   */
+  public function injectTasksFacade(TasksFacade $tasksFacade){
+    $this->tasksFacade=$tasksFacade;
+  }
   #endregion injections
 }
 
@@ -428,7 +484,10 @@ class MinersPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
  *   @SWG\Property(property="name",type="string",description="Human-readable name of the task"),
  *   @SWG\Property(property="state",type="string",description="State of the task"),
- *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules")
+ *   @SWG\Property(property="rulesCount",type="integer",description="Count of founded rules"),
+ *   @SWG\Property(property="interestMeasure",type="array",@SWG\Items(ref="#/definitions/InterestMeasureResponse")),
+ *   @SWG\Property(property="created",type="string",description="DateTime"),
+ *   @SWG\Property(property="lastModified",type="string",description="DateTime")
  * )
  * @SWG\Definition(
  *   definition="OutliersTaskResponse",
@@ -437,5 +496,12 @@ class MinersPresenter extends BaseResourcePresenter{
  *   @SWG\Property(property="id",type="integer",description="Unique ID of the task"),
  *   @SWG\Property(property="minSupport",type="number",default=0,description="Minimal support used for detection of outliers"),
  *   @SWG\Property(property="state",type="string",description="State of the task")
+ * )
+ * @SWG\Definition(
+ *   definition="InterestMeasureResponse",
+ *   title="InterestMeasureConfigInfo",
+ *   required={"name"},
+ *   @SWG\Property(property="name",type="string",description="Name of the interest measure"),
+ *   @SWG\Property(property="threshold",type="number",description="Required threshold value")
  * )
  */

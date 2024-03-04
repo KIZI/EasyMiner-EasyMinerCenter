@@ -23,6 +23,8 @@ use Nette\Utils\Json;
  * @property string $importJson = ''
  * @property-read TaskState $taskState
  * @property-read Rule[] $rules m:belongsToMany
+ * @property \DateTime|null $created = null
+ * @property \DateTime $lastModified
  */
 class Task extends Entity{
   const STATE_NEW='new';
@@ -134,15 +136,19 @@ class Task extends Entity{
    * Method returning a list of interest measures used in this Task
    * @return string[]
    */
-  public function getInterestMeasures(){
+  public function getInterestMeasures($includeSpecialIMs=false){
     $result=array();
     try{
       $taskSettings=Json::decode($this->taskSettingsJson,Json::FORCE_ARRAY);
-      $IMs=$taskSettings['rule0']['IMs'];
     }catch (\Exception $e){}
-    if (!empty($IMs)){
-      foreach ($IMs as $IM){
-        $result[]=$IM['name'];
+    if (!empty($taskSettings['rule0']['IMs'])){
+      foreach ($taskSettings['rule0']['IMs'] as $IM){
+        $result[$IM['name']]=['name'=>$IM['name'],'threshold'=>isset($IM['threshold'])?$IM['threshold']:null];
+      }
+    }
+    if (!empty($taskSettings['rule0']['specialIMs'])){
+      foreach ($taskSettings['rule0']['specialIMs'] as $IM){
+        $result[$IM['name']]=['name'=>$IM['name']];
       }
     }
     return $result;
@@ -153,7 +159,7 @@ class Task extends Entity{
    */
   public function setRulesOrder($rulesOrder){
     $rulesOrder=strtolower($rulesOrder);
-    $IMsArr=$this->getInterestMeasures();
+    $IMsArr=array_keys($this->getInterestMeasures());
     $supportedIM=false;
     foreach($IMsArr as $im){
       if (strtolower($im)==$rulesOrder){

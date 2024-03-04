@@ -90,7 +90,7 @@ class RuleClipboardPresenter  extends BasePresenter{
         $rulesArr[$rule->ruleId]=array('id'=>$rule->ruleId,'text'=>$rule->text,'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
       }
     }
-    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>$task->getInterestMeasures(),'rulesOrder'=>strtoupper($task->rulesOrder),'state'=>$task->state,'importState'=>$task->importState),'rules'=>$rulesArr));
+    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>array_keys($task->getInterestMeasures()),'rulesOrder'=>strtoupper($task->rulesOrder),'state'=>$task->state,'importState'=>$task->importState),'rules'=>$rulesArr));
   }
 
   /**

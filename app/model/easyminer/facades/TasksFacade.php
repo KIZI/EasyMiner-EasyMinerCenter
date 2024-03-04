@@ -39,10 +39,36 @@ class TasksFacade {
   }
 
   /**
+   * @param Miner|int $miner
+   * @return int
+   */
+  public function findTasksByMinerCount($miner){
+    return $this->tasksRepository->findCountBy(['miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner)]);
+  }
+
+  /**
+   * @param Miner|int $miner
+   * @param string|null $order
+   * @param int|null $offset=null
+   * @param int|null $limit=null
+   * @return Task[]
+   */
+  public function findTasksByMiner($miner, $order=null, $offset=null, $limit=null){
+    $paramsArr=['miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner)];
+    if (!empty($order)){
+      $paramsArr['order']=$order;
+    }
+    return $this->tasksRepository->findAllBy($paramsArr,$offset,$limit);
+  }
+
+  /**
    * @param Task $task
    * @return mixed
    */
   public function saveTask(Task &$task){
+    if (empty($task->created)){
+      $task->created=new \DateTime();
+    }
     return $this->tasksRepository->persist($task);
   }
 
