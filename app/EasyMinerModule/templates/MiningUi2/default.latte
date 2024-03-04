@@ -17,8 +17,12 @@
   {foreach $javascriptFiles as $file}
     {if $file=='config'}
       <script type="text/javascript" src={link config} ></script>
+    {elseif (is_array($file))}
+      {if !empty($file['src'])}
+        <script {if (!empty($file['type']))}type="{$file['type']}"{/if} src="{$basePath}/_miningUI2/{$file['src']}" ></script>
+      {/if}
     {else}
-      <script type="text/javascript" src="{$basePath}/_miningUI2/{$file}" ></script>
+      <script src="{$basePath}/_miningUI2/{$file}" ></script>
     {/if}
   {/foreach}
 {/block}
