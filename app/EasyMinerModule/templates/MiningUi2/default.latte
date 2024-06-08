@@ -26,7 +26,17 @@
 
 {block head}
   {foreach $cssFiles as $file}
-    <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_miningUI2/{$file}" />
+    {if is_array($file)}
+      {if !empty($file['href'])}
+        <link rel="stylesheet"
+          {if !empty($file['media'])}media="{$file['media']}" {/if}
+          {if !empty($file['type'])}type="{$file['type']}" {else}type="text/css" {/if}
+          href="{$basePath}/miningUI2/{$file['href']}"
+        />
+      {/if}
+    {else}
+      <link rel="stylesheet" media="screen,projection,tv" type="text/css" href="{$basePath}/_miningUI2/{$file}" />
+    {/if}
   {/foreach}
   <meta http-equiv="Cache-Control" content="no-cache" />
 {/block}
