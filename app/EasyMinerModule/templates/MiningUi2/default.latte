@@ -28,7 +28,8 @@
   {foreach $cssFiles as $file}
     {if is_array($file)}
       {if !empty($file['href'])}
-        <link rel="stylesheet"
+        <link
+          {if !empty($file['rel'])}rel="{$file['rel']}" {else}rel="stylesheet" {/if}
           {if !empty($file['media'])}media="{$file['media']}" {/if}
           {if !empty($file['type'])}type="{$file['type']}" {else}type="text/css" {/if}
           href="{$basePath}/miningUI2/{$file['href']}"
