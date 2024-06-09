@@ -530,9 +530,9 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function actionReadRules($id){
     $task=$this->findTaskWithCheckAccess($id);
-    if ($task->state!=Task::STATE_SOLVED){
+    /*if ($task->state!=Task::STATE_SOLVED){
       throw new InvalidStateException("Task has not been solved!");
-    }
+    }*/
     $result=[
       'task'=>$task->getDataArr(),
       'rules'=>[]
