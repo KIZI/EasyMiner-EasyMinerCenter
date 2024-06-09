@@ -40,23 +40,40 @@ class TasksFacade {
 
   /**
    * @param Miner|int $miner
+   * @param string|string[]|null $state=null
    * @return int
    */
-  public function findTasksByMinerCount($miner){
-    return $this->tasksRepository->findCountBy(['miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner)]);
+  public function findTasksByMinerCount($miner,$state=null){
+    $paramsArr=['miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner)];
+    if(!empty($state)){
+      if (is_array($state)){
+        $paramsArr[]=['state IN (?)',$state];
+      }else{
+        $paramsArr['state']=$state;
+      }
+    }
+    return $this->tasksRepository->findCountBy($paramsArr);
   }
 
   /**
    * @param Miner|int $miner
-   * @param string|null $order
+   * @param string|string[]|null $state=null
+   * @param string|null $order=null
    * @param int|null $offset=null
    * @param int|null $limit=null
    * @return Task[]
    */
-  public function findTasksByMiner($miner, $order=null, $offset=null, $limit=null){
+  public function findTasksByMiner($miner, $state=null, $order=null, $offset=null, $limit=null){
     $paramsArr=['miner_id'=>(($miner instanceof Miner)?$miner->minerId:$miner)];
     if (!empty($order)){
       $paramsArr['order']=$order;
+    }
+    if(!empty($state)){
+      if (is_array($state)){
+        $paramsArr[]=['state IN (?)',$state];
+      }else{
+        $paramsArr['state']=$state;
+      }
     }
     return $this->tasksRepository->findAllBy($paramsArr,$offset,$limit);
   }

@@ -115,6 +115,7 @@ class MinersPresenter extends BaseResourcePresenter{
    * @param null $orderby
    * @param int|null $offset
    * @param int|null $limit
+   * @param string|null $state
    * @throws BadRequestException
    * @throws \Nette\Application\AbortException
    * @SWG\Get(
@@ -129,6 +130,14 @@ class MinersPresenter extends BaseResourcePresenter{
    *     required=true,
    *     type="integer",
    *     in="path"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="state",
+   *     description="Filter tasks by state. Available values: new, in_progress, solved, failed, interrupted, solved_heads. It is possible to input more values separated by commas.",
+   *     required=false,
+   *     type="string",
+   *     default="",
+   *     in="query"
    *   ),
    *   @SWG\Parameter(
    *     name="orderby",
@@ -167,6 +176,7 @@ class MinersPresenter extends BaseResourcePresenter{
    *     description="List of tasks",
    *     @SWG\Schema(
    *       @SWG\Property(property="miner",ref="#/definitions/MinerBasicResponse"),
+   *       @SWG\Property(property="tasksCount", type="integer"),
    *       @SWG\Property(
    *         property="task",
    *         type="array",
@@ -177,40 +187,48 @@ class MinersPresenter extends BaseResourcePresenter{
    *   @SWG\Response(response=404, description="Requested miner was not found.")
    * )
    */
-  public function actionReadTasks($id, $orderby=null, $order="ASC", $offset=null, $limit=null) {
+  public function actionReadTasks($id, $orderby=null, $order="ASC", $offset=null, $limit=null, $state=null) {
     $this->setXmlMapperElements('miner');
     if (empty($id)){$this->forward('list');return;}
     $miner=$this->findMinerWithCheckAccess($id);
+
+    if (!empty($state)){
+      if (strpos($state,',')){
+        $state=explode(',',trim($state,','));
+      }
+    }
 
     $result=[
       'miner'=>[
         'id'=>$miner->minerId,
         'name'=>$miner->name,
-        'type'=>$miner->type,
-        'tasksCount'=>$this->tasksFacade->findTasksByMinerCount($miner)
+        'type'=>$miner->type
       ],
+      'tasksCount'=>$this->tasksFacade->findTasksByMinerCount($miner, $state),
       'task'=>[]
     ];
 
-    if (!empty($orderby)){
-      $orderby=((in_array($orderby,['task_id','name','last_modified']))?$orderby:'task_id');
-      if (strtoupper($order)=='DESC'){
-        $orderby.=' DESC';
+    if ($result['tasksCount']>0){
+      if (!empty($orderby)){
+        $orderby=((in_array($orderby,['task_id','name','last_modified']))?$orderby:'task_id');
+        if (strtoupper($order)=='DESC'){
+          $orderby.=' DESC';
+        }
       }
-    }
 
-    $tasks=$this->tasksFacade->findTasksByMiner($miner, $orderby, $offset>0?$offset:null, $limit>0?$limit:null);
-    if (!empty($tasks)){
-      foreach ($tasks as $task){
-        $result['task'][]=[
-          'id'=>$task->taskId,
-          'name'=>$task->name,
-          'state'=>$task->state,
-          'rulesCount'=>$task->rulesCount,
-          'interestMeasure'=>array_values($task->getInterestMeasures(true)),
-          'created'=>!empty($task->created)?$task->created->format('Y-m-d H:i:s'):'',
-          'lastModified'=>$task->lastModified->format('Y-m-d H:i:s')
-        ];
+      $tasks=$this->tasksFacade->findTasksByMiner($miner, $state, $orderby, $offset>0?$offset:null, $limit>0?$limit:null);
+      if (!empty($tasks)){
+        foreach ($tasks as $task){
+          $result['task'][]=[
+            'id'=>$task->taskId,
+            'name'=>$task->name,
+            'state'=>$task->state,
+            'rulesCount'=>$task->rulesCount,
+            'interestMeasure'=>array_values($task->getInterestMeasures(true)),
+            'created'=>!empty($task->created)?$task->created->format('Y-m-d H:i:s'):'',
+            'lastModified'=>$task->lastModified->format('Y-m-d H:i:s')
+          ];
+        }
       }
     }
     $this->resource=$result;
