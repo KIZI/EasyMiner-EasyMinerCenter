@@ -112,7 +112,7 @@ class MinersPresenter extends BaseResourcePresenter{
   /**
    * Action for reading a list of all task associated with one selected miner
    * @param $id
-   * @param null $orderby
+   * @param string|null $orderby
    * @param int|null $offset
    * @param int|null $limit
    * @param string|null $state
