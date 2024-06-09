@@ -155,7 +155,7 @@ class TasksFacade {
    * @param Task $task
    */
   public function checkTaskInRuleClipoard(Task &$task){
-    $rulesCount=$this->rulesFacade->getRulesCountByTask($task,true);
+    $rulesCount=$this->rulesFacade->findRulesByTaskCount($task,null,true);
     if ($rulesCount!=$task->rulesInRuleClipboardCount){
       $task->rulesInRuleClipboardCount=$rulesCount;
       $this->saveTask($task);

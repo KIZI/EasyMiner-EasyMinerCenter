@@ -8,8 +8,8 @@ use Drahak\Restful\Resource\Link;
 use Drahak\Restful\Validation\IValidator;
 use EasyMinerCenter\Libs\RequestHelper;
 use EasyMinerCenter\Model\EasyMiner\Entities\Metasource;
-use EasyMinerCenter\Model\EasyMiner\Entities\Rule;
 use EasyMinerCenter\Model\EasyMiner\Entities\Task;
+use EasyMinerCenter\Model\EasyMiner\Facades\RulesFacade;
 use EasyMinerCenter\Model\EasyMiner\Serializers\Pmml42Serializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\PmmlSerializer;
 use EasyMinerCenter\Model\EasyMiner\Serializers\XmlSerializersFactory;
@@ -29,6 +29,8 @@ class TasksPresenter extends BaseResourcePresenter {
   const MINING_STATE_CHECK_INTERVAL=1;
   /** @const MINING_TIMEOUT_INTERVAL - length of max task solving duration (in seconds) */
   const MINING_TIMEOUT_INTERVAL=600;
+  /** @var RulesFacade $rulesFacade */
+  private $rulesFacade;
 
   /** @var  XmlSerializersFactory $xmlSerializersFactory */
   private $xmlSerializersFactory;
@@ -499,6 +501,16 @@ class TasksPresenter extends BaseResourcePresenter {
   /**
    * Action for reading of rules from a selected task
    * @param int $id
+   * @param string|null $orderby
+   * @param int|null $offset
+   * @param int|null $limit
+   * @param string|null $search
+   * @param int|null $minConf=null
+   * @param int|null $maxConf=null
+   * @param int|null $minSupp=null
+   * @param int|null $maxSupp=null
+   * @param int|null $minLift=null
+   * @param int|null $maxLift=null
    * @SWG\Get(
    *   tags={"Tasks"},
    *   path="/tasks/{id}/rules",
@@ -512,11 +524,93 @@ class TasksPresenter extends BaseResourcePresenter {
    *     type="integer",
    *     in="path"
    *   ),
+   *   @SWG\Parameter(
+   *     name="orderby",
+   *     description="Order rules by",
+   *     required=false,
+   *     type="string",
+   *     enum={"default","conf","supp","lift"},
+   *     default="default",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="order",
+   *     description="Order rules collation",
+   *     required=false,
+   *     type="string",
+   *     enum={"ASC","DESC"},
+   *     default="ASC",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="offset",
+   *     description="Paginator offset",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="limit",
+   *     description="Limit rules count",
+   *     required=false,
+   *     type="integer",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="search",
+   *     description="Search in rule text",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="minConf",
+   *     description="Filter rules by minimal value of confidence",
+   *     required=false,
+   *     type="number",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="maxConf",
+   *     description="Filter rules by maximal value of confidence",
+   *     required=false,
+   *     type="number",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="minSupp",
+   *     description="Filter rules by minimal value of support",
+   *     required=false,
+   *     type="number",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="maxSupp",
+   *     description="Filter rules by maximal value of support",
+   *     required=false,
+   *     type="number",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="minLift",
+   *     description="Filter rules by minimal value of lift",
+   *     required=false,
+   *     type="number",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="maxLift",
+   *     description="Filter rules by maximal value of lift",
+   *     required=false,
+   *     type="number",
+   *     in="query"
+   *   ),
    *   @SWG\Response(
    *     response=200,
    *     description="List of rules",
    *     @SWG\Schema(
    *       @SWG\Property(property="task",ref="#/definitions/TaskSimpleResponse"),
+   *       @SWG\Property(property="rulesCount",type="integer",description="Count of rules (corresponding to active search)"),
    *       @SWG\Property(
    *         property="rules",
    *         type="array",
@@ -528,24 +622,54 @@ class TasksPresenter extends BaseResourcePresenter {
    *   @SWG\Response(response=500, description="Task has not been solved.")
    * )
    */
-  public function actionReadRules($id){
+  public function actionReadRules($id, $orderby=null, $order="ASC", $offset=null, $limit=null, $search=null, $minConf=null, $maxConf=null, $minSupp=null, $maxSupp=null, $minLift=null, $maxLift=null){
     $task=$this->findTaskWithCheckAccess($id);
-    /*if ($task->state!=Task::STATE_SOLVED){
-      throw new InvalidStateException("Task has not been solved!");
-    }*/
+    $filterIMs=[];
+    if ($minConf!=null){
+      $filterIMs['minConf']=(float)$minConf;
+    }
+    if ($maxConf!=null){
+      $filterIMs['maxConf']=(float)$maxConf;
+    }
+    if ($minSupp!=null){
+      $filterIMs['minSupp']=(float)$minSupp;
+    }
+    if ($maxSupp!=null){
+      $filterIMs['maxSupp']=(float)$maxSupp;
+    }
+    if ($minLift!=null){
+      $filterIMs['minLift']=(float)$minLift;
+    }
+    if ($maxLift!=null){
+      $filterIMs['maxLift']=(float)$maxLift;
+    }
+
+
     $result=[
       'task'=>$task->getDataArr(),
+      'rulesCount'=>$this->rulesFacade->findRulesByTaskCount($task,$search,false,$filterIMs),
       'rules'=>[]
     ];
-    if ($task->rulesCount>0){
-      /** @var Rule[] $rules */
-      $rules=$task->rules;
+
+    if ($result['rulesCount']>0){
+      if (!empty($orderby)){
+        $orderby=((in_array($orderby,['default','conf','supp','lift']))?$orderby:'default');
+        if (strtoupper($order)=='DESC'){
+          $orderby.=' DESC';
+        }else{
+          $orderby.=' ASC';
+        }
+      }
+
+
+      $rules=$this->rulesFacade->findRulesByTask($task,$search,$orderby, $offset>0?$offset:null, $limit>0?$limit:null, false, $filterIMs);
       if (!empty($rules)){
-        foreach($rules as $rule){
+        foreach ($rules as $rule){
           $result['rules'][]=$rule->getBasicDataArr();
         }
       }
     }
+
     $this->resource=$result;
     $this->sendResource();
   }
@@ -634,6 +758,13 @@ class TasksPresenter extends BaseResourcePresenter {
    */
   public function injectXmlSerializersFactory(XmlSerializersFactory $xmlSerializersFactory) {
     $this->xmlSerializersFactory=$xmlSerializersFactory;
+  }
+
+  /**
+   * @param RulesFacade $rulesFacade
+   */
+  public function injectRulesFacade(RulesFacade $rulesFacade){
+    $this->rulesFacade=$rulesFacade;
   }
   /**
    * @param XmlTransformator $xmlTransformator

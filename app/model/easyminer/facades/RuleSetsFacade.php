@@ -131,7 +131,7 @@ class RuleSetsFacade {
     if (!($ruleSet instanceof RuleSet)){
       $ruleSet=$this->findRuleSet($ruleSet);
     }
-    $rules=$this->rulesFacade->findRulesByTask($task,null,null,null,true);
+    $rules=$this->rulesFacade->findRulesByTask($task,null,null,null,null,true);
     if (!empty($rules)){
       foreach($rules as $rule){
         $this->addRuleToRuleSet($rule,$ruleSet,$relation);
@@ -149,7 +149,7 @@ class RuleSetsFacade {
     if (!($ruleSet instanceof RuleSet)){
       $ruleSet=$this->findRuleSet($ruleSet);
     }
-    $rules=$this->rulesFacade->findRulesByTask($task,null,null,null,true);
+    $rules=$this->rulesFacade->findRulesByTask($task,null,null,null,null,true);
     if (!empty($rules)){
       foreach($rules as $rule){
         $this->removeRuleFromRuleSet($rule,$ruleSet);

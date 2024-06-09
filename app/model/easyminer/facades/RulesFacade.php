@@ -74,14 +74,19 @@ class RulesFacade {
    */
   private function getRulesOrderFormula($order){
     $formulasArr=[
-      'default'=>'rule_id',
+      'default'=>'rule_id ASC',
+      'default ASC'=>'rule_id ASC',
+      'default DESC'=>'rule_id DESC',
       'fui'=>'confidence DESC',
       'conf'=>'confidence DESC',
+      'conf ASC'=>'confidence ASC',
       'confidence'=>'confidence DESC',
       'supp'=>'support DESC',
+      'supp ASC'=>'support ASC',
       'support'=>'support DESC',
       'add'=>'lift DESC',
       'lift'=>'lift DESC',
+      'lift ASC'=>'lift ASC',
       'a'=>'a DESC',
       'b'=>'b DESC',
       'c'=>'c DESC',
@@ -102,9 +107,10 @@ class RulesFacade {
    * @param int $offset = null
    * @param int $limit = null
    * @param bool $onlyInClipboard = false
+   * @param array $filterIMs = []
    * @return Rule[]
    */
-  public function findRulesByTask($task,$order=null,$offset=null,$limit=null,$onlyInClipboard=false){
+  public function findRulesByTask($task,$search=null,$order=null,$offset=null,$limit=null,$onlyInClipboard=false,array $filterIMs=[]){
     if ($task instanceof Task){
       $task=$task->taskId;
     }
@@ -112,25 +118,76 @@ class RulesFacade {
     if (empty($order)&&(!empty($task->rulesOrder))){
       $order=$task->rulesOrder;
     }
+    if (!empty($search)){
+      $params[]=['text LIKE ?','%'.$search.'%'];
+    }
     if (!empty($order)){
       $params['order']=$this->getRulesOrderFormula($order);
     }
     if ($onlyInClipboard){
       $params['in_rule_clipboard']=true;
     }
+    if (!empty($filterIMs)){
+      if (isset($filterIMs['minConf'])){
+        $params[]=['confidence >= ?',$filterIMs['minConf']];
+      }
+      if (isset($filterIMs['maxConf'])){
+        $params[]=['confidence <= ?',$filterIMs['maxConf']];
+      }
+      if (isset($filterIMs['minSupp'])){
+        $params[]=['support >= ?',$filterIMs['minSupp']];
+      }
+      if (isset($filterIMs['maxSupp'])){
+        $params[]=['support <= ?',$filterIMs['maxSupp']];
+      }
+      if (isset($filterIMs['minLift'])){
+        $params[]=['lift >= ?',$filterIMs['minLift']];
+      }
+      if (isset($filterIMs['maxLift'])){
+        $params[]=['lift <= ?',$filterIMs['maxLift']];
+      }
+    }
+
     return $this->rulesRepository->findAllBy($params,$offset,$limit);
   }
 
   /**
    * @param Task|int $task
+   * @param string|null $search
    * @param bool $onlyInClipboard = false
+   * @param array $filterIMs = []
    * @return Rule[]
    */
-  public function getRulesCountByTask($task,$onlyInClipboard=false){
+  public function findRulesByTaskCount($task, $search=null, $onlyInClipboard=false,array $filterIMs=[]){
     if ($task instanceof Task){
       $task=$task->taskId;
     }
-    $params=array('task_id'=>$task);
+    $params= ['task_id'=>$task];
+
+    if (!empty($search)){
+      $params[]=['text LIKE ?','%'.$search.'%'];
+    }
+    if (!empty($filterIMs)){
+      if (isset($filterIMs['minConf'])){
+        $params[]=['confidence >= ?',$filterIMs['minConf']];
+      }
+      if (isset($filterIMs['maxConf'])){
+        $params[]=['confidence <= ?',$filterIMs['maxConf']];
+      }
+      if (isset($filterIMs['minSupp'])){
+        $params[]=['support >= ?',$filterIMs['minSupp']];
+      }
+      if (isset($filterIMs['maxSupp'])){
+        $params[]=['support <= ?',$filterIMs['maxSupp']];
+      }
+      if (isset($filterIMs['minLift'])){
+        $params[]=['lift >= ?',$filterIMs['minLift']];
+      }
+      if (isset($filterIMs['maxLift'])){
+        $params[]=['lift <= ?',$filterIMs['maxLift']];
+      }
+    }
+
     if ($onlyInClipboard){
       $params['in_rule_clipboard']=true;
     }

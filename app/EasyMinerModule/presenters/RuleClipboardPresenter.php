@@ -83,14 +83,14 @@ class RuleClipboardPresenter  extends BasePresenter{
       }
     }
 
-    $rules=$this->rulesFacade->findRulesByTask($task,$order,$offset,$limit,true);
+    $rules=$this->rulesFacade->findRulesByTask($task,null,$order,$offset,$limit,true);
     $rulesArr=array();
     if (!empty($rules)){
       foreach ($rules as $rule){
         $rulesArr[$rule->ruleId]=array('id'=>$rule->ruleId,'text'=>$rule->text,'a'=>$rule->a,'b'=>$rule->b,'c'=>$rule->c,'d'=>$rule->d,'selected'=>($rule->inRuleClipboard?'1':'0'));
       }
     }
-    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->getRulesCountByTask($task,true),'IMs'=>array_keys($task->getInterestMeasures()),'rulesOrder'=>strtoupper($task->rulesOrder),'state'=>$task->state,'importState'=>$task->importState),'rules'=>$rulesArr));
+    $this->sendJsonResponse(array('task'=>array('rulesCount'=>$this->rulesFacade->findRulesByTaskCount($task,true), 'IMs'=>array_keys($task->getInterestMeasures()), 'rulesOrder'=>strtoupper($task->rulesOrder), 'state'=>$task->state, 'importState'=>$task->importState), 'rules'=>$rulesArr));
   }
 
   /**

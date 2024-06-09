@@ -158,7 +158,7 @@ class TasksPresenter  extends BasePresenter{
     $miner=$task->miner;
     $this->checkMinerAccess($miner);
 
-    $rules=$this->rulesFacade->findRulesByTask($task,$order,$offset,$limit);
+    $rules=$this->rulesFacade->findRulesByTask($task,null,$order,$offset,$limit);
 
     $rulesArr=array();
     if (!empty($rules)){
