@@ -118,34 +118,14 @@ class RulesFacade {
     if (empty($order)&&(!empty($task->rulesOrder))){
       $order=$task->rulesOrder;
     }
-    if (!empty($search)){
-      $params[]=['text LIKE ?','%'.$search.'%'];
-    }
+
+    $this->prepareFindRulesParams($params, $search, $filterIMs);
+
     if (!empty($order)){
       $params['order']=$this->getRulesOrderFormula($order);
     }
     if ($onlyInClipboard){
       $params['in_rule_clipboard']=true;
-    }
-    if (!empty($filterIMs)){
-      if (isset($filterIMs['minConf'])){
-        $params[]=['confidence >= ?',$filterIMs['minConf']];
-      }
-      if (isset($filterIMs['maxConf'])){
-        $params[]=['confidence <= ?',$filterIMs['maxConf']];
-      }
-      if (isset($filterIMs['minSupp'])){
-        $params[]=['support >= ?',$filterIMs['minSupp']];
-      }
-      if (isset($filterIMs['maxSupp'])){
-        $params[]=['support <= ?',$filterIMs['maxSupp']];
-      }
-      if (isset($filterIMs['minLift'])){
-        $params[]=['lift >= ?',$filterIMs['minLift']];
-      }
-      if (isset($filterIMs['maxLift'])){
-        $params[]=['lift <= ?',$filterIMs['maxLift']];
-      }
     }
 
     return $this->rulesRepository->findAllBy($params,$offset,$limit);
@@ -153,7 +133,7 @@ class RulesFacade {
 
   /**
    * @param Task|int $task
-   * @param string|null $search
+   * @param string|array|null $search
    * @param bool $onlyInClipboard = false
    * @param array $filterIMs = []
    * @return Rule[]
@@ -164,8 +144,29 @@ class RulesFacade {
     }
     $params= ['task_id'=>$task];
 
+    $this->prepareFindRulesParams($params, $search, $filterIMs);
+
+    if ($onlyInClipboard){
+      $params['in_rule_clipboard']=true;
+    }
+    return $this->rulesRepository->findCountBy($params);
+  }
+
+  private function prepareFindRulesParams(array &$params, $search,array $filterIMs){
     if (!empty($search)){
-      $params[]=['text LIKE ?','%'.$search.'%'];
+      if (is_array($search)){
+        if (!empty($search['antecedent']) || !empty($search['consequent'])){
+          $params[]=['text LIKE ?','%'.(!empty($search['antecedent'])?'%'.$search['antecedent'].'%→':'%→').(!empty($search['consequent'])?'%'.$search['consequent'].'%':'%').'%'];
+        }elseif(count($search)>0){
+          foreach ($search as $searchItem){
+            if (!empty($searchItem)){
+              $params[]=['text LIKE ?','%'.$searchItem.'%'];
+            }
+          }
+        }
+      }else{
+        $params[]=['text LIKE ?','%'.$search.'%'];
+      }
     }
     if (!empty($filterIMs)){
       if (isset($filterIMs['minConf'])){
@@ -187,11 +188,6 @@ class RulesFacade {
         $params[]=['lift <= ?',$filterIMs['maxLift']];
       }
     }
-
-    if ($onlyInClipboard){
-      $params['in_rule_clipboard']=true;
-    }
-    return $this->rulesRepository->findCountBy($params);
   }
 
   /**

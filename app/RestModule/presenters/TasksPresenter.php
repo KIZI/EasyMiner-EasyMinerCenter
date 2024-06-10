@@ -564,6 +564,20 @@ class TasksPresenter extends BaseResourcePresenter {
    *     in="query"
    *   ),
    *   @SWG\Parameter(
+   *     name="searchAntecedent",
+   *     description="Search in rule text",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
+   *     name="searchConsequent",
+   *     description="Search in rule text",
+   *     required=false,
+   *     type="string",
+   *     in="query"
+   *   ),
+   *   @SWG\Parameter(
    *     name="minConf",
    *     description="Filter rules by minimal value of confidence",
    *     required=false,
@@ -622,7 +636,7 @@ class TasksPresenter extends BaseResourcePresenter {
    *   @SWG\Response(response=500, description="Task has not been solved.")
    * )
    */
-  public function actionReadRules($id, $orderby=null, $order="ASC", $offset=null, $limit=null, $search=null, $minConf=null, $maxConf=null, $minSupp=null, $maxSupp=null, $minLift=null, $maxLift=null){
+  public function actionReadRules($id, $orderby=null, $order="ASC", $offset=null, $limit=null, $search=null, $searchAntecedent=null, $searchConsequent=null, $minConf=null, $maxConf=null, $minSupp=null, $maxSupp=null, $minLift=null, $maxLift=null){
     $task=$this->findTaskWithCheckAccess($id);
     $filterIMs=[];
     if ($minConf!=null){
@@ -644,10 +658,20 @@ class TasksPresenter extends BaseResourcePresenter {
       $filterIMs['maxLift']=(float)$maxLift;
     }
 
+    $searchArr=[];
+    if (!empty($search)){
+      $searchArr[]=$search;
+    }
+    if (!empty($searchAntecedent)){
+      $searchArr['antecedent']=$searchAntecedent;
+    }
+    if (!empty($searchAntecedent)){
+      $searchArr['consequent']=$searchConsequent;
+    }
 
     $result=[
       'task'=>$task->getDataArr(),
-      'rulesCount'=>$this->rulesFacade->findRulesByTaskCount($task,$search,false,$filterIMs),
+      'rulesCount'=>$this->rulesFacade->findRulesByTaskCount($task, (!empty($searchArr)?$searchArr:null), false, $filterIMs),
       'rules'=>[]
     ];
 
