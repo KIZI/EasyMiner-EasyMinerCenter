@@ -685,11 +685,12 @@ class TasksPresenter extends BaseResourcePresenter {
         }
       }
 
-
-      $rules=$this->rulesFacade->findRulesByTask($task,$search,$orderby, $offset>0?$offset:null, $limit>0?$limit:null, false, $filterIMs);
-      if (!empty($rules)){
-        foreach ($rules as $rule){
-          $result['rules'][]=$rule->getBasicDataArr();
+      if ($result['rulesCount']>0){
+        $rules=$this->rulesFacade->findRulesByTask($task, (!empty($searchArr)?$searchArr:null), $orderby, $offset>0?$offset:null, $limit>0?$limit:null, false, $filterIMs);
+        if (!empty($rules)){
+          foreach ($rules as $rule){
+            $result['rules'][]=$rule->getBasicDataArr();
+          }
         }
       }
     }

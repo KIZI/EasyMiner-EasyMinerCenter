@@ -103,7 +103,8 @@ class RulesFacade {
 
   /**
    * @param Task|int $task
-   * @param string|null $order
+   * @param string|array|null $search = null
+   * @param string|null $order = null
    * @param int $offset = null
    * @param int $limit = null
    * @param bool $onlyInClipboard = false
@@ -114,12 +115,12 @@ class RulesFacade {
     if ($task instanceof Task){
       $task=$task->taskId;
     }
-    $params=array('task_id'=>$task);
+
+    $params = $this->prepareFindRulesParams(['task_id'=>$task], $search, $filterIMs);
+
     if (empty($order)&&(!empty($task->rulesOrder))){
       $order=$task->rulesOrder;
     }
-
-    $this->prepareFindRulesParams($params, $search, $filterIMs);
 
     if (!empty($order)){
       $params['order']=$this->getRulesOrderFormula($order);
@@ -144,7 +145,7 @@ class RulesFacade {
     }
     $params= ['task_id'=>$task];
 
-    $this->prepareFindRulesParams($params, $search, $filterIMs);
+    $params = $this->prepareFindRulesParams($params, $search, $filterIMs);
 
     if ($onlyInClipboard){
       $params['in_rule_clipboard']=true;
@@ -152,11 +153,11 @@ class RulesFacade {
     return $this->rulesRepository->findCountBy($params);
   }
 
-  private function prepareFindRulesParams(array &$params, $search,array $filterIMs){
+  private function prepareFindRulesParams(array $params, $search,array $filterIMs) {
     if (!empty($search)){
       if (is_array($search)){
         if (!empty($search['antecedent']) || !empty($search['consequent'])){
-          $params[]=['text LIKE ?','%'.(!empty($search['antecedent'])?'%'.$search['antecedent'].'%→':'%→').(!empty($search['consequent'])?'%'.$search['consequent'].'%':'%').'%'];
+          $params[]=['text LIKE ?',(!empty($search['antecedent'])?'%'.$search['antecedent'].'%→':'%→').(!empty($search['consequent'])?'%'.$search['consequent'].'%':'%')];
         }elseif(count($search)>0){
           foreach ($search as $searchItem){
             if (!empty($searchItem)){
@@ -188,6 +189,7 @@ class RulesFacade {
         $params[]=['lift <= ?',$filterIMs['maxLift']];
       }
     }
+    return $params;
   }
 
   /**
