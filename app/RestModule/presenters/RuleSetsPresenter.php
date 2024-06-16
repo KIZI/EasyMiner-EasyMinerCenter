@@ -329,11 +329,65 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *     enum={"","all","positive","negative","neutral"},
      *     in="query"
      *   ),
+     *   @SWG\Parameter(
+     *     name="orderby",
+     *     description="Order rules by",
+     *     required=false,
+     *     type="string",
+     *     enum={"default","conf","supp","lift","cba"},
+     *     default="default",
+     *     in="query"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="order",
+     *     description="Order rules collation",
+     *     required=false,
+     *     type="string",
+     *     enum={"ASC","DESC"},
+     *     default="ASC",
+     *     in="query"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="offset",
+     *     description="Paginator offset",
+     *     required=false,
+     *     type="integer",
+     *     in="query"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="limit",
+     *     description="Limit rules count",
+     *     required=false,
+     *     type="integer",
+     *     in="query"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="search",
+     *     description="Search in rule text",
+     *     required=false,
+     *     type="string",
+     *     in="query"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="searchAntecedent",
+     *     description="Search in rule text",
+     *     required=false,
+     *     type="string",
+     *     in="query"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="searchConsequent",
+     *     description="Search in rule text",
+     *     required=false,
+     *     type="string",
+     *     in="query"
+     *   ),
      *   @SWG\Response(
      *     response=200,
      *     description="List of rules",
      *     @SWG\Schema(
      *       @SWG\Property(property="ruleset",ref="#/definitions/RuleSetResponse"),
+     *       @SWG\Property(property="rulesCount",type="integer",description="Count of rules (corresponding to active search)"),
      *       @SWG\Property(
      *         property="rules",
      *         type="array",
@@ -344,30 +398,49 @@ class RuleSetsPresenter extends BaseResourcePresenter{
      *   @SWG\Response(response=404, description="Requested rule set was not found.")
      * )
      */
-    public function actionReadRules($id,$rel=""){
+    public function actionReadRules($id, $rel="", $orderby=null, $order="ASC", $offset=null, $limit=null, $search=null, $searchAntecedent=null, $searchConsequent=null){
       if ($rel=="all"){$rel="";}else{$rel=Strings::lower($rel);}
       /** @var RuleSet $ruleSet */
       $ruleSet=$this->findRuleSetWithCheckAccess($id);
-      //prepare the output
-      $result=[
-        'ruleset'=>$ruleSet->getDataArr()
-      ];
-      if (!empty($rel)){
-        $ruleSetRuleRelations=$ruleSet->findRuleRelationsByType($rel);
-      }else{
-        $ruleSetRuleRelations=$ruleSet->ruleSetRuleRelations;
+
+      $searchArr=[];
+      if (!empty($search)){
+        $searchArr[]=$search;
+      }
+      if (!empty($searchAntecedent)){
+        $searchArr['antecedent']=$searchAntecedent;
+      }
+      if (!empty($searchAntecedent)){
+        $searchArr['consequent']=$searchConsequent;
       }
 
-      $rulesArr=[];
-      if (!empty($ruleSetRuleRelations)){
-        foreach($ruleSetRuleRelations as $ruleSetRuleRelation){
-          $rule=$ruleSetRuleRelation->rule;
-          $ruleDataArr=$rule->getBasicDataArr();
-          $ruleDataArr['relation']=$ruleSetRuleRelation->relation;
-          $rulesArr[]=$ruleDataArr;
+      //prepare the output
+      $result=[
+        'ruleset'=>$ruleSet->getDataArr(),
+        'rulesCount'=>$this->ruleSetsFacade->findRulesCountByRuleSet($ruleSet,(!empty($searchArr)?$searchArr:null),$rel),
+        'rules'=>[]
+      ];
+
+      if ($result['rulesCount']>0){
+        if (!empty($orderby)){
+          $orderby=((in_array($orderby,['default','conf','supp','lift']))?$orderby:'default');
+          if (strtoupper($order)=='DESC'){
+            $orderby.=' DESC';
+          }else{
+            $orderby.=' ASC';
+          }
+        }
+
+        $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,(!empty($searchArr)?$searchArr:null),$rel,$orderby,$offset>0?$offset:null, $limit>0?$limit:null);
+
+        if (!empty($rules)){
+          foreach ($rules as $rule){
+            $ruleBasicDataArr=$rule->getBasicDataArr();
+            $ruleBasicDataArr['relation']=(isset($rule->getRowData()['relation'])?$rule->getRowData()['relation']:'positive');
+            $result['rules'][]=$ruleBasicDataArr;
+          }
         }
       }
-      $result['rule']=$rulesArr;
       $this->resource=$result;
       $this->sendResource();
     }

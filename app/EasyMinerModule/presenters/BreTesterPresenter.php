@@ -469,7 +469,7 @@ class BreTesterPresenter extends BasePresenter{
       'rules'=>[]
     ];
     if ($ruleSet->rulesCount>0){
-      $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
+      $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null,null,$order,$offset,$limit);
       if (!empty($rules)){
         foreach($rules as $rule){
           $result['rules'][]=$rule->getBasicDataArr();
@@ -578,7 +578,7 @@ class BreTesterPresenter extends BasePresenter{
       throw new BadRequestException();
     }
 
-    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null);
+    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet);
     //serialize result and send it
     $result=PlainTextRuleSerializer::serialize($rules,'External user ID: '.$breTestUser->testKey,$ruleSet,'Rule Editor Experiment results',true);
     $this->sendTextResponse($result);
@@ -604,7 +604,7 @@ class BreTesterPresenter extends BasePresenter{
     }
 
     $ruleSet=$breTest->ruleSet;
-    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null);
+    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet);
     //serialize result and send it
     $result=PlainTextRuleSerializer::serialize($rules,'Experiment name: '.$breTest->name,$ruleSet,'Rule Editor Experiment - default ruleset',true);
     $this->sendTextResponse($result);

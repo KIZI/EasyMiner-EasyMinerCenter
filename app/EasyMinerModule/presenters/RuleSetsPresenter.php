@@ -68,7 +68,7 @@ class RuleSetsPresenter extends BasePresenter{
     $ruleSet=$this->ruleSetsFacade->findRuleSet($id);
     $user=$this->getCurrentUser();
     $this->ruleSetsFacade->checkRuleSetAccess($ruleSet,$user);
-    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order);
+    $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null, null, $order);
     //serialize result and send it
     $result=PlainTextRuleSerializer::serialize($rules,$user,$ruleSet);
     $this->sendTextResponse($result);
@@ -170,7 +170,7 @@ class RuleSetsPresenter extends BasePresenter{
       'rules'=>[]
     ];
     if ($ruleSet->rulesCount>0 || true){
-      $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,$order,$offset,$limit);
+      $rules=$this->ruleSetsFacade->findRulesByRuleSet($ruleSet,null, null, $order, $offset, $limit);
       if (!empty($rules)){
         foreach($rules as $rule){
           $result['rules'][]=$rule->getBasicDataArr();

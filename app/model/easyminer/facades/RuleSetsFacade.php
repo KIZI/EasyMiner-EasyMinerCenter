@@ -11,6 +11,7 @@ use EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetRuleRelationsRepository;
 use EasyMinerCenter\Model\EasyMiner\Repositories\RuleSetsRepository;
 use Nette\Application\BadRequestException;
 use Nette\InvalidArgumentException;
+use Nette\Utils\Strings;
 
 /**
  * Class RuleSetsFacade - třída pro práci s pravidly v DB
@@ -162,17 +163,101 @@ class RuleSetsFacade {
    * Method returning rules from given ruleset
    * @param RuleSet|int $ruleSet
    * @param string $order
+   * @param string|array|null $search
+   * @param string|null $rel
    * @param null|int $offset
    * @param null|int $limit
    * @return Rule[]
    */
-  public function findRulesByRuleSet($ruleSet,$order,$offset=null,$limit=null){
-    $order=strtolower($order);
-    if (!in_array($order,['confidence','support','lift','antecedent_rule_attributes','cba'])){
-      $order='confidence';
+  public function findRulesByRuleSet($ruleSet, $search=null, $rel=null, $order=null, $offset=null, $limit=null){
+    $params=$this->prepareFindRulesParams([],$search,$rel);
+
+    if (!empty($order)){
+      $params['order']=$this->getRulesOrderFormula($order);
     }
 
-    return $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet,$order,$offset,$limit);
+    return $this->ruleSetRuleRelationsRepository->findAllRulesByRuleSet($ruleSet,$params,$offset,$limit);
+  }
+
+  /**
+   * Method returning count rules from given ruleset
+   * @param RuleSet|int $ruleSet
+   * @param string|array|null $search
+   * @param string|null $rel
+   * @return int
+   */
+  public function findRulesCountByRuleSet($ruleSet, $search=null, $rel=null){
+    $params=$this->prepareFindRulesParams([],$search,$rel);
+    if (!empty($order)){
+      $params['order']=$this->getRulesOrderFormula($order);
+    }
+
+    return $this->ruleSetRuleRelationsRepository->findRulesCountByRuleSet($ruleSet,$params);
+  }
+
+  /**
+   * Metoda pro přípravu parametrů pro vyhledávání pravidel
+   * @param array $params
+   * @param string|array|null $search
+   * @param string|null $rel = null
+   * @return array
+   */
+  private function prepareFindRulesParams(array $params, $search, $rel=null){
+    if (!empty($search)){
+      if (is_array($search)){
+        if (!empty($search['antecedent']) || !empty($search['consequent'])){
+          $params[] = ['text LIKE ?', (!empty($search['antecedent']) ? '%' . $search['antecedent'] . '%→' : '%→') . (!empty($search['consequent']) ? '%' . $search['consequent'] . '%' : '%')];
+        }elseif (count($search) > 0){
+          foreach ($search as $searchItem){
+            if (!empty($searchItem)){
+              $params[] = ['text LIKE ?', '%' . $searchItem . '%'];
+            }
+          }
+        }
+      }else{
+        $params[] = ['text LIKE ?', '%' . $search . '%'];
+      }
+    }
+    if (!empty($rel)){
+      $params['relation']=$rel;
+    }
+    return $params;
+  }
+
+  /**
+   * Private method returning order formula for ordering of rules by selected interest measure
+   * @param $order
+   * @return string
+   */
+  private function getRulesOrderFormula($order){
+    $formulasArr=[
+      'default'=>'rule_id ASC',
+      'default ASC'=>'rule_id ASC',
+      'default DESC'=>'rule_id DESC',
+      'fui'=>'confidence DESC',
+      'conf'=>'confidence DESC',
+      'conf ASC'=>'confidence ASC',
+      'confidence'=>'confidence DESC',
+      'supp'=>'support DESC',
+      'supp ASC'=>'support ASC',
+      'support'=>'support DESC',
+      'add'=>'lift DESC',
+      'lift'=>'lift DESC',
+      'lift ASC'=>'lift ASC',
+      'a'=>'a DESC',
+      'b'=>'b DESC',
+      'c'=>'c DESC',
+      'd'=>'d DESC',
+      'cba'=>'cba',
+      'cba ASC'=>'cba',
+      'cba DESC'=>'cba DESC'
+    ];
+    $order=Strings::lower($order);
+    if (isset($formulasArr[$order])){
+      return $formulasArr[$order];
+    }else{
+      return 'rule_id';
+    }
   }
   
   /**
