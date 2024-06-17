@@ -188,9 +188,6 @@ class RuleSetsFacade {
    */
   public function findRulesCountByRuleSet($ruleSet, $search=null, $rel=null){
     $params=$this->prepareFindRulesParams([],$search,$rel);
-    if (!empty($order)){
-      $params['order']=$this->getRulesOrderFormula($order);
-    }
 
     return $this->ruleSetRuleRelationsRepository->findRulesCountByRuleSet($ruleSet,$params);
   }
@@ -232,25 +229,28 @@ class RuleSetsFacade {
   private function getRulesOrderFormula($order){
     $formulasArr=[
       'default'=>'rule_id ASC',
-      'default ASC'=>'rule_id ASC',
-      'default DESC'=>'rule_id DESC',
+      'default asc'=>'rule_id ASC',
+      'default desc'=>'rule_id DESC',
       'fui'=>'confidence DESC',
       'conf'=>'confidence DESC',
-      'conf ASC'=>'confidence ASC',
+      'conf desc'=>'confidence DESC',
+      'conf asc'=>'confidence ASC',
       'confidence'=>'confidence DESC',
       'supp'=>'support DESC',
-      'supp ASC'=>'support ASC',
+      'supp desc'=>'support DESC',
+      'supp asc'=>'support ASC',
       'support'=>'support DESC',
       'add'=>'lift DESC',
       'lift'=>'lift DESC',
-      'lift ASC'=>'lift ASC',
+      'lift desc'=>'lift DESC',
+      'lift asc'=>'lift ASC',
       'a'=>'a DESC',
       'b'=>'b DESC',
       'c'=>'c DESC',
       'd'=>'d DESC',
       'cba'=>'cba',
-      'cba ASC'=>'cba',
-      'cba DESC'=>'cba DESC'
+      'cba asc'=>'cba',
+      'cba desc'=>'cba DESC'
     ];
     $order=Strings::lower($order);
     if (isset($formulasArr[$order])){

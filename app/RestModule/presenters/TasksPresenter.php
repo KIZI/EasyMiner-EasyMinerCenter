@@ -665,7 +665,7 @@ class TasksPresenter extends BaseResourcePresenter {
     if (!empty($searchAntecedent)){
       $searchArr['antecedent']=$searchAntecedent;
     }
-    if (!empty($searchAntecedent)){
+    if (!empty($searchConsequent)){
       $searchArr['consequent']=$searchConsequent;
     }
 
